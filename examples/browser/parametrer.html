@@ -1,0 +1,98 @@
+<!doctype html>
+
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+
+    <title>Variantes du jeu d’échecs</title>
+    <meta name="description" content="Tableau de commandes Jocly">
+    <meta name="author" content="FH">
+
+    <link rel="stylesheet" href="css/control-styles.css">
+
+</head>
+
+<body>
+
+    <div id="container">
+        <div id="applet">
+            <div id="progress-bar"></div>
+        </div>
+		<div id="controls">
+            <div id="game-title" style="display: none;" class="box">Jocly Game</div>
+            <div id="game-status" style="display: none;" class="box">Status</div>
+	       	<div id="mode-panel" style="display: none;" class="box">
+	       		<h3>Commandes</h3>
+	       		<button id="restart">Redémarrer</button>
+	       		<button id="takeback">Retour arrière</button>
+	       		<button id="fullscreen" style="display: none;">Plein écran</button>
+	       		<button id="save">Enregistrer</button>
+				<input type="file" id="fileElem" accept="application/json" style="display:none"/>
+	       		<button id="load">Charger</button>
+
+                <br/><br/>
+	       		<select id="mode">
+	       			<option value="self-self">Humain / Humain</option>
+	       			<option value="self-comp">Humain / Ordinateur</option>
+	       			<option value="comp-self">Ordinateur / Humain</option>
+	       			<option value="comp-comp">Ordinateur / Ordinateur</option>
+	       		</select><br/><br/>
+	       		<label id="level-a" for="select-level-PLAYER_A">Ordinateur(A) niveau
+	        		<select id="select-level-a"></select><br/><br/>
+	       		</label>
+	       		<label id="level-b" for="select-level-b">Ordinateur(B) niveau
+	        		<select id="select-level-b"></select><br/><br/>
+	       		</label>
+	       	</div>
+	       	<div id="options" style="display: none;"  class="box">
+	       		<h3>Options</h3>
+				<div id="view-options">
+					<select id="options-skin"></select>
+					<select id="view-as" style="display: none;">
+						<option value="player-a">Vue comme joueur A</option>
+						<option value="player-b">Vue comme joueur B</option>
+					</select>
+					<br/><br/>
+					<label id="options-notation" for="options-notation-input">
+						<input id="options-notation-input" type="checkbox"/> Notation<br/>
+					</label>
+					<label id="options-moves" for="options-moves-input">
+						<input id="options-moves-input" type="checkbox"/> Mouvements possibles<br/>
+					</label>
+					<label id="options-autocomplete" for="options-autocomplete-input">
+						<input id="options-autocomplete-input" type="checkbox"/> Mouvements auto<br/>
+					</label>
+					<label id="options-sounds" for="options-sounds-input">
+						<input id="options-sounds-input" type="checkbox"/> Son<br/>
+					</label>
+				</div>
+				<br/>
+
+	       	</div>
+            <div id="links">
+               
+                <a href="javascript:void(0)" id="other-games">Autres variantes</a>
+            </div>
+		</div>
+        <div id="games" style="display:none">
+			<div>
+				<div>
+					<div id="close-games">
+						<span>&laquo; Retour</span>
+					</div>
+					<div id="game-list"></div>
+				</div>
+			</div>
+        </div>
+
+
+    </div>
+
+    <script src="../../dist/browser/jocly.js"></script>
+    <script src="https://code.jquery.com/jquery-4.0.0.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao="
+        crossorigin="anonymous"></script>
+    <script src="js/control.js"></script>
+</body>
+
+</html>
