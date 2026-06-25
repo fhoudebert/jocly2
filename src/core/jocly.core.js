@@ -200,20 +200,31 @@
 				if (!gameDescr)
 					return reject(new Error("Game " + gameName + " not found"));
 
-				var gamePromises = [
-					window.BrowserScriptLoader.import("jocly.game.js"),
-					window.BrowserScriptLoader.import("games/" + gameDescr.module + "/" + gameName + "-model.js"),
-					window.BrowserScriptLoader.import("games/" + gameDescr.module + "/" + gameName + "-config.js")
-				];
+				// jocly.game.js must finish executing (defining the global
+				// JocGame/JocBoard/JocMove) before the per-game model script
+				// runs, since model scripts like checkersbase-model.js read
+				// JocGame.prototype... at the top level, immediately on
+				// execution -- not inside a function called later. The old
+				// SystemJS-based loader serialized every script load
+				// globally by default, which accidentally enforced this
+				// ordering; the current loader parallelizes unrelated
+				// loads (correctly), so this implicit dependency has to be
+				// made explicit here instead.
+				window.BrowserScriptLoader.import("jocly.game.js").then((base) => {
+					var gamePromises = [
+						window.BrowserScriptLoader.import("games/" + gameDescr.module + "/" + gameName + "-model.js"),
+						window.BrowserScriptLoader.import("games/" + gameDescr.module + "/" + gameName + "-config.js")
+					];
 
-				Promise.all(gamePromises).then(([base, model, config]) => {
+					Promise.all(gamePromises).then(([model, config]) => {
 
-					var game = CreateGame(gameName, gameDescr, base, model, config);
+						var game = CreateGame(gameName, gameDescr, base, model, config);
 
-					resolve(game);
-				}, (e) => {
-					reject(e);
-				});
+						resolve(game);
+					}, (e) => {
+						reject(e);
+					});
+				}, reject);
 			}, reject);
 
 		});

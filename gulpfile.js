@@ -349,10 +349,21 @@ gulp.task("build-browser-xdview", function () {
 	const srcLib = "src/lib/";
 	const nmLib = "node_modules/";
 
-	var libs = ProcessJS(gulp.src([
+	// three.js and jquery.js are plain UMD bundles already targeting ES5 —
+	// they've never needed transpilation. Running them through ProcessJS
+	// (Babel, in non-module mode) turns their top-level `this` into
+	// `void 0` (Babel correctly treats the file as strict-mode, where
+	// top-level `this` is undefined rather than the global object), which
+	// breaks the IIFE argument each of them uses to detect whether to
+	// attach itself as a CommonJS export or a plain global — they end up
+	// calling their factory with `global = void 0` instead of the real
+	// global object, crashing on the very first global property access
+	// (e.g. "Cannot read properties of undefined (reading 'THREE')").
+	// Copy them through untouched instead.
+	var libs = gulp.src([
 		lib + "three.js",
 		nmLib + "jquery/dist/jquery.js"
-	]));
+	]);
 
 	var packedLibs = ProcessJS(gulp.src([
 		lib + "SubdivisionModifier.js",
@@ -376,7 +387,7 @@ gulp.task("build-browser-xdview", function () {
 		src + "browser/jocly.xd-view.js"
 	]), "jocly-xdview.js", true);
 
-	return merge(libs, packedLibs)
+	return mergeSequential(libs, packedLibs)
 		.pipe(gulp.dest("dist/browser"))
 		;
 

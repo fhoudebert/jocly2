@@ -9,7 +9,11 @@ const { Readable } = require('stream');
 // sequentially avoids the race entirely, at the cost of some parallelism
 // that isn't meaningful for this gulpfile's small number of JS files anyway.
 module.exports = function mergeSequential() {
-	var streams = Array.prototype.slice.call(arguments);
+	// Accept either mergeSequential(a, b, c) or mergeSequential([a, b, c]) —
+	// both call patterns are used across this gulpfile.
+	var streams = (arguments.length === 1 && Array.isArray(arguments[0]))
+		? arguments[0]
+		: Array.prototype.slice.call(arguments);
 	var output = new Readable({ objectMode: true, read: function () {} });
 	var idx = 0;
 	function next() {

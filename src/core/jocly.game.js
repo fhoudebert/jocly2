@@ -187,18 +187,25 @@ JocGame.prototype.AttachElement = function (element, options) {
 		if (game.gamePreAttachProto)
 			reject(new Error("Game already attached"));
 		else {
-		// NOTE: the systemJSConfig block that used to be built here (with a
+		// The systemJSConfig block that used to be built here (with a
 		// `meta`/`globals` mapping for jQuery/THREE/xdview) configured
-		// SystemJS 0.x's CommonJS-to-globals interop, which none of
-		// jocly-xdview.js or the per-game -view.js files actually rely on —
-		// they reference THREE/jQuery as plain globals already loaded via
-		// <script> tags, never via require(). It's been removed along with
-		// SystemJS itself; see browser-script-loader.js.
-
+		// SystemJS 0.x's "globals" feature, which doesn't just shim names —
+		// per SystemJS's own docs, "referenced modules automatically
+		// become dependencies", i.e. it actually loaded jquery.js/three.js
+		// *before* executing jocly-xdview.js/the per-game -view.js file.
+		// Without it those files crash on "$ is not defined"/"THREE is not
+		// defined", since nothing else in this codebase ever loads
+		// jquery.js/three.js for the embedded iframe context. Reproduce
+		// that here explicitly instead.
 		Promise.all([
-			window.BrowserScriptLoader.import("jocly-xdview.js"),
-			window.BrowserScriptLoader.import("games/" + game.module + "/" + game.name + "-view.js")
-		]).then(function(args) {
+			window.BrowserScriptLoader.import("jquery.js"),
+			window.BrowserScriptLoader.loadGlobalScript("three.js")
+		]).then(function() {
+			return Promise.all([
+				window.BrowserScriptLoader.import("jocly-xdview.js"),
+				window.BrowserScriptLoader.import("games/" + game.module + "/" + game.name + "-view.js")
+			]);
+		}).then(function(args) {
 			var xdview = args[0], view = args[1];
 			game.gamePreAttachProto = Object.getPrototypeOf(game);
 			var gameProto = Object.assign({}, game.gamePreAttachProto, xdview.view.Game, view.view.Game);

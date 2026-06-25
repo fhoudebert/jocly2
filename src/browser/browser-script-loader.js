@@ -15,16 +15,26 @@
  * load may have already reassigned it in the meantime.
  *
  * This version instead fetches each module's source as text and executes
- * it via `new Function("exports", source)`, giving every module its own
- * real `exports` object captured in a closure for its entire lifetime —
- * including any Promise callbacks that resolve long after the initial
- * load — exactly like a real CommonJS `require()` would.
+ * it wrapped as `(function(exports){ <source> \nreturn exports;})({})`,
+ * via *indirect* eval (calling `globalEval(...)` through a variable rather
+ * than literally writing `eval(...)`, which per the language spec forces
+ * the call to run against the global scope instead of the caller's local
+ * scope). This gives each module its own real `exports` object captured
+ * in a closure for its entire lifetime — including any Promise callbacks
+ * that resolve long after the initial load, exactly like a real CommonJS
+ * `require()` would — while still letting the module's code see every
+ * other global (jQuery's `$`, `THREE`, etc.) exactly as a plain <script>
+ * tag would, since indirect eval runs in the real global scope rather
+ * than a `new Function(...)`'s isolated parameter list (which an earlier
+ * version of this file used, and which silently broke any module
+ * referencing a global that hadn't been explicitly threaded through).
  */
 (function (global) {
 	"use strict";
 
 	var baseURL = "";
 	var cache = {};
+	var globalEval = eval; // eslint-disable-line no-eval -- indirect eval, see comment above
 
 	function setBaseURL(url) {
 		baseURL = url;
@@ -46,18 +56,42 @@
 				return response.text();
 			})
 			.then(function (source) {
-				var moduleExports = {};
-				// Wrap and execute with `exports` as a real function
-				// parameter (closure), not a global — this is what lets a
-				// module's own asynchronous code (e.g. Promise.then
-				// callbacks set up during load but firing later) keep
-				// referring to the *same* exports object indefinitely,
-				// regardless of what else gets loaded afterwards.
-				// eslint-disable-next-line no-new-func
-				var moduleFn = new Function("exports", "window", "document", "self", "global", source + "\n//# sourceURL=" + url);
-				moduleFn(moduleExports, window, document, typeof self !== "undefined" ? self : window, global);
-				return moduleExports;
+				var wrapped = "(function(exports){\n" + source + "\n;return exports;\n})({})\n//# sourceURL=" + url;
+				return globalEval(wrapped);
 			});
+
+		cache[url] = resultPromise;
+		return resultPromise;
+	}
+
+	// Some third-party scripts (three.js being the case that surfaced this)
+	// are UMD bundles whose own top-level wrapper checks
+	// `typeof exports === "object" && typeof module !== "undefined"` to
+	// decide whether to act as a CommonJS module — and if so, call their
+	// factory with a *literal* `global` argument from their own bundler
+	// output (e.g. `factory(void 0, ...)`), not a real reference to the
+	// global object. Loading them through importScript() above satisfies
+	// the `typeof exports === "object"` half of that check (since we hand
+	// it an empty object) without satisfying what the script actually
+	// needs to attach itself to `window`, crashing instead. These scripts
+	// were never meant to be loaded as CommonJS to begin with — they're
+	// plain globals, exactly like a classic <script> tag — so load them
+	// that way instead, via real <script> injection.
+	function loadGlobalScript(relativeUrl) {
+		var url = baseURL + relativeUrl;
+		if (cache[url]) return cache[url];
+
+		var resultPromise = new Promise(function (resolve, reject) {
+			var script = document.createElement("script");
+			script.src = url;
+			script.onload = function () {
+				resolve();
+			};
+			script.onerror = function () {
+				reject(new Error("Failed to load script: " + url));
+			};
+			document.head.appendChild(script);
+		});
 
 		cache[url] = resultPromise;
 		return resultPromise;
@@ -66,6 +100,7 @@
 	global.BrowserScriptLoader = {
 		setBaseURL: setBaseURL,
 		getBaseURL: getBaseURL,
-		import: importScript
+		import: importScript,
+		loadGlobalScript: loadGlobalScript
 	};
 })(typeof window !== "undefined" ? window : this);
