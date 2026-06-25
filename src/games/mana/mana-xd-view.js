@@ -337,7 +337,7 @@
 					materials0.push(mat);
 				}
 				
-				var pawn = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials0));
+				var pawn = new THREE.Mesh(geometry, materials0);
 				pawn.castShadow=true;
 				callback(pawn);
 			});

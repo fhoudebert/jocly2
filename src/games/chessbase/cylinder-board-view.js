@@ -312,7 +312,7 @@
 				specular: '#050505',
 				emissive: '#000000',
 				shininess: 20,
-				shading: THREE.FlatShading,
+				flatShading: true,
 				map: texBoardDiffuse,
 			}
 			if(canvas.bump) {

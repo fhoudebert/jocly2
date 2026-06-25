@@ -97,7 +97,7 @@
 						shininess:shininess,
 						map:textureDiffB});
 					
-					var pieceMat=new THREE.MultiMaterial([matborder,mattop]);
+					var pieceMat=[matborder,mattop];
 					
 					callback({geometry:pieceGeo,material:pieceMat});
 					
@@ -446,7 +446,7 @@
 									mat.shininess=40;
 								}
 							}
-						var board=new THREE.Mesh(geometry,new THREE.MultiMaterial( materials ));
+						var board=new THREE.Mesh(geometry,materials);
 						
 						var cylGeo=new THREE.SphereGeometry(0.15, 32, 32);		
 						var cylMat=new THREE.MeshPhongMaterial( { color: 0x000000 , specular: 0x030303, shininess  : 500 } );

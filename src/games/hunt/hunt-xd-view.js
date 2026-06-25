@@ -235,7 +235,7 @@
                                     var materials1=[];
                                     function Done() {
                                         if(--tasks==0) {
-                                            var mesh = new THREE.Mesh( geometry0 , new THREE.MultiMaterial(materials1) ) ;
+                                            var mesh = new THREE.Mesh( geometry0 , materials1 ) ;
                                             cb(mesh);
                                         }
                                     }
@@ -369,7 +369,7 @@
  						materials0.push(materials[i]);
  					}
  				}
- 				var mesh = new THREE.Mesh( geometry , new THREE.MultiMaterial( materials0 ) );
+ 				var mesh = new THREE.Mesh( geometry , materials0 );
  				
  				var light = new THREE.SpotLight( 0xffffff, 5 );
 				//light.castShadow = true;

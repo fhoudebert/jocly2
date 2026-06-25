@@ -140,15 +140,14 @@
 
 						textureDiff.needsUpdate = true;
 						textureBump.needsUpdate = true;
-						$this.g.pieceMaterial = new THREE.MultiMaterial([new THREE.MeshPhongMaterial({ 
+						$this.g.pieceMaterial = [new THREE.MeshPhongMaterial({ 
 								name: "Material",
 						 		specular:"#111111",
 						 		shininess:10,
-						 		shading: THREE.SmoothShading,
-						 		map:textureDiff,
+						 								 		map:textureDiff,
 						 		bumpMap:textureBump,
 						 		bumpScale:0.1,
-						 })]);
+						 })];
 						$this.g.pieceGeo = pieceGeo;
 						instanciatePiece();
 						//callback(mesh);

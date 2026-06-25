@@ -1208,7 +1208,7 @@
 	    			}
 	    			pieceMaterials.push(newMat);
 	    		}
-				var pieceMat = new THREE.MultiMaterial( pieceMaterials );
+				var pieceMat = pieceMaterials;
 				resources.material=pieceMat;
 			},
 

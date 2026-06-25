@@ -179,17 +179,17 @@
  						materials0.push(mat);
                     }else if (materials[i].name=="boomer"){
 	 					var mat=materials[i].clone();
-	 					mat.shading=THREE.FlatShading;
+	 					mat.flatShading = true;
 	 					materials0.push(mat);
                     }else if (materials[i].name=="tv"){
 	 					var mat=materials[i].clone();
-	 					mat.shading=THREE.FlatShading;
+	 					mat.flatShading = true;
 	 					materials0.push(mat);
  					}else{
  						materials0.push(materials[i]);
  					}
  				}
- 				var mesh = new THREE.Mesh( geometry , new THREE.MultiMaterial( materials0 ) );
+ 				var mesh = new THREE.Mesh( geometry , materials0 );
  				
  				mesh.visible = false;
  				$this.objectReady(mesh);
@@ -396,7 +396,7 @@
 	                        for(var i=0;i<geometry.faces.length;i++) {
 	                        	geometry.faces[i].materialIndex=0;
 	                        }
-	                        var sphere = new THREE.Mesh(geometry,new THREE.MultiMaterial( [sphereMaterial] ));
+	                        var sphere = new THREE.Mesh(geometry,[sphereMaterial]);
 	                        return sphere;
 						},
 					},

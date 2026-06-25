@@ -138,7 +138,7 @@
 						shininess:shininess,
 						map:textureDiffB});
 					
-					var pieceMat=new THREE.MultiMaterial([matborder,mattop]);
+					var pieceMat=[matborder,mattop];
 					
 					callback({geometry:pieceGeo,material:pieceMat});
 					
@@ -451,12 +451,12 @@
                         function Done() {
                             if(--tasks==0) {
                                 if(p==0){
-                                    parentObject = new THREE.Mesh( geometry , new THREE.MultiMaterial( materials0 ) );
+                                    parentObject = new THREE.Mesh( geometry , materials0 );
                                     parentObject.castShadow=true;
                                     parentObject.receiveShadow=shadow;
                                 }
                                 else{
-                                    var mesh=new THREE.Mesh( geometry , new THREE.MultiMaterial( materials0 ) );
+                                    var mesh=new THREE.Mesh( geometry , materials0 );
                                     mesh.castShadow=true;
                                     mesh.receiveShadow=shadow;
                                     mesh.visible=visible;
@@ -483,13 +483,13 @@
                                     avatar.getMaterialMap(matUrl,function(matMap) {
                                         mat.map = matMap;
                                         if (mat.name==="mat.buildings")
-                                            mat.shading=THREE.FlatShading;
+                                            mat.flatShading = true;
                                         materials0[m] = mat;
                                         Done();
                                     });
                                 } else {
                                     if (mat.name==="mat.buildings")
-                                        mat.shading=THREE.FlatShading;
+                                        mat.flatShading = true;
                                     materials0[m] = mat;
                                     Done();
                                 }
@@ -599,7 +599,7 @@
 						for (var i = 0; i < geometry.faces.length; i++) {
 							geometry.faces[i].materialIndex = 0;
 						}
-						var sphere = new THREE.Mesh(geometry,new THREE.MultiMaterial( [sphereMaterial] ));
+						var sphere = new THREE.Mesh(geometry,[sphereMaterial]);
 						return sphere;
 					},					
 				},
@@ -869,13 +869,13 @@
 					 	var materials0=[];
  						for(var m=0;m<materials.length;m++){
  							var mat=materials[m].clone();
- 							if (mat.name != "mat.slot") mat.shading=THREE.FlatShading;
+ 							if (mat.name != "mat.slot") mat.flatShading = true;
  							materials0.push(mat);
  						}
 
 						if(p==0){
 							materials0[0].specular={r:0,g:0,b:0};
-							parentObject = new THREE.Mesh( geometry , new THREE.MultiMaterial( materials0 ) );
+							parentObject = new THREE.Mesh( geometry , materials0 );
 							margin=-4;
 							var cx=(1+2*margin/100)*SWIDTH*SIZE/1000;
 							var cy=(1+2*margin/100)*HEIGHT*SIZE/1000;
@@ -901,7 +901,7 @@
 												//materials0[0].ambiant=0xff0000;
 												var mesh;
 												if (k==0) 
-													mesh = new THREE.Mesh( geometry , new THREE.MultiMaterial( materials0 ) );
+													mesh = new THREE.Mesh( geometry , materials0 );
 												else
 													mesh = new THREE.Mesh( geometry , metalMat);
 												mesh.receiveShadow=shadow;
@@ -933,7 +933,7 @@
 								break;
 								default:
 								{
-									var mesh=new THREE.Mesh( geometry , new THREE.MultiMaterial( materials0 ) );
+									var mesh=new THREE.Mesh( geometry , materials0 );
 									mesh.receiveShadow=shadow;
 									mesh.title=piecesParts[p];
 									childObjects.push(mesh);
@@ -1033,7 +1033,7 @@
 						materials[0].shininess = 10;
 						materials[0].specular.setHex(0x222222);
 						
-						var rainbow = new THREE.Mesh( geometry , new THREE.MultiMaterial( materials ) );
+						var rainbow = new THREE.Mesh( geometry , materials );
 						rainbow.scale.set(7,7,7);
 						rainbow.position.set(7,0,-7);
 						rainbow.rotation.y=-45;
@@ -1105,7 +1105,7 @@
 					this.getResource("smoothedfilegeo|"+0+"|"+fullPath+"/res/xd-view/meshes/rocksmoothed.js",function(geometry , materials) {
 						var rocks=new THREE.Object3D();
 						for (var i=0;i<100;i++){
-							var rock=new THREE.Mesh(geometry,new THREE.MultiMaterial( materials ));
+							var rock=new THREE.Mesh(geometry,materials);
 							var r=20+Math.random()*40;
 							var a=Math.random()*2*Math.PI;
 							var sz=0.3+Math.random()*2;
@@ -1182,17 +1182,17 @@
  						materials0.push(mat);
                     }else if (materials[i].name=="boomer"){
 	 					var mat=materials[i].clone();
-	 					mat.shading=THREE.FlatShading;
+	 					mat.flatShading = true;
 	 					materials0.push(mat);
                     }else if (materials[i].name=="tv"){
 	 					var mat=materials[i].clone();
-	 					mat.shading=THREE.FlatShading;
+	 					mat.flatShading = true;
 	 					materials0.push(mat);
  					}else{
  						materials0.push(materials[i]);
  					}
  				}
- 				var mesh = new THREE.Mesh( geometry , new THREE.MultiMaterial( materials0 ) );
+ 				var mesh = new THREE.Mesh( geometry , materials0 );
  				
  				mesh.visible = false;
  				$this.objectReady(mesh);

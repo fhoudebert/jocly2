@@ -1442,10 +1442,10 @@ if (window.JoclyXdViewCleanup)
 			) {
 				this.shouldUpdate = true;
 				if (options.morphing.length > 0) {
-					if (this.object3d.material && this.object3d.material.materials &&
-						this.object3d.material.materials.length > 0 && !this.object3d.material.materials[0].morphTargets) {
-						for (var i = 0; i < this.object3d.material.materials.length; i++)
-							this.object3d.material.materials[i].morphTargets = true;
+					if (this.object3d.material && Array.isArray(this.object3d.material) &&
+						this.object3d.material.length > 0 && !this.object3d.material[0].morphTargets) {
+						for (var i = 0; i < this.object3d.material.length; i++)
+							this.object3d.material[i].morphTargets = true;
 					}
 					if (delay) {
 						this.animStart(options);
@@ -1461,9 +1461,9 @@ if (window.JoclyXdViewCleanup)
 			}
 			if (this.object3d.material && options.materials) {
 				if (force) {
-					if (this.object3d.material.materials) {
-						for (var m in this.object3d.material.materials) {
-							var mat = $this.object3d.material.materials[m];
+					if (this.object3d.material && Array.isArray(this.object3d.material)) {
+						for (var m in this.object3d.material) {
+							var mat = $this.object3d.material[m];
 							if (options.materials[mat.name]) {
 								for (var mpi in options.materials[mat.name]) {
 									var newMatProp = options.materials[mat.name][mpi];
@@ -1490,9 +1490,9 @@ if (window.JoclyXdViewCleanup)
 					if (diffMat) {
 						for (var mi in diffMat) {
 							var newMat = diffMat[mi];
-							if (this.object3d.material.materials) {
-								for (var m in this.object3d.material.materials) {
-									var mat = $this.object3d.material.materials[m];
+							if (this.object3d.material && Array.isArray(this.object3d.material)) {
+								for (var m in this.object3d.material) {
+									var mat = $this.object3d.material[m];
 									if (mat.name == mi) {
 										if (newMat) {
 											for (var mpi in newMat) {
@@ -1692,9 +1692,9 @@ if (window.JoclyXdViewCleanup)
 				materials = materials0;
 				if ($this.options.flatShading)
 					for (var m = 0; m < materials.length; m++) {
-						materials[m].shading = THREE.FlatShading;
+						materials[m].flatShading = true;
 					}
-				var mesh = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+				var mesh = new THREE.Mesh(geometry, materials);
 				$this.objectReady(mesh);
 				if ($this.meshFileForceDisplay) {
 					$this.displayObject3D(true, $this.meshFileForceDisplay);
@@ -3256,7 +3256,7 @@ if (window.JoclyXdViewCleanup)
 		renderer.gammaOutput = true;
 		//renderer.shadowMapEnabled = true;
 		renderer.shadowMap.enabled = true;
-		renderer.shadowMapSoft = true;
+		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 		//renderer.physicallyBasedShading = true; // gives high level of shininess specular
 		//renderer.shadowMapCascade = true;
 
