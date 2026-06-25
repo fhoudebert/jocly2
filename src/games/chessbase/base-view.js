@@ -1088,7 +1088,13 @@
 					if(!geo._cbZRotated) {
 						var matrix = new THREE.Matrix4();
 						matrix.makeRotationY(spec.mesh.rotateZ*Math.PI/180)
-						geo.applyMatrix(matrix);
+						// NOTE: this is BufferGeometry.applyMatrix() here (not
+					// .applyMatrix4()) because three.js r92 still names this
+					// method "applyMatrix" on BufferGeometry; the rename to
+					// applyMatrix4 happens in a later three.js version. geo
+					// is a BufferGeometry since the migration to GLTFLoader
+					// (see jocly.xd-view.js's AdaptGltfToGeoMat).
+					geo.applyMatrix(matrix);
 						geo._cbZRotated=true;
 					}
 					geometry=geo;
@@ -1255,7 +1261,7 @@
 				
 				resources.material=pieceMat;
 				
-				resources.geometry.mergeVertices()
+				resources.geometry = THREE.BufferGeometryUtils.mergeVertices(resources.geometry);
 				resources.geometry.computeVertexNormals(); // needed in normals not exported in js file!
 
 			},
