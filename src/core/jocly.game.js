@@ -201,10 +201,21 @@ JocGame.prototype.AttachElement = function (element, options) {
 			window.BrowserScriptLoader.import("jquery.js"),
 			window.BrowserScriptLoader.loadGlobalScript("three.js")
 		]).then(function() {
-			return Promise.all([
-				window.BrowserScriptLoader.import("jocly-xdview.js"),
-				window.BrowserScriptLoader.import("games/" + game.module + "/" + game.name + "-view.js")
-			]);
+			// jocly-xdview.js and the per-game -view.js file both reset the
+			// shared global `View` variable at their own top (the
+			// `exports.view = View = {...}` convention every -view.js file
+			// uses). Loading them in parallel means whichever one finishes
+			// last wins that reset, discarding whatever the other had
+			// already attached to View.Game before its own reset ran.
+			// Load jocly-xdview.js to completion first -- it defines the
+			// base View.Game (xdInit, InitView, etc.) that every per-game
+			// -view.js file (and the helpers it concatenates in, like
+			// drop-view.js) extends -- then load the per-game file.
+			return window.BrowserScriptLoader.import("jocly-xdview.js").then(function(xdview) {
+				return window.BrowserScriptLoader.import("games/" + game.module + "/" + game.name + "-view.js").then(function(view) {
+					return [xdview, view];
+				});
+			});
 		}).then(function(args) {
 			var xdview = args[0], view = args[1];
 			game.gamePreAttachProto = Object.getPrototypeOf(game);
