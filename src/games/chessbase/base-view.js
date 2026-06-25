@@ -890,6 +890,7 @@
 		
 		createMaterial: function(spec,canvas,callback) {
 			var texBoardDiffuse = new THREE.Texture(canvas.diffuse);
+			texBoardDiffuse.encoding = THREE.sRGBEncoding;
 			texBoardDiffuse.needsUpdate = true;
 			var matSpec={
 				specular: '#050505',//'#222222',
@@ -1168,6 +1169,7 @@
 		    		var ctx = canvas.getContext('2d');
 		    		spec.paintTexture.call(this,spec,ctx,material,chan,resources);
 		    		var texture =  new THREE.Texture(canvas);
+		    		if (chan === "diffuse") texture.encoding = THREE.sRGBEncoding;
 		    		texture.needsUpdate = true;
 		    		resources.textures[material][chan]=texture;
 	    		}

@@ -55,6 +55,7 @@
 					var canvasDiffuse=document.createElement('canvas');
 					canvasDiffuse.width=canvasDiffuse.height=TEXTURE_CANVAS_SZ;
 					var textureDiff =  new THREE.Texture(canvasDiffuse);
+					textureDiff.encoding = THREE.sRGBEncoding;
 					var canvasBump=document.createElement('canvas');
 					canvasBump.width=canvasBump.height=TEXTURE_CANVAS_SZ;
 					var textureBump =  new THREE.Texture(canvasBump);
@@ -74,6 +75,7 @@
 					var canvasDiffuseB=document.createElement('canvas');
 					canvasDiffuseB.width=canvasDiffuseB.height=TEXTURE_CANVAS_SZ;
 					var textureDiffB =  new THREE.Texture(canvasDiffuseB);
+					textureDiffB.encoding = THREE.sRGBEncoding;
 					var ctxB=canvasDiffuseB.getContext("2d");
 					ctxB.drawImage(diffuseMap,0,0,TEXTURE_CANVAS_SZ,TEXTURE_CANVAS_SZ);
 					blackenCtxIfNeeded(ctxB);

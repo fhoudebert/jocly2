@@ -118,7 +118,8 @@
 				var canvasDiffuse=document.createElement('canvas');
 				canvasDiffuse.width=TXT_CNV_SZ;
 				canvasDiffuse.height=TXT_CNV_SZ;
-				var textureDiff =  new THREE.Texture(canvasDiffuse);					
+				var textureDiff =  new THREE.Texture(canvasDiffuse);
+				textureDiff.encoding = THREE.sRGBEncoding;
 				var canvasBump=document.createElement('canvas');
 				canvasBump.width=TXT_CNV_SZ;
 				canvasBump.height=TXT_CNV_SZ;
@@ -189,7 +190,8 @@
 			var canvasDiffuse=document.createElement('canvas');
 			canvasDiffuse.width=TEXTURE_CANVAS_CX;
 			canvasDiffuse.height=TEXTURE_CANVAS_CY;
-			var textureDiff =  new THREE.Texture(canvasDiffuse);					
+			var textureDiff =  new THREE.Texture(canvasDiffuse);
+			textureDiff.encoding = THREE.sRGBEncoding;
 			var canvasBump=document.createElement('canvas');
 			canvasBump.width=TEXTURE_CANVAS_CX;
 			canvasBump.height=TEXTURE_CANVAS_CY;
@@ -357,6 +359,7 @@
 				$this.g.canvasScore.height=$this.g.canvasScore.width/8*3;
 				if(typeof THREE!="undefined")
 					$this.g.textureScore = new THREE.Texture($this.g.canvasScore);
+					$this.g.textureScore.encoding = THREE.sRGBEncoding;
 			}			
 		}
 		
