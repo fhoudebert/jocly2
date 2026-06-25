@@ -705,6 +705,7 @@
 
 		createMaterial: function(spec,canvas,callback) {
 			var texBoardDiffuse = new THREE.Texture(canvas.diffuse);
+			texBoardDiffuse.encoding = THREE.sRGBEncoding;
 			texBoardDiffuse.needsUpdate = true;
 			var matSpec={
 				specular: '#010101',
