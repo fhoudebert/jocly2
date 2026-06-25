@@ -1692,9 +1692,9 @@ if (window.JoclyXdViewCleanup)
 				materials = materials0;
 				if ($this.options.flatShading)
 					for (var m = 0; m < materials.length; m++) {
-						materials[m].shading = THREE.FlatShading;
+						materials[m].flatShading = true;
 					}
-				var mesh = new THREE.Mesh(geometry, new THREE.MultiMaterial(materials));
+				var mesh = new THREE.Mesh(geometry, materials);
 				$this.objectReady(mesh);
 				if ($this.meshFileForceDisplay) {
 					$this.displayObject3D(true, $this.meshFileForceDisplay);
@@ -3256,7 +3256,7 @@ if (window.JoclyXdViewCleanup)
 		renderer.gammaOutput = true;
 		//renderer.shadowMapEnabled = true;
 		renderer.shadowMap.enabled = true;
-		renderer.shadowMapSoft = true;
+		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 		//renderer.physicallyBasedShading = true; // gives high level of shininess specular
 		//renderer.shadowMapCascade = true;
 

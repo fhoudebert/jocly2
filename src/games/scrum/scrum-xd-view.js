@@ -418,11 +418,11 @@
  						materials0.push(mat);
                     }else{
 	 					var mat=materials[i].clone();
-	 					mat.shading=THREE.FlatShading;
+	 					mat.flatShading = true;
 	 					materials0.push(mat);
                     }
  				}
- 				var mesh = new THREE.Mesh( geometry , new THREE.MultiMaterial( materials0 ) );
+ 				var mesh = new THREE.Mesh( geometry , materials0 );
  				
  				mesh.visible = false;
  				$this.objectReady(mesh);
