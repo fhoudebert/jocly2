@@ -74,7 +74,7 @@
 
 	// Check in what context this code is running
 	var jsContext = "browser";
-	if (typeof WorkerGlobalScope === 'undefined' && typeof SystemJS === 'undefined')
+	if (typeof WorkerGlobalScope === 'undefined' && typeof window === 'undefined')
 		jsContext = "node";
 	else if (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope)
 		jsContext = "worker";
@@ -99,8 +99,8 @@
 		Game.prototype.config = config.config;
 
 		if (jsContext == "browser") {
-			Game.prototype.config.baseURL = SystemJS.getConfig().baseURL;
-			Game.prototype.config.view.fullPath = SystemJS.getConfig().baseURL + "games/" + gameDescr.module;
+			Game.prototype.config.baseURL = window.BrowserScriptLoader.getBaseURL();
+			Game.prototype.config.view.fullPath = window.BrowserScriptLoader.getBaseURL() + "games/" + gameDescr.module;
 		}
 		Game.prototype.module = gameDescr.module;
 		Game.prototype.name = gameName;
@@ -201,9 +201,9 @@
 					return reject(new Error("Game " + gameName + " not found"));
 
 				var gamePromises = [
-					SystemJS.import("jocly.game.js"),
-					SystemJS.import("games/" + gameDescr.module + "/" + gameName + "-model.js"),
-					SystemJS.import("games/" + gameDescr.module + "/" + gameName + "-config.js")
+					window.BrowserScriptLoader.import("jocly.game.js"),
+					window.BrowserScriptLoader.import("games/" + gameDescr.module + "/" + gameName + "-model.js"),
+					window.BrowserScriptLoader.import("games/" + gameDescr.module + "/" + gameName + "-config.js")
 				];
 
 				Promise.all(gamePromises).then(([base, model, config]) => {
@@ -224,9 +224,9 @@
 
 		var promise = new Promise((resolve, reject) => {
 			if (jsContext == "browser" || jsContext == "worker")
-				SystemJS.import("jocly-allgames.js").then((m) => {
+				window.BrowserScriptLoader.import("jocly-allgames.js").then((m) => {
 					var games = {};
-					var baseURL = SystemJS.getConfig().baseURL;
+					var baseURL = window.BrowserScriptLoader.getBaseURL();
 					for (var gameName in m.games) {
 						var game = Object.assign({}, m.games[gameName]);
 						game.thumbnail = baseURL + "games/" + game.module + "/" + game.thumbnail;
@@ -265,10 +265,10 @@
 				if (!gameDescr)
 					return reject(new Error("Game " + gameName + " not found"));
 
-				if (typeof SystemJS != "undefined")
-					SystemJS.import("games/" + gameDescr.module + "/" + gameName + "-config.js")
+				if (typeof window != "undefined")
+					window.BrowserScriptLoader.import("games/" + gameDescr.module + "/" + gameName + "-config.js")
 						.then((config) => {
-							config.config.view.fullPath = SystemJS.getConfig().baseURL + "games/" + gameDescr.module;
+							config.config.view.fullPath = window.BrowserScriptLoader.getBaseURL() + "games/" + gameDescr.module;
 							resolve(config.config);
 						})
 						.catch(reject);
@@ -354,7 +354,7 @@
 			var attrs = {
 				name: "jocly-embedded-" + self.id,
 				frameborder: 0,
-				src: SystemJS.getConfig().baseURL + iframeUrl,
+				src: window.BrowserScriptLoader.getBaseURL() + iframeUrl,
 				width: "100%",
 				height: "100%"
 			}

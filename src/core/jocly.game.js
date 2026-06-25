@@ -187,29 +187,17 @@ JocGame.prototype.AttachElement = function (element, options) {
 		if (game.gamePreAttachProto)
 			reject(new Error("Game already attached"));
 		else {
-			var systemJSConfig = {
-				meta: {
-					"jocly-xdview.js": {
-						globals: {
-							jQuery: "jquery.js",
-							THREE: "three.js"
-						}
-					}
-				}
-			}
-			systemJSConfig.meta["games/" + game.module + "/" + game.name + "-view.js"] = {
-				globals: {
-					xdview: "jocly-xdview.js",
-					jQuery: "jquery.js",
-					THREE: "three.js"
-				}
-			}
-		};
-		SystemJS.config(systemJSConfig);
+		// NOTE: the systemJSConfig block that used to be built here (with a
+		// `meta`/`globals` mapping for jQuery/THREE/xdview) configured
+		// SystemJS 0.x's CommonJS-to-globals interop, which none of
+		// jocly-xdview.js or the per-game -view.js files actually rely on —
+		// they reference THREE/jQuery as plain globals already loaded via
+		// <script> tags, never via require(). It's been removed along with
+		// SystemJS itself; see browser-script-loader.js.
 
 		Promise.all([
-			SystemJS.import("jocly-xdview.js"),
-			SystemJS.import("games/" + game.module + "/" + game.name + "-view.js")
+			window.BrowserScriptLoader.import("jocly-xdview.js"),
+			window.BrowserScriptLoader.import("games/" + game.module + "/" + game.name + "-view.js")
 		]).then(function(args) {
 			var xdview = args[0], view = args[1];
 			game.gamePreAttachProto = Object.getPrototypeOf(game);
@@ -249,6 +237,7 @@ JocGame.prototype.AttachElement = function (element, options) {
 		}, function(e) {
 			reject(e);
 		});
+		}
 	});
 	return promise;
 }
