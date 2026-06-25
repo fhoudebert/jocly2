@@ -25,7 +25,11 @@
  *    then also delete it in the license file.
  */
 
-const SystemJS = require("../../node_modules/systemjs/dist/system.js");
+// SystemJS 6.x dropped CommonJS module support entirely (the format used by
+// jocly.core.js and friends), so it can no longer load these files at all;
+// see browser-script-loader.js for the replacement loader and the
+// reasoning behind it.
+require("./browser-script-loader.js");
 
 function GetScriptPath() {
     var scripts= document.getElementsByTagName('script');
@@ -36,15 +40,13 @@ function GetScriptPath() {
 
 const joclyScriptPath = GetScriptPath();
 
-SystemJS.config({
-    baseURL: joclyScriptPath
-});
+window.BrowserScriptLoader.setBaseURL(joclyScriptPath);
 
 function ExportFunction(fName) {
     exports[fName] = function() {
         var args = arguments;
         var promise = new Promise((resolve,reject)=>{
-            SystemJS.import("jocly.core.js").then((m)=>{
+            window.BrowserScriptLoader.import("jocly.core.js").then((m)=>{
                 m[fName].apply(m,args).then(function() {
                     resolve.apply(null,arguments);
                 },(e)=>{

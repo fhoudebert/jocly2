@@ -27,7 +27,7 @@
 
 var JoclyUCT={};
 
-if(typeof WorkerGlobalScope == 'undefined' && typeof SystemJS == 'undefined') {
+if(typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 	module.exports.JoclyUCT = JoclyUCT;
 	(function() {
 		var r = require;

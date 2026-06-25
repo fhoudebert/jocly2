@@ -8,19 +8,19 @@ const del = require("del");
 const through = require('through2');
 const Vinyl = require("vinyl");
 const merge = require('merge-stream');
+const mergeSequential = require('./merge-sequential.js');
 const rename = require("gulp-rename");
 const concat = require('gulp-concat');
-const add = require('gulp-add');
 const sourcemaps = require('gulp-sourcemaps');
 const uglify = require('gulp-uglify');
 const babel = require('gulp-babel');
 const browserify = require('browserify');
 const buffer = require("vinyl-buffer");
 const source = require('vinyl-source-stream');
-const argv = require('yargs').argv;
+const argv = require('minimist')(process.argv.slice(2));
 const gulpif = require('gulp-if');
-const gutil = require('gulp-util');
-const map = require('gulp-map');
+const colors = require('ansi-colors');
+const log = require('fancy-log');
 
 const modulifyHeaders = {
 	model:
@@ -41,11 +41,37 @@ const modulifyHeaders = {
 
 const allGames = {};
 
+// Lightweight replacement for the unmaintained gulp-add: pushes a virtual
+// Vinyl file with the given contents before the rest of the stream (and even
+// if the stream turns out to be empty), mirroring gulp-add's behavior.
+function prependVirtualFile(name, contents) {
+	var pending = new Vinyl({
+		path: name,
+		contents: Buffer.isBuffer(contents) ? contents : Buffer.from(contents)
+	});
+	return through.obj(
+		function (file, enc, next) {
+			if (pending) {
+				this.push(pending);
+				pending = null;
+			}
+			next(null, file);
+		},
+		function (next) {
+			if (pending) {
+				this.push(pending);
+				pending = null;
+			}
+			next();
+		}
+	);
+}
+
 var moduleDirs = [];
 var modulesMap = {};
 var exclusiveGames = null;
 
-if (typeof argv.defaultGames == "undefined" || argv.defaultGames)
+if (typeof argv['default-games'] == "undefined" || argv['default-games'])
 	moduleDirs = fs.readdirSync("src/games").map((dir) => {
 		return path.join("src/games", dir);
 	});
@@ -138,10 +164,10 @@ function HandleModuleGames(modelOnly) {
 				var fileName = moduleName + "/" + game.name + "-" + which + ".js";
 				var stream = gulp.src(scripts)
 					.pipe(gulpif(!argv.prod, sourcemaps.init()))
-					.pipe(add('_', modulifyHeaders[which], true))
+					.pipe(prependVirtualFile('_', modulifyHeaders[which]))
 					.pipe(concat(fileName))
 					.pipe(gulpif(argv.prod, uglify()))
-					.on('error', function (err) { gutil.log(gutil.colors.red('[Error]'), err.toString()); })
+					.on('error', function (err) { log(colors.red('[Error]'), err.toString()); })
 					.pipe(gulpif(!argv.prod, sourcemaps.write('.')))
 					.pipe(through.obj(function (file, enc, next) {
 						push(file);
@@ -169,6 +195,11 @@ function HandleModuleGames(modelOnly) {
 			streams.push(stream);
 		}
 
+		if (streams.length === 0) {
+			next();
+			return;
+		}
+
 		merge(streams)
 			.on("finish", function () {
 				next();
@@ -194,7 +225,7 @@ function ProcessJS(stream, concatName, skipBabel) {
 	if (argv.prod)
 		stream = stream.pipe(uglify())
 			.on('error', function (err) {
-				gutil.log(gutil.colors.red('[Error]'), err.toString());
+				log(colors.red('[Error]'), err.toString());
 				this.emit('end');
 			});
 	if (concatName)
@@ -223,8 +254,8 @@ gulp.task("build-node-core", function () {
 	allGamesStream = ProcessJS(allGamesStream.pipe(buffer()));
 
 	return merge(joclyCoreStream, allGamesStream, joclyBaseStream)
-    .pipe(map(function(file) {
-      return new Vinyl(file);
+    .pipe(through.obj(function (file, enc, next) {
+      next(null, new Vinyl(file));
     }))
 		.pipe(gulp.dest("dist/node"));
 
@@ -267,8 +298,21 @@ gulp.task("build-browser-core", function () {
 		.pipe(source('jocly.js'))
 		.pipe(buffer()));
 
+	// NOTE: joclyCoreStream and joclyExtraScriptsStream are intentionally
+	// combined into a single gulp.src()/babel pipeline below, rather than
+	// kept as separate streams merged afterwards. Running many concurrent
+	// babel/browserify streams through merge-stream (5-6 in this task)
+	// causes it to occasionally lose files entirely (race in how it counts
+	// still-active sources before calling output.end()) — reproduced
+	// reliably regardless of merge-stream version. Fewer streams merged in
+	// parallel avoids the issue. The remaining merge() call in this task is
+	// also replaced with mergeSequential (see merge-sequential.js), which
+	// processes each stream to completion before starting the next one,
+	// for the same reason.
 	var joclyCoreStream = ProcessJS(gulp.src([
 		"src/core/jocly.core.js",
+		"src/browser/jocly.aiworker.js",
+		"src/browser/jocly.embed.js"
 	]));
 
 	var joclyBaseStream = ProcessJS(gulp.src([
@@ -276,11 +320,6 @@ gulp.task("build-browser-core", function () {
 		"src/core/jocly.uct.js",
 		"src/core/jocly.game.js"
 	]), "jocly.game.js", true);
-
-	var joclyExtraScriptsStream = ProcessJS(gulp.src([
-		"src/browser/jocly.aiworker.js",
-		"src/browser/jocly.embed.js"
-	]));
 
 	var joclyExtraStream = gulp.src([
 		"src/browser/jocly.embed.html"
@@ -295,10 +334,10 @@ gulp.task("build-browser-core", function () {
 	allGamesStream.end('exports.games = ' + JSON.stringify(allGames));
 	allGamesStream = ProcessJS(allGamesStream.pipe(buffer()));
 
-	return merge(joclyBrowserStream, joclyCoreStream, allGamesStream, joclyBaseStream,
-		joclyExtraStream, joclyExtraScriptsStream, joclyResStream)
-    .pipe(map(function(file) {
-      return new Vinyl(file);
+	return mergeSequential(joclyBrowserStream, joclyCoreStream, allGamesStream, joclyBaseStream,
+		joclyExtraStream, joclyResStream)
+    .pipe(through.obj(function (file, enc, next) {
+      next(null, new Vinyl(file));
     }))
     .pipe(gulp.dest("dist/browser"));
 
@@ -310,10 +349,21 @@ gulp.task("build-browser-xdview", function () {
 	const srcLib = "src/lib/";
 	const nmLib = "node_modules/";
 
-	var libs = ProcessJS(gulp.src([
+	// three.js and jquery.js are plain UMD bundles already targeting ES5 —
+	// they've never needed transpilation. Running them through ProcessJS
+	// (Babel, in non-module mode) turns their top-level `this` into
+	// `void 0` (Babel correctly treats the file as strict-mode, where
+	// top-level `this` is undefined rather than the global object), which
+	// breaks the IIFE argument each of them uses to detect whether to
+	// attach itself as a CommonJS export or a plain global — they end up
+	// calling their factory with `global = void 0` instead of the real
+	// global object, crashing on the very first global property access
+	// (e.g. "Cannot read properties of undefined (reading 'THREE')").
+	// Copy them through untouched instead.
+	var libs = gulp.src([
 		lib + "three.js",
 		nmLib + "jquery/dist/jquery.js"
-	]));
+	]);
 
 	var packedLibs = ProcessJS(gulp.src([
 		lib + "SubdivisionModifier.js",
@@ -337,7 +387,7 @@ gulp.task("build-browser-xdview", function () {
 		src + "browser/jocly.xd-view.js"
 	]), "jocly-xdview.js", true);
 
-	return merge(libs, packedLibs)
+	return mergeSequential(libs, packedLibs)
 		.pipe(gulp.dest("dist/browser"))
 		;
 
@@ -356,12 +406,12 @@ gulp.task("build",
   gulp.parallel("build-browser", "build-node")));
 
 gulp.task("watch", function () {
-	gulp.watch(moduleDirs.map((dir) => { return dir + "/**/*"; }), ["build-node-games", "build-browser-games"]);
-	gulp.watch("src/{browser,core,lib}/**/*", ["build-browser-core", "build-browser-xdview"]);
-	gulp.watch("src/{node,core}/**/*", ["build-node-core"]);
+	gulp.watch(moduleDirs.map((dir) => { return dir + "/**/*"; }), gulp.series("build-node-games", "build-browser-games"));
+	gulp.watch("src/{browser,core,lib}/**/*", gulp.series("build-browser-core", "build-browser-xdview"));
+	gulp.watch("src/{node,core}/**/*", gulp.series("build-node-core"));
 });
 
-gulp.task("help", function () {
+gulp.task("help", function (cb) {
 	var help = `
 usage: gulp [<commands>] [<options>]
 
@@ -377,5 +427,6 @@ options:
     --no-obsolete: do not include games marked as obsolete
 `;
 	console.log(help);
+	cb();
 	process.exit(0);
 });
