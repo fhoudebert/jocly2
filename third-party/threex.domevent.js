@@ -284,7 +284,8 @@ THREEx.DomEvent.prototype.isTHREExTarget = function(clientX, clientY) {
 
 	var vector	= new THREE.Vector3( mouseX, mouseY, 1 );
 	vector.unproject( this._camera );
-    var worldPos = this._camera.getWorldPosition();
+    var worldPos = new THREE.Vector3();
+    this._camera.getWorldPosition( worldPos );
 	vector.sub( worldPos ).normalize()
 	var ray		= new THREE.Raycaster( worldPos, vector );
 	var intersects	= ray.intersectObjects( this._boundObjs[this._boundContext] );
@@ -316,7 +317,8 @@ THREEx.DomEvent.prototype.lockObject = function(event,enableDrag) {
 	
 	var vector	= new THREE.Vector3( mouseX, mouseY, 1 );
 	vector.unproject( this._camera );
-    var worldPos = this._camera.getWorldPosition();
+    var worldPos = new THREE.Vector3();
+    this._camera.getWorldPosition( worldPos );
     //vector.sub( this._camera.position ).normalize()
     vector.sub( worldPos ).normalize()
 	var ray		= new THREE.Raycaster( worldPos, vector );
@@ -370,7 +372,8 @@ THREEx.DomEvent.prototype._onEvent	= function(eventName, mouseX, mouseY, origDom
 
 	var vector	= new THREE.Vector3( mouseX, mouseY, 1 );
 	vector.unproject( this._camera );
-    var worldPos = this._camera.getWorldPosition();
+    var worldPos = new THREE.Vector3();
+    this._camera.getWorldPosition( worldPos );
 	vector.sub( worldPos ).normalize()
 	var ray		= new THREE.Raycaster( worldPos, vector );
 	var intersects	= ray.intersectObjects( this._boundObjs[this._boundContext] );
