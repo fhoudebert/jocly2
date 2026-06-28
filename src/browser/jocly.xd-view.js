@@ -220,6 +220,91 @@ if (window.JoclyXdViewCleanup)
 		}
 	}
 
+	// Adapt a loaded glTF (gltf.scene, a tree of Group/Mesh nodes — one Mesh
+	// per primitive/material, per the glTF spec) into the same flat
+	// {geometry, materials} shape that the rest of this file expects from
+	// the old LegacyJSONLoader/THREE.Geometry pipeline. Concretely: merge
+	// all the primitive's BufferGeometry into a single one with the right
+	// groups (start/count/materialIndex), so the existing call sites
+	// (new THREE.Mesh(geometry, materials), materials[i].clone(), etc.)
+	// keep working unchanged regardless of geometry type.
+	function AdaptGltfToGeoMat(gltf) {
+		var meshNodes = [];
+		gltf.scene.traverse(function (obj) {
+			if (obj.isMesh) meshNodes.push(obj);
+		});
+
+		if (meshNodes.length === 0)
+			return { geometry: new THREE.BufferGeometry(), materials: null };
+
+		var materials = meshNodes.map(function (m) { return m.material; });
+
+		if (meshNodes.length === 1) {
+			return { geometry: meshNodes[0].geometry, materials: materials };
+		}
+
+		// Several primitives can reference the same named glTF material.
+		// Whether that ends up as the same JS object instance depends on
+		// the GLTFLoader version: some versions cache and reuse one
+		// THREE.Material instance per glTF material index, others
+		// (confirmed: the r92-era GLTFLoader bundled here) create a fresh
+		// instance per primitive even when the name matches. Dedupe by
+		// material *name* rather than by instance identity so this works
+		// either way. Deduplicating matters because game code sometimes
+		// substitutes its own materials array (e.g. checkers-xd-view.js
+		// builds `[matborder, mattop]` for a model with 2 distinct
+		// materials spread over 4 primitives); if materialIndex ran 0..3
+		// instead of 0..1, indices 2 and 3 would point past the end of a
+		// 2-element array and crash the BufferGeometry raycaster.
+		var uniqueMaterials = [];
+		var materialIndexByName = {};
+		var materialIndexByInstance = [];
+		meshNodes.forEach(function (m) {
+			var name = m.material.name;
+			var idx;
+			if (Object.prototype.hasOwnProperty.call(materialIndexByName, name)) {
+				idx = materialIndexByName[name];
+			} else {
+				idx = uniqueMaterials.length;
+				materialIndexByName[name] = idx;
+				uniqueMaterials.push(m.material);
+			}
+			materialIndexByInstance.push(idx);
+		});
+
+		// Merge multiple per-primitive geometries into one indexed
+		// BufferGeometry with one group per original mesh/material.
+		var mergedPositions = [], mergedNormals = [], mergedUvs = [];
+		var hasNormals = meshNodes.every(function (m) { return !!m.geometry.attributes.normal; });
+		var hasUvs = meshNodes.every(function (m) { return !!m.geometry.attributes.uv; });
+		var groups = [];
+		var vertexOffset = 0;
+
+		meshNodes.forEach(function (m, i) {
+			var posAttr = m.geometry.attributes.position;
+			var count = posAttr.count;
+			for (var i2 = 0; i2 < posAttr.array.length; i2++) mergedPositions.push(posAttr.array[i2]);
+			if (hasNormals) {
+				var nAttr = m.geometry.attributes.normal;
+				for (var i2 = 0; i2 < nAttr.array.length; i2++) mergedNormals.push(nAttr.array[i2]);
+			}
+			if (hasUvs) {
+				var uAttr = m.geometry.attributes.uv;
+				for (var i2 = 0; i2 < uAttr.array.length; i2++) mergedUvs.push(uAttr.array[i2]);
+			}
+			groups.push({ start: vertexOffset, count: count, materialIndex: materialIndexByInstance[i] });
+			vertexOffset += count;
+		});
+
+		var merged = new THREE.BufferGeometry();
+		merged.addAttribute('position', new THREE.BufferAttribute(new Float32Array(mergedPositions), 3));
+		if (hasNormals) merged.addAttribute('normal', new THREE.BufferAttribute(new Float32Array(mergedNormals), 3));
+		if (hasUvs) merged.addAttribute('uv', new THREE.BufferAttribute(new Float32Array(mergedUvs), 2));
+		groups.forEach(function (g) { merged.addGroup(g.start, g.count, g.materialIndex); });
+
+		return { geometry: merged, materials: uniqueMaterials };
+	}
+
 	var pendingGetResource = [];
 	function GetResource(res, callback) {
 		var resource = resources[res];
@@ -286,29 +371,32 @@ if (window.JoclyXdViewCleanup)
 					return;
 				}
 				var m = /^smoothedfilegeo\|([^\|]*)\|(.*)$/.exec(res);
-				var smooth = parseInt(m[1]);
-				var file = m[2];
+				// The smooth level is no longer applied here: subdivision is
+				// now pre-baked into the .gltf file itself at conversion time
+				// (SubdivisionModifier depends on THREE.Geometry, which is
+				// gone from three.js as of r125). The level is kept in the
+				// resource key only for backwards-compatible cache lookups.
+				var file = m[2].replace(/\.js$/, '.gltf');
 				IncrementResLoading();
 				function HandleGeoMat(geometry, materials) {
 					if (logResourcesLoad)
 						console.log("Loaded", res);
 
-					// not sure of the side effects here but this removes the console
-					// warnings "THREE.DirectGeometry.fromGeometry(): Undefined vertexUv"
-					for (var i = 0; i < geometry.faceVertexUvs.length; i++) {
-						for (var j = 0; j < geometry.faceVertexUvs[i].length; j++) {
-							var uv = geometry.faceVertexUvs[i][j];
-							if (uv === undefined)
-								geometry.faceVertexUvs[i][j] = [{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }];
+					// Textures loaded via GLTFLoader still need an explicit
+					// sRGB encoding to render with correct brightness/color.
+					// At this three.js version (r92), the renderer still
+					// uses the legacy renderer.gammaInput/gammaOutput flags
+					// (see BuildThree elsewhere in this file) rather than
+					// renderer.outputEncoding, which only appears in a later
+					// three.js version -- this texture.encoding assignment
+					// is independent of that and still required either way.
+					if (materials) {
+						for (var i = 0; i < materials.length; i++) {
+							if (materials[i].map)
+								materials[i].map.encoding = THREE.sRGBEncoding;
 						}
-						for (; j < geometry.faces.length; j++)
-							geometry.faceVertexUvs[i].push([{ x: 0, y: 0 }, { x: 0, y: 0 }, { x: 0, y: 0 }]);
 					}
 
-					if (smooth > 0) {
-						var modifier = new THREE.SubdivisionModifier(smooth);
-						modifier.modify(geometry);
-					}
 					resource.status = "loaded";
 					DecrementResLoading();
 					resource.geometry = geometry;
@@ -321,14 +409,23 @@ if (window.JoclyXdViewCleanup)
 				if (getResFnt) {
 					getResFnt(function (data) {
 						try {
-							var parsed = threeCtx.loader.parse(JSON.parse(data));
-							HandleGeoMat(parsed.geometry, parsed.materials);
+							threeCtx.loader.parse(data, "", function (gltf) {
+								var adapted = AdaptGltfToGeoMat(gltf);
+								HandleGeoMat(adapted.geometry, adapted.materials);
+							}, function (err) {
+								debugger;
+							});
 						} catch (e) {
 							debugger;
 						}
 					});
 				} else
-					threeCtx.loader.load(file, HandleGeoMat);
+					threeCtx.loader.load(file, function (gltf) {
+						var adapted = AdaptGltfToGeoMat(gltf);
+						HandleGeoMat(adapted.geometry, adapted.materials);
+					}, undefined, function (err) {
+						debugger;
+					});
 			} else if (/^json\|/.test(res)) {
 				if (logResourcesLoad)
 					console.log("Loading resource", res);
@@ -3475,7 +3572,7 @@ if (window.JoclyXdViewCleanup)
 			light: light,
 			skyLight: skylight,
 			ambientLight: ambientLight,
-			loader: new THREE.JSONLoader(),
+			loader: new THREE.GLTFLoader(),
 			camera: camera,
 			cameraControls: cameraControls,
 			animateCallbacks: animateCallbacks,

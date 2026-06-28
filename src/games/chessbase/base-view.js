@@ -890,6 +890,7 @@
 		
 		createMaterial: function(spec,canvas,callback) {
 			var texBoardDiffuse = new THREE.Texture(canvas.diffuse);
+			texBoardDiffuse.encoding = THREE.sRGBEncoding;
 			texBoardDiffuse.needsUpdate = true;
 			var matSpec={
 				specular: '#050505',//'#222222',
@@ -1088,7 +1089,13 @@
 					if(!geo._cbZRotated) {
 						var matrix = new THREE.Matrix4();
 						matrix.makeRotationY(spec.mesh.rotateZ*Math.PI/180)
-						geo.applyMatrix(matrix);
+						// NOTE: this is BufferGeometry.applyMatrix() here (not
+					// .applyMatrix4()) because three.js r92 still names this
+					// method "applyMatrix" on BufferGeometry; the rename to
+					// applyMatrix4 happens in a later three.js version. geo
+					// is a BufferGeometry since the migration to GLTFLoader
+					// (see jocly.xd-view.js's AdaptGltfToGeoMat).
+					geo.applyMatrix(matrix);
 						geo._cbZRotated=true;
 					}
 					geometry=geo;
@@ -1162,6 +1169,7 @@
 		    		var ctx = canvas.getContext('2d');
 		    		spec.paintTexture.call(this,spec,ctx,material,chan,resources);
 		    		var texture =  new THREE.Texture(canvas);
+		    		if (chan === "diffuse") texture.encoding = THREE.sRGBEncoding;
 		    		texture.needsUpdate = true;
 		    		resources.textures[material][chan]=texture;
 	    		}
@@ -1255,7 +1263,7 @@
 				
 				resources.material=pieceMat;
 				
-				resources.geometry.mergeVertices()
+				resources.geometry = THREE.BufferGeometryUtils.mergeVertices(resources.geometry);
 				resources.geometry.computeVertexNormals(); // needed in normals not exported in js file!
 
 			},

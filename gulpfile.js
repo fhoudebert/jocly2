@@ -372,6 +372,8 @@ gulp.task("build-browser-xdview", function () {
 		srcLib + "JoclyOrbitControls.js",
 		lib + "DeviceOrientationControls.js",
 		lib + "Projector.js",
+		lib + "GLTFLoader.js",
+		lib + "BufferGeometryUtils.js",
 		lib + "threex.domevent.js",
 		lib + "threex.domevent.object3d.js",
 		lib + "StereoEffect.js",
