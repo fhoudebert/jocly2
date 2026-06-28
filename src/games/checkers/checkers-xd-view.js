@@ -1185,7 +1185,6 @@
 	 					var mat=materials[i].clone();
  						mat.map=videoTexture;
  						mat.emissive={r:1,g:1,b:1},
- 						mat.overdraw = true;
  						//mat.side = THREE.DoubleSide;
  						materials0.push(mat);
                     }else if (materials[i].name=="boomer"){

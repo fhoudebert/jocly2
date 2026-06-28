@@ -414,7 +414,6 @@
                     if (materials[i].name=="mat.screen"){
 	 					var mat=materials[i].clone();
  						mat.map=videoTexture;
- 						mat.overdraw = true;
  						//mat.side = THREE.DoubleSide;
  						materials0.push(mat);
                     }else{

@@ -58,7 +58,7 @@
 			var r=r0+delta[1];
 			if(r<0 || r>=height)
 				return null;
-			return POS(c,r);
+			return POS(c,r,P(pos));
 		}
 		
 		var distance={};
@@ -137,7 +137,7 @@
 				return -1;
 			var c=m[1].charCodeAt(0)-"a".charCodeAt(0);
 			var r=parseInt(m[2])-1;
-			return POS(c,r);
+			return POS(c,r,0);
 		}
 		function CompactCrit(pos,index) {
 			if(index==0)
@@ -241,15 +241,15 @@
 
 	
 	Model.Game.cbRookGraph = function(geometry) {
-		return this.cbLongRangeGraph(geometry,[[0,-1],[0,1],[-1,0],[1,0]]);
+		return this.cbLongRangeGraph(geometry,[[0,-1],[0,1],[-1,0],[1,0]],null,null,Math.max(geometry.width,geometry.height));
 	}
 	
 	Model.Game.cbBishopGraph = function(geometry) {
-		return this.cbLongRangeGraph(geometry,[[1,-1],[1,1],[-1,1],[-1,-1]]);
+		return this.cbLongRangeGraph(geometry,[[1,-1],[1,1],[-1,1],[-1,-1]],null,null,Math.max(geometry.width,geometry.height));
 	}
 	
 	Model.Game.cbQueenGraph = function(geometry) {
-		return this.cbLongRangeGraph(geometry,[[0,-1],[0,1],[-1,0],[1,0],[1,-1],[1,1],[-1,1],[-1,-1]]);
+		return this.cbLongRangeGraph(geometry,[[0,-1],[0,1],[-1,0],[1,0],[1,-1],[1,1],[-1,1],[-1,-1]],null,null,Math.max(geometry.width,geometry.height));
 	}
 
 	Model.Game.cbXQGeneralGraph = function(geometry,confine) {
@@ -294,7 +294,7 @@
 	}
 
 	Model.Game.cbXQCannonGraph = function(geometry) {
-		return this.cbLongRangeGraph(geometry,[[0,-1],[0,1],[-1,0],[1,0]],null,this.cbConstants.FLAG_MOVE | this.cbConstants.FLAG_SCREEN_CAPTURE);
+		return this.cbLongRangeGraph(geometry,[[0,-1],[0,1],[-1,0],[1,0]],null,this.cbConstants.FLAG_MOVE | this.cbConstants.FLAG_SCREEN_CAPTURE,Math.max(geometry.width,geometry.height));
 	}
 	
 	Model.Game.cbXQElephantGraph = function(geometry,confine) {

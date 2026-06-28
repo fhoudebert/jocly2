@@ -141,7 +141,7 @@ function HandleModuleGames(modelOnly) {
 							return path.join(modulesMap[moduleName], file);
 						});
             if(files.length>0) {
-              var stream = gulp.src(files, {"allowEmpty": true})
+              var stream = gulp.src(files, {"allowEmpty": true, "encoding": false})
                 .pipe(rename(function (path) {
                   path.dirname = moduleName;
                 }))
@@ -183,7 +183,7 @@ function HandleModuleGames(modelOnly) {
 
 		// create module common resources
 		if (!modelOnly) {
-			var stream = gulp.src(modulesMap[moduleName] + "/res/**/*")
+			var stream = gulp.src(modulesMap[moduleName] + "/res/**/*", {"encoding": false})
 				.pipe(rename(function (path) {
 					path.dirname = moduleName + "/res/" + path.dirname;
 				}))
@@ -349,31 +349,48 @@ gulp.task("build-browser-xdview", function () {
 	const srcLib = "src/lib/";
 	const nmLib = "node_modules/";
 
-	// three.js and jquery.js are plain UMD bundles already targeting ES5 —
-	// they've never needed transpilation. Running them through ProcessJS
-	// (Babel, in non-module mode) turns their top-level `this` into
-	// `void 0` (Babel correctly treats the file as strict-mode, where
-	// top-level `this` is undefined rather than the global object), which
-	// breaks the IIFE argument each of them uses to detect whether to
-	// attach itself as a CommonJS export or a plain global — they end up
-	// calling their factory with `global = void 0` instead of the real
-	// global object, crashing on the very first global property access
-	// (e.g. "Cannot read properties of undefined (reading 'THREE')").
-	// Copy them through untouched instead.
+	// jquery.js is a plain UMD bundle already targeting ES5 — it's never
+	// needed transpilation. Running it through ProcessJS (Babel, in
+	// non-module mode) turns its top-level `this` into `void 0` (Babel
+	// correctly treats the file as strict-mode, where top-level `this` is
+	// undefined rather than the global object), which breaks the IIFE
+	// argument it uses to detect whether to attach itself as a CommonJS
+	// export or a plain global — it ends up calling its factory with
+	// `global = void 0` instead of the real global object, crashing on the
+	// very first global property access.
+	//
+	// third-party/three.js is a different case as of r161: it's a copy of
+	// three.cjs (`'use strict'; exports.X = X;` at the top level, no UMD
+	// wrapper at all -- build/three.js/three.min.js were removed from the
+	// three.js package starting with this version). It's loaded through
+	// BrowserScriptLoader.import() rather than a real <script> tag (see
+	// jocly.game.js), so it never goes through this gulp.src() pipeline's
+	// runtime concerns the way jquery.js does -- but it's still copied
+	// through untouched here for the same reason: it's already plain ES5,
+	// so Babel has nothing useful to do to it, and there's no IIFE/`this`
+	// detection logic in this format to accidentally break.
+	//
+	// NOTE: this is the opposite of what migration-threejs (r122) needs,
+	// where third-party/three.js is instead the ES module build
+	// (export {...}) requiring Babel transpilation to be consumable via
+	// BrowserScriptLoader.import() -- always check which form of three.js
+	// is actually checked in on a given branch before assuming this
+	// comment applies.
 	var libs = gulp.src([
 		lib + "three.js",
 		nmLib + "jquery/dist/jquery.js"
 	]);
 
 	var packedLibs = ProcessJS(gulp.src([
-		lib + "SubdivisionModifier.js",
 		lib + "tween.js",
 		lib + "tween.fix.js",
 		srcLib + "JoclyOrbitControls.js",
 		lib + "DeviceOrientationControls.js",
 		lib + "Projector.js",
-		lib + "GLTFLoader.js",
 		lib + "BufferGeometryUtils.js",
+		lib + "GLTFLoader.js",
+		lib + "FontLoader.js",
+		lib + "TextGeometry.js",
 		lib + "threex.domevent.js",
 		lib + "threex.domevent.object3d.js",
 		lib + "StereoEffect.js",

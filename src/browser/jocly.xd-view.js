@@ -1938,7 +1938,6 @@ if (window.JoclyXdViewCleanup)
 				makeMesh: function (videoTexture, ccvVideoTexture) {
 					var material = new THREE.MeshBasicMaterial({
 						map: videoTexture,
-						overdraw: true,
 						// side:THREE.DoubleSide
 					});
 					var geometry = new THREE.PlaneGeometry(12, 9, 1, 1);
@@ -2406,7 +2405,6 @@ if (window.JoclyXdViewCleanup)
 				makeMesh: function (videoTexture) {
 					var material = new THREE.MeshBasicMaterial({
 						map: videoTexture,
-						overdraw: true,
 					});
 					var geometry = new THREE.PlaneGeometry(this.options.width * this.SCALE3D, this.options.height * this.SCALE3D, 1, 1);
 					var mesh = new THREE.Mesh(geometry, material);
@@ -3474,7 +3472,11 @@ if (window.JoclyXdViewCleanup)
 		// migration path.
 		//renderer.shadowMapEnabled = true;
 		renderer.shadowMap.enabled = true;
-		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+		// PCFSoftShadowMap was removed from the renderer and silently
+		// replaced with PCFShadowMap since r182 (which now includes the
+		// same softening) -- using PCFShadowMap directly here avoids the
+		// console warning without changing the actual rendered result.
+		renderer.shadowMap.type = THREE.PCFShadowMap;
 		//renderer.physicallyBasedShading = true; // gives high level of shininess specular
 		//renderer.shadowMapCascade = true;
 
