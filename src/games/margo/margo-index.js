@@ -48,7 +48,7 @@ exports.games = (function() {
 		"z": 0
 	}
 	var config_view_skins_world = {
-		"lightIntensity": 0.3,
+		"lightIntensity": 0.8,
 		"color": 0,
 		"fog": false,
 		"lightPosition": {
@@ -56,7 +56,7 @@ exports.games = (function() {
 			"y": 18,
 			"z": 0
 		},
-		"skyLightIntensity": 0.25,
+		"skyLightIntensity": 0.7,
 		"skyLightPosition": config_view_skins_world_skyLightPosition,
 		"ambientLightColor": 8947848
 	}

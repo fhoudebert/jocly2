@@ -30,7 +30,7 @@
 	// useful to initialize pieces and board while the real meshes aren't loaded yet
 	View.Game.cbMakeDummyMesh = function(xdv) {
 		if(typeof THREE != "undefined")
-		    return new THREE.Mesh( new THREE.CubeGeometry( .0001, .0001, .0001 ), 
+		    return new THREE.Mesh( new THREE.BoxGeometry( .0001, .0001, .0001 ), 
 					      new THREE.MeshLambertMaterial() );
 		else
 			return null;
@@ -410,7 +410,7 @@
 						type: "custommesh3d",
 						create: function(callback){
 							// spot lighting
-							var spotLight1 = new THREE.SpotLight( light.color, light.intensity );
+							var spotLight1 = new THREE.SpotLight( light.color, light.intensity * (window.JoclyGetLightFactor ? window.JoclyGetLightFactor($this) : Math.PI), 0, undefined, undefined, 0 );
 							//for(var prop in light.props)
 								//spotLight1[prop] = light.props[prop];
 							
@@ -439,7 +439,7 @@
 	View.Game.cbCreateScreen = function(videoTexture) {
 		// flat screens
 		var gg=new THREE.PlaneGeometry(4,3,1,1);
-		var gm=new THREE.MeshPhongMaterial({color:0xffffff,map:videoTexture,shading:THREE.FlatShading,emissive:{r:1,g:1,b:1}});
+		var gm=new THREE.MeshPhongMaterial({color:0xffffff,map:videoTexture,flatShading:true,emissive:{r:1,g:1,b:1}});
 		var mesh = new THREE.Mesh( gg , gm );
 		this.objectReady(mesh); 
 		return null;
@@ -890,7 +890,7 @@
 		
 		createMaterial: function(spec,canvas,callback) {
 			var texBoardDiffuse = new THREE.Texture(canvas.diffuse);
-			texBoardDiffuse.encoding = THREE.sRGBEncoding;
+			texBoardDiffuse.colorSpace = THREE.SRGBColorSpace;
 			texBoardDiffuse.needsUpdate = true;
 			var matSpec={
 				specular: '#050505',//'#222222',
@@ -1034,7 +1034,7 @@
 		"default": {
 			mesh: {
 				jsFile: function(spec,callback) {
-					callback(new THREE.CubeGeometry(1,1,1),new THREE.MeshPhongMaterial({}));
+					callback(new THREE.BoxGeometry(1,1,1),new THREE.MeshPhongMaterial({}));
 				},
 				smooth: 0,
 				rotateZ: 0,
@@ -1089,13 +1089,7 @@
 					if(!geo._cbZRotated) {
 						var matrix = new THREE.Matrix4();
 						matrix.makeRotationY(spec.mesh.rotateZ*Math.PI/180)
-						// NOTE: this is BufferGeometry.applyMatrix() here (not
-					// .applyMatrix4()) because three.js r92 still names this
-					// method "applyMatrix" on BufferGeometry; the rename to
-					// applyMatrix4 happens in a later three.js version. geo
-					// is a BufferGeometry since the migration to GLTFLoader
-					// (see jocly.xd-view.js's AdaptGltfToGeoMat).
-					geo.applyMatrix(matrix);
+						geo.applyMatrix4(matrix);
 						geo._cbZRotated=true;
 					}
 					geometry=geo;
@@ -1169,7 +1163,7 @@
 		    		var ctx = canvas.getContext('2d');
 		    		spec.paintTexture.call(this,spec,ctx,material,chan,resources);
 		    		var texture =  new THREE.Texture(canvas);
-		    		if (chan === "diffuse") texture.encoding = THREE.sRGBEncoding;
+		    		if (chan === "diffuse") texture.colorSpace = THREE.SRGBColorSpace;
 		    		texture.needsUpdate = true;
 		    		resources.textures[material][chan]=texture;
 	    		}
@@ -1282,7 +1276,7 @@
 				shininess: 300,
 				specular: "#ffffff",
 				emissive: "#222222",
-				shading: typeof THREE!="undefined"?THREE.FlatShading:0,
+				flatShading: true,
 			},
 			makeMaterials: function(spec,resources) {
 				var pieceMat = new THREE.MeshPhongMaterial( spec.phongProperties );

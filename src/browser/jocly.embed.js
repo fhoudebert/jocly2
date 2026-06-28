@@ -33,9 +33,9 @@ window.addEventListener("message", ReceiveMessage, false);
 function ReceiveMessage(event)
 {
     //console.info("embed receives message",event.data);
-    var origin = event.origin || event.originalEvent.origin;
+    var origin = event.origin || (event.originalEvent && event.originalEvent.origin) || "";
     var url = new URL(window.location);
-    if(origin!=url.origin)
+    if(origin && origin!=url.origin)
         return;
     function Reply(message) {
         message = message || {};

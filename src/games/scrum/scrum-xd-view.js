@@ -37,7 +37,7 @@
 				"3d": {
 					type: "custom3d",
 					create: function() {
-						var light = new THREE.SpotLight( 0xffffff, 0.7 );
+						var light = new THREE.SpotLight( 0xffffff, 0.7 * (window.JOCLY_LIGHT_FACTOR || Math.PI), 0, undefined, undefined, 0 );
 						light.castShadow = true;
 						//light.shadowCameraVisible=true;
 						light.shadowDarkness = .25;
@@ -129,7 +129,7 @@
 			"3d": {
 				type: "custom3d",
 				create: function(){
-					var aLight= new THREE.SpotLight(0xffffff,1.2, 0, 1.05, 1, 2);
+					var aLight= new THREE.SpotLight(0xffffff, 1.2 * (window.JOCLY_LIGHT_FACTOR || Math.PI), 0, 1.05, 1, 0);
 					aLight.castShadow = false;
 					return aLight;
 				},
@@ -142,7 +142,7 @@
 			"3d": {
 				type: "custom3d",
 				create: function(){
-					var aLight= new THREE.SpotLight(0xffffff,1.2, 0, 1.05, 1, 2);
+					var aLight= new THREE.SpotLight(0xffffff, 1.2 * (window.JOCLY_LIGHT_FACTOR || Math.PI), 0, 1.05, 1, 0);
 					//aLight.height = 1000;
 					//aLight.width = 1000;
 					aLight.castShadow = false;
@@ -409,6 +409,7 @@
 			this.getResource("smoothedfilegeo|"+smooth+"|"+fullPath+"/res/xd-view/meshes/stade-screen.js",function(geometry , materials) {
  				var materials0=[];
  				
+ 				materials = materials || [];
  				for(var i=0;i<materials.length;i++){
                     if (materials[i].name=="mat.screen"){
 	 					var mat=materials[i].clone();
@@ -531,9 +532,11 @@
 						var starSprite = new THREE.ImageUtils.loadTexture( fullPath + "/res/xd-view/meshes/star.png" );
 						var material = new THREE.ParticleBasicMaterial( { size: 0.5, map: starSprite, blending: THREE.AdditiveBlending,  depthTest: true, transparent : true, } );
 						material.color.setHex( 0xffffff );
+						material.color.convertSRGBToLinear();
 						var lights = new THREE.ParticleSystem( geometry, material);
 						var material2 = new THREE.ParticleBasicMaterial( { size: 0.8, map: starSprite, blending: THREE.AdditiveBlending,  depthTest: true, transparent : true } );
 						material2.color.setHex( 0xff8888 );
+						material2.color.convertSRGBToLinear();
 						var lights2 = new THREE.ParticleSystem( geometry, material2);
 						lights2.scale.x=1.25;
 						lights.add(lights2);
@@ -601,7 +604,7 @@
 	
 					} ),
 	
-					mesh = new THREE.Mesh( new THREE.CubeGeometry( 3000, 3000, 3000 ), material );
+					mesh = new THREE.Mesh( new THREE.BoxGeometry( 3000, 3000, 3000 ), material );
 					return mesh;
 				},			
 			},
@@ -622,13 +625,14 @@
 				type : "custommesh3d",
 				z: -40,
 				create: function(){
-					var gg=new THREE.CubeGeometry(8,0.08,13);
+					var gg=new THREE.BoxGeometry(8,0.08,13);
                     var $this = this;
                     var loader = new THREE.TextureLoader();
                     loader.load(fullPath+"/res/xd-view/meshes/scrumfield8x12-3d.jpg",
                         function(diffuseMap) {
                             diffuseMap.wrapS = diffuseMap.wrapT = THREE.RepeatWrapping;
-                            diffuseMap.format = THREE.RGBFormat;
+                            diffuseMap.format = THREE.RGBAFormat;
+                            diffuseMap.colorSpace = THREE.SRGBColorSpace;
                             //var gm=new THREE.MeshBasicMaterial({color:0xffffff,side: THREE.DoubleSide});
                             var gm=new THREE.MeshPhongMaterial( {
                                         color: 0x888888,

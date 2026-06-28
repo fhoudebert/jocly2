@@ -89,7 +89,7 @@ TWEEN= typeof TWEEN=="undefined" ? { Easing: { Cubic: {}, Quartic: {}, } } : TWE
 			"3d": {
 				type: "custom3d",
 				create: function() {
-					var explight = new THREE.SpotLight( 0xffffaa, 1, 0, 1.05, 1, 2);
+					var explight = new THREE.SpotLight( 0xffffaa, 1 * (window.JoclyGetLightFactor ? window.JoclyGetLightFactor() : Math.PI), 0, 1.05, 1, 0);
 					//explight.castShadow = false;
 					$.extend(this.options,{
 						intensity: 0,
@@ -409,7 +409,7 @@ TWEEN= typeof TWEEN=="undefined" ? { Easing: { Cubic: {}, Quartic: {}, } } : TWE
 	
 					} ),
 	
-					mesh = new THREE.Mesh( new THREE.CubeGeometry( 3000, 3000, 3000 ), material );
+					mesh = new THREE.Mesh( new THREE.BoxGeometry( 3000, 3000, 3000 ), material );
 					return mesh;
 				},			
 			},

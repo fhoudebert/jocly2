@@ -67,7 +67,7 @@
 		R = (CELLSIZE/2)/Math.sin(alpha/2);
 		nbBackLights=bTorus?3:2;
 		lightsR=bTorus?40000:20000; //7*R*BLENDER2WORLD
-		backLightIntensity=bTorus?1.5:1.5;
+		backLightIntensity=(bTorus?1.5:1.5) * (window.JOCLY_LIGHT_FACTOR || Math.PI);
 		connect4Color=bTorus?0x0066ff:0x0066ff;
 
 		for (var i=0;i<nbBackLights;i++) {
@@ -76,7 +76,7 @@
 					"3d": {
 						type: "custom3d",
 						create: function() {
-							var backlight = new THREE.SpotLight( 0xbbbbbb, backLightIntensity );
+							var backlight = new THREE.SpotLight( 0xbbbbbb, backLightIntensity, 0, undefined, undefined, 0 );
 							backlight.castShadow = bTorus?false:true;
 							
 							backlight.shadow.camera.near= bTorus?30:15;
@@ -163,7 +163,7 @@
 					
 					var matBlueFlat = new THREE.MeshPhongMaterial( { 
 						wireframe: false , 
-						shading: THREE.FlatShading ,
+						flatShading:true ,
 						color: connect4Color,
 						specular: 0x111111,
 						shininess:40,
@@ -195,7 +195,7 @@
 								for (var c = 0 ; c < NBCOLS ; c++ ){
 									var mesh = new THREE.Mesh( geometry , new THREE.MeshPhongMaterial( { 
 												wireframe: false , 
-												shading: THREE.SmoothShading ,
+												flatShading:false ,
 												color: connect4Color,
 												specular: 0x333333,
 											} ) );

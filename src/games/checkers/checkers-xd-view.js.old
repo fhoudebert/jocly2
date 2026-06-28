@@ -88,7 +88,7 @@
 					var canvasDiffuse=document.createElement('canvas');
 					canvasDiffuse.width=canvasDiffuse.height=TEXTURE_CANVAS_SZ;
 					var textureDiff =  new THREE.Texture(canvasDiffuse);
-					textureDiff.colorSpace = THREE.SRGBColorSpace;
+					textureDiff.encoding = THREE.sRGBEncoding;
 					var canvasBump=document.createElement('canvas');
 					canvasBump.width=canvasBump.height=TEXTURE_CANVAS_SZ;
 					var textureBump =  new THREE.Texture(canvasBump);
@@ -114,7 +114,7 @@
 					var canvasDiffuseB=document.createElement('canvas');
 					canvasDiffuseB.width=canvasDiffuseB.height=TEXTURE_CANVAS_SZ;
 					var textureDiffB =  new THREE.Texture(canvasDiffuseB);
-					textureDiffB.colorSpace = THREE.SRGBColorSpace;
+					textureDiffB.encoding = THREE.sRGBEncoding;
 					var ctxB=canvasDiffuseB.getContext("2d");
 					ctxB.drawImage(diffuseMap,0,0,TEXTURE_CANVAS_SZ,TEXTURE_CANVAS_SZ);
 					blackenCtxIfNeeded(ctxB);
@@ -140,15 +140,7 @@
 						shininess:shininess,
 						map:textureDiffB});
 					
-					// Order matches the converted .gltf's material order
-					// (piecetop, pieceborders) -- not the legacy JSON
-					// source's order (pieceborders, piecetop), which got
-					// reversed during the glTF conversion. AdaptGltfToGeoMat
-					// assigns group.materialIndex by first-appearance order
-					// in the .gltf, so this array must follow that order
-					// too, or the wrong texture ends up on the wrong part
-					// of the piece.
-					var pieceMat=[mattop,matborder];
+					var pieceMat=[matborder,mattop];
 					
 					callback({geometry:pieceGeo,material:pieceMat});
 					
@@ -248,7 +240,7 @@
 			"3d": {
 				type: "custom3d",
 				create: function() {
-					var backlight = new THREE.PointLight( 0xaaaaff, 1 * (window.JOCLY_LIGHT_FACTOR || Math.PI), 30, 0 );
+					var backlight = new THREE.PointLight( 0xaaaaff, 1, 30 );
 					return backlight;
 				},
 				z: 10000,
@@ -257,7 +249,7 @@
 			},
 			"turtles3d": {
 				create: function() {
-					var backlight = new THREE.PointLight( 0xaaaaff, 3 * (window.JOCLY_LIGHT_FACTOR || Math.PI), 30 , 0);
+					var backlight = new THREE.PointLight( 0xaaaaff, 3, 30 , 2);
 					return backlight;
 				},
 			},
@@ -266,7 +258,7 @@
 			"3d": {
 				type: "custom3d",
 				create: function() {
-					var backlight = new THREE.PointLight( 0xaaccff, 0.7 * (window.JOCLY_LIGHT_FACTOR || Math.PI), 30, 0 );
+					var backlight = new THREE.PointLight( 0xaaccff, 0.7, 30 );
 					return backlight;
 				},
 				z: 10000,
@@ -275,7 +267,7 @@
 			},
 			"turtles3d" : {
 				create: function() {
-					var backlight = new THREE.PointLight( 0xaaccff, 3 * (window.JOCLY_LIGHT_FACTOR || Math.PI), 30 , 0);
+					var backlight = new THREE.PointLight( 0xaaccff, 3, 30 , 2);
 					return backlight;
 				},
 			},
@@ -600,7 +592,6 @@
 						// `.materialIndex = 0` loop only made sense on the
 						// removed THREE.Geometry, which stored faces with
 						// their own materialIndex property.
-						geometry.groups = [{ start: 0, count: geometry.index ? geometry.index.count : geometry.attributes.position.count, materialIndex: 0 }];
 						var sphere = new THREE.Mesh(geometry,[sphereMaterial]);
 						return sphere;
 					},					
@@ -684,7 +675,7 @@
 			var canvasDiffuse=document.createElement('canvas');
 			canvasDiffuse.width=canvasDiffuse.height=TEXTURE_CANVAS_SZ;
 			var textureDiff =  new THREE.Texture(canvasDiffuse);					
-			textureDiff.colorSpace = THREE.SRGBColorSpace;
+			textureDiff.encoding = THREE.sRGBEncoding;
 			var canvasBump=document.createElement('canvas');
 			canvasBump.width=canvasBump.height=TEXTURE_CANVAS_SZ;
 			var textureBump =  new THREE.Texture(canvasBump);
@@ -1065,7 +1056,7 @@
 					textureLoader.setCrossOrigin("anonymous");
 					textureLoader.load(texPath,
 							function(texture){		
-								texture.colorSpace = THREE.SRGBColorSpace;
+								texture.encoding = THREE.sRGBEncoding;
 								var starSprite = texture ; 
 								for(var i=0;i<catCount;i++) {
 									var material = new THREE.PointsMaterial( { size: 0.5, map: starSprite, blending: THREE.NormalBlending,  depthTest: true, transparent : true } );

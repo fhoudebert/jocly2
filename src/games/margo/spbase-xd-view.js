@@ -47,7 +47,7 @@
 			"3d": {
 				type: "custom3d",
 				create: function() {
-					var backlight = new THREE.PointLight( 0xaaaaff, 1, 30 );
+					var backlight = new THREE.PointLight( 0xaaaaff, 1 * (window.JOCLY_LIGHT_FACTOR || Math.PI), 30, 0 );
 					return backlight;
 				},
 				z: 10000,
@@ -59,7 +59,7 @@
 			"3d": {
 				type: "custom3d",
 				create: function() {
-					var backlight = new THREE.PointLight( 0xaaccff, 1, 30 );
+					var backlight = new THREE.PointLight( 0xaaccff, 1 * (window.JOCLY_LIGHT_FACTOR || Math.PI), 30, 0 );
 					return backlight;
 				},
 				z: -10000,
@@ -92,42 +92,16 @@
 					zMin = graphGeometry.boundingBox.min.z;
 					zMax = graphGeometry.boundingBox.max.z;
 					zRange = zMax - zMin;
-					var color, point, face, numberOfSides, vertexIndex;
-					// faces are indexed using characters
-					var faceIndices = [ 'a', 'b', 'c', 'd' ];
-					// first, assign colors to vertices as desired
-					for ( var i = 0; i < graphGeometry.vertices.length; i++ ) 
+					var posAttr = graphGeometry.attributes.position;
+					var colors = new Float32Array(posAttr.count * 3);
+					for ( var i = 0; i < posAttr.count; i++ ) 
 					{
-						point = graphGeometry.vertices[ i ];
-						color = new THREE.Color( 0x000000 );
-						//color.setHSL( 0.7 * (zMax - point.z) / zRange, 1, 0.5 );
-						
-						/*var delta=(zMax - point.z)/zRange;
-						color.b = 1+delta;
-						color.g = 0.5+0.3*delta;
-						color.r = 0.2*delta;*/
-
-						var delta=(zMax - point.z)/zRange;
-						color.b = 1+delta;
-						color.g = 0.5+0.4*delta;
-						color.r = 0.3*delta;
-
-
-
-						
-						graphGeometry.colors[i] = color; // use this array for convenience
+						var delta=(zMax - posAttr.getZ(i))/zRange;
+						colors[i*3] = 0.3*delta;
+						colors[i*3+1] = 0.5+0.4*delta;
+						colors[i*3+2] = 1+delta;
 					}
-					// copy the colors as necessary to the face's vertexColors array.
-					for ( var i = 0; i < graphGeometry.faces.length; i++ ) 
-					{
-						face = graphGeometry.faces[ i ];
-						numberOfSides = ( face instanceof THREE.Face3 ) ? 3 : 4;
-						for( var j = 0; j < numberOfSides; j++ ) 
-						{
-							vertexIndex = face[ faceIndices[ j ] ];
-							face.vertexColors[ j ] = graphGeometry.colors[ vertexIndex ];
-						}
-					}
+					graphGeometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
 					///////////////////////
 					// end vertex colors //
 					///////////////////////
@@ -139,9 +113,10 @@
 					textureLoader.setCrossOrigin("anonymous");
 					textureLoader.load(fullPath + "/res/xd-view/meshes/square.png",
 						function(wireTexture){
+							wireTexture.colorSpace = THREE.SRGBColorSpace;
 							wireTexture.wrapS = wireTexture.wrapT = THREE.RepeatWrapping; 
 							wireTexture.repeat.set( 40, 40 );
-							var wireMaterial = new THREE.MeshBasicMaterial( { map: wireTexture, vertexColors: THREE.VertexColors, side:THREE.DoubleSide } );
+							var wireMaterial = new THREE.MeshBasicMaterial( { map: wireTexture, vertexColors: true, side:THREE.DoubleSide } );
 	
 							wireMaterial.map.repeat.set( 20, 60 );
 							
@@ -375,7 +350,7 @@
 						//opacity: opacity,
 						create: function() {
 	                        
-	                        var shininess = 500, specular = 0xffffff, shading = THREE.SmoothShading;
+	                        var shininess = 500, specular = 0xffffff, flatShading = false;
 	                        var sphereMaterial = new THREE.MeshPhongMaterial( {
 	                                //map: imgTexture,
 	                        		name: "ball",
@@ -383,7 +358,7 @@
 	                                //ambient: 0x000000,
 	                                specular: specular,
 	                                shininess: shininess,
-	                                shading: shading,
+	                                flatShading: flatShading,
 	                                opacity: opacity,
 	                                transparent: transparent,
 	                                envMap: textureCube,
@@ -393,10 +368,12 @@
 	                           	    //combine: THREE.MultiplyOperation,
 	                        } );
 	                        var geometry=sphereGeometry.clone();
-	                        for(var i=0;i<geometry.faces.length;i++) {
-	                        	geometry.faces[i].materialIndex=0;
-	                        }
-	                        var sphere = new THREE.Mesh(geometry,[sphereMaterial]);
+	                        // No longer needed on BufferGeometry (see the
+	                        // identical fix in checkers-xd-view.js): with no
+	                        // .groups defined, every triangle already renders
+	                        // with material index 0 by default.
+	                        geometry.groups = [{ start: 0, count: geometry.index ? geometry.index.count : geometry.attributes.position.count, materialIndex: 0 }];
+                        var sphere = new THREE.Mesh(geometry,[sphereMaterial]);
 	                        return sphere;
 						},
 					},
@@ -551,6 +528,7 @@
 								map: fullPath+"/res/xd-view/meshes/"+colors[this.board[pos]]+".png",
 								reflectivity: reflexivities[this.board[pos]],
 								opacity: 1,
+								color: this.board[pos]==1 ? 0xd8d8d8 : 0xffffff,
 							},
 						}
 					},

@@ -35,6 +35,60 @@ if (window.JoclyXdViewCleanup)
 
 (function () {
 
+	// Empirically chosen compromise for useLegacyLights removal (r165):
+	// no single factor satisfies every game (some, like
+	// yohoho/raumschach/pensoc, were overexposed at 10*PI while others,
+	// like reversi/kids-draughts/scrum, were still too dark) -- 7*PI
+	// settled on as a reasonable default. Per-game/per-module tuning is
+	// layered on top below rather than touching each game's own
+	// world.lightIntensity/skyLightIntensity config, which stays at its
+	// original (pre-r165) value throughout.
+	var LIGHT_INTENSITY_FACTOR_DEFAULT = Math.PI;
+
+	// Override by module (this.mViewOptions.fullPath ends in
+	// "games/<module>"), applied to every game in that module unless a
+	// more specific per-game override below also matches.
+	//
+	// Currently set to the same value as the global default (neutral,
+	// no actual override) -- kept here as a ready-to-use lever for the
+	// whole module if a shared adjustment is ever needed again, without
+	// having to rediscover this mechanism. Raise/lower this single
+	// number to retest the whole module at once; individual games in
+	// it (raumschach, 3dchess) are tuned independently below/in their
+	// own cbExtraLights instead, since their issues turned out not to
+	// be module-wide.
+	var LIGHT_INTENSITY_FACTOR_BY_MODULE = {
+		"chessbase": Math.PI
+	};
+
+	// Override by exact game name (this.name on the game instance),
+	// takes precedence over the module-level override above.
+	var LIGHT_INTENSITY_FACTOR_BY_GAME = {
+		"raumschach": Math.PI,
+		"pensoc": Math.PI,
+		"yohoho": Math.PI,
+		"mana": Math.PI
+	};
+
+	function GetLightFactor(game) {
+		game = game || xdv.game;
+		if (game && LIGHT_INTENSITY_FACTOR_BY_GAME.hasOwnProperty(game.name))
+			return LIGHT_INTENSITY_FACTOR_BY_GAME[game.name];
+		if (game && game.mViewOptions && game.mViewOptions.fullPath) {
+			var m = /games\/([^\/]+)/.exec(game.mViewOptions.fullPath);
+			if (m && LIGHT_INTENSITY_FACTOR_BY_MODULE.hasOwnProperty(m[1]))
+				return LIGHT_INTENSITY_FACTOR_BY_MODULE[m[1]];
+		}
+		return LIGHT_INTENSITY_FACTOR_DEFAULT;
+	}
+	window.JoclyGetLightFactor = GetLightFactor;
+
+	// Kept for the 3 shared/base lights created once for the whole
+	// engine (not per-game) -- see CreateThree() below -- which have no
+	// single "current game" to look up an override for.
+	var LIGHT_INTENSITY_FACTOR = LIGHT_INTENSITY_FACTOR_DEFAULT;
+	window.JOCLY_LIGHT_FACTOR = LIGHT_INTENSITY_FACTOR;
+
 	window.JoclyXdViewCleanup = function () {
 		var renderer = threeCtx && threeCtx.renderer;
 		if (renderer) {
@@ -198,6 +252,7 @@ if (window.JoclyXdViewCleanup)
 				map,
 				// Function when resource is loaded
 				function (texture) {
+					texture.colorSpace = THREE.SRGBColorSpace;
 					materialMaps[map] = texture;
 					if (logResourcesLoad)
 						console.log("Loaded", map);
@@ -240,22 +295,30 @@ if (window.JoclyXdViewCleanup)
 		var materials = meshNodes.map(function (m) { return m.material; });
 
 		if (meshNodes.length === 1) {
-			return { geometry: meshNodes[0].geometry, materials: materials };
+			var singleGeo = meshNodes[0].geometry;
+			if (!singleGeo.groups || singleGeo.groups.length === 0) {
+				singleGeo.groups = [{ start: 0, count: singleGeo.index ? singleGeo.index.count : singleGeo.attributes.position.count, materialIndex: 0 }];
+			}
+			return { geometry: singleGeo, materials: materials };
 		}
 
 		// Several primitives can reference the same named glTF material.
-		// Whether that ends up as the same JS object instance depends on
-		// the GLTFLoader version: some versions cache and reuse one
-		// THREE.Material instance per glTF material index, others
-		// (confirmed: the r92-era GLTFLoader bundled here) create a fresh
-		// instance per primitive even when the name matches. Dedupe by
-		// material *name* rather than by instance identity so this works
-		// either way. Deduplicating matters because game code sometimes
-		// substitutes its own materials array (e.g. checkers-xd-view.js
-		// builds `[matborder, mattop]` for a model with 2 distinct
-		// materials spread over 4 primitives); if materialIndex ran 0..3
-		// instead of 0..1, indices 2 and 3 would point past the end of a
-		// 2-element array and crash the BufferGeometry raycaster.
+		// Whether that ends up as the same JS object instance is NOT
+		// reliable across all models, even on a single three.js version:
+		// confirmed empirically that GLTFLoader shares the instance for
+		// simple models (e.g. piece-v2.gltf, 4 primitives/2 materials) but
+		// clones it for others (e.g. mana-piece-smoothed2.gltf, 353
+		// primitives/2 materials — instance-based dedup left all 353 as
+		// "unique"). The three.js GLTFLoader issue tracker confirms
+		// materials get cloned in some cases (e.g. for skinned meshes).
+		// Dedupe by material *name* instead, which is robust regardless of
+		// the loader's instance-sharing behavior. This matters because game
+		// code sometimes substitutes its own materials array (e.g.
+		// checkers-xd-view.js builds `[matborder, mattop]` for a model with
+		// 2 distinct materials spread over several primitives); if
+		// materialIndex isn't correctly collapsed to the real material
+		// count, indices would point past the end of that array and crash
+		// the BufferGeometry raycaster.
 		var uniqueMaterials = [];
 		var materialIndexByName = {};
 		var materialIndexByInstance = [];
@@ -274,9 +337,10 @@ if (window.JoclyXdViewCleanup)
 
 		// Merge multiple per-primitive geometries into one indexed
 		// BufferGeometry with one group per original mesh/material.
-		var mergedPositions = [], mergedNormals = [], mergedUvs = [];
+		var mergedPositions = [], mergedNormals = [], mergedUvs = [], mergedColors = [];
 		var hasNormals = meshNodes.every(function (m) { return !!m.geometry.attributes.normal; });
 		var hasUvs = meshNodes.every(function (m) { return !!m.geometry.attributes.uv; });
+		var hasColors = meshNodes.every(function (m) { return !!m.geometry.attributes.color; });
 		var groups = [];
 		var vertexOffset = 0;
 
@@ -292,14 +356,19 @@ if (window.JoclyXdViewCleanup)
 				var uAttr = m.geometry.attributes.uv;
 				for (var i2 = 0; i2 < uAttr.array.length; i2++) mergedUvs.push(uAttr.array[i2]);
 			}
+			if (hasColors) {
+				var cAttr = m.geometry.attributes.color;
+				for (var i2 = 0; i2 < cAttr.array.length; i2++) mergedColors.push(cAttr.array[i2]);
+			}
 			groups.push({ start: vertexOffset, count: count, materialIndex: materialIndexByInstance[i] });
 			vertexOffset += count;
 		});
 
 		var merged = new THREE.BufferGeometry();
-		merged.addAttribute('position', new THREE.BufferAttribute(new Float32Array(mergedPositions), 3));
-		if (hasNormals) merged.addAttribute('normal', new THREE.BufferAttribute(new Float32Array(mergedNormals), 3));
-		if (hasUvs) merged.addAttribute('uv', new THREE.BufferAttribute(new Float32Array(mergedUvs), 2));
+		merged.setAttribute('position', new THREE.BufferAttribute(new Float32Array(mergedPositions), 3));
+		if (hasNormals) merged.setAttribute('normal', new THREE.BufferAttribute(new Float32Array(mergedNormals), 3));
+		if (hasUvs) merged.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(mergedUvs), 2));
+		if (hasColors) merged.setAttribute('color', new THREE.BufferAttribute(new Float32Array(mergedColors), meshNodes[0].geometry.attributes.color.itemSize));
 		groups.forEach(function (g) { merged.addGroup(g.start, g.count, g.materialIndex); });
 
 		return { geometry: merged, materials: uniqueMaterials };
@@ -383,17 +452,13 @@ if (window.JoclyXdViewCleanup)
 						console.log("Loaded", res);
 
 					// Textures loaded via GLTFLoader still need an explicit
-					// sRGB encoding to render with correct brightness/color.
-					// At this three.js version (r92), the renderer still
-					// uses the legacy renderer.gammaInput/gammaOutput flags
-					// (see BuildThree elsewhere in this file) rather than
-					// renderer.outputEncoding, which only appears in a later
-					// three.js version -- this texture.encoding assignment
-					// is independent of that and still required either way.
+					// sRGB color space to render with correct
+					// brightness/color (see renderer.outputColorSpace
+					// elsewhere in this file).
 					if (materials) {
 						for (var i = 0; i < materials.length; i++) {
 							if (materials[i].map)
-								materials[i].map.encoding = THREE.sRGBEncoding;
+								materials[i].map.colorSpace = THREE.SRGBColorSpace;
 						}
 					}
 
@@ -413,10 +478,24 @@ if (window.JoclyXdViewCleanup)
 								var adapted = AdaptGltfToGeoMat(gltf);
 								HandleGeoMat(adapted.geometry, adapted.materials);
 							}, function (err) {
-								debugger;
+								if (logResourcesLoad)
+									console.log("(not) Loaded", res);
+								DecrementResLoading();
+								resource.status = "error";
+								for (var i = 0; i < resource.pending.length; i++)
+									resource.pending[i](null, null);
+								resource.pending = null;
+								threeCtx.animControl.trigger();
 							});
 						} catch (e) {
-							debugger;
+							if (logResourcesLoad)
+								console.log("(not) Loaded", res);
+							DecrementResLoading();
+							resource.status = "error";
+							for (var i = 0; i < resource.pending.length; i++)
+								resource.pending[i](null, null);
+							resource.pending = null;
+							threeCtx.animControl.trigger();
 						}
 					});
 				} else
@@ -424,7 +503,14 @@ if (window.JoclyXdViewCleanup)
 						var adapted = AdaptGltfToGeoMat(gltf);
 						HandleGeoMat(adapted.geometry, adapted.materials);
 					}, undefined, function (err) {
-						debugger;
+						if (logResourcesLoad)
+							console.log("(not) Loaded", res);
+						DecrementResLoading();
+						resource.status = "error";
+						for (var i = 0; i < resource.pending.length; i++)
+							resource.pending[i](null, null);
+						resource.pending = null;
+						threeCtx.animControl.trigger();
 					});
 			} else if (/^json\|/.test(res)) {
 				if (logResourcesLoad)
@@ -487,6 +573,16 @@ if (window.JoclyXdViewCleanup)
 					resource.font = font;
 					for (var i = 0; i < resource.pending.length; i++)
 						resource.pending[i](font);
+					resource.pending = null;
+					if (threeCtx)
+						threeCtx.animControl.trigger();
+				}, undefined, function (err) {
+					if (logResourcesLoad)
+						console.log("(not) Loaded", res);
+					DecrementResLoading();
+					resource.status = "error";
+					for (var i = 0; i < resource.pending.length; i++)
+						resource.pending[i](null);
 					resource.pending = null;
 					if (threeCtx)
 						threeCtx.animControl.trigger();
@@ -1506,8 +1602,10 @@ if (window.JoclyXdViewCleanup)
 				options.color != this.options.color
 			) {
 				if (this.object3d.material && this.object3d.material.color !== undefined)
-					if (options.color !== null)
+					if (options.color !== null) {
 						this.object3d.material.color.setHex(options.color);
+						this.object3d.material.color.convertSRGBToLinear();
+					}
 
 				/*
 									if(options.color===null)
@@ -1538,7 +1636,7 @@ if (window.JoclyXdViewCleanup)
 				options.morphing.toString() != this.options.morphing.toString()
 			) {
 				this.shouldUpdate = true;
-				if (options.morphing.length > 0) {
+				if (options.morphing.length > 0 && this.object3d.morphTargetInfluences) {
 					if (this.object3d.material && Array.isArray(this.object3d.material) &&
 						this.object3d.material.length > 0 && !this.object3d.material[0].morphTargets) {
 						for (var i = 0; i < this.object3d.material.length; i++)
@@ -1571,9 +1669,12 @@ if (window.JoclyXdViewCleanup)
 												mat.needsUpdate = true;
 											});
 										} else if (mpi == "color") {
-											if (typeof mat["ambient"] != "undefined")
+											if (typeof mat["ambient"] != "undefined") {
 												mat["ambient"].setHex(newMatProp);
+												mat["ambient"].convertSRGBToLinear();
+											}
 											mat[mpi].setHex(newMatProp);
+											mat[mpi].convertSRGBToLinear();
 										}
 										else
 											mat[mpi] = newMatProp;
@@ -1602,9 +1703,12 @@ if (window.JoclyXdViewCleanup)
 																mat.needsUpdate = true;
 															});
 														else if (mpi == "color") {
-															if (typeof mat["ambient"] != "undefined")
+															if (typeof mat["ambient"] != "undefined") {
 																mat["ambient"].setHex(newMatProp);
+																mat["ambient"].convertSRGBToLinear();
+															}
 															mat[mpi].setHex(newMatProp);
+															mat[mpi].convertSRGBToLinear();
 														} else {
 															if (delay) {
 																$this.animStart(options);
@@ -1784,8 +1888,9 @@ if (window.JoclyXdViewCleanup)
 				if (file != $this.options.file)
 					return;
 				var materials0 = []
-				for (var i = 0; i < materials.length; i++)
-					materials0.push(materials[i].clone());
+				if (materials)
+					for (var i = 0; i < materials.length; i++)
+						materials0.push(materials[i].clone());
 				materials = materials0;
 				if ($this.options.flatShading)
 					for (var m = 0; m < materials.length; m++) {
@@ -2659,17 +2764,22 @@ if (window.JoclyXdViewCleanup)
 				if (world.fog) {
 					var fogColor = world.color;
 					if (world.fogColor) fogColor = world.fogColor;
-					threeCtx.scene.fog = new THREE.Fog(fogColor, world.fogNear, world.fogFar);
+					var fogColorObj = new THREE.Color(fogColor);
+					fogColorObj.convertSRGBToLinear();
+					threeCtx.scene.fog = new THREE.Fog(fogColorObj, world.fogNear, world.fogFar);
 				}
 
 				threeCtx.world = world;
-				threeCtx.renderer.setClearColor(new THREE.Color(world.color), 1);
+				var clearColorObj = new THREE.Color(world.color);
+				clearColorObj.convertSRGBToLinear();
+				threeCtx.renderer.setClearColor(clearColorObj, 1);
 				threeCtx.light.castShadow = world.lightCastShadow;
-				threeCtx.light.intensity = world.lightIntensity;
+				threeCtx.light.intensity = world.lightIntensity * GetLightFactor(this);
 				threeCtx.light.position.set(world.lightPosition.x, world.lightPosition.y, world.lightPosition.z);
 				//threeCtx.light.shadowDarkness=world.lightShadowDarkness;
 				threeCtx.ambientLight.color.setHex(world.ambientLightColor);
-				threeCtx.skyLight.intensity = world.skyLightIntensity;
+				threeCtx.ambientLight.color.convertSRGBToLinear();
+				threeCtx.skyLight.intensity = world.skyLightIntensity * GetLightFactor(this);
 				threeCtx.skyLight.position.set(world.skyLightPosition.x, world.skyLightPosition.y, world.skyLightPosition.z);
 			}
 			threeCtx.renderer.domElement.style.display = "block";
@@ -2850,12 +2960,16 @@ if (window.JoclyXdViewCleanup)
 											var image = new Image;
 											image.src = options.pictureData;
 											var texture = new THREE.Texture(image);
+											texture.colorSpace = THREE.SRGBColorSpace;
 											image.onload = function () {
 												texture.needsUpdate = true;
 												resolve(texture);
 											}
-										} else
-											resolve(new THREE.TextureLoader().load(options.pictureUrl))
+										} else {
+											var urlTexture = new THREE.TextureLoader().load(options.pictureUrl);
+											urlTexture.colorSpace = THREE.SRGBColorSpace;
+											resolve(urlTexture);
+										}
 									}).then(function (texture) {
 										var material = new THREE.MeshBasicMaterial({
 											map: texture
@@ -3314,10 +3428,12 @@ if (window.JoclyXdViewCleanup)
 		var harbor = new THREE.Object3D();
 		scene.add(harbor);
 
-		var ambientLight = new THREE.AmbientLight(0xbbbbbb);
+		var ambientLight = new THREE.AmbientLight(0xbbbbbb, LIGHT_INTENSITY_FACTOR);
+		ambientLight.color.convertSRGBToLinear();
 		harbor.add(ambientLight);
 
-		var light = new THREE.SpotLight(0xffffff, 1.75, 0, 1.05, 1, 2);  // test params here https://threejs.org/docs/?q=SpotLight#Reference/Lights/SpotLight
+		var light = new THREE.SpotLight(0xffffff, 1.75 * LIGHT_INTENSITY_FACTOR, 0, 1.05, 1, 0);  // test params here https://threejs.org/docs/?q=SpotLight#Reference/Lights/SpotLight
+		light.color.convertSRGBToLinear();
 		light.position.set(-12, 12, 12);
 
 		light.castShadow = true;
@@ -3334,7 +3450,8 @@ if (window.JoclyXdViewCleanup)
 
 		harbor.add(light);
 
-		var skylight = new THREE.PointLight(0xcccccc, 2, 150);//, Math.PI/5, 10);
+		var skylight = new THREE.PointLight(0xcccccc, 2 * LIGHT_INTENSITY_FACTOR, 150, 0);//, Math.PI/5, 10);
+		skylight.color.convertSRGBToLinear();
 		skylight.position.set(-45, 45, 45);
 		harbor.add(skylight);
 
@@ -3349,8 +3466,12 @@ if (window.JoclyXdViewCleanup)
 
 		area.append($(renderer.domElement));
 
-		renderer.gammaInput = true;
-		renderer.gammaOutput = true;
+		renderer.outputColorSpace = THREE.SRGBColorSpace;
+		// renderer.useLegacyLights was removed entirely at r165 (not just
+		// deprecated) -- assigning it is now a silent no-op. Light
+		// intensities are compensated directly at their creation site
+		// instead (multiplied by Math.PI), per the officially recommended
+		// migration path.
 		//renderer.shadowMapEnabled = true;
 		renderer.shadowMap.enabled = true;
 		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
