@@ -199,7 +199,31 @@ JocGame.prototype.AttachElement = function (element, options) {
 		// that here explicitly instead.
 		Promise.all([
 			window.BrowserScriptLoader.import("jquery.js"),
-			window.BrowserScriptLoader.loadGlobalScript("three.js")
+			window.BrowserScriptLoader.import("three.js").then(function (threeExports) {
+				// third-party/three.js is the CommonJS build (three.cjs)
+				// as of r161 -- a plain `'use strict'; exports.X = X;`
+				// module, not a UMD bundle that attaches itself to
+				// `window.THREE` on its own (that stopped being an
+				// option once build/three.js/three.min.js were removed
+				// from the three.js package in r161). Do that attachment
+				// explicitly here instead.
+				if (typeof window.THREE === "undefined")
+					window.THREE = threeExports;
+				// ColorManagement.enabled defaults to true since r152
+				// (silently -- it was false through r150, and nothing in
+				// this codebase's r150/r160 migration passes ever
+				// rendered a real frame to notice the regression until
+				// now). With it on, every hardcoded hex color throughout
+				// Jocly's game code (e.g. 0xdddddd, 0xffffff) is
+				// interpreted as sRGB and converted to linear space,
+				// making everything noticeably darker than intended.
+				// Jocly's colors were never authored with this pipeline
+				// in mind, so disable it here to keep the established
+				// look rather than auditing every hardcoded color in the
+				// codebase.
+				threeExports.ColorManagement.enabled = false;
+				return threeExports;
+			})
 		]).then(function() {
 			// jocly-xdview.js and the per-game -view.js file both reset the
 			// shared global `View` variable at their own top (the

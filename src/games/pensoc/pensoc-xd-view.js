@@ -71,6 +71,7 @@
 				shininess: shininess,
 				envMap: reflectionCube,
 				combine: THREE.AddOperation,
+				flatShading:false,
 				reflectivity: 1
 			} );		
 			iceMatBlack = new THREE.MeshPhongMaterial( {
@@ -79,7 +80,7 @@
 				shininess: shininess,
 				envMap: reflectionCube,
 				combine: THREE.AddOperation,
-				flatShading: true,
+				flatShading:true,
 				reflectivity: 0.6,
 			} );		
 			
@@ -166,6 +167,7 @@
                             specular: specular,
                             shininess: shininess,
                             combine: THREE.MixOperation,
+                            flatShading:false,
                             map: diffMap,
                         } );
 
@@ -221,6 +223,7 @@
                                     specular: specular,
                                     shininess: shininess,
                                     combine: THREE.MixOperation,
+                                    flatShading:false,
                                     morphTargets: true,
                                     map: diffMap,
                                 } );
@@ -613,7 +616,7 @@
 	
 					} ),
 	
-					mesh = new THREE.Mesh( new THREE.CubeGeometry( 3000, 3000, 3000 ), material );
+					mesh = new THREE.Mesh( new THREE.BoxGeometry( 3000, 3000, 3000 ), material );
 					return mesh;
 				},			
 			},
@@ -685,7 +688,7 @@
 		function createScreen(videoTexture) {
 			var $this=this;
 			var gg=new THREE.PlaneGeometry(4,3,1,1);
-			var gm=new THREE.MeshPhongMaterial({color:0xffffff,map:videoTexture,flatShading: true});
+			var gm=new THREE.MeshPhongMaterial({color:0xffffff,map:videoTexture,flatShading:true});
 			var mesh = new THREE.Mesh( gg , gm );
 			$this.objectReady(mesh); 
 			return null;

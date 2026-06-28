@@ -118,8 +118,8 @@
 				var canvasDiffuse=document.createElement('canvas');
 				canvasDiffuse.width=TXT_CNV_SZ;
 				canvasDiffuse.height=TXT_CNV_SZ;
-				var textureDiff =  new THREE.Texture(canvasDiffuse);
-				textureDiff.encoding = THREE.sRGBEncoding;
+				var textureDiff =  new THREE.Texture(canvasDiffuse);					
+				textureDiff.colorSpace = THREE.SRGBColorSpace;
 				var canvasBump=document.createElement('canvas');
 				canvasBump.width=TXT_CNV_SZ;
 				canvasBump.height=TXT_CNV_SZ;
@@ -190,8 +190,8 @@
 			var canvasDiffuse=document.createElement('canvas');
 			canvasDiffuse.width=TEXTURE_CANVAS_CX;
 			canvasDiffuse.height=TEXTURE_CANVAS_CY;
-			var textureDiff =  new THREE.Texture(canvasDiffuse);
-			textureDiff.encoding = THREE.sRGBEncoding;
+			var textureDiff =  new THREE.Texture(canvasDiffuse);					
+			textureDiff.colorSpace = THREE.SRGBColorSpace;
 			var canvasBump=document.createElement('canvas');
 			canvasBump.width=TEXTURE_CANVAS_CX;
 			canvasBump.height=TEXTURE_CANVAS_CY;
@@ -328,7 +328,7 @@
 				var frameGeo = new THREE.ExtrudeGeometry( frameShape, extrudeSettings );
 				var matrix = new THREE.Matrix4();
 				matrix.makeRotationX(-Math.PI/2)
-				frameGeo.applyMatrix(matrix);
+				frameGeo.applyMatrix4(matrix);
 				var frameColor="#000000";
 				if (avatar.options.frameColorFill) frameColor=avatar.options.frameColorFill;
 				frameMat = new THREE.MeshPhongMaterial({
@@ -359,7 +359,7 @@
 				$this.g.canvasScore.height=$this.g.canvasScore.width/8*3;
 				if(typeof THREE!="undefined")
 					$this.g.textureScore = new THREE.Texture($this.g.canvasScore);
-					$this.g.textureScore.encoding = THREE.sRGBEncoding;
+					$this.g.textureScore.colorSpace = THREE.SRGBColorSpace;
 			}			
 		}
 		
@@ -676,7 +676,7 @@
 	View.Game.rCreateScreen = function(videoTexture) {
 		// flat screens
 		var gg=new THREE.PlaneGeometry(4,3,1,1);
-		var gm=new THREE.MeshPhongMaterial({map:videoTexture,shading:THREE.FlatShading});
+		var gm=new THREE.MeshPhongMaterial({map:videoTexture,flatShading:true});
 		var mesh = new THREE.Mesh( gg , gm );
 		this.objectReady(mesh); 
 		return null;

@@ -50,7 +50,7 @@
 				type: "custommesh3d",
 				create: function(callback){
 					// spot lighting
-					var spotLight1 = new THREE.SpotLight( 0xffffff, 0.5 );
+					var spotLight1 = new THREE.SpotLight( 0xffffff, 0.5 * (window.JOCLY_LIGHT_FACTOR || Math.PI), 0, undefined, undefined, 0 );
 					//spotLight1.shadowCameraVisible = true;
 					spotLight1.shadow.camera.near = 10;
 					spotLight1.shadow.camera.far = 25;
@@ -61,7 +61,7 @@
 
 					spotLight1.position.set(-6, 8, -6);
 					
-					var spotLight2 = new THREE.SpotLight( 0xffffff, 0.5 );
+					var spotLight2 = new THREE.SpotLight( 0xffffff, 0.5 * (window.JOCLY_LIGHT_FACTOR || Math.PI), 0, undefined, undefined, 0 );
 					//spotLight2.shadowCameraVisible = true;
 					spotLight2.position.set(7, 7, 7);
 					spotLight2.shadow.camera.near = 10;
@@ -433,7 +433,7 @@
 	 								name: "redstar",
 	 								transparent:!(bKing),
 	 								opacity: bKing?1:0,
-	 								shading: THREE.FlatShading,
+	 								flatShading:true,
 	 							});
 	 						}
 	 						materials0.push(mat);
@@ -495,7 +495,7 @@
 		function createScreen(videoTexture) {
 			var $this=this;
 			var gg=new THREE.PlaneGeometry(4,3,1,1);
-			var gm=new THREE.MeshPhongMaterial({color:0xffffff,map:videoTexture,shading:THREE.FlatShading});
+			var gm=new THREE.MeshPhongMaterial({color:0xffffff,map:videoTexture,flatShading:true});
 			var mesh = new THREE.Mesh( gg , gm );
 			$this.objectReady(mesh); 
 			return null;

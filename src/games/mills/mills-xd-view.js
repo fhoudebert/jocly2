@@ -20,7 +20,7 @@
 	// useful to initialize pieces and board while the real meshes aren't loaded yet
 	View.Game.millsMakeDummyMesh = function(xdv) {
 		if(typeof THREE != "undefined")
-		    return new THREE.Mesh( new THREE.CubeGeometry( .001,.001,.001 ), 
+		    return new THREE.Mesh( new THREE.BoxGeometry( .001,.001,.001 ), 
 					      new THREE.MeshLambertMaterial() );
 		else
 			return null;
@@ -55,7 +55,7 @@
 					var canvasDiffuse=document.createElement('canvas');
 					canvasDiffuse.width=canvasDiffuse.height=TEXTURE_CANVAS_SZ;
 					var textureDiff =  new THREE.Texture(canvasDiffuse);
-					textureDiff.encoding = THREE.sRGBEncoding;
+					textureDiff.colorSpace = THREE.SRGBColorSpace;
 					var canvasBump=document.createElement('canvas');
 					canvasBump.width=canvasBump.height=TEXTURE_CANVAS_SZ;
 					var textureBump =  new THREE.Texture(canvasBump);
@@ -75,7 +75,7 @@
 					var canvasDiffuseB=document.createElement('canvas');
 					canvasDiffuseB.width=canvasDiffuseB.height=TEXTURE_CANVAS_SZ;
 					var textureDiffB =  new THREE.Texture(canvasDiffuseB);
-					textureDiffB.encoding = THREE.sRGBEncoding;
+					textureDiffB.colorSpace = THREE.SRGBColorSpace;
 					var ctxB=canvasDiffuseB.getContext("2d");
 					ctxB.drawImage(diffuseMap,0,0,TEXTURE_CANVAS_SZ,TEXTURE_CANVAS_SZ);
 					blackenCtxIfNeeded(ctxB);
@@ -189,30 +189,15 @@
 					// faces are indexed using characters
 					var faceIndices = [ 'a', 'b', 'c', 'd' ];
 					// first, assign colors to vertices as desired
-					for ( var i = 0; i < graphGeometry.vertices.length; i++ ) 
+					var posAttr = graphGeometry.attributes.position;
+					var colors = new Float32Array(posAttr.count * 3);
+					for ( var i = 0; i < posAttr.count; i++ ) 
 					{
-						point = graphGeometry.vertices[ i ];
-						color = new THREE.Color( 0x000000 );
-						
-						var delta=(zMax - point.z)/zRange;
-						/*color.b = 1+delta;
-						color.g = 0.5+0.4*delta;
-						color.r = 0.3*delta;*/
-						color.g = color.b = color.r = delta/6;
-						
-						graphGeometry.colors[i] = color; // use this array for convenience
+						var delta=(zMax - posAttr.getZ(i))/zRange;
+						var c = delta/6;
+						colors[i*3] = colors[i*3+1] = colors[i*3+2] = c;
 					}
-					// copy the colors as necessary to the face's vertexColors array.
-					for ( var i = 0; i < graphGeometry.faces.length; i++ ) 
-					{
-						face = graphGeometry.faces[ i ];
-						numberOfSides = ( face instanceof THREE.Face3 ) ? 3 : 4;
-						for( var j = 0; j < numberOfSides; j++ ) 
-						{
-							vertexIndex = face[ faceIndices[ j ] ];
-							face.vertexColors[ j ] = graphGeometry.colors[ vertexIndex ];
-						}
-					}
+					graphGeometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
 					///////////////////////
 					// end vertex colors //
 					///////////////////////
@@ -225,7 +210,7 @@
 						function(wireTexture){
 							wireTexture.wrapS = wireTexture.wrapT = THREE.RepeatWrapping; 
 							wireTexture.repeat.set( 40, 40 );
-							var wireMaterial = new THREE.MeshBasicMaterial( { map: wireTexture, vertexColors: THREE.VertexColors, side:THREE.DoubleSide } );
+							var wireMaterial = new THREE.MeshBasicMaterial( { map: wireTexture, vertexColors: true, side:THREE.DoubleSide } );
 	
 							wireMaterial.map.repeat.set( 20, 60 );
 							
@@ -352,7 +337,7 @@
 			
 			var matrix = new THREE.Matrix4();
 			matrix.makeRotationX(-Math.PI/2)
-			frameGeo.applyMatrix(matrix);
+			frameGeo.applyMatrix4(matrix);
 			var frameColor="#000000";
 			if (avatar.options.frameColorFill) frameColor=avatar.options.frameColorFill;
 			frameMat = new THREE.MeshPhongMaterial({
@@ -518,7 +503,7 @@
 		var millsCreateScreen = function(videoTexture) {
 			// flat screens
 			var gg=new THREE.PlaneGeometry(4,3,1,1);
-			var gm=new THREE.MeshPhongMaterial({color:0xffffff,map:videoTexture,shading:THREE.FlatShading,emissive:{r:1,g:1,b:1}});
+			var gm=new THREE.MeshPhongMaterial({color:0xffffff,map:videoTexture,flatShading:true,emissive:{r:1,g:1,b:1}});
 			var mesh = new THREE.Mesh( gg , gm );
 			this.objectReady(mesh); 
 			return null;
@@ -573,14 +558,17 @@
 					textureLoader.setCrossOrigin("anonymous");
 					textureLoader.load(fullPath + "/res/xd-view/meshes/star.png" ,
 						function(starSprite){
+							starSprite.colorSpace = THREE.SRGBColorSpace;
 							for(var i=0;i<catCount;i++) {
 								var material = new THREE.PointsMaterial( { size: 1-i/catCount, map: starSprite, blending: THREE.AdditiveBlending,  depthTest: true, transparent : true } );
-								var geometry = new THREE.Geometry();
+								var geometry = new THREE.BufferGeometry();
 								material.color.setHex( 0xffffff );
+						material.color.convertSRGBToLinear();
 								var particles = new THREE.Points( geometry, material);
 								partSys.push({
 									object: particles,
 									geometry: geometry,
+									vertexList: [],
 								});
 								container.add(particles)
 							}
@@ -590,14 +578,17 @@
 									var r=30;
 									var rot=(star.az-90)*Math.PI/180;
 									var elev=star.al*Math.PI/180;
-									var vertex = new THREE.Vector3();
-									vertex.x = r*Math.cos(elev)*Math.cos(rot);
-									vertex.z = r*Math.cos(elev)*Math.sin(rot);
-									vertex.y = r*Math.sin(elev);
 									var cat=Math.floor(i*catCount/data.length);
 									var catObj=partSys[cat];
-									catObj.geometry.vertices.push( vertex );					
+									catObj.vertexList.push(
+										r*Math.cos(elev)*Math.cos(rot),
+										r*Math.sin(elev),
+										r*Math.cos(elev)*Math.sin(rot)
+									);					
 								}
+								partSys.forEach(function(p) {
+									p.geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array(p.vertexList), 3));
+								});
 								$this.objectReady(container);						
 							});
 					});															

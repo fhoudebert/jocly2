@@ -136,17 +136,17 @@
 			/*
 			var matrix = new THREE.Matrix4();
 			matrix.makeRotationX(-Math.PI/2)
-			geo.applyMatrix(matrix);
+			geo.applyMatrix4(matrix);
 			*/
 			
-			var uvs=geo.faceVertexUvs[0];
-			for (var u = 0 ; u < uvs.length ; u++){
-				for (var i = 0 ; i < uvs[u].length ; i++){
-					if(cSize.ratio<1)
-						uvs[u][i].x=uvs[u][i].x*cSize.ratio+(1-cSize.ratio)/2;
-					if(cSize.ratio>1)
-						uvs[u][i].y=uvs[u][i].y/cSize.ratio+(1-1/cSize.ratio)/2;
-				}
+			var uvAttr = geo.attributes.uv;
+			for (var i = 0 ; i < uvAttr.count ; i++){
+				var x = uvAttr.getX(i), y = uvAttr.getY(i);
+				if(cSize.ratio<1)
+					x = x*cSize.ratio+(1-cSize.ratio)/2;
+				if(cSize.ratio>1)
+					y = y/cSize.ratio+(1-1/cSize.ratio)/2;
+				uvAttr.setXY(i, x, y);
 			}
 			callback(geo);
 		},
@@ -307,13 +307,13 @@
 		
 		createMaterial: function(spec,canvas,callback) {
 			var texBoardDiffuse = new THREE.Texture(canvas.diffuse);
-			texBoardDiffuse.encoding = THREE.sRGBEncoding;
+			texBoardDiffuse.colorSpace = THREE.SRGBColorSpace;
 			texBoardDiffuse.needsUpdate = true;
 			var matSpec={
 				specular: '#050505',
 				emissive: '#000000',
 				shininess: 20,
-				flatShading: true,
+				flatShading:true,
 				map: texBoardDiffuse,
 			}
 			if(canvas.bump) {

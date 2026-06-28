@@ -27,7 +27,7 @@
 		this.g.huntGameData.preyJumpsAtWalk=false;
 		this.g.huntGameData.clipwidth=155;
 		this.g.huntGameData.clipheight=155;
-		this.g.huntGameData.lightsIntensity=0.55;
+		this.g.huntGameData.lightsIntensity=0.55 * (window.JOCLY_LIGHT_FACTOR || Math.PI);
 		this.g.huntGameData.jumpEatScale=1.0; // unit = cell size
 		this.g.huntGameData.jumpMoveScale=0.5; // unit = cell size
 		this.g.huntGameData.killPieceZTempo=-0.3; // unit = cell size
@@ -66,7 +66,7 @@
 				"3d": {
 					type: "custom3d",
 					create: function() {
-						var light = new THREE.SpotLight( 0xffffff, huntGameData.lightsIntensity );
+						var light = new THREE.SpotLight( 0xffffff, huntGameData.lightsIntensity, 0, undefined, undefined, 0 );
 						light.castShadow = false;
 		
 						light.shadow.camera.near = 3;
@@ -154,7 +154,8 @@
 							function(texture){
 								diffuseMap = texture ;
 								diffuseMap.wrapS = diffuseMap.wrapT = THREE.RepeatWrapping;
-								diffuseMap.format = THREE.RGBFormat;
+								diffuseMap.format = THREE.RGBAFormat;
+								diffuseMap.colorSpace = THREE.SRGBColorSpace;
 								checkAllLoaded();
 							}
 						);
@@ -167,7 +168,7 @@
 								function(texture){
 									specMap = texture ;
 									specMap.wrapS = specMap.wrapT = THREE.RepeatWrapping;
-									specMap.format = THREE.RGBFormat;
+									specMap.format = THREE.RGBAFormat;
 									shininess=170;
 									specColor=0xffffff;
 									checkAllLoaded();
@@ -371,7 +372,7 @@
  				}
  				var mesh = new THREE.Mesh( geometry , materials0 );
  				
- 				var light = new THREE.SpotLight( 0xffffff, 5 );
+ 				var light = new THREE.SpotLight( 0xffffff, 5 * (window.JOCLY_LIGHT_FACTOR || Math.PI), 0, undefined, undefined, 0 );
 				//light.castShadow = true;
 				//light.shadowCameraVisible=true;
 				/*light.shadowDarkness = 1;

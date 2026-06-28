@@ -12,7 +12,6 @@
 	
 	View.Game.xdInit = function(xdv) {
 
-
 		var fullPath=this.mViewOptions.fullPath ;
 		var options=this.mOptions;
 		
@@ -20,7 +19,7 @@
 			"3d": {
 				type: "custom3d",
 				create: function() {
-					var backlight = new THREE.SpotLight( 0xbbbbbb, .6, 0, 1.05, 1, 2 );
+					var backlight = new THREE.SpotLight( 0xbbbbbb, .6 * (window.JoclyGetLightFactor ? window.JoclyGetLightFactor() : Math.PI), 0, 1.05, 1, 0 );
 					backlight.shadow.camera.near=10;
 					backlight.shadow.camera.far=40;
 					backlight.castShadow = true;
@@ -100,7 +99,7 @@
 		var manaCreateScreen = function(videoTexture) {
 			// flat screens
 			var gg=new THREE.PlaneGeometry(4,3,1,1);
-			var gm=new THREE.MeshPhongMaterial({color:0xffffff,map:videoTexture,shading:THREE.FlatShading,emissive:{r:1,g:1,b:1}});
+			var gm=new THREE.MeshPhongMaterial({color:0xffffff,map:videoTexture,flatShading:true,emissive:{r:1,g:1,b:1}});
 			var mesh = new THREE.Mesh( gg , gm );
 			this.objectReady(mesh); 
 			return null;
@@ -336,7 +335,7 @@
 					}
 					materials0.push(mat);
 				}
-				
+
 				var pawn = new THREE.Mesh(geometry, materials0);
 				pawn.castShadow=true;
 				callback(pawn);
