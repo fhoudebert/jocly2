@@ -457,17 +457,20 @@
 				}
 			if(aGame.mInitial.noCaptCount!==undefined)
 				this.noCaptCount=aGame.mInitial.noCaptCount;
-			if(aGame.cbVar.castle && aGame.mInitial.castle)
-				this.castled = {
-					'1': {
-						k: !!aGame.mInitial.castle[1] && !!aGame.mInitial.castle[1].k,
-						q: !!aGame.mInitial.castle[1] && !!aGame.mInitial.castle[1].q
-					},
-					'-1': {
-						k: !!aGame.mInitial.castle[-1] && !!aGame.mInitial.castle[-1].k,
-						q: !!aGame.mInitial.castle[-1] && !!aGame.mInitial.castle[-1].q
-					}
-				}
+			// NOTE: this.castled[who] is a plain boolean meaning "this side
+			// has already castled" (see cbApplyCastle/cbGeneratePseudoLegalMoves:
+			// `!this.check && !this.castled[who]` gates castle move generation
+			// entirely, with no K/Q-side granularity). It must stay false/true,
+			// never an object: an object is always truthy, so setting it to
+			// {k,q} here - even {k:false,q:false} - silently disabled castling
+			// completely for any position loaded from FEN/PJN, regardless of
+			// the FEN's castling availability field. Per-side (K/Q) castling
+			// rights are already correctly derived from each king/rook's
+			// "moved" flag (piece.m), itself computed by Model.Game.Import()
+			// by comparing FEN piece positions against the variant's nominal
+			// initial setup - so there is nothing useful to initialize here:
+			// this.castled keeps its default "false" (set above in InitBoard)
+			// for any position loaded from FEN, exactly like a fresh game.
 		} else {
 			for(var typeIndex in aGame.cbVar.pieceTypes) {
 				var pType = aGame.cbVar.pieceTypes[typeIndex];

@@ -597,7 +597,14 @@ JocGame.prototype.StartMachine = function(aOptions) {
 	}
 	
 	var aiThread = aOptions.threaded && typeof window=="object" && window.Worker;
-	if(aOptions.level && aOptions.level.ai=="uct" && JoclyUCT) {
+	if(aOptions.level && aOptions.level.ai=="fairy-stockfish" && typeof JoclyFairy!="undefined") {
+		// Fairy-Stockfish always runs in its own dedicated, long-lived worker
+		// (see jocly.fairy.js / jocly.fairyworker.js): it does not use the
+		// generic StartThreadedMachine()/jocly.aiworker.js path used by the
+		// native "uct"/alpha-beta AIs, regardless of aOptions.threaded.
+		JoclyFairy.startMachine(this,aOptions);
+	}
+	else if(aOptions.level && aOptions.level.ai=="uct" && JoclyUCT) {
 		if(aiThread)
 			this.StartThreadedMachine(aOptions,"uct");
 		else
@@ -667,6 +674,12 @@ JocGame.prototype.StopThreadedMachine = function() {
 			console.warn("Cannot terminate worker",e);
 		}
 	}
+	// Fairy-Stockfish searches run in their own dedicated, longer-lived
+	// worker (see jocly.fairy.js); ask it to stop rather than terminating it,
+	// so the (expensive to reload) engine instance stays alive for the next
+	// move/level change.
+	if(typeof JoclyFairy != "undefined" && JoclyFairy.abortMachine)
+		JoclyFairy.abortMachine(this);
 }
 
 JocGame.prototype.ScheduleStep = function() {

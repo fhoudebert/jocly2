@@ -343,6 +343,11 @@
 					clipx: 4800,
 					},
 			},
+			"fr-griffin": {
+				"2d": {
+					clipx: 4800,
+					},
+			},
 			"fr-mammoth": {
 				"2d": {
 					clipx: 4900,

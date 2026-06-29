@@ -79,6 +79,21 @@ exports.games = (function () {
 		config_model_levels_3,
 		config_model_levels_4
 	]
+	// "Expert" level: delegates the search to the Fairy-Stockfish engine
+	// (see src/core/jocly.fairy.js) instead of Jocly's native UCT/alpha-beta
+	// AI. Only declared for games that are both:
+	//  - exactly supported as a Fairy-Stockfish "variant" (UCI_Variant), and
+	//  - able to export a standard FEN via mBoard.ExportBoardState()
+	// (currently classic-chess only - see config_model_levels_5_expert below).
+	var config_model_levels_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "chess",
+		"skillLevel": 20,
+		"moveTimeMs": 1000
+	}
+	var config_model_levels_5_expert = config_model_levels_5.concat([config_model_levels_expert]);
 	var config_view_css = [
 		"chessbase.css"
 	]
@@ -1461,7 +1476,7 @@ exports.games = (function () {
 					},
 					"gameOptions": config_model_gameOptions,
 					"js": modelScripts,
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",

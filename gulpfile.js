@@ -246,6 +246,7 @@ gulp.task("build-node-core", function () {
 		ProcessJS(gulp.src([
 			"src/core/jocly.util.js",
 			"src/core/jocly.uct.js",
+			"src/core/jocly.fairy.js",
 			"src/core/jocly.game.js"
 		]));
 
@@ -312,18 +313,33 @@ gulp.task("build-browser-core", function () {
 	var joclyCoreStream = ProcessJS(gulp.src([
 		"src/core/jocly.core.js",
 		"src/browser/jocly.aiworker.js",
+		"src/browser/jocly.fairyworker.js",
 		"src/browser/jocly.embed.js"
 	]));
 
 	var joclyBaseStream = ProcessJS(gulp.src([
 		"src/core/jocly.util.js",
 		"src/core/jocly.uct.js",
+		"src/core/jocly.fairy.js",
 		"src/core/jocly.game.js"
 	]), "jocly.game.js", true);
 
 	var joclyExtraStream = gulp.src([
 		"src/browser/jocly.embed.html"
 	]);
+
+	// Fairy-Stockfish (third-party/fairy-stockfish): the Emscripten loader
+	// and wasm binary are pre-built artifacts, not Jocly source - copy them
+	// through untouched (like three.js/jquery in build-browser-xdview below),
+	// running stockfish.js through Babel would risk breaking the UMD/IIFE
+	// boilerplate Emscripten generates for it.
+	var joclyFairyStockfishStream = gulp.src([
+		"third-party/fairy-stockfish/stockfish.js",
+		"third-party/fairy-stockfish/stockfish.wasm",
+		"third-party/fairy-stockfish/stockfish.worker.js"
+	]).pipe(rename(function (path) {
+		path.dirname = "fairy-stockfish";
+	}));
 
 	var joclyResStream = gulp.src("src/browser/res/**/*")
 		.pipe(rename(function (path) {
@@ -335,7 +351,7 @@ gulp.task("build-browser-core", function () {
 	allGamesStream = ProcessJS(allGamesStream.pipe(buffer()));
 
 	return mergeSequential(joclyBrowserStream, joclyCoreStream, allGamesStream, joclyBaseStream,
-		joclyExtraStream, joclyResStream)
+		joclyExtraStream, joclyFairyStockfishStream, joclyResStream)
     .pipe(through.obj(function (file, enc, next) {
       next(null, new Vinyl(file));
     }))
