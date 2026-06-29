@@ -366,14 +366,15 @@ gulp.task("build-browser-xdview", function () {
 	]);
 
 	var packedLibs = ProcessJS(gulp.src([
-		lib + "SubdivisionModifier.js",
 		lib + "tween.js",
 		lib + "tween.fix.js",
 		srcLib + "JoclyOrbitControls.js",
 		lib + "DeviceOrientationControls.js",
 		lib + "Projector.js",
-		lib + "GLTFLoader.js",
 		lib + "BufferGeometryUtils.js",
+		lib + "GLTFLoader.js",
+		lib + "FontLoader.js",
+		lib + "TextGeometry.js",
 		lib + "threex.domevent.js",
 		lib + "threex.domevent.object3d.js",
 		lib + "StereoEffect.js",
