@@ -40,7 +40,9 @@
  *     "variant": "chess",      // Fairy-Stockfish variant name (UCI_Variant)
  *     "skillLevel": 20,        // 0-20, optional (defaults to full strength)
  *     "moveTimeMs": 1000,      // either moveTimeMs or depth should be set
- *     "depth": 0
+ *     "depth": 0,
+ *     "pieceMap": { "M": "C" }, // optional, see below
+ *     "chess960": true          // optional, sets UCI_Chess960 (see below)
  *   }
  *
  * Requirements on the game module (currently only implemented by chessbase,
@@ -50,6 +52,48 @@
  * Only games meeting both are eligible to declare a "fairy-stockfish" level;
  * this module does not attempt to support games that don't (it will simply
  * fail loudly rather than silently play a wrong/random move).
+ *
+ * pieceMap (optional): some variants are implemented independently by Jocly
+ * and by Fairy-Stockfish, using the exact same rules and starting position
+ * but a *different* single-letter piece abbreviation for one or more piece
+ * types (e.g. Jocly's Capablanca/Grand chancellor is "M" while
+ * Fairy-Stockfish's is "C"). Comparing the official Fairy-Stockfish
+ * variant.cpp startFen against Jocly's own ExportBoardState() output for the
+ * same variant is how this was verified for each variant declared below.
+ * When present, pieceMap is a from-Jocly-letter to-Fairy-Stockfish-letter
+ * table (uppercase keys only; TranslitFen() below derives the lowercase
+ * mapping automatically), applied to:
+ *   - the FEN sent to the engine (TranslitFen, Jocly -> Fairy-Stockfish)
+ *   - the promotion suffix of the move sent back by the engine, before
+ *     matching it against Jocly's own legal moves (TranslitMove, the
+ *     reverse direction)
+ * It must NOT be used to paper over an actual rules difference (different
+ * starting position, different castling availability, etc.) - only pure
+ * piece-letter aliasing where both sides implement identical rules.
+ *
+ * chess960 (optional): sends "setoption name UCI_Chess960 value true" before
+ * the position/search, switching the engine to Chess960-style castling
+ * rules and notation. Use for variants whose Jocly module already plays a
+ * single, freely-chosen starting position per game (via its own "prelude"
+ * mechanism - see prelude-model.js) and where Jocly's plain "KQkq" FEN
+ * castling rights remain unambiguous (i.e. at most one rook of each color
+ * on each side of the king - true for standard 8x8 Chess960, not
+ * necessarily for every large-board 960 variant).
+ *
+ * variants (optional, mutually exclusive with a static "variant"): for a
+ * single Jocly game module whose own "prelude" mechanism lets the player
+ * choose between several genuinely different variants at the start of each
+ * game (e.g. capablanca-chess's prelude offers Capablanca/Gothic/Carrera/
+ * Embassy/Janus/... on the same 10x8 board), "variants" is an array of
+ * { "setup": <prelude setup index>, "variant": ..., "pieceMap": ... }
+ * entries. At search time, ResolveLevel() below looks up
+ * aGame.cbVar.prelude[0].persistent (the setup index recorded once the
+ * player's prelude choice has been applied - see prelude-model.js) and
+ * picks the matching entry, merging it onto the level's other shared
+ * fields (skillLevel, moveTimeMs, ...). If no prelude choice has been
+ * recorded yet, or none of the declared entries match the chosen setup
+ * (e.g. the player picked a variant with no Fairy-Stockfish equivalent),
+ * the search fails loudly rather than guessing a variant.
  */
 
 var JoclyFairy = {};
@@ -110,6 +154,70 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 	}
 
 	/*
+	 * Builds the full (upper+lower case) Jocly-letter -> Fairy-Stockfish-letter
+	 * map from the uppercase-only pieceMap declared on a level, and its
+	 * reverse (Fairy-Stockfish -> Jocly), used respectively by TranslitFen()
+	 * and TranslitMove() below.
+	 */
+	function BuildPieceMaps(pieceMap) {
+		var toFairy = {}, toJocly = {};
+		if (pieceMap) {
+			for (var upper in pieceMap) {
+				if (!pieceMap.hasOwnProperty(upper))
+					continue;
+				var fairyUpper = pieceMap[upper];
+				var lower = upper.toLowerCase();
+				var fairyLower = fairyUpper.toLowerCase();
+				toFairy[upper] = fairyUpper;
+				toFairy[lower] = fairyLower;
+				toJocly[fairyUpper] = upper;
+				toJocly[fairyLower] = lower;
+			}
+		}
+		return { toFairy: toFairy, toJocly: toJocly };
+	}
+
+	/*
+	 * Applies a letter substitution map to the piece-placement field of a FEN
+	 * only (first space-separated field) - the only place piece letters
+	 * appear. Leaves turn/castling/en-passant/clock fields untouched (castling
+	 * letters happen to be piece letters too in some variants - e.g. "M" for
+	 * a chancellor that can still castle - but Jocly's castling letters are
+	 * always plain "KQkq" file-of-king-rook style in the variants this is
+	 * used for, never the substituted piece letters, so this is safe).
+	 */
+	function TranslitFen(fen, map) {
+		if (!map || Object.keys(map).length === 0)
+			return fen;
+		var firstSpace = fen.indexOf(" ");
+		var placement = firstSpace < 0 ? fen : fen.substring(0, firstSpace);
+		var rest = firstSpace < 0 ? "" : fen.substring(firstSpace);
+		var translated = placement.replace(/[A-Za-z]/g, function (ch) {
+			return map[ch] || ch;
+		});
+		return translated + rest;
+	}
+
+	/*
+	 * Applies the reverse letter substitution to a UCI-ish move string's
+	 * trailing piece-letter suffix only (promotion, e.g. "e7e8c" -> "e7e8m"
+	 * for a Jocly chancellor promotion), not to the leading square
+	 * coordinates (which are never letters-as-pieces, only file letters).
+	 * Drops ("P@5e"-style) are not handled here - no piece-letter-aliased
+	 * variant integrated so far uses drops; ResolveMove()'s fuzzy matching
+	 * would in any case need its own dedicated handling for those.
+	 */
+	function TranslitMove(uciMove, map) {
+		if (!map || Object.keys(map).length === 0)
+			return uciMove;
+		var m = /^([a-z]\d+[a-z]\d+)([A-Za-z])$/.exec(uciMove);
+		if (!m)
+			return uciMove;
+		var suffix = map[m[2]];
+		return suffix ? m[1] + suffix : uciMove;
+	}
+
+	/*
 	 * Converts a Fairy-Stockfish "bestmove" UCI string (e.g. "e2e4", "e7e8q",
 	 * "e1g1") back into one of the actual legal Jocly Move objects for the
 	 * current position. We don't reconstruct the Move by hand (the internal
@@ -146,11 +254,63 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		return candidates[bestIndex];
 	}
 
+	/*
+	 * Resolves a level that may declare several candidate sub-levels under
+	 * "variants" (see config_model_levels_capablanca_expert in
+	 * src/games/chessbase/index.js) instead of a single static "variant"
+	 * field - used for Jocly game modules whose "prelude" mechanism (see
+	 * prelude-model.js) lets the player choose between several distinct
+	 * variants sharing one board/geometry at the start of each game (e.g.
+	 * Capablanca/Gothic/Embassy/Janus, all implemented by the single
+	 * capablanca-chess Jocly game).
+	 *
+	 * The actually-chosen variant is only known once the prelude choice has
+	 * been made, recorded by prelude-model.js as
+	 * aGame.cbVar.prelude[0].persistent (a plain setup index once chosen;
+	 * `true` before any choice has been made, or `undefined` for prelude
+	 * stages/games that don't have a "persistent" dialog at all).
+	 *
+	 * Returns the resolved sub-level (a plain {variant, pieceMap, ...}
+	 * object) on a match, or null if "variants" isn't applicable (no
+	 * prelude, no choice made yet, or no entry matches the chosen setup) -
+	 * callers must treat null the same as "fairy-stockfish level is missing
+	 * a 'variant' field", not silently fall back to anything.
+	 */
+	function ResolveLevel(aGame, level) {
+		if (!level.variants)
+			return level;
+		var prelude = aGame.cbVar && aGame.cbVar.prelude;
+		if (!prelude || !prelude[0] || typeof prelude[0].persistent !== "number") {
+			console.error("fairy-stockfish: level declares 'variants' but no prelude choice has been recorded yet (aGame.cbVar.prelude[0].persistent)");
+			return null;
+		}
+		var setup = prelude[0].persistent;
+		for (var i = 0; i < level.variants.length; i++) {
+			if (level.variants[i].setup === setup) {
+				// merge onto the parent level so shared fields (skillLevel,
+				// moveTimeMs, depth, chess960...) still apply, with the
+				// matched sub-level's own fields (variant, pieceMap)
+				// overriding them.
+				var resolved = {};
+				for (var k in level)
+					if (level.hasOwnProperty(k) && k !== "variants")
+						resolved[k] = level[k];
+				for (var k2 in level.variants[i])
+					if (level.variants[i].hasOwnProperty(k2))
+						resolved[k2] = level.variants[i][k2];
+				return resolved;
+			}
+		}
+		console.error("fairy-stockfish: no 'variants' entry matches the chosen prelude setup (" + setup + ") - this prelude choice has no Fairy-Stockfish equivalent");
+		return null;
+	}
+
 	JoclyFairy.startMachine = function (aGame, aOptions) {
-		var level = aOptions.level || {};
-		var variant = level.variant;
+		var level = ResolveLevel(aGame, aOptions.level || {});
+		var variant = level && level.variant;
 		if (!variant) {
-			console.error("fairy-stockfish level is missing a 'variant' field");
+			if (level !== null) // null means ResolveLevel already logged a specific reason
+				console.error("fairy-stockfish level is missing a 'variant' field");
 			aGame.mBestMoves = [];
 			JocUtil.schedule(aGame, "Done", {});
 			return;
@@ -163,6 +323,8 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		}
 
 		var fen = aGame.mBoard.ExportBoardState(aGame);
+		var pieceMaps = BuildPieceMaps(level.pieceMap);
+		var fenForEngine = TranslitFen(fen, pieceMaps.toFairy);
 		var entry = GetOrCreateWorker(aGame, aOptions);
 
 		aGame.mFairyAbort = function () {
@@ -193,10 +355,11 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 					entry.worker.postMessage({
 						type: "Search",
 						variant: variant,
-						fen: fen,
+						fen: fenForEngine,
 						depth: level.depth,
 						moveTimeMs: level.moveTimeMs,
-						skillLevel: level.skillLevel
+						skillLevel: level.skillLevel,
+						chess960: level.chess960
 					});
 				});
 			})
@@ -207,7 +370,8 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 					// empty move list, rather than guessing here.
 					aGame.mBestMoves = [];
 				} else {
-					var move = ResolveMove(aGame, data.bestMoveUci.toLowerCase());
+					var uciMove = TranslitMove(data.bestMoveUci.toLowerCase(), pieceMaps.toJocly);
+					var move = ResolveMove(aGame, uciMove);
 					aGame.mBestMoves = [move];
 				}
 				delete aGame.mFairyAbort;

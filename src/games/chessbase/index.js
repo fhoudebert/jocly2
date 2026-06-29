@@ -94,6 +94,166 @@ exports.games = (function () {
 		"moveTimeMs": 1000
 	}
 	var config_model_levels_5_expert = config_model_levels_5.concat([config_model_levels_expert]);
+
+	// --- Additional "Expert" (Fairy-Stockfish) levels, pass 1 ---
+	// Each entry below was verified by comparing Jocly's own
+	// mBoard.ExportBoardState() output for that game's starting position
+	// against the official Fairy-Stockfish startFen for the matching
+	// UCI_Variant (see src/core/variant.cpp upstream). Where both sides
+	// implement identical rules but use a different single-letter
+	// abbreviation for one piece type, "pieceMap" (Jocly letter -> Fairy-
+	// Stockfish letter, uppercase only) bridges the difference - see the
+	// pieceMap documentation in src/core/jocly.fairy.js for exactly how and
+	// where it is applied, and what it must NOT be used for.
+
+	// Amazon: FEN matches exactly, no pieceMap needed.
+	var config_model_levels_amazon_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "amazon",
+		"skillLevel": 20,
+		"moveTimeMs": 1000
+	}
+	var config_model_levels_5_amazon_expert = config_model_levels_5.concat([config_model_levels_amazon_expert]);
+
+	// Shako: FEN matches exactly, no pieceMap needed. Uses
+	// config_model_levels_15 (not _5) as its base level list. The actual
+	// concatenated list (config_model_levels_15_shako_expert) is defined
+	// further below, right after config_model_levels_15 itself is declared
+	// (var hoisting means the value isn't assigned yet at this point in the
+	// file - only the level object itself is needed here).
+	var config_model_levels_shako_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "shako",
+		"skillLevel": 20,
+		"moveTimeMs": 1000
+	}
+
+	// Chancellor: FEN matches exactly, no pieceMap needed.
+	var config_model_levels_chancellor_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "chancellor",
+		"skillLevel": 20,
+		"moveTimeMs": 1000
+	}
+	var config_model_levels_5_chancellor_expert = config_model_levels_5.concat([config_model_levels_chancellor_expert]);
+
+	// Xiangqi: same rules/position, different piece letters
+	// (Jocly H(orse)/E(lephant) vs Fairy-Stockfish's N(knight)/B(ishop)).
+	var config_model_levels_xiangqi_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "xiangqi",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pieceMap": { "H": "N", "E": "B" }
+	}
+	var config_model_levels_5_xiangqi_expert = config_model_levels_5.concat([config_model_levels_xiangqi_expert]);
+
+	// Shatranj: same rules/position, different piece letters
+	// (Jocly E(lephant)/G(eneral) vs Fairy-Stockfish's B(ishop)/Q(ueen)).
+	var config_model_levels_shatranj_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "shatranj",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pieceMap": { "E": "B", "G": "Q" }
+	}
+	var config_model_levels_5_shatranj_expert = config_model_levels_5.concat([config_model_levels_shatranj_expert]);
+
+	// Knightmate: same rules/position, the royal piece (moves like a
+	// knight) is "K" in Jocly vs "M" in Fairy-Stockfish, while the regular
+	// knight-replacement commoner piece is "N" in Jocly vs "K" in
+	// Fairy-Stockfish - i.e. a 3-way letter rotation. pieceMap below covers
+	// it: K->M and N->K together correctly avoid double-substitution
+	// (BuildPieceMaps()/TranslitFen() apply both within a single
+	// character-by-character pass, not sequential global replacements).
+	var config_model_levels_knightmate_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "knightmate",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pieceMap": { "K": "M", "N": "K" }
+	}
+	var config_model_levels_5_knightmate_expert = config_model_levels_5.concat([config_model_levels_knightmate_expert]);
+
+	// Grand: same rules/position (Jocly does not actually implement
+	// castling for this game either, despite the default "KQkq" in its FEN
+	// export - see grand-model.js), different piece letter for the
+	// chancellor (Jocly "M" vs Fairy-Stockfish "C").
+	var config_model_levels_grand_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "grand",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pieceMap": { "M": "C" }
+	}
+	var config_model_levels_5_grand_expert = config_model_levels_5.concat([config_model_levels_grand_expert]);
+
+	// Capablanca-chess module (capa10x8/capablanca-model.js): a single
+	// Jocly game whose "prelude" (see prelude-model.js) lets the player
+	// choose, at the start of each game, between several distinct chess
+	// variants sharing the same 10x8 board/geometry. Of its 10 prelude
+	// setups, 3 have an exact rules+position match in Fairy-Stockfish
+	// (Capablanca, Gothic, Embassy - all using "M" for the chancellor where
+	// Fairy-Stockfish uses "C"), and one more (Janus) also matches with a
+	// different pieceMap. The other setups (Bird, Carrera, Ladorean,
+	// Grotesque, Schoolbook, Univers) have no Fairy-Stockfish equivalent.
+	//
+	// Since the variant actually being played is only known once the
+	// prelude choice has been made (not statically, like every other level
+	// in this file), a single static "variant"/"pieceMap" cannot be
+	// declared here. Instead, jocly.fairy.js supports an array of candidate
+	// sub-levels under "variants": at search time it picks the one whose
+	// "setup" matches aGame.cbVar.prelude's recorded persistent choice, and
+	// reports an error (no silent fallback) if the chosen setup has no
+	// match - see the "variants" handling added to JoclyFairy.startMachine.
+	var config_model_levels_capablanca_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"variants": [
+			{ "setup": 0, "variant": "capablanca", "pieceMap": { "M": "C" } },
+			{ "setup": 1, "variant": "gothic", "pieceMap": { "M": "C" } },
+			{ "setup": 4, "variant": "embassy", "pieceMap": { "M": "C" } },
+			{ "setup": 9, "variant": "janus", "pieceMap": { "A": "J" } }
+		]
+	}
+	var config_model_levels_5_capablanca_expert = config_model_levels_5.concat([config_model_levels_capablanca_expert]);
+
+	// Antichess (Jocly's "losing-chess"): FEN matches exactly (including the
+	// absence of castling rights), no pieceMap needed. Jocly implements the
+	// same rules as Fairy-Stockfish's "antichess" specifically (mandatory
+	// capture, and - crucially - a player with no legal move, including
+	// stalemate, *wins* rather than loses; no special king-as-commoner
+	// piece, king lost like any other piece counts toward the "no pieces
+	// left" loss condition) - not "suicide" (extra stalemate-piece-count
+	// rule) or "giveaway"/"losers" (different win conditions), even though
+	// Jocly's own UI describes the game as "also known as" all of those.
+	var config_model_levels_antichess_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "antichess",
+		"skillLevel": 20,
+		"moveTimeMs": 1000
+	}
+	var config_model_levels_5_antichess_expert = config_model_levels_5.concat([config_model_levels_antichess_expert]);
+
 	var config_view_css = [
 		"chessbase.css"
 	]
@@ -585,6 +745,7 @@ exports.games = (function () {
 		config_model_levels_13,
 		config_model_levels_14
 	]
+	var config_model_levels_15_shako_expert = config_model_levels_15.concat([config_model_levels_shako_expert]);
 	var config_view_js_13 = [
 		"base-view.js",
 		"grid-board-view.js",
@@ -1573,7 +1734,7 @@ exports.games = (function () {
 						"grid-geo-model.js",
 						"standard/losing-model.js"
 					],
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_antichess_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -1664,7 +1825,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/xiangqi/xiangqi-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_xiangqi_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -2405,7 +2566,7 @@ exports.games = (function () {
 						"en": "res/rules/shako/shako-description.html",
 						"fr": "res/rules/shako/shako-description-fr.html"
 					},
-					"levels": config_model_levels_15
+					"levels": config_model_levels_15_shako_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -2470,7 +2631,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/shatranj/shatranj-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_shatranj_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -2619,7 +2780,7 @@ exports.games = (function () {
 					"gameOptions": config_model_gameOptions,
 					"obsolete": true,
 					"js": modelScripts_knightmate,
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_knightmate_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -3820,7 +3981,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/capa10x8/capablanca-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_capablanca_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -3871,7 +4032,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/decimal/grand-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_grand_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -4080,7 +4241,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/knighted/chancellor-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_chancellor_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -4461,7 +4622,7 @@ exports.games = (function () {
 					"gameOptions": config_model_gameOptions,
 					"obsolete": false,
 					"js": modelScripts_41,
-					"levels": config_model_levels_5,
+					"levels": config_model_levels_5_amazon_expert,
 					"description": {
 						"en": "res/rules/amazon/amazon-description.html"
 					}

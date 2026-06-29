@@ -132,6 +132,8 @@ function RunSearch(engine, options) {
 		engine.postMessage("setoption name UCI_Variant value " + options.variant);
 		if (typeof options.skillLevel === "number")
 			engine.postMessage("setoption name Skill Level value " + options.skillLevel);
+		if (options.chess960)
+			engine.postMessage("setoption name UCI_Chess960 value true");
 		engine.postMessage("position fen " + options.fen);
 		if (options.moveTimeMs)
 			engine.postMessage("go movetime " + options.moveTimeMs);
@@ -166,6 +168,7 @@ onmessage = function (e) {
 					depth: message.depth,
 					moveTimeMs: message.moveTimeMs,
 					skillLevel: message.skillLevel,
+					chess960: message.chess960,
 					progress: function (percent) {
 						postMessage({ type: "Progress", percent: percent });
 					}
