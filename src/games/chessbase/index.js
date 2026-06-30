@@ -679,6 +679,38 @@ exports.games = (function () {
 		"pocketGeometry": true
 	}
 
+	// Gardner MiniChess: FEN matches Fairy-Stockfish's native "gardner"
+	// exactly, no pieceMap needed.
+	var config_model_levels_gardner_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "gardner",
+		"skillLevel": 20,
+		"moveTimeMs": 1000
+	}
+	var config_model_levels_5_gardner_expert = config_model_levels_5.concat([config_model_levels_gardner_expert]);
+
+	// Los Alamos Chess: FEN now matches Fairy-Stockfish's native
+	// "losalamos" exactly, after fixing a real placement bug in
+	// los-alamos-model.js itself (queen/king were swapped - see that
+	// file's own comment for the historical sources confirming the
+	// correct placement is queen on c1/c6, king on d1/d6, not the other
+	// way around). This wasn't a notation/pieceMap issue like other games
+	// in this work - the actual starting position Jocly played was
+	// historically wrong, independent of this Fairy-Stockfish
+	// integration, so it was corrected directly rather than worked around
+	// with a custom variant config that would have preserved the bug.
+	var config_model_levels_losalamos_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "losalamos",
+		"skillLevel": 20,
+		"moveTimeMs": 1000
+	}
+	var config_model_levels_5_losalamos_expert = config_model_levels_5.concat([config_model_levels_losalamos_expert]);
+
 	// Courier chess: same rules and starting position as Fairy-Stockfish's
 	// "courier" (including the absence of castling - Jocly's courier-model.js
 	// does mark its rooks "castle:true" and declares a "castle" table, but
@@ -2409,7 +2441,7 @@ exports.games = (function () {
 					"gameOptions": config_model_gameOptions_2,
 					"obsolete": false,
 					"js": modelScripts_3,
-					"levels": config_model_levels_5,
+					"levels": config_model_levels_5_gardner_expert,
 					"description": {
 						"en": "res/rules/mini/gardner-description.html"
 					}
@@ -2715,7 +2747,7 @@ exports.games = (function () {
 					"gameOptions": config_model_gameOptions_2,
 					"obsolete": false,
 					"js": modelScripts_9,
-					"levels": config_model_levels_5,
+					"levels": config_model_levels_5_losalamos_expert,
 					"description": {
 						"en": "res/rules/mini/los-alamos-description.html"
 					}
