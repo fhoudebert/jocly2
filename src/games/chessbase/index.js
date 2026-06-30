@@ -132,6 +132,72 @@ exports.games = (function () {
 		"moveTimeMs": 1000
 	}
 
+	// Pemba: 10x10 board with several fairy pieces that have no native
+	// Fairy-Stockfish equivalent (elephant, camel, machine, giraffe, bow),
+	// but ARE representable with the engine's supported Betza atom subset
+	// (W, F, N, A, Z, D and their slider/hopper/lame-leaper variants - see
+	// https://github.com/fairy-stockfish/Fairy-Stockfish/blob/master/src/variants.ini
+	// for the documented list, and customPiece1..N for the syntax). Each
+	// piece's Betza notation below was derived directly from this game's
+	// own movement definition (cazaux/pemba-model.js's cbShortRangeGraph/
+	// cbLongRangeGraph offset lists, not guessed from the piece's English
+	// name) and verified against the real engine:
+	//   elephant (FA): 1-or-2-square diagonal jump, unblockable - Fers+Alfil
+	//   camel (L): the classic (1,3) leaper - note the engine only supports
+	//     this under the legacy letter "L", not "C" (reserved/ambiguous)
+	//     nor the (1,3) coordinate form (verified neither works)
+	//   machine (WD): 1-or-2-square orthogonal jump - Wazir+Dabbaba
+	//   giraffe (Z): turns out to be the same (2,3) leap as the standard
+	//     "zebra" atom Z, not the (1,4) leap some general fairy-piece
+	//     references call "giraffe" - verified directly against
+	//     cazaux/pemba-model.js's own offset list, not assumed
+	//   bow (mBcpB): unlimited diagonal slide, capture-only after jumping
+	//     over exactly one piece - a diagonal Cannon, same construction as
+	//     the documented orthogonal cannon (mRcpR)
+	// Jocly's own piece letters (E/J/D/Z/W/C, all confirmed via this game's
+	// abbrev fields) happen to already match what's used below, so no
+	// pieceMap is needed - only the custom variant config itself.
+	// Castling: a real castling table exists (cazaux/pemba-model.js's
+	// "castle" object) with the king/rooks on rank 2 (not 1) - inherited
+	// from "grand", which has castling disabled by default, so it must be
+	// explicitly re-enabled here (castling=true) together with
+	// castlingRank=2 (see variants.ini's documented castlingRank option,
+	// itself verified against a known-working official example,
+	// [blackletter:chess], which uses the same rank-2 castling setup).
+	// Verified directly: with this config, perft on a cleared rank-2 test
+	// position produces exactly the expected castling moves, in "king
+	// takes own rook" notation (since destination columns h/e don't follow
+	// the engine's standard g/c castling file convention) - hence
+	// "chess960": true below, exactly like Chess960's own level, so
+	// jocly.fairy.js requests the matching "engine960" move format.
+	var config_model_levels_pemba_expert_ini = [
+		"[pembachess:grand]",
+		"archbishop = -",
+		"chancellor = -",
+		"cannon = c",
+		"customPiece1 = e:FA",
+		"customPiece2 = j:L",
+		"customPiece3 = d:WD",
+		"customPiece4 = z:Z",
+		"customPiece5 = w:mBcpB",
+		"castling = true",
+		"castlingKingsideFile = h",
+		"castlingQueensideFile = e",
+		"castlingRank = 2",
+		"startFen = cjwzddzwjc/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/CJWZDDZWJC w KQkq - 0 1",
+		""
+	].join("\n");
+	var config_model_levels_pemba_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "pembachess",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"chess960": true,
+		"customVariantIni": config_model_levels_pemba_expert_ini
+	}
+
 	// Chancellor: FEN matches exactly, no pieceMap needed.
 	var config_model_levels_chancellor_expert = {
 		"name": "expert",
@@ -335,6 +401,31 @@ exports.games = (function () {
 		"chess960": true
 	}
 	var config_model_levels_5_chess960_expert = config_model_levels_5.concat([config_model_levels_chess960_expert]);
+
+	// Makruk (Thai Chess): same rules and position as Fairy-Stockfish's
+	// "makruk", different single-letter abbreviations for the Khon
+	// (bishop-like piece) and Met (queen-like piece) - verified to be a
+	// consistent, bijective per-character substitution (B<->S, Q<->M), and
+	// no real rules difference: Jocly's own evaluate() already implements
+	// the exact same MAKRUK_COUNTING-style move-limit rule (based on
+	// remaining Met/Khon/Knight count) as the official variant, neither
+	// side has a castling table (Jocly never generates a castle move here,
+	// matching the official "castling = false"), and pawn promotion -
+	// limited to a single piece type (Met) - only ever triggers on the
+	// first rank a pawn can reach with Jocly's plain (non-double-step)
+	// pawn movement, making the official 3-rank promotionRegion and
+	// Jocly's single-rank "geometry.R(move.t)==5" check equivalent in
+	// practice.
+	var config_model_levels_makruk_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "makruk",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pieceMap": { "B": "S", "Q": "M" }
+	}
+	var config_model_levels_5_makruk_expert = config_model_levels_5.concat([config_model_levels_makruk_expert]);
 
 	// Courier chess: same rules and starting position as Fairy-Stockfish's
 	// "courier" (including the absence of castling - Jocly's courier-model.js
@@ -852,6 +943,7 @@ exports.games = (function () {
 		config_model_levels_14
 	]
 	var config_model_levels_15_shako_expert = config_model_levels_15.concat([config_model_levels_shako_expert]);
+	var config_model_levels_15_pemba_expert = config_model_levels_15.concat([config_model_levels_pemba_expert]);
 	var config_view_js_13 = [
 		"base-view.js",
 		"grid-board-view.js",
@@ -2576,7 +2668,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/makruk/mk-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_makruk_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -6233,7 +6325,7 @@ exports.games = (function () {
  						"en": "res/rules/shako/pemba-description.html",
 						"fr": "res/rules/shako/pemba-description-fr.html"
  					},
- 					"levels": config_model_levels_15
+ 					"levels": config_model_levels_15_pemba_expert
  				},
  				"view": {
  					"title-en": "pemba view",
