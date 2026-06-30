@@ -3,6 +3,8 @@ Jocly is a library and set of tools to integrate boards games into Web environme
 It comes with a large collection of abstract strategy games, 2D and 3D user interface,
 artificial intelligence to play against.
 
+This fork was initiated following the discontinuation of Jocly, in order to revitalize contributions.
+
 Demos
 -----
 You will find many board games (spargo, four in a row, annexation …), and in particular variations of chess and shogi.
