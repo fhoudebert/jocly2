@@ -495,6 +495,63 @@ exports.games = (function () {
 	}
 	var config_model_levels_5_wildebeest_expert = config_model_levels_5.concat([config_model_levels_wildebeest_expert]);
 
+	// Heavychess: 10x10 board with several fairy pieces, none of which has
+	// a native Fairy-Stockfish variant equivalent (marshall/chancellor-like,
+	// archbishop-like, dragon-king, centaur, "missionary" king+bishop
+	// compound), declared as a custom variant inheriting from "grand", same
+	// approach as Pemba above. Unlike Pemba though, every one of these
+	// pieces turned out to be representable using only the engine's basic
+	// W/F/N/B/R atoms (no custom-piece letters like Pemba's elephant/camel/
+	// giraffe/bow were needed) - derived directly from this game's own
+	// piece library (fairy-piece-model.js's cbCardinalGraph/cbMarshallGraph/
+	// cbAmazonGraph/cbSymmetricGraph offset codes, decoded as
+	// rook(-10)/bishop(-11)/knight(21)/wazir(10)/ferz(11) compounds) and
+	// verified individually against the real engine:
+	//   marshall   (M) = RN  (rook + knight, i.e. a standard chancellor)
+	//   archbishop (A) = BN  (bishop + knight, a standard archbishop)
+	//   dragon-king(D) = RF  (rook + 1-square diagonal step)
+	//   centaur    (J) = WFN (1-square orthogonal/diagonal step + knight)
+	//   missionary (L) = WFB (king-style step + unlimited diagonal slide)
+	// Jocly's own piece letters (M/A/D/J/L, all confirmed via this game's
+	// MakePiece() abbrev assignments in fairy-piece-model.js) already match
+	// what's declared below, so no pieceMap is needed.
+	// Castling: a real castling table is set up automatically by
+	// fairy-piece-model.js's cbPiecesFromFEN() (it calls setCastling()
+	// unconditionally once a king and rook are found), with the king on
+	// rank 2 (not 1, same situation as Pemba) and destination files
+	// computed from the rook's starting file - verified directly (perft on
+	// a cleared rank-2 test position) to land on h/d, matching what's
+	// declared here. Since h/d aren't the engine's standard g/c castling
+	// files, the engine encodes castling in "king takes own rook" notation,
+	// hence "chess960": true, exactly like Pemba and Chess960 itself.
+	var config_model_levels_heavychess_expert_ini = [
+		"[heavychess:grand]",
+		"archbishop = -",
+		"chancellor = -",
+		"customPiece1 = m:RN",
+		"customPiece2 = a:BN",
+		"customPiece3 = d:RF",
+		"customPiece4 = j:WFN",
+		"customPiece5 = l:WFB",
+		"castling = true",
+		"castlingKingsideFile = h",
+		"castlingQueensideFile = d",
+		"castlingRank = 2",
+		"startFen = madqllqdam/jrnbtkbnrj/pppppppppp/10/10/10/10/PPPPPPPPPP/JRNBTKBNRJ/MADQLLQDAM w KQkq - 0 1",
+		""
+	].join("\n");
+	var config_model_levels_heavychess_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "heavychess",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"chess960": true,
+		"customVariantIni": config_model_levels_heavychess_expert_ini
+	}
+	var config_model_levels_5_heavychess_expert = config_model_levels_5.concat([config_model_levels_heavychess_expert]);
+
 	// Courier chess: same rules and starting position as Fairy-Stockfish's
 	// "courier" (including the absence of castling - Jocly's courier-model.js
 	// does mark its rooks "castle:true" and declares a "castle" table, but
@@ -4403,7 +4460,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/decimal/heavychess-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_heavychess_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
