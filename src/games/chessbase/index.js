@@ -254,6 +254,56 @@ exports.games = (function () {
 	}
 	var config_model_levels_5_antichess_expert = config_model_levels_5.concat([config_model_levels_antichess_expert]);
 
+	// Chess960 (Fischer Random): same rules/position-randomization as
+	// Fairy-Stockfish's "fischerandom", no pieceMap needed - but, unlike
+	// every other level above, this one *requires* "chess960": true. Without
+	// it, castling moves are matched in the wrong notation: Fairy-Stockfish
+	// without UCI_Chess960 expects "king to its final square" (e.g. "e1g1"),
+	// which is wrong for a Chess960 position where the king's *current*
+	// square may already coincide with where it lands when castling kingside
+	// or queenside (collapsing to a meaningless "no-op"-looking move) - and
+	// engine-side, Fairy-Stockfish needs UCI_Chess960 itself to apply
+	// Chess960 castling rules (king may already be adjacent to/between other
+	// pieces in ways standard castling rules wouldn't allow). With
+	// "chess960": true, jocly.fairy.js requests Jocly's "engine960" move
+	// format ("king takes own rook", e.g. "g1h1") to match the engine's own
+	// Chess960-style notation - verified directly: the plain "engine" format
+	// version of a Chess960 castling move can match an unrelated nearby move
+	// more closely (in Levenshtein distance) than the real castling move.
+	var config_model_levels_chess960_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "fischerandom",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"chess960": true
+	}
+	var config_model_levels_5_chess960_expert = config_model_levels_5.concat([config_model_levels_chess960_expert]);
+
+	// Courier chess: same rules and starting position as Fairy-Stockfish's
+	// "courier" (including the absence of castling - Jocly's courier-model.js
+	// does mark its rooks "castle:true" and declares a "castle" table, but
+	// that table is an empty object, so - exactly like grand-model.js's
+	// default "KQkq" FEN castling field above - no castle move is ever
+	// actually generated; the "KQkq" in Jocly's default FEN export is
+	// cosmetic, not a real rules difference), different single-letter
+	// abbreviations for 4 piece types (elephant/alfil, bishop, wazir,
+	// fers - verified to be a consistent, fully bijective per-character
+	// substitution). Uses config_model_levels_10 (not _5) as its base level
+	// list; the actual concatenated list
+	// (config_model_levels_10_courier_expert) is defined further below,
+	// right after config_model_levels_10 itself is declared.
+	var config_model_levels_courier_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "courier",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pieceMap": { "B": "E", "C": "B", "S": "W", "Q": "F" }
+	}
+
 	var config_view_css = [
 		"chessbase.css"
 	]
@@ -566,6 +616,7 @@ exports.games = (function () {
 		config_model_levels_8,
 		config_model_levels_9
 	]
+	var config_model_levels_10_courier_expert = config_model_levels_10.concat([config_model_levels_courier_expert]);
 	var config_view_js_11 = [
 		"base-view.js",
 		"grid-board-view.js",
@@ -2365,7 +2416,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/historical/courier-description.html"
 					},
-					"levels": config_model_levels_10
+					"levels": config_model_levels_10_courier_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -3829,7 +3880,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/famous/chess960-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_chess960_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",

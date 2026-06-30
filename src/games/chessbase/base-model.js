@@ -1239,11 +1239,38 @@
 		}
 
 		function EngineFormat() {
-			var str = cbVar.geometry.PosName(self.f) + cbVar.geometry.PosName(self.t);
+			var str = cbVar.geometry.PosName(self.f) + cbVar.geometry.PosName(self.t&0xffff);
 			if(self.pr!=undefined) {
 				var pType=cbVar.pieceTypes[self.pr];
 				if(pType && pType.abbrev && pType.abbrev.length>0 && !pType.silentPromo)
 					str+=pType.abbrev;				
+			}
+			return str;
+		}
+
+		// Like EngineFormat(), but for engines running with UCI_Chess960
+		// enabled, where castling moves must use "king takes own rook"
+		// notation (e.g. "g1h1") rather than the king's actual destination
+		// square (e.g. "g1g1" - meaningless - or "e1g1" in the general
+		// case). This is the de facto UCI standard for Chess960 castling
+		// (see e.g. https://github.com/fairy-stockfish/chess-variant-standards
+		// or python-chess's Board.uci(chess960=True)); it must NOT be used
+		// as the default "engine" format because it would silently break
+		// move-matching for every other (non-Chess960) game with castling -
+		// the "king takes rook" destination is closer, in plain Levenshtein
+		// distance, to unrelated short moves landing near the rook's
+		// square than to the actual matching move in "engine" format. Only
+		// use this format when the engine was actually told
+		// "setoption name UCI_Chess960 value true" for this search (see
+		// jocly.fairy.js's "chess960" level option).
+		function Engine960Format() {
+			if(self.cg===undefined)
+				return EngineFormat();
+			var str = cbVar.geometry.PosName(self.f) + cbVar.geometry.PosName(self.cg);
+			if(self.pr!=undefined) {
+				var pType=cbVar.pieceTypes[self.pr];
+				if(pType && pType.abbrev && pType.abbrev.length>0 && !pType.silentPromo)
+					str+=pType.abbrev;
 			}
 			return str;
 		}
@@ -1253,6 +1280,8 @@
 				return NaturalFormat();
 			case "engine":
 				return EngineFormat();
+			case "engine960":
+				return Engine960Format();
 			default:
 				return "??";
 		}

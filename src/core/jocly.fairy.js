@@ -226,19 +226,32 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 	 * and pick the one whose own "engine" notation best matches what the
 	 * engine returned, exactly like Jocly already does for loaded PGN/move
 	 * lists (see JocGame.prototype.GetBestMatchingMove).
+	 *
+	 * useChess960Format selects "engine960" instead of the default "engine"
+	 * format for the candidates' own notation - required when the search
+	 * was run with "setoption name UCI_Chess960 value true" (level.chess960),
+	 * since the engine then encodes castling as "king takes own rook"
+	 * (e.g. "g1h1") rather than the king's plain destination square. Using
+	 * the wrong one of the two is not just cosmetically off: plain
+	 * Levenshtein distance can match the engine's castling move to an
+	 * unrelated nearby move instead of the actual castling move (verified
+	 * directly - "e1g1" against a Jocly candidate set including both "h1g1"
+	 * (an unrelated rook move) and "e1h1" (the real castling move, in
+	 * "engine" format) matches "h1g1" more closely).
 	 */
-	function ResolveMove(aGame, uciMove) {
+	function ResolveMove(aGame, uciMove, useChess960Format) {
 		aGame.mBoard.mMoves = [];
 		aGame.mBoard.GenerateMoveObjects(aGame);
 		var candidates = aGame.mBoard.mMoves;
 		if (!candidates || candidates.length === 0)
 			throw new Error("fairy-stockfish: no legal move available to match '" + uciMove + "'");
+		var moveFormat = useChess960Format ? "engine960" : "engine";
 		// GetBestMatchingMove() compares against Move.ToString() (default
 		// "natural" format); since Fairy-Stockfish speaks UCI, match against
-		// the "engine" format instead, which native chessbase moves already
-		// render close to UCI (e2e4, e7e8Q...).
+		// the "engine"/"engine960" format instead, which native chessbase
+		// moves already render close to UCI (e2e4, e7e8Q...).
 		var engineStrings = candidates.map(function (m) {
-			return (typeof m.ToString == "function") ? m.ToString("engine") : aGame.CreateMove(m).ToString("engine");
+			return (typeof m.ToString == "function") ? m.ToString(moveFormat) : aGame.CreateMove(m).ToString(moveFormat);
 		});
 		var bestIndex = -1, bestDist = Infinity;
 		engineStrings.forEach(function (str, index) {
@@ -371,7 +384,7 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 					aGame.mBestMoves = [];
 				} else {
 					var uciMove = TranslitMove(data.bestMoveUci.toLowerCase(), pieceMaps.toJocly);
-					var move = ResolveMove(aGame, uciMove);
+					var move = ResolveMove(aGame, uciMove, level.chess960);
 					aGame.mBestMoves = [move];
 				}
 				delete aGame.mFairyAbort;
