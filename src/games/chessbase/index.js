@@ -552,6 +552,37 @@ exports.games = (function () {
 	}
 	var config_model_levels_5_heavychess_expert = config_model_levels_5.concat([config_model_levels_heavychess_expert]);
 
+	// Shogi: same rules and starting position as Fairy-Stockfish's "shogi"
+	// (startFen matches byte-for-byte once Jocly's own captured-pieces
+	// representation - extra board columns rather than a FEN "[...]"
+	// pocket section, see drop-model.js/cbDropGeometry() - is converted to
+	// the standard form). No pieceMap needed: Jocly's own piece letters
+	// already match (verified against the official startFen). "engine"
+	// format drop moves (e.g. "P@d1", confirmed directly) already match
+	// the USI/UCI drop notation the engine expects, so no special move
+	// handling is needed either - only the FEN itself needed fixing.
+	// "pocketGeometry": true tells jocly.fairy.js to build the FEN with
+	// BuildShogiStyleFen() instead of the generic ExportBoardState() (see
+	// that function's own documentation for exactly how/why). Verified
+	// directly: the resulting FEN for the starting position matches the
+	// official startFen exactly, and after real captures (including
+	// several captures of the same piece type) the "[...]" pocket section
+	// is built correctly - using one repeated letter per held piece
+	// (e.g. "[ppppp l]" with no spaces), NOT a "5P"-style count prefix,
+	// which was verified directly against the real engine to silently
+	// lose pieces if used in the FEN pocket (as opposed to engine-side
+	// Sfen *output*, which does use a count prefix, but that's not an
+	// accepted *input* form for the FEN pocket).
+	var config_model_levels_shogi_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "shogi",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pocketGeometry": true
+	}
+
 	// Courier chess: same rules and starting position as Fairy-Stockfish's
 	// "courier" (including the absence of castling - Jocly's courier-model.js
 	// does mark its rooks "castle:true" and declares a "castle" table, but
@@ -1068,6 +1099,7 @@ exports.games = (function () {
 		config_model_levels_14
 	]
 	var config_model_levels_15_shako_expert = config_model_levels_15.concat([config_model_levels_shako_expert]);
+	var config_model_levels_15_shogi_expert = config_model_levels_15.concat([config_model_levels_shogi_expert]);
 	var config_model_levels_15_pemba_expert = config_model_levels_15.concat([config_model_levels_pemba_expert]);
 	var config_view_js_13 = [
 		"base-view.js",
@@ -7337,7 +7369,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/shogi/shogi-description.html"
 					},
-					"levels": config_model_levels_15
+					"levels": config_model_levels_15_shogi_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",

@@ -116,6 +116,27 @@
  * recorded yet, or none of the declared entries match the chosen setup
  * (e.g. the player picked a variant with no Fairy-Stockfish equivalent),
  * the search fails loudly rather than guessing a variant.
+ *
+ * pocketGeometry (optional): for games whose pieces-in-hand (Shogi-style
+ * drops) are represented by Jocly as extra board columns rather than the
+ * FEN "[...]" pocket notation Fairy-Stockfish expects (true of every
+ * Jocly game built on drop-model.js's cbDropGeometry()/cbAddHoldings()),
+ * aGame.mBoard.ExportBoardState() produces a FEN with the wrong board
+ * width (it includes those extra columns as empty squares) and no pocket
+ * section at all - not usable as-is. Setting "pocketGeometry": true tells
+ * BuildShogiStyleFen() below to build a corrected FEN itself, by reading
+ * aGame.cbVar.geometry.BOARD_AREA (the canonical set of "real" board
+ * squares, already computed by cbDropGeometry() - querying it rather than
+ * recomputing hand-column boundaries independently) to know which squares
+ * are real board vs. hand, and aGame.mBoard.pieces directly (each piece's
+ * own .p position, .t type, .s side) to build both the board placement
+ * and the "[...]" pocket section, instead of relying on the generic
+ * ExportBoardState(). The reverse direction (an engine drop move like
+ * "P@5e" back into a Jocly Move) needs no special handling: it already
+ * matches the existing ResolveMove()/GetBestMatchingMove() machinery,
+ * since Jocly's own "engine" move format for a drop is already exactly
+ * that shape (verified directly against shogi-model.js's Move.ToString
+ * override).
  */
 
 var JoclyFairy = {};
@@ -173,6 +194,122 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		else
 			fallbackWorkerSlot = { game: aGame, worker: entry };
 		return entry;
+	}
+
+	/*
+	 * Builds a standard FEN (board placement + "[...]" pocket section) for
+	 * games whose pieces-in-hand are represented by Jocly as extra board
+	 * columns (drop-model.js's cbDropGeometry()/cbAddHoldings() - currently
+	 * shogi/mini-shogi/kyoto-shogi/etc.), where the generic
+	 * mBoard.ExportBoardState() can't be used as-is: it exports the full
+	 * (wider) internal board, including the hand columns as plain empty
+	 * squares, and has no concept of a pocket section at all.
+	 *
+	 * Rather than recomputing hand-column boundaries independently (and
+	 * risk getting them subtly wrong for a geometry variant this hasn't
+	 * been tested against), this reads aGame.cbVar.geometry.BOARD_AREA -
+	 * the canonical set of "real" board squares, already computed once by
+	 * cbDropGeometry() itself - to decide what's board vs. hand, and
+	 * iterates aGame.mBoard.pieces directly for both parts: board squares
+	 * use each piece's own abbrev/fenAbbrev (handling the "+" prefix for
+	 * promoted pieces the same way Move.ToString already does in
+	 * drop-model.js), and hand squares are tallied by (side, demoted type)
+	 * into the "[...]" section - using each piece type's "hand" field
+	 * (present only on droppable, non-promoted types) to recognize which
+	 * pieces sitting outside BOARD_AREA are real held pieces rather than
+	 * the internal "counter" pseudo-pieces drop-model.js also keeps there
+	 * (identifiable by having no "hand" field of their own).
+	 *
+	 * Turn/move-clock fields are copied verbatim from the generic
+	 * ExportBoardState() output (those parts aren't affected by the hand
+	 * column issue), keeping this function focused only on what actually
+	 * needs fixing.
+	 */
+	function BuildShogiStyleFen(aGame) {
+		var board = aGame.mBoard;
+		var geometry = aGame.cbVar.geometry;
+		var pieceTypes = aGame.cbVar.pieceTypes;
+		var boardArea = geometry.BOARD_AREA;
+		var width = geometry.width, height = geometry.height;
+
+		// board placement: walk BOARD_AREA in row-major (top to bottom),
+		// left to right order, exactly like a normal FEN.
+		var rows = [];
+		for (var r = height - 1; r >= 0; r--) {
+			var rowStr = "";
+			var emptyRun = 0;
+			for (var c = 0; c < width; c++) {
+				var pos = r * width + c;
+				if (!(pos in boardArea))
+					continue; // hand column for this row, skip entirely
+				var pieceIndex = board.board[pos];
+				if (pieceIndex < 0) {
+					emptyRun++;
+					continue;
+				}
+				if (emptyRun > 0) {
+					rowStr += emptyRun;
+					emptyRun = 0;
+				}
+				var piece = board.pieces[pieceIndex];
+				var pType = pieceTypes[piece.t];
+				// fenAbbrev (set on droppable/non-promoted types, e.g. "P")
+				// never carries a "+"; abbrev (set on promoted types, e.g.
+				// "+P" for shogi's tokin) already does - just use whichever
+				// is defined, no need to strip/re-add anything.
+				var letter = pType.fenAbbrev || pType.abbrev || "?";
+				rowStr += piece.s > 0 ? letter.toUpperCase() : letter.toLowerCase();
+			}
+			if (emptyRun > 0)
+				rowStr += emptyRun;
+			rows.push(rowStr);
+		}
+		var placement = rows.join("/");
+
+		// pocket: tally pieces sitting outside BOARD_AREA, keyed by
+		// (side, demoted/base type) - skips drop-model.js's own "counter"
+		// pseudo-pieces (no "hand" field) and anything inactive (p<0).
+		var counts = {}; // "side:type" -> count
+		for (var i = 0; i < board.pieces.length; i++) {
+			var p = board.pieces[i];
+			if (p.p < 0 || (p.p in boardArea))
+				continue;
+			var pt = pieceTypes[p.t];
+			if (!pt || pt.hand === undefined)
+				continue; // not a real held piece (e.g. a "counter")
+			var key = p.s + ":" + p.t;
+			counts[key] = (counts[key] || 0) + 1;
+		}
+		var pocket = "";
+		for (var key in counts) {
+			if (!counts.hasOwnProperty(key))
+				continue;
+			var parts = key.split(":");
+			var side = parseInt(parts[0], 10);
+			var t = parseInt(parts[1], 10);
+			var pt = pieceTypes[t];
+			var letter = (pt.fenAbbrev || pt.abbrev || "?").replace(/^\+/, "");
+			letter = side > 0 ? letter.toUpperCase() : letter.toLowerCase();
+			var n = counts[key];
+			// NOTE: repeat the letter n times, do NOT use a "2P"-style
+			// count prefix - verified directly against the real engine:
+			// "[2PB]" as input silently loses a piece (the engine echoes
+			// it back as "[PB]"), while "[PPB]" round-trips correctly.
+			// The engine's own Sfen output does use a count prefix
+			// ("3PB"), but that's its native Shogi notation on output
+			// only, not an accepted form for the FEN pocket on input.
+			for (var i2 = 0; i2 < n; i2++)
+				pocket += letter;
+		}
+
+		// reuse the generic export for the turn/halfmove/fullmove fields -
+		// they aren't affected by the hand-column issue, no need to
+		// recompute them here.
+		var genericFen = board.ExportBoardState(aGame);
+		var firstSpace = genericFen.indexOf(" ");
+		var rest = firstSpace < 0 ? "" : genericFen.substring(firstSpace);
+
+		return placement + "[" + pocket + "]" + rest;
 	}
 
 	/*
@@ -357,7 +494,7 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 			return;
 		}
 
-		var fen = aGame.mBoard.ExportBoardState(aGame);
+		var fen = level.pocketGeometry ? BuildShogiStyleFen(aGame) : aGame.mBoard.ExportBoardState(aGame);
 		var pieceMaps = BuildPieceMaps(level.pieceMap);
 		var fenForEngine = TranslitFen(fen, pieceMaps.toFairy);
 		var entry = GetOrCreateWorker(aGame, aOptions);
