@@ -711,6 +711,35 @@ exports.games = (function () {
 	}
 	var config_model_levels_5_losalamos_expert = config_model_levels_5.concat([config_model_levels_losalamos_expert]);
 
+	// Gustav III Chess: native Fairy-Stockfish variant "gustav3", FEN
+	// matches exactly (including the FEN's "*" wall-square markers -
+	// verified directly that Jocly's own gustav3-model.js already
+	// confines every piece's movement away from those columns via its own
+	// "confine" mechanism on rows 2-7, not just leaving them empty - so
+	// this is a genuine, already-correctly-implemented rules match, not
+	// just a coincidental FEN placement). Castling destination files (h/d)
+	// also verified directly to match.
+	var config_model_levels_gustav3_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "gustav3",
+		"skillLevel": 20,
+		"moveTimeMs": 1000
+	}
+	var config_model_levels_5_gustav3_expert = config_model_levels_5.concat([config_model_levels_gustav3_expert]);
+
+	// Spartan Chess: native Fairy-Stockfish variant "spartan", FEN matches
+	// byte-for-byte. No pieceMap needed.
+	var config_model_levels_spartan_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "spartan",
+		"skillLevel": 20,
+		"moveTimeMs": 1000
+	}
+
 	// Courier chess: same rules and starting position as Fairy-Stockfish's
 	// "courier" (including the absence of castling - Jocly's courier-model.js
 	// does mark its rooks "castle:true" and declares a "castle" table, but
@@ -1231,6 +1260,7 @@ exports.games = (function () {
 	var config_model_levels_15_minishogi_expert = config_model_levels_15.concat([config_model_levels_minishogi_expert]);
 	var config_model_levels_15_kyotoshogi_expert = config_model_levels_15.concat([config_model_levels_kyotoshogi_expert]);
 	var config_model_levels_15_torishogi_expert = config_model_levels_15.concat([config_model_levels_torishogi_expert]);
+	var config_model_levels_15_spartan_expert = config_model_levels_15.concat([config_model_levels_spartan_expert]);
 	var config_model_levels_15_pemba_expert = config_model_levels_15.concat([config_model_levels_pemba_expert]);
 	var config_view_js_13 = [
 		"base-view.js",
@@ -5283,7 +5313,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/amazon/gustav3-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_gustav3_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -7370,7 +7400,7 @@ exports.games = (function () {
 					"description": {
 						"en": "spartan-description.html"
 					},
-					"levels": config_model_levels_15
+					"levels": config_model_levels_15_spartan_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
