@@ -72,6 +72,20 @@ function RunMatch(match, progressBar) {
                                 })
                             })
                             .then((result) => {
+                                if(!result.move) {
+                                    // Happens e.g. when the selected level
+                                    // can't be resolved for the current
+                                    // position (see jocly.fairy.js's
+                                    // ResolveLevel(), used for games like
+                                    // capablanca-chess whose Fairy-Stockfish
+                                    // variant depends on a prelude choice
+                                    // not yet made, or with no matching
+                                    // variant for that choice) - check the
+                                    // browser console for a more specific
+                                    // error logged at the time of the
+                                    // search.
+                                    throw new Error("machineSearch() did not produce a move for the current level/position - check the console for details");
+                                }
                                 return match.getMoveString(result.move)
                                     .then((str)=>{
                                         console.info("Played move:",str);

@@ -77,61 +77,88 @@ return board.mWho;
 					hand: 1,
 				},
 				4: {
-					name: 'bishop',
+					// Functionally this is a promoted Silver (it moves like
+					// a Bishop, matching Fairy-Stockfish's own
+					// promotedPieceType[SILVER]=BISHOP for kyotoshogi) -
+					// renamed/re-abbreviated from the original "bishop"/"B"
+					// to align with the official engine's own piece
+					// letters, so this game's FEN can be sent to
+					// Fairy-Stockfish directly. The move graph itself is
+					// unchanged - only the name/abbrev (cosmetic/notation)
+					// are different from the original Jocly authoring.
+					name: 'p-silver',
 					aspect: 'sh-bishop',
 					graph: this.cbDropGraph(geometry, [],[[1,1],[1,-1],[-1,1],[-1,-1]]),
 					value: 8.9,
-					abbrev: 'B',
+					abbrev: '+S',
 					demoted: 4,
 					hand: 1,
 					
 				},
 				5: {
-					name: 'rook',
+					// Functionally a promoted Pawn (moves like a Rook,
+					// matching Fairy-Stockfish's promotedPieceType[SHOGI_PAWN]=ROOK
+					// for kyotoshogi) - see the note on type 4 above for why
+					// this is renamed/re-abbreviated from the original
+					// "rook"/"R".
+					name: 'p-pawn',
 					aspect: 'sh-rook',
 					graph: this.cbDropGraph(geometry, [], [[0,1],[1,0],[-1,0],[0,-1]]),
 					value: 10.4,
-					abbrev: 'R',
+					abbrev: '+P',
 					castle: false,
 					demoted: 5,
 					hand: 0,
 				},
 				6: {
-					name: 'gold-w',
+					// Functionally a promoted Knight (moves like Gold,
+					// matching Fairy-Stockfish's
+					// promotedPieceType[SHOGI_KNIGHT]=GOLD for kyotoshogi) -
+					// see the note on type 4 above for why this is
+					// renamed/re-abbreviated from the original "gold-w"/"G".
+					name: 'p-knight-w',
 					aspect: 'sh-gold',
 					graph: this.cbDropGraph(geometry, [[0,1],[1,0],[-1,0],[0,-1],[1,1],[-1,1]],[]),
 					value: 6.9,
-					abbrev: 'G',
+					abbrev: '+N',
 					initial: [{s:1,p:5}],
 					demoted: 7,
 					hand: 2,
 				},
 				7: {
-					name: 'gold-b',
+					name: 'p-knight-b',
 					aspect: 'sh-gold',
 					graph: this.cbDropGraph(geometry, [[0,1],[1,0],[-1,0],[0,-1],[1,-1],[-1,-1]],[]),
 					value: 6.9,
-					abbrev: 'G',
+					abbrev: '+N',
 					initial: [{s:-1,p:39}],
 					demoted: 6,
 					hand: 2,
 				},
 				8: {
-					name: 'p-pawn-w',
+					// Functionally a promoted Lance (moves like Gold,
+					// matching Fairy-Stockfish's
+					// promotedPieceType[LANCE]=GOLD for kyotoshogi) - see
+					// the note on type 4 above for why this is
+					// renamed/re-abbreviated from the original
+					// "p-pawn-w"/"+P" (there is no "real" promoted pawn in
+					// Kyoto Shogi distinct from this one - see type 5 above,
+					// which is the actual promoted-pawn piece, using "+P").
+					name: 'p-lance-w',
 					aspect: 'sh-tokin',
 					graph: this.cbDropGraph(geometry, [[0,1],[1,0],[-1,0],[0,-1],[1,1],[-1,1]],[]),
 					value: 4.2,
-					abbrev: '+P',
+					abbrev: '+L',
 					initial: [{s:1,p:2}],
 					demoted: 9,
 					hand: 3,
 				},
 				9: {
-					name: 'p-pawn-b',
+					name: 'p-lance-b',
 					aspect: 'sh-tokin',
 					graph: this.cbDropGraph(geometry, [[0,1],[1,0],[-1,0],[0,-1],[1,-1],[-1,-1]],[]),
 					value: 4.2,
-					abbrev: '+P',
+					abbrev: '+L',
 					initial: [{s:-1,p:42}],
 					demoted: 8,
 					hand: 3,

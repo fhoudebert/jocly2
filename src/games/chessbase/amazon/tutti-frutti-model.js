@@ -139,7 +139,18 @@
             			this.cbBishopGraph(geometry),
 						this.cbKnightGraph(geometry)),
 	            	value: 6.3,
-	            	abbrev: 'Pr',
+	            	// Was "Pr" (two characters) - a real, pre-existing bug
+	            	// independent of any Fairy-Stockfish integration: FEN
+	            	// piece placement requires exactly one character per
+	            	// occupied square, so the generic
+	            	// ExportBoardState()/getBoardState() already produced a
+	            	// syntactically invalid FEN for this game (9 characters
+	            	// for an 8-column board row). Changed to "C" (free in
+	            	// this game's own letter set: N/B/R/Q/K/A/E already
+	            	// taken), matching this piece's identity (bishop+knight
+	            	// compound, commonly called "Archbishop"/"Cardinal" -
+	            	// "A" was already used here for the Amazon).
+	            	abbrev: 'C',
 	            	initial: [{s:1,p:6},{s:-1,p:62}],
 	            },				
 

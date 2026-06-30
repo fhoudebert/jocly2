@@ -51,11 +51,20 @@
 				},
 
 				7: {
+					// Historically, queen goes on c1/c6 (not d1/d6) - see
+					// e.g. https://en.wikipedia.org/wiki/Los_Alamos_chess
+					// and Jocly's own published rules description
+					// (https://www.chessvariants.org/play/jocly/los-alamos-chess:
+					// "rooks on a1/f1, knights on b1/e1, queen on c1, king
+					// on d1"). This was previously swapped with the king
+					// below (a real placement bug, not a deliberate
+					// variant choice - also confirmed by Fairy-Stockfish's
+					// own losalamos_variant() startFen, "rnqknr/...").
 					name: 'queen',
 					graph: this.cbQueenGraph(geometry),
 					value: 9,
 					abbrev: 'Q',
-					initial: [{s:1,p:3},{s:-1,p:33}],
+					initial: [{s:1,p:2},{s:-1,p:32}],
 				},
 				
 				8: {
@@ -63,7 +72,7 @@
 					isKing: true,
 					graph: this.cbKingGraph(geometry),
 					abbrev: 'K',
-					initial: [{s:1,p:2},{s:-1,p:32}],
+					initial: [{s:1,p:3},{s:-1,p:33}],
 				},
 				
 			},

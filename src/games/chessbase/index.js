@@ -94,6 +94,753 @@ exports.games = (function () {
 		"moveTimeMs": 1000
 	}
 	var config_model_levels_5_expert = config_model_levels_5.concat([config_model_levels_expert]);
+
+	// --- Additional "Expert" (Fairy-Stockfish) levels, pass 1 ---
+	// Each entry below was verified by comparing Jocly's own
+	// mBoard.ExportBoardState() output for that game's starting position
+	// against the official Fairy-Stockfish startFen for the matching
+	// UCI_Variant (see src/core/variant.cpp upstream). Where both sides
+	// implement identical rules but use a different single-letter
+	// abbreviation for one piece type, "pieceMap" (Jocly letter -> Fairy-
+	// Stockfish letter, uppercase only) bridges the difference - see the
+	// pieceMap documentation in src/core/jocly.fairy.js for exactly how and
+	// where it is applied, and what it must NOT be used for.
+
+	// Amazon: FEN matches exactly, no pieceMap needed.
+	var config_model_levels_amazon_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "amazon",
+		"skillLevel": 20,
+		"moveTimeMs": 1000
+	}
+	var config_model_levels_5_amazon_expert = config_model_levels_5.concat([config_model_levels_amazon_expert]);
+
+	// Shako: FEN matches exactly, no pieceMap needed. Uses
+	// config_model_levels_15 (not _5) as its base level list. The actual
+	// concatenated list (config_model_levels_15_shako_expert) is defined
+	// further below, right after config_model_levels_15 itself is declared
+	// (var hoisting means the value isn't assigned yet at this point in the
+	// file - only the level object itself is needed here).
+	var config_model_levels_shako_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "shako",
+		"skillLevel": 20,
+		"moveTimeMs": 1000
+	}
+
+	// Pemba: 10x10 board with several fairy pieces that have no native
+	// Fairy-Stockfish equivalent (elephant, camel, machine, giraffe, bow),
+	// but ARE representable with the engine's supported Betza atom subset
+	// (W, F, N, A, Z, D and their slider/hopper/lame-leaper variants - see
+	// https://github.com/fairy-stockfish/Fairy-Stockfish/blob/master/src/variants.ini
+	// for the documented list, and customPiece1..N for the syntax). Each
+	// piece's Betza notation below was derived directly from this game's
+	// own movement definition (cazaux/pemba-model.js's cbShortRangeGraph/
+	// cbLongRangeGraph offset lists, not guessed from the piece's English
+	// name) and verified against the real engine:
+	//   elephant (FA): 1-or-2-square diagonal jump, unblockable - Fers+Alfil
+	//   camel (L): the classic (1,3) leaper - note the engine only supports
+	//     this under the legacy letter "L", not "C" (reserved/ambiguous)
+	//     nor the (1,3) coordinate form (verified neither works)
+	//   machine (WD): 1-or-2-square orthogonal jump - Wazir+Dabbaba
+	//   giraffe (Z): turns out to be the same (2,3) leap as the standard
+	//     "zebra" atom Z, not the (1,4) leap some general fairy-piece
+	//     references call "giraffe" - verified directly against
+	//     cazaux/pemba-model.js's own offset list, not assumed
+	//   bow (mBcpB): unlimited diagonal slide, capture-only after jumping
+	//     over exactly one piece - a diagonal Cannon, same construction as
+	//     the documented orthogonal cannon (mRcpR)
+	// Jocly's own piece letters (E/J/D/Z/W/C, all confirmed via this game's
+	// abbrev fields) happen to already match what's used below, so no
+	// pieceMap is needed - only the custom variant config itself.
+	// Castling: a real castling table exists (cazaux/pemba-model.js's
+	// "castle" object) with the king/rooks on rank 2 (not 1) - inherited
+	// from "grand", which has castling disabled by default, so it must be
+	// explicitly re-enabled here (castling=true) together with
+	// castlingRank=2 (see variants.ini's documented castlingRank option,
+	// itself verified against a known-working official example,
+	// [blackletter:chess], which uses the same rank-2 castling setup).
+	// Verified directly: with this config, perft on a cleared rank-2 test
+	// position produces exactly the expected castling moves, in "king
+	// takes own rook" notation (since destination columns h/e don't follow
+	// the engine's standard g/c castling file convention) - hence
+	// "chess960": true below, exactly like Chess960's own level, so
+	// jocly.fairy.js requests the matching "engine960" move format.
+	var config_model_levels_pemba_expert_ini = [
+		"[pembachess:grand]",
+		"archbishop = -",
+		"chancellor = -",
+		"cannon = c",
+		"customPiece1 = e:FA",
+		"customPiece2 = j:L",
+		"customPiece3 = d:WD",
+		"customPiece4 = z:Z",
+		"customPiece5 = w:mBcpB",
+		"castling = true",
+		"castlingKingsideFile = h",
+		"castlingQueensideFile = e",
+		"castlingRank = 2",
+		"startFen = cjwzddzwjc/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/CJWZDDZWJC w KQkq - 0 1",
+		""
+	].join("\n");
+	var config_model_levels_pemba_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "pembachess",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"chess960": true,
+		"customVariantIni": config_model_levels_pemba_expert_ini
+	}
+
+	// Chancellor: FEN matches exactly, no pieceMap needed.
+	var config_model_levels_chancellor_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "chancellor",
+		"skillLevel": 20,
+		"moveTimeMs": 1000
+	}
+	var config_model_levels_5_chancellor_expert = config_model_levels_5.concat([config_model_levels_chancellor_expert]);
+
+	// Xiangqi: same rules/position, different piece letters
+	// (Jocly H(orse)/E(lephant) vs Fairy-Stockfish's N(knight)/B(ishop)).
+	var config_model_levels_xiangqi_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "xiangqi",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pieceMap": { "H": "N", "E": "B" }
+	}
+	var config_model_levels_5_xiangqi_expert = config_model_levels_5.concat([config_model_levels_xiangqi_expert]);
+
+	// Shatranj: same rules/position, different piece letters
+	// (Jocly E(lephant)/G(eneral) vs Fairy-Stockfish's B(ishop)/Q(ueen)).
+	var config_model_levels_shatranj_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "shatranj",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pieceMap": { "E": "B", "G": "Q" }
+	}
+	var config_model_levels_5_shatranj_expert = config_model_levels_5.concat([config_model_levels_shatranj_expert]);
+
+	// Knightmate: same rules/position, the royal piece (moves like a
+	// knight) is "K" in Jocly vs "M" in Fairy-Stockfish, while the regular
+	// knight-replacement commoner piece is "N" in Jocly vs "K" in
+	// Fairy-Stockfish - i.e. a 3-way letter rotation. pieceMap below covers
+	// it: K->M and N->K together correctly avoid double-substitution
+	// (BuildPieceMaps()/TranslitFen() apply both within a single
+	// character-by-character pass, not sequential global replacements).
+	var config_model_levels_knightmate_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "knightmate",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pieceMap": { "K": "M", "N": "K" }
+	}
+	var config_model_levels_5_knightmate_expert = config_model_levels_5.concat([config_model_levels_knightmate_expert]);
+
+	// Grand: same rules/position (Jocly does not actually implement
+	// castling for this game either, despite the default "KQkq" in its FEN
+	// export - see grand-model.js), different piece letter for the
+	// chancellor (Jocly "M" vs Fairy-Stockfish "C").
+	var config_model_levels_grand_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "grand",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pieceMap": { "M": "C" }
+	}
+	var config_model_levels_5_grand_expert = config_model_levels_5.concat([config_model_levels_grand_expert]);
+
+	// Capablanca-chess module (capa10x8/capablanca-model.js): a single
+	// Jocly game whose "prelude" (see prelude-model.js) lets the player
+	// choose, at the start of each game, between several distinct chess
+	// variants sharing the same 10x8 board/geometry. Of its 10 prelude
+	// setups, 4 have a native Fairy-Stockfish variant equivalent
+	// (Capablanca, Gothic, Embassy, Janus - see config_model_levels_expert
+	// note above for the pieceMap details). The other 6 (Bird, Carrera,
+	// Ladorean, Grotesque, Schoolbook, Univers) have no built-in
+	// equivalent, but use the exact same piece set as Capablanca - just a
+	// different starting arrangement and, for some, different castling
+	// destination files - so each is declared as a Fairy-Stockfish "custom
+	// variant" (https://fairy-stockfish.github.io/custom-variants/, see
+	// jocly.fairy.js's "customVariantIni" documentation for exactly how
+	// this is loaded). Each one's startFen and castling destination files
+	// were derived directly from this file's own castling tables (janus/
+	// mirrored/mirror2/mirror_f/flexible above) and verified against the
+	// real engine (both that it accepts the config, and that perft on a
+	// cleared-rank-1 test position produces a king move to exactly the
+	// expected destination file).
+	// Carrera (setup 3): unlike Bird, this setup's entry in the castle
+	// table above is literally `undefined` (not "p.castle"), meaning
+	// Jocly's own cbGeneratePseudoLegalMoves never finds a valid castling
+	// table for it and so never generates a castle move for Carrera at all
+	// (same "FEN says KQkq but no castle move is ever actually generated"
+	// situation already seen for Grand/Courier above) - hence
+	// "castling = false" in its custom variant section below, rather than
+	// a castlingKingsideFile/castlingQueensideFile pair.
+	//
+	// Since the variant actually being played is only known once the
+	// prelude choice has been made (not statically, like every other level
+	// in this file), a single static "variant"/"pieceMap" cannot be
+	// declared here. Instead, jocly.fairy.js supports an array of candidate
+	// sub-levels under "variants": at search time it picks the one whose
+	// "setup" matches aGame.cbVar.prelude's recorded persistent choice, and
+	// reports an error (no silent fallback) if the chosen setup has no
+	// match - see the "variants" handling added to JoclyFairy.startMachine.
+	var config_model_levels_capablanca_missing_setups_ini = [
+		"[joclybird:capablanca]",
+		"startFen = RNBCQKABNR/pppppppppp/10/10/10/10/PPPPPPPPPP/rnbcqkabnr w KQkq - 0 1",
+		"castlingKingsideFile = i",
+		"castlingQueensideFile = c",
+		"",
+		"[joclycarrera:capablanca]",
+		"startFen = RANBQKBNCR/pppppppppp/10/10/10/10/PPPPPPPPPP/ranbqkbncr w KQkq - 0 1",
+		"castling = false",
+		"",
+		"[joclyladorean:capablanca]",
+		"startFen = RBQNKANCBR/pppppppppp/10/10/10/10/PPPPPPPPPP/rbqnkancbr w KQkq - 0 1",
+		"castlingKingsideFile = g",
+		"castlingQueensideFile = c",
+		"",
+		"[joclygrotesque:capablanca]",
+		"startFen = RBQNKCNABR/pppppppppp/10/10/10/10/PPPPPPPPPP/rbqnkcnabr w KQkq - 0 1",
+		"castlingKingsideFile = f",
+		"castlingQueensideFile = d",
+		"",
+		"[joclyschoolbook:capablanca]",
+		"startFen = RQNBAKBNCR/pppppppppp/10/10/10/10/PPPPPPPPPP/rqnbakbncr w KQkq - 0 1",
+		"castlingKingsideFile = g",
+		"castlingQueensideFile = e",
+		"",
+		"[joclyunivers:capablanca]",
+		"startFen = RBNCQKANBR/pppppppppp/10/10/10/10/PPPPPPPPPP/rbncqkanbr w KQkq - 0 1",
+		"castlingKingsideFile = g",
+		"castlingQueensideFile = e",
+		""
+	].join("\n");
+	var config_model_levels_capablanca_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"variants": [
+			{ "setup": 0, "variant": "capablanca", "pieceMap": { "M": "C" } },
+			{ "setup": 1, "variant": "gothic", "pieceMap": { "M": "C" } },
+			{ "setup": 4, "variant": "embassy", "pieceMap": { "M": "C" } },
+			{ "setup": 9, "variant": "janus", "pieceMap": { "A": "J" } },
+			{ "setup": 2, "variant": "joclybird", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini },
+			{ "setup": 3, "variant": "joclycarrera", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini },
+			{ "setup": 5, "variant": "joclyladorean", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini },
+			{ "setup": 6, "variant": "joclygrotesque", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini },
+			{ "setup": 7, "variant": "joclyschoolbook", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini },
+			{ "setup": 8, "variant": "joclyunivers", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini }
+		]
+	}
+	var config_model_levels_5_capablanca_expert = config_model_levels_5.concat([config_model_levels_capablanca_expert]);
+
+	// Antichess (Jocly's "losing-chess"): FEN matches exactly (including the
+	// absence of castling rights), no pieceMap needed. Jocly implements the
+	// same rules as Fairy-Stockfish's "antichess" specifically (mandatory
+	// capture, and - crucially - a player with no legal move, including
+	// stalemate, *wins* rather than loses; no special king-as-commoner
+	// piece, king lost like any other piece counts toward the "no pieces
+	// left" loss condition) - not "suicide" (extra stalemate-piece-count
+	// rule) or "giveaway"/"losers" (different win conditions), even though
+	// Jocly's own UI describes the game as "also known as" all of those.
+	var config_model_levels_antichess_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "antichess",
+		"skillLevel": 20,
+		"moveTimeMs": 1000
+	}
+	var config_model_levels_5_antichess_expert = config_model_levels_5.concat([config_model_levels_antichess_expert]);
+
+	// Chess960 (Fischer Random): same rules/position-randomization as
+	// Fairy-Stockfish's "fischerandom", no pieceMap needed - but, unlike
+	// every other level above, this one *requires* "chess960": true. Without
+	// it, castling moves are matched in the wrong notation: Fairy-Stockfish
+	// without UCI_Chess960 expects "king to its final square" (e.g. "e1g1"),
+	// which is wrong for a Chess960 position where the king's *current*
+	// square may already coincide with where it lands when castling kingside
+	// or queenside (collapsing to a meaningless "no-op"-looking move) - and
+	// engine-side, Fairy-Stockfish needs UCI_Chess960 itself to apply
+	// Chess960 castling rules (king may already be adjacent to/between other
+	// pieces in ways standard castling rules wouldn't allow). With
+	// "chess960": true, jocly.fairy.js requests Jocly's "engine960" move
+	// format ("king takes own rook", e.g. "g1h1") to match the engine's own
+	// Chess960-style notation - verified directly: the plain "engine" format
+	// version of a Chess960 castling move can match an unrelated nearby move
+	// more closely (in Levenshtein distance) than the real castling move.
+	var config_model_levels_chess960_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "fischerandom",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"chess960": true
+	}
+	var config_model_levels_5_chess960_expert = config_model_levels_5.concat([config_model_levels_chess960_expert]);
+
+	// Makruk (Thai Chess): same rules and position as Fairy-Stockfish's
+	// "makruk", different single-letter abbreviations for the Khon
+	// (bishop-like piece) and Met (queen-like piece) - verified to be a
+	// consistent, bijective per-character substitution (B<->S, Q<->M), and
+	// no real rules difference: Jocly's own evaluate() already implements
+	// the exact same MAKRUK_COUNTING-style move-limit rule (based on
+	// remaining Met/Khon/Knight count) as the official variant, neither
+	// side has a castling table (Jocly never generates a castle move here,
+	// matching the official "castling = false"), and pawn promotion -
+	// limited to a single piece type (Met) - only ever triggers on the
+	// first rank a pawn can reach with Jocly's plain (non-double-step)
+	// pawn movement, making the official 3-rank promotionRegion and
+	// Jocly's single-rank "geometry.R(move.t)==5" check equivalent in
+	// practice.
+	var config_model_levels_makruk_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "makruk",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pieceMap": { "B": "S", "Q": "M" }
+	}
+	var config_model_levels_5_makruk_expert = config_model_levels_5.concat([config_model_levels_makruk_expert]);
+
+	// Wildebeest: 11x10 board, already declared as an official example
+	// variant directly in Fairy-Stockfish's own variants.ini
+	// (https://github.com/fairy-stockfish/Fairy-Stockfish/blob/master/src/variants.ini,
+	// section [wildebeest:chess]) - its customVariantIni below is that
+	// section's content verbatim, not something derived for this
+	// integration. Only one piece letter differs from Jocly's own
+	// (camel: official "c", Jocly "M" - wildebeest itself already matches,
+	// "W" both sides), verified to be a consistent bijective substitution
+	// against the full starting position FEN.
+	//
+	// tripleStepRegion kept (matches the official config): initially
+	// suspected of being a real engine/Jocly divergence (the official
+	// config's own comment says "Limitations: No flexible castling, no
+	// pawn triple steps", which reads as a Fairy-Stockfish limitation),
+	// and a perft check did show "a2a5" as a legal opening move with it
+	// enabled. But re-checking wildebeest-model.js more carefully (not
+	// just grepping for the word "triple") showed Jocly's actual starting
+	// pawns are a distinct piece type, "iipawn-w/b" (using a dedicated
+	// IIPawnGraph() move function, separate from the regular
+	// cbInitialPawnGraph()-based "ipawn" used as a placeholder/promotion
+	// piece) - and it does generate the exact same "a2a5"-style move.
+	// So this option is required to keep both sides in sync, not a
+	// divergence to work around.
+	//
+	// Castling: NOT enabled here (castling=false, matching the official
+	// config's own comment "Limitations: No flexible castling"). Verified
+	// directly that Jocly's wildebeest-model.js castling table requires
+	// "flexible" castling (the king's destination square depends on how
+	// far it can safely travel toward the rook, via a positive "extra"
+	// value letting it potentially land on the rook's own square) - the
+	// exact feature the official variants.ini comment says isn't
+	// supported. This is a real, acknowledged rules gap, not just a
+	// notation difference: with castling=false, the engine will never
+	// itself propose castling (a minor strength gap, not a correctness
+	// bug), but a castling move already played by a human player (or by
+	// Jocly's own non-Expert AI) applies to the board exactly like any
+	// other move and causes no problems for subsequent Expert-level moves.
+	var config_model_levels_wildebeest_expert_ini = [
+		"[wildebeest:chess]",
+		"maxRank = 10",
+		"maxFile = k",
+		"customPiece1 = c:C",
+		"customPiece2 = w:NC",
+		"doubleStepRegionWhite = *2 *3",
+		"doubleStepRegionBlack = *9 *8",
+		"tripleStepRegionWhite = *2",
+		"tripleStepRegionBlack = *9",
+		"pieceToCharTable = PNBRQ.......C....WKpnbrq.......c....wk",
+		"startFen = rnccwkqbbnr/ppppppppppp/11/11/11/11/11/11/PPPPPPPPPPP/RNBBQKWCCNR w KQkq - 0 1",
+		"promotionPieceTypes = qw",
+		"promotionRegionWhite = *9 *10",
+		"promotionRegionBlack = *2 *1",
+		"mandatoryPawnPromotion = false",
+		"castling = false",
+		""
+	].join("\n");
+	var config_model_levels_wildebeest_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "wildebeest",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pieceMap": { "M": "C" },
+		"customVariantIni": config_model_levels_wildebeest_expert_ini
+	}
+	var config_model_levels_5_wildebeest_expert = config_model_levels_5.concat([config_model_levels_wildebeest_expert]);
+
+	// Heavychess: 10x10 board with several fairy pieces, none of which has
+	// a native Fairy-Stockfish variant equivalent (marshall/chancellor-like,
+	// archbishop-like, dragon-king, centaur, "missionary" king+bishop
+	// compound), declared as a custom variant inheriting from "grand", same
+	// approach as Pemba above. Unlike Pemba though, every one of these
+	// pieces turned out to be representable using only the engine's basic
+	// W/F/N/B/R atoms (no custom-piece letters like Pemba's elephant/camel/
+	// giraffe/bow were needed) - derived directly from this game's own
+	// piece library (fairy-piece-model.js's cbCardinalGraph/cbMarshallGraph/
+	// cbAmazonGraph/cbSymmetricGraph offset codes, decoded as
+	// rook(-10)/bishop(-11)/knight(21)/wazir(10)/ferz(11) compounds) and
+	// verified individually against the real engine:
+	//   marshall   (M) = RN  (rook + knight, i.e. a standard chancellor)
+	//   archbishop (A) = BN  (bishop + knight, a standard archbishop)
+	//   dragon-king(D) = RF  (rook + 1-square diagonal step)
+	//   centaur    (J) = WFN (1-square orthogonal/diagonal step + knight)
+	//   missionary (L) = WFB (king-style step + unlimited diagonal slide)
+	// Jocly's own piece letters (M/A/D/J/L, all confirmed via this game's
+	// MakePiece() abbrev assignments in fairy-piece-model.js) already match
+	// what's declared below, so no pieceMap is needed.
+	// Castling: a real castling table is set up automatically by
+	// fairy-piece-model.js's cbPiecesFromFEN() (it calls setCastling()
+	// unconditionally once a king and rook are found), with the king on
+	// rank 2 (not 1, same situation as Pemba) and destination files
+	// computed from the rook's starting file - verified directly (perft on
+	// a cleared rank-2 test position) to land on h/d, matching what's
+	// declared here. Since h/d aren't the engine's standard g/c castling
+	// files, the engine encodes castling in "king takes own rook" notation,
+	// hence "chess960": true, exactly like Pemba and Chess960 itself.
+	var config_model_levels_heavychess_expert_ini = [
+		"[heavychess:grand]",
+		"archbishop = -",
+		"chancellor = -",
+		"customPiece1 = m:RN",
+		"customPiece2 = a:BN",
+		"customPiece3 = d:RF",
+		"customPiece4 = j:WFN",
+		"customPiece5 = l:WFB",
+		"castling = true",
+		"castlingKingsideFile = h",
+		"castlingQueensideFile = d",
+		"castlingRank = 2",
+		"startFen = madqllqdam/jrnbtkbnrj/pppppppppp/10/10/10/10/PPPPPPPPPP/JRNBTKBNRJ/MADQLLQDAM w KQkq - 0 1",
+		""
+	].join("\n");
+	var config_model_levels_heavychess_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "heavychess",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"chess960": true,
+		"customVariantIni": config_model_levels_heavychess_expert_ini
+	}
+	var config_model_levels_5_heavychess_expert = config_model_levels_5.concat([config_model_levels_heavychess_expert]);
+
+	// Shogi: same rules and starting position as Fairy-Stockfish's "shogi"
+	// (startFen matches byte-for-byte once Jocly's own captured-pieces
+	// representation - extra board columns rather than a FEN "[...]"
+	// pocket section, see drop-model.js/cbDropGeometry() - is converted to
+	// the standard form). No pieceMap needed: Jocly's own piece letters
+	// already match (verified against the official startFen). "engine"
+	// format drop moves (e.g. "P@d1", confirmed directly) already match
+	// the USI/UCI drop notation the engine expects, so no special move
+	// handling is needed either - only the FEN itself needed fixing.
+	// "pocketGeometry": true tells jocly.fairy.js to build the FEN with
+	// BuildShogiStyleFen() instead of the generic ExportBoardState() (see
+	// that function's own documentation for exactly how/why). Verified
+	// directly: the resulting FEN for the starting position matches the
+	// official startFen exactly, and after real captures (including
+	// several captures of the same piece type) the "[...]" pocket section
+	// is built correctly - using one repeated letter per held piece
+	// (e.g. "[ppppp l]" with no spaces), NOT a "5P"-style count prefix,
+	// which was verified directly against the real engine to silently
+	// lose pieces if used in the FEN pocket (as opposed to engine-side
+	// Sfen *output*, which does use a count prefix, but that's not an
+	// accepted *input* form for the FEN pocket).
+	var config_model_levels_shogi_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "shogi",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pocketGeometry": true
+	}
+
+	// Mini-shogi: same rules and starting position as Fairy-Stockfish's
+	// "minishogi" (startFen matches byte-for-byte once the hand columns are
+	// converted, same as base shogi above). No pieceMap or other
+	// adjustment needed - Jocly's own piece letters already match exactly.
+	var config_model_levels_minishogi_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "minishogi",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pocketGeometry": true
+	}
+
+	// Kyoto Shogi: same starting position as Fairy-Stockfish's
+	// "kyotoshogi" once converted - but unlike every other shogi variant
+	// in this work, its source kyoto-shogi-model.js needed real changes,
+	// not just a level declaration, because of this variant's defining
+	// rule: every non-king piece must alternate between a promoted and
+	// unpromoted form on each move it makes (mandatoryPiecePromotion +
+	// pieceDemotion, both true for kyotoshogi - verified directly: a
+	// perft on the real engine from the official starting position shows
+	// every legal move suffixed with "+" or "-", never bare). Jocly's own
+	// promote()/type tables already implement this correctly (e.g. moving
+	// type 6 always yields type 16 and vice-versa), but the piece TYPES
+	// involved were originally named/abbreviated after their *visual*
+	// resemblance rather than their *engine* identity (e.g. a piece that
+	// moves like Gold was called "gold-w"/"G", when Fairy-Stockfish needs
+	// it sent as "+N" - a promoted Knight, since
+	// promotedPieceType[SHOGI_KNIGHT]=GOLD for this variant). Jocly's own
+	// existing "pieceMap" mechanism can only substitute one FEN letter for
+	// another (e.g. "Q"->"C"), not insert a "+" prefix - and even a
+	// from-scratch single-letter mapping wouldn't have worked here anyway,
+	// since e.g. the same Jocly letter "+P" is used by two functionally
+	// different pieces (a promoted Lance "+L" officially, and a promoted
+	// Pawn that's separately abbreviated "R" by Jocly but should be "+P"
+	// officially) - a real, unavoidable collision for a flat letter
+	// substitution. So kyoto-shogi-model.js's pieceTypes 4/5/6/7/8/9 were
+	// renamed to their correct functional identity (p-silver/+S,
+	// p-pawn/+P, p-knight-w/b/+N, p-lance-w/b/+L) instead - same move
+	// graphs, only the name/abbrev changed - see that file's own comments
+	// for the full reasoning per piece. No pieceMap is declared here as a
+	// result: the FEN now matches directly.
+	//
+	// "dropPromoted": true is also required, and is itself a real,
+	// documented rules feature of this variant (Fairy-Stockfish's own
+	// dropPromoted=true for kyotoshogi): captured pieces keep their
+	// promoted state in hand rather than being demoted on capture like in
+	// every other shogi variant here - verified directly that
+	// kyoto-shogi-model.js's own demoted-type table only flips a captured
+	// piece's color, never collapses it to the unpromoted form, i.e.
+	// Jocly's own board state already reflects "stays promoted" correctly
+	// - see jocly.fairy.js's BuildShogiStyleFen()/dropPromoted handling for
+	// the corresponding "[...]" pocket-section fix this required (without
+	// it, a promoted piece's "+" would have been incorrectly stripped when
+	// building the pocket).
+	var config_model_levels_kyotoshogi_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "kyotoshogi",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pocketGeometry": true,
+		"dropPromoted": true
+	}
+
+	// Tori Shogi ("bird shogi"): same starting position as Fairy-Stockfish's
+	// "torishogi" once converted - no pieceMap needed. Jocly's own fairy
+	// piece letters (S/F/L/R/P/C/K for swallow/falcon/left-quail/
+	// right-quail/pheasant/crane/king) already match the official ones
+	// exactly (just case, handled automatically), and Jocly already uses
+	// the "+" prefix on the *source* piece's letter for both promoted
+	// pieces (e.g. "+S" for the promoted swallow/goose, "+F" for the
+	// promoted falcon/eagle) - exactly the convention Fairy-Stockfish
+	// itself uses (verified directly against the real engine: a FEN with
+	// "+s" for a promoted swallow is accepted and echoed back unchanged,
+	// even though the promoted piece's own distinct identity - the goose -
+	// has a different official letter "g" that's simply never used in FEN
+	// placement, only "+s" is). Unlike Kyoto Shogi, captured promoted
+	// pieces ARE demoted back to their base form here (verified directly:
+	// tori-shogi-model.js's own "demoted" entries for the promoted types
+	// point at the base, unpromoted type, not just a same-rank
+	// color-flipped promoted type) - matching Fairy-Stockfish's default
+	// (no "dropPromoted" declared for torishogi), so this level doesn't
+	// set "dropPromoted" either.
+	var config_model_levels_torishogi_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "torishogi",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pocketGeometry": true
+	}
+
+	// Gardner MiniChess: FEN matches Fairy-Stockfish's native "gardner"
+	// exactly, no pieceMap needed.
+	var config_model_levels_gardner_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "gardner",
+		"skillLevel": 20,
+		"moveTimeMs": 1000
+	}
+	var config_model_levels_5_gardner_expert = config_model_levels_5.concat([config_model_levels_gardner_expert]);
+
+	// Los Alamos Chess: FEN now matches Fairy-Stockfish's native
+	// "losalamos" exactly, after fixing a real placement bug in
+	// los-alamos-model.js itself (queen/king were swapped - see that
+	// file's own comment for the historical sources confirming the
+	// correct placement is queen on c1/c6, king on d1/d6, not the other
+	// way around). This wasn't a notation/pieceMap issue like other games
+	// in this work - the actual starting position Jocly played was
+	// historically wrong, independent of this Fairy-Stockfish
+	// integration, so it was corrected directly rather than worked around
+	// with a custom variant config that would have preserved the bug.
+	var config_model_levels_losalamos_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "losalamos",
+		"skillLevel": 20,
+		"moveTimeMs": 1000
+	}
+	var config_model_levels_5_losalamos_expert = config_model_levels_5.concat([config_model_levels_losalamos_expert]);
+
+	// Gustav III Chess: native Fairy-Stockfish variant "gustav3", FEN
+	// matches exactly (including the FEN's "*" wall-square markers -
+	// verified directly that Jocly's own gustav3-model.js already
+	// confines every piece's movement away from those columns via its own
+	// "confine" mechanism on rows 2-7, not just leaving them empty - so
+	// this is a genuine, already-correctly-implemented rules match, not
+	// just a coincidental FEN placement). Castling destination files (h/d)
+	// also verified directly to match.
+	var config_model_levels_gustav3_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "gustav3",
+		"skillLevel": 20,
+		"moveTimeMs": 1000
+	}
+	var config_model_levels_5_gustav3_expert = config_model_levels_5.concat([config_model_levels_gustav3_expert]);
+
+	// Spartan Chess: native Fairy-Stockfish variant "spartan", FEN matches
+	// byte-for-byte. No pieceMap needed.
+	var config_model_levels_spartan_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "spartan",
+		"skillLevel": 20,
+		"moveTimeMs": 1000
+	}
+
+	// Hectochess: 10x10 board with several fairy pieces, none with a
+	// native Fairy-Stockfish variant equivalent, declared as a custom
+	// variant inheriting from "grand" - same approach as Pemba/Heavychess.
+	// Pieces translate to the engine's basic atoms directly:
+	//   marshall (M) = RN  (rook + knight, standard chancellor)
+	//   champion  (O) = WDA (1-square orthogonal/diagonal-2 step + alfil)
+	//   wizard    (W) = FL  (1-square diagonal step + camel jump)
+	//   leo       (L) = mQcQ (queen-style slide, capture only past a
+	//                  screen piece - a generalized cannon, both
+	//                  orthogonal and diagonal; verified directly against
+	//                  the real engine, isolated, that it produces a full
+	//                  8-direction queen-style slide)
+	// archbishop (A) is already a recognized engine piece type
+	// (archbishop = a). Jocly's own piece letters (M/O/W/L/A, all
+	// confirmed via this game's MakePiece() abbrev assignments in
+	// fairy-piece-model.js) already match what's declared below, so no
+	// pieceMap is needed. Castling destination files (h/d) verified
+	// directly against real Jocly gameplay.
+	var config_model_levels_hectochess_expert_ini = [
+		"[hectochess:grand]",
+		"archbishop = a",
+		"customPiece1 = m:RN",
+		"customPiece2 = o:WDA",
+		"customPiece3 = w:FL",
+		"customPiece4 = l:mQcQ",
+		"castling = true",
+		"castlingKingsideFile = h",
+		"castlingQueensideFile = d",
+		"startFen = awl4lwm/ronbqkbnor/pppppppppp/10/10/10/10/PPPPPPPPPP/RONBQKBNOR/AWL4LWM w KQkq - 0 1",
+		""
+	].join("\n");
+	var config_model_levels_hectochess_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "hectochess",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"customVariantIni": config_model_levels_hectochess_expert_ini
+	}
+	var config_model_levels_5_hectochess_expert = config_model_levels_5.concat([config_model_levels_hectochess_expert]);
+
+	// Tutti-Frutti Chess (Ralph Betza & Philip Cohen, 1978-79): 8x8 board
+	// with 3 piece compounds (amazon=QN, empress=RN, princess=BN), no
+	// native Fairy-Stockfish variant equivalent, declared as a custom
+	// variant inheriting from plain "chess" (standard board size,
+	// standard castling - verified directly that Jocly's own castling
+	// table for this game produces the plain "e1g1"-style destination,
+	// no chess960/customVariantIni castling options needed).
+	//
+	// Found and fixed a real, pre-existing bug in tutti-frutti-model.js
+	// while building this: the "princess" piece's abbrev was "Pr" - two
+	// characters - which silently produced an invalid FEN from the
+	// generic ExportBoardState()/getBoardState() (9 characters for an
+	// 8-column board row), independent of this Fairy-Stockfish
+	// integration. Changed to the single letter "C" (the game's own other
+	// letters - N/B/R/Q/K/A/E - were already taken, "A" being used here
+	// for the Amazon rather than the Archbishop/Princess as in most other
+	// games in this work).
+	var config_model_levels_tuttifrutti_expert_ini = [
+		"[tuttifrutti:chess]",
+		"customPiece1 = e:RN",
+		"customPiece2 = a:QN",
+		"customPiece3 = c:BN",
+		"startFen = enbakqcr/pppppppp/8/8/8/8/PPPPPPPP/ENBAKQCR w KQkq - 0 1",
+		""
+	].join("\n");
+	var config_model_levels_tuttifrutti_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "tuttifrutti",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"customVariantIni": config_model_levels_tuttifrutti_expert_ini
+	}
+	var config_model_levels_5_tuttifrutti_expert = config_model_levels_5.concat([config_model_levels_tuttifrutti_expert]);
+
+	// Courier chess: same rules and starting position as Fairy-Stockfish's
+	// "courier" (including the absence of castling - Jocly's courier-model.js
+	// does mark its rooks "castle:true" and declares a "castle" table, but
+	// that table is an empty object, so - exactly like grand-model.js's
+	// default "KQkq" FEN castling field above - no castle move is ever
+	// actually generated; the "KQkq" in Jocly's default FEN export is
+	// cosmetic, not a real rules difference), different single-letter
+	// abbreviations for 4 piece types (elephant/alfil, bishop, wazir,
+	// fers - verified to be a consistent, fully bijective per-character
+	// substitution). Uses config_model_levels_10 (not _5) as its base level
+	// list; the actual concatenated list
+	// (config_model_levels_10_courier_expert) is defined further below,
+	// right after config_model_levels_10 itself is declared.
+	var config_model_levels_courier_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "courier",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pieceMap": { "B": "E", "C": "B", "S": "W", "Q": "F" }
+	}
+
 	var config_view_css = [
 		"chessbase.css"
 	]
@@ -406,6 +1153,7 @@ exports.games = (function () {
 		config_model_levels_8,
 		config_model_levels_9
 	]
+	var config_model_levels_10_courier_expert = config_model_levels_10.concat([config_model_levels_courier_expert]);
 	var config_view_js_11 = [
 		"base-view.js",
 		"grid-board-view.js",
@@ -585,6 +1333,13 @@ exports.games = (function () {
 		config_model_levels_13,
 		config_model_levels_14
 	]
+	var config_model_levels_15_shako_expert = config_model_levels_15.concat([config_model_levels_shako_expert]);
+	var config_model_levels_15_shogi_expert = config_model_levels_15.concat([config_model_levels_shogi_expert]);
+	var config_model_levels_15_minishogi_expert = config_model_levels_15.concat([config_model_levels_minishogi_expert]);
+	var config_model_levels_15_kyotoshogi_expert = config_model_levels_15.concat([config_model_levels_kyotoshogi_expert]);
+	var config_model_levels_15_torishogi_expert = config_model_levels_15.concat([config_model_levels_torishogi_expert]);
+	var config_model_levels_15_spartan_expert = config_model_levels_15.concat([config_model_levels_spartan_expert]);
+	var config_model_levels_15_pemba_expert = config_model_levels_15.concat([config_model_levels_pemba_expert]);
 	var config_view_js_13 = [
 		"base-view.js",
 		"grid-board-view.js",
@@ -1573,7 +2328,7 @@ exports.games = (function () {
 						"grid-geo-model.js",
 						"standard/losing-model.js"
 					],
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_antichess_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -1664,7 +2419,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/xiangqi/xiangqi-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_xiangqi_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -1794,7 +2549,7 @@ exports.games = (function () {
 					"gameOptions": config_model_gameOptions_2,
 					"obsolete": false,
 					"js": modelScripts_3,
-					"levels": config_model_levels_5,
+					"levels": config_model_levels_5_gardner_expert,
 					"description": {
 						"en": "res/rules/mini/gardner-description.html"
 					}
@@ -2100,7 +2855,7 @@ exports.games = (function () {
 					"gameOptions": config_model_gameOptions_2,
 					"obsolete": false,
 					"js": modelScripts_9,
-					"levels": config_model_levels_5,
+					"levels": config_model_levels_5_losalamos_expert,
 					"description": {
 						"en": "res/rules/mini/los-alamos-description.html"
 					}
@@ -2204,7 +2959,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/historical/courier-description.html"
 					},
-					"levels": config_model_levels_10
+					"levels": config_model_levels_10_courier_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -2309,7 +3064,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/makruk/mk-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_makruk_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -2405,7 +3160,7 @@ exports.games = (function () {
 						"en": "res/rules/shako/shako-description.html",
 						"fr": "res/rules/shako/shako-description-fr.html"
 					},
-					"levels": config_model_levels_15
+					"levels": config_model_levels_15_shako_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -2470,7 +3225,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/shatranj/shatranj-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_shatranj_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -2619,7 +3374,7 @@ exports.games = (function () {
 					"gameOptions": config_model_gameOptions,
 					"obsolete": true,
 					"js": modelScripts_knightmate,
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_knightmate_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -3668,7 +4423,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/famous/chess960-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_chess960_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -3820,7 +4575,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/capa10x8/capablanca-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_capablanca_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -3871,7 +4626,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/decimal/grand-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_grand_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -3923,7 +4678,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/decimal/hectochess-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_hectochess_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -3976,7 +4731,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/decimal/heavychess-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_heavychess_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -4080,7 +4835,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/knighted/chancellor-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_chancellor_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -4166,7 +4921,7 @@ exports.games = (function () {
 					"description": {
 						"en": "wildebeest-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_wildebeest_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -4461,7 +5216,7 @@ exports.games = (function () {
 					"gameOptions": config_model_gameOptions,
 					"obsolete": false,
 					"js": modelScripts_41,
-					"levels": config_model_levels_5,
+					"levels": config_model_levels_5_amazon_expert,
 					"description": {
 						"en": "res/rules/amazon/amazon-description.html"
 					}
@@ -4636,7 +5391,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/amazon/gustav3-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_gustav3_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -5087,7 +5842,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/amazon/tutti-frutti-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_tuttifrutti_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -5966,7 +6721,7 @@ exports.games = (function () {
  						"en": "res/rules/shako/pemba-description.html",
 						"fr": "res/rules/shako/pemba-description-fr.html"
  					},
- 					"levels": config_model_levels_15
+ 					"levels": config_model_levels_15_pemba_expert
  				},
  				"view": {
  					"title-en": "pemba view",
@@ -6723,7 +7478,7 @@ exports.games = (function () {
 					"description": {
 						"en": "spartan-description.html"
 					},
-					"levels": config_model_levels_15
+					"levels": config_model_levels_15_spartan_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -6853,7 +7608,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/shogi/shogi-description.html"
 					},
-					"levels": config_model_levels_15
+					"levels": config_model_levels_15_shogi_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -7085,7 +7840,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/shogi/mini-shogi-description.html"
 					},
-					"levels": config_model_levels_15
+					"levels": config_model_levels_15_minishogi_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -7158,7 +7913,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/shogi/kyoto-shogi-description.html"
 					},
-					"levels": config_model_levels_15
+					"levels": config_model_levels_15_kyotoshogi_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -7230,7 +7985,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/shogi/tori-shogi-description.html"
 					},
-					"levels": config_model_levels_15
+					"levels": config_model_levels_15_torishogi_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",

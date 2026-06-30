@@ -40,7 +40,10 @@
  *     "variant": "chess",      // Fairy-Stockfish variant name (UCI_Variant)
  *     "skillLevel": 20,        // 0-20, optional (defaults to full strength)
  *     "moveTimeMs": 1000,      // either moveTimeMs or depth should be set
- *     "depth": 0
+ *     "depth": 0,
+ *     "pieceMap": { "M": "C" }, // optional, see below
+ *     "chess960": true,         // optional, sets UCI_Chess960 (see below)
+ *     "customVariantIni": "..." // optional, see below
  *   }
  *
  * Requirements on the game module (currently only implemented by chessbase,
@@ -50,6 +53,101 @@
  * Only games meeting both are eligible to declare a "fairy-stockfish" level;
  * this module does not attempt to support games that don't (it will simply
  * fail loudly rather than silently play a wrong/random move).
+ *
+ * pieceMap (optional): some variants are implemented independently by Jocly
+ * and by Fairy-Stockfish, using the exact same rules and starting position
+ * but a *different* single-letter piece abbreviation for one or more piece
+ * types (e.g. Jocly's Capablanca/Grand chancellor is "M" while
+ * Fairy-Stockfish's is "C"). Comparing the official Fairy-Stockfish
+ * variant.cpp startFen against Jocly's own ExportBoardState() output for the
+ * same variant is how this was verified for each variant declared below.
+ * When present, pieceMap is a from-Jocly-letter to-Fairy-Stockfish-letter
+ * table (uppercase keys only; TranslitFen() below derives the lowercase
+ * mapping automatically), applied to:
+ *   - the FEN sent to the engine (TranslitFen, Jocly -> Fairy-Stockfish)
+ *   - the promotion suffix of the move sent back by the engine, before
+ *     matching it against Jocly's own legal moves (TranslitMove, the
+ *     reverse direction)
+ * It must NOT be used to paper over an actual rules difference (different
+ * starting position, different castling availability, etc.) - only pure
+ * piece-letter aliasing where both sides implement identical rules.
+ *
+ * chess960 (optional): sends "setoption name UCI_Chess960 value true" before
+ * the position/search, switching the engine to Chess960-style castling
+ * rules and notation. Use for variants whose Jocly module already plays a
+ * single, freely-chosen starting position per game (via its own "prelude"
+ * mechanism - see prelude-model.js) and where Jocly's plain "KQkq" FEN
+ * castling rights remain unambiguous (i.e. at most one rook of each color
+ * on each side of the king - true for standard 8x8 Chess960, not
+ * necessarily for every large-board 960 variant).
+ *
+ * customVariantIni (optional): some Jocly games/prelude setups have no
+ * built-in Fairy-Stockfish variant equivalent, but use the exact same
+ * piece set and movement rules as one - just a different starting
+ * position and/or castling destination files (e.g. several of
+ * capablanca-chess's prelude setups - Bird, Ladorean, Grotesque,
+ * Schoolbook, Univers - reuse Capablanca's exact piece set, just shuffled).
+ * Fairy-Stockfish supports defining such variants at runtime via a
+ * variants.ini-style config (see
+ * https://fairy-stockfish.github.io/custom-variants/); when set, this
+ * field's value is the literal contents of such a config (not a path - the
+ * wasm build has no real filesystem), written to Emscripten's virtual FS
+ * and pointed to via the VariantPath UCI option by jocly.fairyworker.js's
+ * RunSearch(), before "variant" (which must then name a section declared in
+ * that config) is set. Verified directly against the real engine for all 6
+ * "Capablanca family" setups without a native equivalent: each one's
+ * Jocly-side castling destination files (computed from the relevant
+ * mirrored/flexible castling table in capa10x8/capablanca-model.js) match
+ * exactly what the engine accepts/produces for a
+ * "[name:capablanca]\ncastlingKingsideFile=...\ncastlingQueensideFile=..."
+ * config section with the same values.
+ *
+ * variants (optional, mutually exclusive with a static "variant"): for a
+ * single Jocly game module whose own "prelude" mechanism lets the player
+ * choose between several genuinely different variants at the start of each
+ * game (e.g. capablanca-chess's prelude offers Capablanca/Gothic/Carrera/
+ * Embassy/Janus/... on the same 10x8 board), "variants" is an array of
+ * { "setup": <prelude setup index>, "variant": ..., "pieceMap": ... }
+ * entries. At search time, ResolveLevel() below looks up
+ * aGame.cbVar.prelude[0].persistent (the setup index recorded once the
+ * player's prelude choice has been applied - see prelude-model.js) and
+ * picks the matching entry, merging it onto the level's other shared
+ * fields (skillLevel, moveTimeMs, ...). If no prelude choice has been
+ * recorded yet, or none of the declared entries match the chosen setup
+ * (e.g. the player picked a variant with no Fairy-Stockfish equivalent),
+ * the search fails loudly rather than guessing a variant.
+ *
+ * pocketGeometry (optional): for games whose pieces-in-hand (Shogi-style
+ * drops) are represented by Jocly as extra board columns rather than the
+ * FEN "[...]" pocket notation Fairy-Stockfish expects (true of every
+ * Jocly game built on drop-model.js's cbDropGeometry()/cbAddHoldings()),
+ * aGame.mBoard.ExportBoardState() produces a FEN with the wrong board
+ * width (it includes those extra columns as empty squares) and no pocket
+ * section at all - not usable as-is. Setting "pocketGeometry": true tells
+ * BuildShogiStyleFen() below to build a corrected FEN itself, by reading
+ * aGame.cbVar.geometry.BOARD_AREA (the canonical set of "real" board
+ * squares, already computed by cbDropGeometry() - querying it rather than
+ * recomputing hand-column boundaries independently) to know which squares
+ * are real board vs. hand, and aGame.mBoard.pieces directly (each piece's
+ * own .p position, .t type, .s side) to build both the board placement
+ * and the "[...]" pocket section, instead of relying on the generic
+ * ExportBoardState(). The reverse direction (an engine drop move like
+ * "P@5e" back into a Jocly Move) needs no special handling: it already
+ * matches the existing ResolveMove()/GetBestMatchingMove() machinery,
+ * since Jocly's own "engine" move format for a drop is already exactly
+ * that shape (verified directly against shogi-model.js's Move.ToString
+ * override).
+ *
+ * dropPromoted (optional, only meaningful together with
+ * "pocketGeometry"): most drop-based games demote a captured piece back
+ * to its base (non-promoted) form before it reaches the hand, so the
+ * "+" prefix some piece abbrevs carry is always stripped when building
+ * the "[...]" pocket section. Kyoto Shogi is a documented exception
+ * (Fairy-Stockfish's own dropPromoted=true for kyotoshogi): captured
+ * pieces keep their promoted state in hand and can be dropped promoted
+ * again. Set "dropPromoted": true for such a game to keep BuildShogiStyleFen()
+ * from stripping that "+" - see its own comment for how this was
+ * verified against Jocly's own demoted-type table for the game.
  */
 
 var JoclyFairy = {};
@@ -110,6 +208,206 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 	}
 
 	/*
+	 * Builds a standard FEN (board placement + "[...]" pocket section) for
+	 * games whose pieces-in-hand are represented by Jocly as extra board
+	 * columns (drop-model.js's cbDropGeometry()/cbAddHoldings() - currently
+	 * shogi/mini-shogi/kyoto-shogi/etc.), where the generic
+	 * mBoard.ExportBoardState() can't be used as-is: it exports the full
+	 * (wider) internal board, including the hand columns as plain empty
+	 * squares, and has no concept of a pocket section at all.
+	 *
+	 * Rather than recomputing hand-column boundaries independently (and
+	 * risk getting them subtly wrong for a geometry variant this hasn't
+	 * been tested against), this reads aGame.cbVar.geometry.BOARD_AREA -
+	 * the canonical set of "real" board squares, already computed once by
+	 * cbDropGeometry() itself - to decide what's board vs. hand, and
+	 * iterates aGame.mBoard.pieces directly for both parts: board squares
+	 * use each piece's own abbrev/fenAbbrev (handling the "+" prefix for
+	 * promoted pieces the same way Move.ToString already does in
+	 * drop-model.js), and hand squares are tallied by (side, demoted type)
+	 * into the "[...]" section - using each piece type's "hand" field
+	 * (present only on droppable, non-promoted types) to recognize which
+	 * pieces sitting outside BOARD_AREA are real held pieces rather than
+	 * the internal "counter" pseudo-pieces drop-model.js also keeps there
+	 * (identifiable by having no "hand" field of their own).
+	 *
+	 * Turn/move-clock fields are copied verbatim from the generic
+	 * ExportBoardState() output (those parts aren't affected by the hand
+	 * column issue), keeping this function focused only on what actually
+	 * needs fixing.
+	 */
+	function BuildShogiStyleFen(aGame, dropPromoted) {
+		var board = aGame.mBoard;
+		var geometry = aGame.cbVar.geometry;
+		var pieceTypes = aGame.cbVar.pieceTypes;
+		var boardArea = geometry.BOARD_AREA;
+		var width = geometry.width, height = geometry.height;
+
+		// board placement: walk BOARD_AREA in row-major (top to bottom),
+		// left to right order, exactly like a normal FEN.
+		var rows = [];
+		for (var r = height - 1; r >= 0; r--) {
+			var rowStr = "";
+			var emptyRun = 0;
+			for (var c = 0; c < width; c++) {
+				var pos = r * width + c;
+				if (!(pos in boardArea))
+					continue; // hand column for this row, skip entirely
+				var pieceIndex = board.board[pos];
+				if (pieceIndex < 0) {
+					emptyRun++;
+					continue;
+				}
+				if (emptyRun > 0) {
+					rowStr += emptyRun;
+					emptyRun = 0;
+				}
+				var piece = board.pieces[pieceIndex];
+				var pType = pieceTypes[piece.t];
+				// fenAbbrev (set on droppable/non-promoted types, e.g. "P")
+				// never carries a "+"; abbrev (set on promoted types, e.g.
+				// "+P" for shogi's tokin) already does - just use whichever
+				// is defined, no need to strip/re-add anything.
+				var letter = pType.fenAbbrev || pType.abbrev || "?";
+				rowStr += piece.s > 0 ? letter.toUpperCase() : letter.toLowerCase();
+			}
+			if (emptyRun > 0)
+				rowStr += emptyRun;
+			rows.push(rowStr);
+		}
+		var placement = rows.join("/");
+
+		// pocket: tally pieces sitting outside BOARD_AREA, keyed by
+		// (side, demoted/base type) - skips drop-model.js's own "counter"
+		// pseudo-pieces (no "hand" field) and anything inactive (p<0).
+		var counts = {}; // "side:type" -> count
+		for (var i = 0; i < board.pieces.length; i++) {
+			var p = board.pieces[i];
+			if (p.p < 0 || (p.p in boardArea))
+				continue;
+			var pt = pieceTypes[p.t];
+			if (!pt || pt.hand === undefined)
+				continue; // not a real held piece (e.g. a "counter")
+			var key = p.s + ":" + p.t;
+			counts[key] = (counts[key] || 0) + 1;
+		}
+		var pocket = "";
+		for (var key in counts) {
+			if (!counts.hasOwnProperty(key))
+				continue;
+			var parts = key.split(":");
+			var side = parseInt(parts[0], 10);
+			var t = parseInt(parts[1], 10);
+			var pt = pieceTypes[t];
+			// Most Jocly drop-based games demote a captured piece back to
+			// its base type before it ever reaches the hand (mirrored by
+			// drop-model.js's own ApplyMove(), which sets
+			// victim.t = Model.Game.demoted[victim.t] - typically a
+			// same-rank, opposite-color base type, never the promoted
+			// form), so abbrev/fenAbbrev for a piece actually in hand
+			// should never carry a "+" there. Kyoto Shogi is the
+			// documented exception (Fairy-Stockfish's own
+			// dropPromoted=true for kyotoshogi): captured pieces keep
+			// their promoted state and can be dropped promoted again -
+			// verified directly that Jocly's own promote()/demoted table
+			// for kyoto-shogi-model.js does NOT collapse a promoted piece
+			// (e.g. type 6, "p-knight-w") to its unpromoted form (type 16,
+			// "knight-w") on capture, only flips its color (to type 7,
+			// "p-knight-b") - i.e. Jocly's own pieces array already
+			// reflects "stays promoted in hand" correctly; only this
+			// function's own blanket "+" stripping needed to become
+			// conditional to match.
+			var letter = pt.fenAbbrev || pt.abbrev || "?";
+			if (!dropPromoted)
+				letter = letter.replace(/^\+/, "");
+			letter = side > 0 ? letter.toUpperCase() : letter.toLowerCase();
+			var n = counts[key];
+			// NOTE: repeat the letter n times, do NOT use a "2P"-style
+			// count prefix - verified directly against the real engine:
+			// "[2PB]" as input silently loses a piece (the engine echoes
+			// it back as "[PB]"), while "[PPB]" round-trips correctly.
+			// The engine's own Sfen output does use a count prefix
+			// ("3PB"), but that's its native Shogi notation on output
+			// only, not an accepted form for the FEN pocket on input.
+			for (var i2 = 0; i2 < n; i2++)
+				pocket += letter;
+		}
+
+		// reuse the generic export for the turn/halfmove/fullmove fields -
+		// they aren't affected by the hand-column issue, no need to
+		// recompute them here.
+		var genericFen = board.ExportBoardState(aGame);
+		var firstSpace = genericFen.indexOf(" ");
+		var rest = firstSpace < 0 ? "" : genericFen.substring(firstSpace);
+
+		return placement + "[" + pocket + "]" + rest;
+	}
+
+	/*
+	 * Builds the full (upper+lower case) Jocly-letter -> Fairy-Stockfish-letter
+	 * map from the uppercase-only pieceMap declared on a level, and its
+	 * reverse (Fairy-Stockfish -> Jocly), used respectively by TranslitFen()
+	 * and TranslitMove() below.
+	 */
+	function BuildPieceMaps(pieceMap) {
+		var toFairy = {}, toJocly = {};
+		if (pieceMap) {
+			for (var upper in pieceMap) {
+				if (!pieceMap.hasOwnProperty(upper))
+					continue;
+				var fairyUpper = pieceMap[upper];
+				var lower = upper.toLowerCase();
+				var fairyLower = fairyUpper.toLowerCase();
+				toFairy[upper] = fairyUpper;
+				toFairy[lower] = fairyLower;
+				toJocly[fairyUpper] = upper;
+				toJocly[fairyLower] = lower;
+			}
+		}
+		return { toFairy: toFairy, toJocly: toJocly };
+	}
+
+	/*
+	 * Applies a letter substitution map to the piece-placement field of a FEN
+	 * only (first space-separated field) - the only place piece letters
+	 * appear. Leaves turn/castling/en-passant/clock fields untouched (castling
+	 * letters happen to be piece letters too in some variants - e.g. "M" for
+	 * a chancellor that can still castle - but Jocly's castling letters are
+	 * always plain "KQkq" file-of-king-rook style in the variants this is
+	 * used for, never the substituted piece letters, so this is safe).
+	 */
+	function TranslitFen(fen, map) {
+		if (!map || Object.keys(map).length === 0)
+			return fen;
+		var firstSpace = fen.indexOf(" ");
+		var placement = firstSpace < 0 ? fen : fen.substring(0, firstSpace);
+		var rest = firstSpace < 0 ? "" : fen.substring(firstSpace);
+		var translated = placement.replace(/[A-Za-z]/g, function (ch) {
+			return map[ch] || ch;
+		});
+		return translated + rest;
+	}
+
+	/*
+	 * Applies the reverse letter substitution to a UCI-ish move string's
+	 * trailing piece-letter suffix only (promotion, e.g. "e7e8c" -> "e7e8m"
+	 * for a Jocly chancellor promotion), not to the leading square
+	 * coordinates (which are never letters-as-pieces, only file letters).
+	 * Drops ("P@5e"-style) are not handled here - no piece-letter-aliased
+	 * variant integrated so far uses drops; ResolveMove()'s fuzzy matching
+	 * would in any case need its own dedicated handling for those.
+	 */
+	function TranslitMove(uciMove, map) {
+		if (!map || Object.keys(map).length === 0)
+			return uciMove;
+		var m = /^([a-z]\d+[a-z]\d+)([A-Za-z])$/.exec(uciMove);
+		if (!m)
+			return uciMove;
+		var suffix = map[m[2]];
+		return suffix ? m[1] + suffix : uciMove;
+	}
+
+	/*
 	 * Converts a Fairy-Stockfish "bestmove" UCI string (e.g. "e2e4", "e7e8q",
 	 * "e1g1") back into one of the actual legal Jocly Move objects for the
 	 * current position. We don't reconstruct the Move by hand (the internal
@@ -118,19 +416,32 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 	 * and pick the one whose own "engine" notation best matches what the
 	 * engine returned, exactly like Jocly already does for loaded PGN/move
 	 * lists (see JocGame.prototype.GetBestMatchingMove).
+	 *
+	 * useChess960Format selects "engine960" instead of the default "engine"
+	 * format for the candidates' own notation - required when the search
+	 * was run with "setoption name UCI_Chess960 value true" (level.chess960),
+	 * since the engine then encodes castling as "king takes own rook"
+	 * (e.g. "g1h1") rather than the king's plain destination square. Using
+	 * the wrong one of the two is not just cosmetically off: plain
+	 * Levenshtein distance can match the engine's castling move to an
+	 * unrelated nearby move instead of the actual castling move (verified
+	 * directly - "e1g1" against a Jocly candidate set including both "h1g1"
+	 * (an unrelated rook move) and "e1h1" (the real castling move, in
+	 * "engine" format) matches "h1g1" more closely).
 	 */
-	function ResolveMove(aGame, uciMove) {
+	function ResolveMove(aGame, uciMove, useChess960Format) {
 		aGame.mBoard.mMoves = [];
 		aGame.mBoard.GenerateMoveObjects(aGame);
 		var candidates = aGame.mBoard.mMoves;
 		if (!candidates || candidates.length === 0)
 			throw new Error("fairy-stockfish: no legal move available to match '" + uciMove + "'");
+		var moveFormat = useChess960Format ? "engine960" : "engine";
 		// GetBestMatchingMove() compares against Move.ToString() (default
 		// "natural" format); since Fairy-Stockfish speaks UCI, match against
-		// the "engine" format instead, which native chessbase moves already
-		// render close to UCI (e2e4, e7e8Q...).
+		// the "engine"/"engine960" format instead, which native chessbase
+		// moves already render close to UCI (e2e4, e7e8Q...).
 		var engineStrings = candidates.map(function (m) {
-			return (typeof m.ToString == "function") ? m.ToString("engine") : aGame.CreateMove(m).ToString("engine");
+			return (typeof m.ToString == "function") ? m.ToString(moveFormat) : aGame.CreateMove(m).ToString(moveFormat);
 		});
 		var bestIndex = -1, bestDist = Infinity;
 		engineStrings.forEach(function (str, index) {
@@ -146,11 +457,63 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		return candidates[bestIndex];
 	}
 
+	/*
+	 * Resolves a level that may declare several candidate sub-levels under
+	 * "variants" (see config_model_levels_capablanca_expert in
+	 * src/games/chessbase/index.js) instead of a single static "variant"
+	 * field - used for Jocly game modules whose "prelude" mechanism (see
+	 * prelude-model.js) lets the player choose between several distinct
+	 * variants sharing one board/geometry at the start of each game (e.g.
+	 * Capablanca/Gothic/Embassy/Janus, all implemented by the single
+	 * capablanca-chess Jocly game).
+	 *
+	 * The actually-chosen variant is only known once the prelude choice has
+	 * been made, recorded by prelude-model.js as
+	 * aGame.cbVar.prelude[0].persistent (a plain setup index once chosen;
+	 * `true` before any choice has been made, or `undefined` for prelude
+	 * stages/games that don't have a "persistent" dialog at all).
+	 *
+	 * Returns the resolved sub-level (a plain {variant, pieceMap, ...}
+	 * object) on a match, or null if "variants" isn't applicable (no
+	 * prelude, no choice made yet, or no entry matches the chosen setup) -
+	 * callers must treat null the same as "fairy-stockfish level is missing
+	 * a 'variant' field", not silently fall back to anything.
+	 */
+	function ResolveLevel(aGame, level) {
+		if (!level.variants)
+			return level;
+		var prelude = aGame.cbVar && aGame.cbVar.prelude;
+		if (!prelude || !prelude[0] || typeof prelude[0].persistent !== "number") {
+			console.error("fairy-stockfish: level declares 'variants' but no prelude choice has been recorded yet (aGame.cbVar.prelude[0].persistent)");
+			return null;
+		}
+		var setup = prelude[0].persistent;
+		for (var i = 0; i < level.variants.length; i++) {
+			if (level.variants[i].setup === setup) {
+				// merge onto the parent level so shared fields (skillLevel,
+				// moveTimeMs, depth, chess960...) still apply, with the
+				// matched sub-level's own fields (variant, pieceMap)
+				// overriding them.
+				var resolved = {};
+				for (var k in level)
+					if (level.hasOwnProperty(k) && k !== "variants")
+						resolved[k] = level[k];
+				for (var k2 in level.variants[i])
+					if (level.variants[i].hasOwnProperty(k2))
+						resolved[k2] = level.variants[i][k2];
+				return resolved;
+			}
+		}
+		console.error("fairy-stockfish: no 'variants' entry matches the chosen prelude setup (" + setup + ") - this prelude choice has no Fairy-Stockfish equivalent");
+		return null;
+	}
+
 	JoclyFairy.startMachine = function (aGame, aOptions) {
-		var level = aOptions.level || {};
-		var variant = level.variant;
+		var level = ResolveLevel(aGame, aOptions.level || {});
+		var variant = level && level.variant;
 		if (!variant) {
-			console.error("fairy-stockfish level is missing a 'variant' field");
+			if (level !== null) // null means ResolveLevel already logged a specific reason
+				console.error("fairy-stockfish level is missing a 'variant' field");
 			aGame.mBestMoves = [];
 			JocUtil.schedule(aGame, "Done", {});
 			return;
@@ -162,7 +525,9 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 			return;
 		}
 
-		var fen = aGame.mBoard.ExportBoardState(aGame);
+		var fen = level.pocketGeometry ? BuildShogiStyleFen(aGame, level.dropPromoted) : aGame.mBoard.ExportBoardState(aGame);
+		var pieceMaps = BuildPieceMaps(level.pieceMap);
+		var fenForEngine = TranslitFen(fen, pieceMaps.toFairy);
 		var entry = GetOrCreateWorker(aGame, aOptions);
 
 		aGame.mFairyAbort = function () {
@@ -193,10 +558,12 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 					entry.worker.postMessage({
 						type: "Search",
 						variant: variant,
-						fen: fen,
+						fen: fenForEngine,
 						depth: level.depth,
 						moveTimeMs: level.moveTimeMs,
-						skillLevel: level.skillLevel
+						skillLevel: level.skillLevel,
+						chess960: level.chess960,
+						customVariantIni: level.customVariantIni
 					});
 				});
 			})
@@ -207,7 +574,8 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 					// empty move list, rather than guessing here.
 					aGame.mBestMoves = [];
 				} else {
-					var move = ResolveMove(aGame, data.bestMoveUci.toLowerCase());
+					var uciMove = TranslitMove(data.bestMoveUci.toLowerCase(), pieceMaps.toJocly);
+					var move = ResolveMove(aGame, uciMove, level.chess960);
 					aGame.mBestMoves = [move];
 				}
 				delete aGame.mFairyAbort;

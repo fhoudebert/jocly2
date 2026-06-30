@@ -25,13 +25,19 @@
  *    then also delete it in the license file.
  */
 
-try {
+// NOTE: this used to be a try/catch around `exports.Game = JocGame = ...`,
+// relying on that assignment throwing in the browser (no `exports` global
+// there) to fall into the catch block and load JocUtil/JoclyUCT/JoclyFairy
+// via require(). That never actually triggers in Node (CommonJS always
+// defines `exports`, so the assignment never throws there) - meaning
+// JoclyUCT (and, until this fix, JoclyFairy) were silently never loaded in
+// Node at all, and any "ai":"uct" or "ai":"fairy-stockfish" machineSearch()
+// call would silently fall through to the legacy alpha-beta AI instead.
+// This bug predates the Fairy-Stockfish integration; using an explicit
+// environment check instead of relying on a try/catch side effect fixes it
+// for both AIs.
+if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 
-	exports.Game = JocGame = function() {}
-	exports.Board = JocBoard = function() {}
-	exports.Move = JocMove = function() {}
-
-} catch(e) {
 	global.JocGame = exports.Game = function() {};
 	global.JocBoard = exports.Board = function() {};
 	global.JocMove = exports.Move = function() {};
@@ -42,7 +48,15 @@ try {
 		global.MersenneTwister = ju.MersenneTwister;
 		global.JocUtil = ju.JocUtil;
 		global.JoclyUCT = r("./jocly.uct.js").JoclyUCT;
+		global.JoclyFairy = r("./jocly.fairy.js").JoclyFairy;
 	})();
+
+} else {
+
+	exports.Game = JocGame = function() {}
+	exports.Board = JocBoard = function() {}
+	exports.Move = JocMove = function() {}
+
 }
 
 JocGame.PLAYER_A = 1;
@@ -1019,6 +1033,18 @@ JocGame.prototype.UnhandleRepeat = function(board) {
 }
 
 JocGame.prototype.ApplyMove = function(aMove) {
+	if(!aMove)
+		// Happens when a machineSearch() call couldn't produce any move at
+		// all (e.g. JoclyFairy.startMachine() failing to resolve a usable
+		// level/variant - see jocly.fairy.js's ResolveLevel() - or, more
+		// generally, any AI search ending with an empty mBestMoves list).
+		// Failing loudly and explicitly here, instead of letting execution
+		// continue into move.CopyFrom(undefined)/mBoard.ApplyMove(undefined)
+		// a few lines down, turns a confusing low-level crash (e.g.
+		// "can't access property 'f', move is undefined" deep inside a
+		// specific game's ApplyMove) into a clear, actionable error at the
+		// actual point of failure.
+		throw new Error("JocGame.ApplyMove: no move to apply (aMove is " + aMove + ") - this usually means the previous machineSearch() call failed to produce a move; check the console for an earlier, more specific error");
 	var move = new (this.GetMoveClass())({});
 	move.CopyFrom(aMove);
 	this.mPlayedMoves.push(move);
