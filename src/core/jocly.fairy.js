@@ -42,7 +42,8 @@
  *     "moveTimeMs": 1000,      // either moveTimeMs or depth should be set
  *     "depth": 0,
  *     "pieceMap": { "M": "C" }, // optional, see below
- *     "chess960": true          // optional, sets UCI_Chess960 (see below)
+ *     "chess960": true,         // optional, sets UCI_Chess960 (see below)
+ *     "customVariantIni": "..." // optional, see below
  *   }
  *
  * Requirements on the game module (currently only implemented by chessbase,
@@ -79,6 +80,27 @@
  * castling rights remain unambiguous (i.e. at most one rook of each color
  * on each side of the king - true for standard 8x8 Chess960, not
  * necessarily for every large-board 960 variant).
+ *
+ * customVariantIni (optional): some Jocly games/prelude setups have no
+ * built-in Fairy-Stockfish variant equivalent, but use the exact same
+ * piece set and movement rules as one - just a different starting
+ * position and/or castling destination files (e.g. several of
+ * capablanca-chess's prelude setups - Bird, Ladorean, Grotesque,
+ * Schoolbook, Univers - reuse Capablanca's exact piece set, just shuffled).
+ * Fairy-Stockfish supports defining such variants at runtime via a
+ * variants.ini-style config (see
+ * https://fairy-stockfish.github.io/custom-variants/); when set, this
+ * field's value is the literal contents of such a config (not a path - the
+ * wasm build has no real filesystem), written to Emscripten's virtual FS
+ * and pointed to via the VariantPath UCI option by jocly.fairyworker.js's
+ * RunSearch(), before "variant" (which must then name a section declared in
+ * that config) is set. Verified directly against the real engine for all 6
+ * "Capablanca family" setups without a native equivalent: each one's
+ * Jocly-side castling destination files (computed from the relevant
+ * mirrored/flexible castling table in capa10x8/capablanca-model.js) match
+ * exactly what the engine accepts/produces for a
+ * "[name:capablanca]\ncastlingKingsideFile=...\ncastlingQueensideFile=..."
+ * config section with the same values.
  *
  * variants (optional, mutually exclusive with a static "variant"): for a
  * single Jocly game module whose own "prelude" mechanism lets the player
@@ -372,7 +394,8 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 						depth: level.depth,
 						moveTimeMs: level.moveTimeMs,
 						skillLevel: level.skillLevel,
-						chess960: level.chess960
+						chess960: level.chess960,
+						customVariantIni: level.customVariantIni
 					});
 				});
 			})

@@ -206,11 +206,29 @@ exports.games = (function () {
 	// Jocly game whose "prelude" (see prelude-model.js) lets the player
 	// choose, at the start of each game, between several distinct chess
 	// variants sharing the same 10x8 board/geometry. Of its 10 prelude
-	// setups, 3 have an exact rules+position match in Fairy-Stockfish
-	// (Capablanca, Gothic, Embassy - all using "M" for the chancellor where
-	// Fairy-Stockfish uses "C"), and one more (Janus) also matches with a
-	// different pieceMap. The other setups (Bird, Carrera, Ladorean,
-	// Grotesque, Schoolbook, Univers) have no Fairy-Stockfish equivalent.
+	// setups, 4 have a native Fairy-Stockfish variant equivalent
+	// (Capablanca, Gothic, Embassy, Janus - see config_model_levels_expert
+	// note above for the pieceMap details). The other 6 (Bird, Carrera,
+	// Ladorean, Grotesque, Schoolbook, Univers) have no built-in
+	// equivalent, but use the exact same piece set as Capablanca - just a
+	// different starting arrangement and, for some, different castling
+	// destination files - so each is declared as a Fairy-Stockfish "custom
+	// variant" (https://fairy-stockfish.github.io/custom-variants/, see
+	// jocly.fairy.js's "customVariantIni" documentation for exactly how
+	// this is loaded). Each one's startFen and castling destination files
+	// were derived directly from this file's own castling tables (janus/
+	// mirrored/mirror2/mirror_f/flexible above) and verified against the
+	// real engine (both that it accepts the config, and that perft on a
+	// cleared-rank-1 test position produces a king move to exactly the
+	// expected destination file).
+	// Carrera (setup 3): unlike Bird, this setup's entry in the castle
+	// table above is literally `undefined` (not "p.castle"), meaning
+	// Jocly's own cbGeneratePseudoLegalMoves never finds a valid castling
+	// table for it and so never generates a castle move for Carrera at all
+	// (same "FEN says KQkq but no castle move is ever actually generated"
+	// situation already seen for Grand/Courier above) - hence
+	// "castling = false" in its custom variant section below, rather than
+	// a castlingKingsideFile/castlingQueensideFile pair.
 	//
 	// Since the variant actually being played is only known once the
 	// prelude choice has been made (not statically, like every other level
@@ -220,6 +238,37 @@ exports.games = (function () {
 	// "setup" matches aGame.cbVar.prelude's recorded persistent choice, and
 	// reports an error (no silent fallback) if the chosen setup has no
 	// match - see the "variants" handling added to JoclyFairy.startMachine.
+	var config_model_levels_capablanca_missing_setups_ini = [
+		"[joclybird:capablanca]",
+		"startFen = RNBCQKABNR/pppppppppp/10/10/10/10/PPPPPPPPPP/rnbcqkabnr w KQkq - 0 1",
+		"castlingKingsideFile = i",
+		"castlingQueensideFile = c",
+		"",
+		"[joclycarrera:capablanca]",
+		"startFen = RANBQKBNCR/pppppppppp/10/10/10/10/PPPPPPPPPP/ranbqkbncr w KQkq - 0 1",
+		"castling = false",
+		"",
+		"[joclyladorean:capablanca]",
+		"startFen = RBQNKANCBR/pppppppppp/10/10/10/10/PPPPPPPPPP/rbqnkancbr w KQkq - 0 1",
+		"castlingKingsideFile = g",
+		"castlingQueensideFile = c",
+		"",
+		"[joclygrotesque:capablanca]",
+		"startFen = RBQNKCNABR/pppppppppp/10/10/10/10/PPPPPPPPPP/rbqnkcnabr w KQkq - 0 1",
+		"castlingKingsideFile = f",
+		"castlingQueensideFile = d",
+		"",
+		"[joclyschoolbook:capablanca]",
+		"startFen = RQNBAKBNCR/pppppppppp/10/10/10/10/PPPPPPPPPP/rqnbakbncr w KQkq - 0 1",
+		"castlingKingsideFile = g",
+		"castlingQueensideFile = e",
+		"",
+		"[joclyunivers:capablanca]",
+		"startFen = RBNCQKANBR/pppppppppp/10/10/10/10/PPPPPPPPPP/rbncqkanbr w KQkq - 0 1",
+		"castlingKingsideFile = g",
+		"castlingQueensideFile = e",
+		""
+	].join("\n");
 	var config_model_levels_capablanca_expert = {
 		"name": "expert",
 		"label": "Expert (Fairy-Stockfish)",
@@ -230,7 +279,13 @@ exports.games = (function () {
 			{ "setup": 0, "variant": "capablanca", "pieceMap": { "M": "C" } },
 			{ "setup": 1, "variant": "gothic", "pieceMap": { "M": "C" } },
 			{ "setup": 4, "variant": "embassy", "pieceMap": { "M": "C" } },
-			{ "setup": 9, "variant": "janus", "pieceMap": { "A": "J" } }
+			{ "setup": 9, "variant": "janus", "pieceMap": { "A": "J" } },
+			{ "setup": 2, "variant": "joclybird", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini },
+			{ "setup": 3, "variant": "joclycarrera", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini },
+			{ "setup": 5, "variant": "joclyladorean", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini },
+			{ "setup": 6, "variant": "joclygrotesque", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini },
+			{ "setup": 7, "variant": "joclyschoolbook", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini },
+			{ "setup": 8, "variant": "joclyunivers", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini }
 		]
 	}
 	var config_model_levels_5_capablanca_expert = config_model_levels_5.concat([config_model_levels_capablanca_expert]);

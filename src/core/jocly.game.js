@@ -1033,6 +1033,18 @@ JocGame.prototype.UnhandleRepeat = function(board) {
 }
 
 JocGame.prototype.ApplyMove = function(aMove) {
+	if(!aMove)
+		// Happens when a machineSearch() call couldn't produce any move at
+		// all (e.g. JoclyFairy.startMachine() failing to resolve a usable
+		// level/variant - see jocly.fairy.js's ResolveLevel() - or, more
+		// generally, any AI search ending with an empty mBestMoves list).
+		// Failing loudly and explicitly here, instead of letting execution
+		// continue into move.CopyFrom(undefined)/mBoard.ApplyMove(undefined)
+		// a few lines down, turns a confusing low-level crash (e.g.
+		// "can't access property 'f', move is undefined" deep inside a
+		// specific game's ApplyMove) into a clear, actionable error at the
+		// actual point of failure.
+		throw new Error("JocGame.ApplyMove: no move to apply (aMove is " + aMove + ") - this usually means the previous machineSearch() call failed to produce a move; check the console for an earlier, more specific error");
 	var move = new (this.GetMoveClass())({});
 	move.CopyFrom(aMove);
 	this.mPlayedMoves.push(move);

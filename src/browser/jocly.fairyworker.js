@@ -39,7 +39,7 @@
  * Protocol with the main thread:
  *   -> { type: "Init", baseURL }
  *   <- { type: "Ready" }
- *   -> { type: "Search", variant, fen, moveTimeMs | depth, skillLevel }
+ *   -> { type: "Search", variant, fen, moveTimeMs | depth, skillLevel, customVariantIni }
  *   <- { type: "Progress", percent }     (best effort, coarse)
  *   <- { type: "Done", data: { bestMoveUci, ponderUci, evaluation } }
  *   -> { type: "Stop" }                  (abort an ongoing search)
@@ -50,6 +50,11 @@ var window = self;
 var sfEngine = null;
 var sfReady = null;
 var sfBaseURL = "";
+
+// Path used in Emscripten's virtual filesystem to store a custom
+// variants.ini-style config, when options.customVariantIni is set (see
+// RunSearch() below and https://fairy-stockfish.github.io/custom-variants/).
+var CUSTOM_VARIANT_PATH = "/jocly-custom-variants.ini";
 
 function FairyLog() {
 	if (typeof console !== "undefined" && console.info)
@@ -129,6 +134,30 @@ function RunSearch(engine, options) {
 
 		engine.addMessageListener(onLine);
 
+		if (options.customVariantIni) {
+			// Loads a custom Fairy-Stockfish variant definition (see
+			// https://fairy-stockfish.github.io/custom-variants/) - used for
+			// Jocly games/setups that have no built-in Fairy-Stockfish
+			// variant but share the exact same piece set and rules as one,
+			// just with a different starting position and/or castling
+			// destination files. Written to Emscripten's virtual filesystem
+			// (the wasm build has no access to a real filesystem), then
+			// pointed to via the VariantPath UCI option - both steps must
+			// happen before "setoption name UCI_Variant" below, since that's
+			// when the engine actually parses the variant name against the
+			// list of known + custom-loaded variants.
+			// Re-writing the same path on every search is intentionally not
+			// cached/skipped: it's cheap (a few hundred bytes written to an
+			// in-memory virtual FS) and keeps this code simple and correct
+			// even if a single worker instance is reused across games with
+			// different custom variant definitions.
+			try {
+				engine.FS.writeFile(CUSTOM_VARIANT_PATH, options.customVariantIni);
+				engine.postMessage("setoption name VariantPath value " + CUSTOM_VARIANT_PATH);
+			} catch (e) {
+				FairyLog("failed to write custom variant config:", e);
+			}
+		}
 		engine.postMessage("setoption name UCI_Variant value " + options.variant);
 		if (typeof options.skillLevel === "number")
 			engine.postMessage("setoption name Skill Level value " + options.skillLevel);
@@ -169,6 +198,7 @@ onmessage = function (e) {
 					moveTimeMs: message.moveTimeMs,
 					skillLevel: message.skillLevel,
 					chess960: message.chess960,
+					customVariantIni: message.customVariantIni,
 					progress: function (percent) {
 						postMessage({ type: "Progress", percent: percent });
 					}
