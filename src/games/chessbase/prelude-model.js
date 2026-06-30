@@ -149,7 +149,23 @@
 	Model.Board.StaticGenerateMoves = function(aGame) {
 		if(this.lastMove.f==-2) { // prelude; fake we have book move
 			var dialog=aGame.cbVar.prelude[this.lastMove.t];
-			if(!dialog) return {}; // even if just a turn pass
+			// NOTE: must return an ARRAY containing the move, not the move
+			// object itself: the caller (JocGame.prototype.StartMachine,
+			// see jocly.game.js) checks `moves && moves.length>0` to decide
+			// whether to short-circuit straight to this fake move instead
+			// of dispatching to a real AI engine. Returning {} here (an
+			// object, not an array) makes that check silently fail
+			// (`{}.length` is undefined, not >0), so the prelude's
+			// turn-pass stage falls through to whatever AI is configured
+			// for that level instead of being intercepted here as intended
+			// - harmless by coincidence with the legacy alpha-beta engine
+			// (which happens to produce an equivalent {} result via a
+			// different path for this same degenerate position), but not
+			// with an engine that actually tries to search for a real move
+			// in a position that has none (e.g. Fairy-Stockfish, which then
+			// throws "no Worker available"/fails outright instead of
+			// quietly doing nothing).
+			if(!dialog) return [aGame.CreateMove({})]; // even if just a turn pass
 			var p=dialog.persistent;
 			if(p && p!==true) return [aGame.CreateMove({setup:p})];
 			return [aGame.CreateMove({setup:Math.floor(Math.random()*dialog.setups.length)})]; // pick randomly from this stage's setups
