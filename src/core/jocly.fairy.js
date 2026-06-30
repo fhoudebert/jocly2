@@ -137,6 +137,17 @@
  * since Jocly's own "engine" move format for a drop is already exactly
  * that shape (verified directly against shogi-model.js's Move.ToString
  * override).
+ *
+ * dropPromoted (optional, only meaningful together with
+ * "pocketGeometry"): most drop-based games demote a captured piece back
+ * to its base (non-promoted) form before it reaches the hand, so the
+ * "+" prefix some piece abbrevs carry is always stripped when building
+ * the "[...]" pocket section. Kyoto Shogi is a documented exception
+ * (Fairy-Stockfish's own dropPromoted=true for kyotoshogi): captured
+ * pieces keep their promoted state in hand and can be dropped promoted
+ * again. Set "dropPromoted": true for such a game to keep BuildShogiStyleFen()
+ * from stripping that "+" - see its own comment for how this was
+ * verified against Jocly's own demoted-type table for the game.
  */
 
 var JoclyFairy = {};
@@ -225,7 +236,7 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 	 * column issue), keeping this function focused only on what actually
 	 * needs fixing.
 	 */
-	function BuildShogiStyleFen(aGame) {
+	function BuildShogiStyleFen(aGame, dropPromoted) {
 		var board = aGame.mBoard;
 		var geometry = aGame.cbVar.geometry;
 		var pieceTypes = aGame.cbVar.pieceTypes;
@@ -288,7 +299,27 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 			var side = parseInt(parts[0], 10);
 			var t = parseInt(parts[1], 10);
 			var pt = pieceTypes[t];
-			var letter = (pt.fenAbbrev || pt.abbrev || "?").replace(/^\+/, "");
+			// Most Jocly drop-based games demote a captured piece back to
+			// its base type before it ever reaches the hand (mirrored by
+			// drop-model.js's own ApplyMove(), which sets
+			// victim.t = Model.Game.demoted[victim.t] - typically a
+			// same-rank, opposite-color base type, never the promoted
+			// form), so abbrev/fenAbbrev for a piece actually in hand
+			// should never carry a "+" there. Kyoto Shogi is the
+			// documented exception (Fairy-Stockfish's own
+			// dropPromoted=true for kyotoshogi): captured pieces keep
+			// their promoted state and can be dropped promoted again -
+			// verified directly that Jocly's own promote()/demoted table
+			// for kyoto-shogi-model.js does NOT collapse a promoted piece
+			// (e.g. type 6, "p-knight-w") to its unpromoted form (type 16,
+			// "knight-w") on capture, only flips its color (to type 7,
+			// "p-knight-b") - i.e. Jocly's own pieces array already
+			// reflects "stays promoted in hand" correctly; only this
+			// function's own blanket "+" stripping needed to become
+			// conditional to match.
+			var letter = pt.fenAbbrev || pt.abbrev || "?";
+			if (!dropPromoted)
+				letter = letter.replace(/^\+/, "");
 			letter = side > 0 ? letter.toUpperCase() : letter.toLowerCase();
 			var n = counts[key];
 			// NOTE: repeat the letter n times, do NOT use a "2P"-style
@@ -494,7 +525,7 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 			return;
 		}
 
-		var fen = level.pocketGeometry ? BuildShogiStyleFen(aGame) : aGame.mBoard.ExportBoardState(aGame);
+		var fen = level.pocketGeometry ? BuildShogiStyleFen(aGame, level.dropPromoted) : aGame.mBoard.ExportBoardState(aGame);
 		var pieceMaps = BuildPieceMaps(level.pieceMap);
 		var fenForEngine = TranslitFen(fen, pieceMaps.toFairy);
 		var entry = GetOrCreateWorker(aGame, aOptions);

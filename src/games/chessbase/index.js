@@ -583,6 +583,102 @@ exports.games = (function () {
 		"pocketGeometry": true
 	}
 
+	// Mini-shogi: same rules and starting position as Fairy-Stockfish's
+	// "minishogi" (startFen matches byte-for-byte once the hand columns are
+	// converted, same as base shogi above). No pieceMap or other
+	// adjustment needed - Jocly's own piece letters already match exactly.
+	var config_model_levels_minishogi_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "minishogi",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pocketGeometry": true
+	}
+
+	// Kyoto Shogi: same starting position as Fairy-Stockfish's
+	// "kyotoshogi" once converted - but unlike every other shogi variant
+	// in this work, its source kyoto-shogi-model.js needed real changes,
+	// not just a level declaration, because of this variant's defining
+	// rule: every non-king piece must alternate between a promoted and
+	// unpromoted form on each move it makes (mandatoryPiecePromotion +
+	// pieceDemotion, both true for kyotoshogi - verified directly: a
+	// perft on the real engine from the official starting position shows
+	// every legal move suffixed with "+" or "-", never bare). Jocly's own
+	// promote()/type tables already implement this correctly (e.g. moving
+	// type 6 always yields type 16 and vice-versa), but the piece TYPES
+	// involved were originally named/abbreviated after their *visual*
+	// resemblance rather than their *engine* identity (e.g. a piece that
+	// moves like Gold was called "gold-w"/"G", when Fairy-Stockfish needs
+	// it sent as "+N" - a promoted Knight, since
+	// promotedPieceType[SHOGI_KNIGHT]=GOLD for this variant). Jocly's own
+	// existing "pieceMap" mechanism can only substitute one FEN letter for
+	// another (e.g. "Q"->"C"), not insert a "+" prefix - and even a
+	// from-scratch single-letter mapping wouldn't have worked here anyway,
+	// since e.g. the same Jocly letter "+P" is used by two functionally
+	// different pieces (a promoted Lance "+L" officially, and a promoted
+	// Pawn that's separately abbreviated "R" by Jocly but should be "+P"
+	// officially) - a real, unavoidable collision for a flat letter
+	// substitution. So kyoto-shogi-model.js's pieceTypes 4/5/6/7/8/9 were
+	// renamed to their correct functional identity (p-silver/+S,
+	// p-pawn/+P, p-knight-w/b/+N, p-lance-w/b/+L) instead - same move
+	// graphs, only the name/abbrev changed - see that file's own comments
+	// for the full reasoning per piece. No pieceMap is declared here as a
+	// result: the FEN now matches directly.
+	//
+	// "dropPromoted": true is also required, and is itself a real,
+	// documented rules feature of this variant (Fairy-Stockfish's own
+	// dropPromoted=true for kyotoshogi): captured pieces keep their
+	// promoted state in hand rather than being demoted on capture like in
+	// every other shogi variant here - verified directly that
+	// kyoto-shogi-model.js's own demoted-type table only flips a captured
+	// piece's color, never collapses it to the unpromoted form, i.e.
+	// Jocly's own board state already reflects "stays promoted" correctly
+	// - see jocly.fairy.js's BuildShogiStyleFen()/dropPromoted handling for
+	// the corresponding "[...]" pocket-section fix this required (without
+	// it, a promoted piece's "+" would have been incorrectly stripped when
+	// building the pocket).
+	var config_model_levels_kyotoshogi_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "kyotoshogi",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pocketGeometry": true,
+		"dropPromoted": true
+	}
+
+	// Tori Shogi ("bird shogi"): same starting position as Fairy-Stockfish's
+	// "torishogi" once converted - no pieceMap needed. Jocly's own fairy
+	// piece letters (S/F/L/R/P/C/K for swallow/falcon/left-quail/
+	// right-quail/pheasant/crane/king) already match the official ones
+	// exactly (just case, handled automatically), and Jocly already uses
+	// the "+" prefix on the *source* piece's letter for both promoted
+	// pieces (e.g. "+S" for the promoted swallow/goose, "+F" for the
+	// promoted falcon/eagle) - exactly the convention Fairy-Stockfish
+	// itself uses (verified directly against the real engine: a FEN with
+	// "+s" for a promoted swallow is accepted and echoed back unchanged,
+	// even though the promoted piece's own distinct identity - the goose -
+	// has a different official letter "g" that's simply never used in FEN
+	// placement, only "+s" is). Unlike Kyoto Shogi, captured promoted
+	// pieces ARE demoted back to their base form here (verified directly:
+	// tori-shogi-model.js's own "demoted" entries for the promoted types
+	// point at the base, unpromoted type, not just a same-rank
+	// color-flipped promoted type) - matching Fairy-Stockfish's default
+	// (no "dropPromoted" declared for torishogi), so this level doesn't
+	// set "dropPromoted" either.
+	var config_model_levels_torishogi_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "torishogi",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pocketGeometry": true
+	}
+
 	// Courier chess: same rules and starting position as Fairy-Stockfish's
 	// "courier" (including the absence of castling - Jocly's courier-model.js
 	// does mark its rooks "castle:true" and declares a "castle" table, but
@@ -1100,6 +1196,9 @@ exports.games = (function () {
 	]
 	var config_model_levels_15_shako_expert = config_model_levels_15.concat([config_model_levels_shako_expert]);
 	var config_model_levels_15_shogi_expert = config_model_levels_15.concat([config_model_levels_shogi_expert]);
+	var config_model_levels_15_minishogi_expert = config_model_levels_15.concat([config_model_levels_minishogi_expert]);
+	var config_model_levels_15_kyotoshogi_expert = config_model_levels_15.concat([config_model_levels_kyotoshogi_expert]);
+	var config_model_levels_15_torishogi_expert = config_model_levels_15.concat([config_model_levels_torishogi_expert]);
 	var config_model_levels_15_pemba_expert = config_model_levels_15.concat([config_model_levels_pemba_expert]);
 	var config_view_js_13 = [
 		"base-view.js",
@@ -7601,7 +7700,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/shogi/mini-shogi-description.html"
 					},
-					"levels": config_model_levels_15
+					"levels": config_model_levels_15_minishogi_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -7674,7 +7773,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/shogi/kyoto-shogi-description.html"
 					},
-					"levels": config_model_levels_15
+					"levels": config_model_levels_15_kyotoshogi_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -7746,7 +7845,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/shogi/tori-shogi-description.html"
 					},
-					"levels": config_model_levels_15
+					"levels": config_model_levels_15_torishogi_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
