@@ -427,6 +427,74 @@ exports.games = (function () {
 	}
 	var config_model_levels_5_makruk_expert = config_model_levels_5.concat([config_model_levels_makruk_expert]);
 
+	// Wildebeest: 11x10 board, already declared as an official example
+	// variant directly in Fairy-Stockfish's own variants.ini
+	// (https://github.com/fairy-stockfish/Fairy-Stockfish/blob/master/src/variants.ini,
+	// section [wildebeest:chess]) - its customVariantIni below is that
+	// section's content verbatim, not something derived for this
+	// integration. Only one piece letter differs from Jocly's own
+	// (camel: official "c", Jocly "M" - wildebeest itself already matches,
+	// "W" both sides), verified to be a consistent bijective substitution
+	// against the full starting position FEN.
+	//
+	// tripleStepRegion kept (matches the official config): initially
+	// suspected of being a real engine/Jocly divergence (the official
+	// config's own comment says "Limitations: No flexible castling, no
+	// pawn triple steps", which reads as a Fairy-Stockfish limitation),
+	// and a perft check did show "a2a5" as a legal opening move with it
+	// enabled. But re-checking wildebeest-model.js more carefully (not
+	// just grepping for the word "triple") showed Jocly's actual starting
+	// pawns are a distinct piece type, "iipawn-w/b" (using a dedicated
+	// IIPawnGraph() move function, separate from the regular
+	// cbInitialPawnGraph()-based "ipawn" used as a placeholder/promotion
+	// piece) - and it does generate the exact same "a2a5"-style move.
+	// So this option is required to keep both sides in sync, not a
+	// divergence to work around.
+	//
+	// Castling: NOT enabled here (castling=false, matching the official
+	// config's own comment "Limitations: No flexible castling"). Verified
+	// directly that Jocly's wildebeest-model.js castling table requires
+	// "flexible" castling (the king's destination square depends on how
+	// far it can safely travel toward the rook, via a positive "extra"
+	// value letting it potentially land on the rook's own square) - the
+	// exact feature the official variants.ini comment says isn't
+	// supported. This is a real, acknowledged rules gap, not just a
+	// notation difference: with castling=false, the engine will never
+	// itself propose castling (a minor strength gap, not a correctness
+	// bug), but a castling move already played by a human player (or by
+	// Jocly's own non-Expert AI) applies to the board exactly like any
+	// other move and causes no problems for subsequent Expert-level moves.
+	var config_model_levels_wildebeest_expert_ini = [
+		"[wildebeest:chess]",
+		"maxRank = 10",
+		"maxFile = k",
+		"customPiece1 = c:C",
+		"customPiece2 = w:NC",
+		"doubleStepRegionWhite = *2 *3",
+		"doubleStepRegionBlack = *9 *8",
+		"tripleStepRegionWhite = *2",
+		"tripleStepRegionBlack = *9",
+		"pieceToCharTable = PNBRQ.......C....WKpnbrq.......c....wk",
+		"startFen = rnccwkqbbnr/ppppppppppp/11/11/11/11/11/11/PPPPPPPPPPP/RNBBQKWCCNR w KQkq - 0 1",
+		"promotionPieceTypes = qw",
+		"promotionRegionWhite = *9 *10",
+		"promotionRegionBlack = *2 *1",
+		"mandatoryPawnPromotion = false",
+		"castling = false",
+		""
+	].join("\n");
+	var config_model_levels_wildebeest_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "wildebeest",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pieceMap": { "M": "C" },
+		"customVariantIni": config_model_levels_wildebeest_expert_ini
+	}
+	var config_model_levels_5_wildebeest_expert = config_model_levels_5.concat([config_model_levels_wildebeest_expert]);
+
 	// Courier chess: same rules and starting position as Fairy-Stockfish's
 	// "courier" (including the absence of castling - Jocly's courier-model.js
 	// does mark its rooks "castle:true" and declares a "castle" table, but
@@ -4525,7 +4593,7 @@ exports.games = (function () {
 					"description": {
 						"en": "wildebeest-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_wildebeest_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
