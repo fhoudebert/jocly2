@@ -740,6 +740,84 @@ exports.games = (function () {
 		"moveTimeMs": 1000
 	}
 
+	// Hectochess: 10x10 board with several fairy pieces, none with a
+	// native Fairy-Stockfish variant equivalent, declared as a custom
+	// variant inheriting from "grand" - same approach as Pemba/Heavychess.
+	// Pieces translate to the engine's basic atoms directly:
+	//   marshall (M) = RN  (rook + knight, standard chancellor)
+	//   champion  (O) = WDA (1-square orthogonal/diagonal-2 step + alfil)
+	//   wizard    (W) = FL  (1-square diagonal step + camel jump)
+	//   leo       (L) = mQcQ (queen-style slide, capture only past a
+	//                  screen piece - a generalized cannon, both
+	//                  orthogonal and diagonal; verified directly against
+	//                  the real engine, isolated, that it produces a full
+	//                  8-direction queen-style slide)
+	// archbishop (A) is already a recognized engine piece type
+	// (archbishop = a). Jocly's own piece letters (M/O/W/L/A, all
+	// confirmed via this game's MakePiece() abbrev assignments in
+	// fairy-piece-model.js) already match what's declared below, so no
+	// pieceMap is needed. Castling destination files (h/d) verified
+	// directly against real Jocly gameplay.
+	var config_model_levels_hectochess_expert_ini = [
+		"[hectochess:grand]",
+		"archbishop = a",
+		"customPiece1 = m:RN",
+		"customPiece2 = o:WDA",
+		"customPiece3 = w:FL",
+		"customPiece4 = l:mQcQ",
+		"castling = true",
+		"castlingKingsideFile = h",
+		"castlingQueensideFile = d",
+		"startFen = awl4lwm/ronbqkbnor/pppppppppp/10/10/10/10/PPPPPPPPPP/RONBQKBNOR/AWL4LWM w KQkq - 0 1",
+		""
+	].join("\n");
+	var config_model_levels_hectochess_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "hectochess",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"customVariantIni": config_model_levels_hectochess_expert_ini
+	}
+	var config_model_levels_5_hectochess_expert = config_model_levels_5.concat([config_model_levels_hectochess_expert]);
+
+	// Tutti-Frutti Chess (Ralph Betza & Philip Cohen, 1978-79): 8x8 board
+	// with 3 piece compounds (amazon=QN, empress=RN, princess=BN), no
+	// native Fairy-Stockfish variant equivalent, declared as a custom
+	// variant inheriting from plain "chess" (standard board size,
+	// standard castling - verified directly that Jocly's own castling
+	// table for this game produces the plain "e1g1"-style destination,
+	// no chess960/customVariantIni castling options needed).
+	//
+	// Found and fixed a real, pre-existing bug in tutti-frutti-model.js
+	// while building this: the "princess" piece's abbrev was "Pr" - two
+	// characters - which silently produced an invalid FEN from the
+	// generic ExportBoardState()/getBoardState() (9 characters for an
+	// 8-column board row), independent of this Fairy-Stockfish
+	// integration. Changed to the single letter "C" (the game's own other
+	// letters - N/B/R/Q/K/A/E - were already taken, "A" being used here
+	// for the Amazon rather than the Archbishop/Princess as in most other
+	// games in this work).
+	var config_model_levels_tuttifrutti_expert_ini = [
+		"[tuttifrutti:chess]",
+		"customPiece1 = e:RN",
+		"customPiece2 = a:QN",
+		"customPiece3 = c:BN",
+		"startFen = enbakqcr/pppppppp/8/8/8/8/PPPPPPPP/ENBAKQCR w KQkq - 0 1",
+		""
+	].join("\n");
+	var config_model_levels_tuttifrutti_expert = {
+		"name": "expert",
+		"label": "Expert (Fairy-Stockfish)",
+		"ai": "fairy-stockfish",
+		"variant": "tuttifrutti",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"customVariantIni": config_model_levels_tuttifrutti_expert_ini
+	}
+	var config_model_levels_5_tuttifrutti_expert = config_model_levels_5.concat([config_model_levels_tuttifrutti_expert]);
+
 	// Courier chess: same rules and starting position as Fairy-Stockfish's
 	// "courier" (including the absence of castling - Jocly's courier-model.js
 	// does mark its rooks "castle:true" and declares a "castle" table, but
@@ -4600,7 +4678,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/decimal/hectochess-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_hectochess_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -5764,7 +5842,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/amazon/tutti-frutti-description.html"
 					},
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_tuttifrutti_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
