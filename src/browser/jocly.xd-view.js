@@ -3672,14 +3672,23 @@ if (window.JoclyXdViewCleanup)
 		cameraControls.camTarget.set(0, 0.8, 0);
 
 		var canOrientation = false;
-		var cameraOrientationControls = new THREE.DeviceOrientationControls(body, function (controls) {
-			if (typeof vr != "undefined")
-				animControl.trigger();
-			if (!canOrientation && controls.enabled) {
-				canOrientation = true;
-				area.find(".vr-button").show();
-			}
-		});
+		// Le mode VR/cardboard n'a de sens que sur un device tactile ; on évite
+		// d'enregistrer le listener 'deviceorientation' sur desktop, ce qui
+		// supprime le warning "OrientationEventWarning" de Firefox (API
+		// dépréciée/désactivée côté navigateur) et l'overhead inutile pour
+		// tous les visiteurs qui ne s'en servent jamais.
+		var supportsOrientation = (typeof window.DeviceOrientationEvent !== "undefined")
+			&& window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+		var cameraOrientationControls = supportsOrientation
+			? new THREE.DeviceOrientationControls(body, function (controls) {
+				if (typeof vr != "undefined")
+					animControl.trigger();
+				if (!canOrientation && controls.enabled) {
+					canOrientation = true;
+					area.find(".vr-button").show();
+				}
+			})
+			: { update: function () {}, connect: function () {}, disconnect: function () {} };
 
 
 		if (typeof cameraControls.addEventListener == "function")

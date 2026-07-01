@@ -8,22 +8,23 @@ This fork was initiated following the discontinuation of Jocly, in order to revi
 Demos
 -----
 You will find many board games (spargo, four in a row, annexation …), and in particular variations of chess and shogi.
-[Controlled interface](https://www.biscandine.fr/variantes/jocly2/examples/browser/control.html) for playing Chess.
+[Controlled interface](https://www.biscandine.fr/variantes/jocly/examples/browser/control.html) for playing Chess.
 Click _**Other Jocly games**_ to switch to other games.
 
-Simple human vs computer: [Classic chess](https://www.biscandine.fr/variantes/jocly2/examples/browser/simple.html?game=classic-chess),
-[Circular chess](https://www.biscandine.fr/variantes/jocly2/examples/browser/simple.html?game=circular-chess),
-[Multi layers chess](https://www.biscandine.fr/variantes/jocly2/examples/browser/simple.html?game=raumschach),
-[Hexagonal chess](https://www.biscandine.fr/variantes/jocly2/examples/browser/simple.html?game=glinski-chess),
-[Chinese chess](https://www.biscandine.fr/variantes/jocly2/examples/browser/simple.html?game=xiangqi),
-[Middle-age chess](https://www.biscandine.fr/variantes/jocly2/examples/browser/simple.html?game=courier-chess),
-[Shogi](https://www.biscandine.fr/variantes/jocly2/examples/browser/control.html?game=shogi),
-[Draughts](https://www.biscandine.fr/variantes/jocly2/examples/browser/control.html?game=draughts)
+Simple human vs computer: [Classic chess](https://www.biscandine.fr/variantes/jocly/examples/browser/simple.html?game=classic-chess),
+[Circular chess](https://www.biscandine.fr/variantes/jocly/examples/browser/simple.html?game=circular-chess),
+[Multi layers chess](https://www.biscandine.fr/variantes/jocly/examples/browser/simple.html?game=raumschach),
+[Hexagonal chess](https://www.biscandine.fr/variantes/jocly/examples/browser/simple.html?game=glinski-chess),
+[Chinese chess](https://www.biscandine.fr/variantes/jocly/examples/browser/simple.html?game=xiangqi),
+[Middle-age chess](https://www.biscandine.fr/variantes/jocly/examples/browser/simple.html?game=courier-chess),
+[Shogi](https://www.biscandine.fr/variantes/jocly/examples/browser/control.html?game=shogi),
+[Draughts](https://www.biscandine.fr/variantes/jocly/examples/browser/control.html?game=draughts)
 
 
 
-Or see and try [all available games](https://www.biscandine.fr/variantes/jocly2/examples/browser/multiple.html)
+Or see and try [all available games](https://www.biscandine.fr/variantes/jocly/examples/browser/multiple.html)
 
+Or use joclymatch [to play againt a human](https://www.biscandine.fr/variantes/)
 
 Install
 -------

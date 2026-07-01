@@ -8246,7 +8246,7 @@ exports.games = (function () {
 						"en": "res/rules/historical/grant-acedrex-description.html"
 					},
 					"levels": config_model_levels_15
-				},cd
+				},
 				"view": {
 					"title-en": "Chessbase view",
 					"visuals": {
