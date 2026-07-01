@@ -314,6 +314,7 @@ gulp.task("build-browser-core", function () {
 		"src/core/jocly.core.js",
 		"src/browser/jocly.aiworker.js",
 		"src/browser/jocly.fairyworker.js",
+		"src/browser/jocly.scanworker.js",
 		"src/browser/jocly.embed.js"
 	]));
 
@@ -321,6 +322,7 @@ gulp.task("build-browser-core", function () {
 		"src/core/jocly.util.js",
 		"src/core/jocly.uct.js",
 		"src/core/jocly.fairy.js",
+		"src/core/jocly.scan.js",
 		"src/core/jocly.game.js"
 	]), "jocly.game.js", true);
 
@@ -341,6 +343,23 @@ gulp.task("build-browser-core", function () {
 		path.dirname = "fairy-stockfish";
 	}));
 
+	// Scan (third-party/scan): same rationale as Fairy-Stockfish above -
+	// pre-built Emscripten artifacts, copied through untouched. Two streams
+	// to preserve the "scan/data/" subfolder expected by
+	// jocly.scanworker.js's LoadEngine() (scanBaseURL + "data/eval" etc.).
+	var joclyScanStream = gulp.src([
+		"third-party/scan/scan.js",
+		"third-party/scan/scan.wasm"
+	]).pipe(rename(function (path) {
+		path.dirname = "scan";
+	}));
+	var joclyScanDataStream = gulp.src([
+		"third-party/scan/data/eval",
+		"third-party/scan/data/book"
+	]).pipe(rename(function (path) {
+		path.dirname = "scan/data";
+	}));
+
 	var joclyResStream = gulp.src("src/browser/res/**/*")
 		.pipe(rename(function (path) {
 			path.dirname = "res/" + path.dirname;
@@ -351,7 +370,7 @@ gulp.task("build-browser-core", function () {
 	allGamesStream = ProcessJS(allGamesStream.pipe(buffer()));
 
 	return mergeSequential(joclyBrowserStream, joclyCoreStream, allGamesStream, joclyBaseStream,
-		joclyExtraStream, joclyFairyStockfishStream, joclyResStream)
+		joclyExtraStream, joclyFairyStockfishStream, joclyScanStream, joclyScanDataStream, joclyResStream)
     .pipe(through.obj(function (file, enc, next) {
       next(null, new Vinyl(file));
     }))
