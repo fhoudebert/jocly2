@@ -3381,7 +3381,7 @@ exports.games = (function () {
 					"js": config_view_js_15,
 					"visuals": {
 						"600x600": [
-							"res/visuals/knightmate-600x600-3d.png",
+							"res/visuals/knightmate-600x600-3d.jpg",
 							"res/visuals/knightmate-600x600-2d.png"
 						]
 					},
@@ -4078,7 +4078,7 @@ exports.games = (function () {
 					"title-en": "Chessbase view",
 					"visuals": {
 						"600x600": [
-							"res/visuals/space_spartan-600x600-3d.png",
+							"res/visuals/space_spartan-600x600-3d.jpg",
 							"res/visuals/space_spartan-600x600-2d.png"
 						]
 					},
@@ -7765,7 +7765,7 @@ exports.games = (function () {
 					"visuals": {
 						"600x600": [
 							"res/visuals/chu-seireigi-600x600-2d.png",
-                            "res/visuals/chu-seireigi-600x600-3d.png"
+                            "res/visuals/chu-seireigi-600x600-3d.jpg"
 						]
 					},
 					"xdView": true,
@@ -7846,7 +7846,7 @@ exports.games = (function () {
 					"title-en": "Chessbase view",
 					"visuals": {
 						"600x600": [
-							"res/visuals/mini-shogi-600x600-3d.png",
+							"res/visuals/mini-shogi-600x600-3d.jpg",
 							"res/visuals/mini-shogi-600x600-2d.png"
 						]
 					},
@@ -7919,7 +7919,7 @@ exports.games = (function () {
 					"title-en": "Chessbase view",
 					"visuals": {
 						"600x600": [
-							"res/visuals/kyoto-shogi-600x600-3d.png",
+							"res/visuals/kyoto-shogi-600x600-3d.jpg",
 							"res/visuals/kyoto-shogi-600x600-2d.png"
 						]
 					},
@@ -7991,7 +7991,7 @@ exports.games = (function () {
 					"title-en": "Chessbase view",
 					"visuals": {
 						"600x600": [
-							"res/visuals/tori-600x600-3d.png",
+							"res/visuals/tori-600x600-3d.jpg",
 							"res/visuals/tori-600x600-2d.png"
 						]
 					},
@@ -8251,7 +8251,7 @@ exports.games = (function () {
 					"title-en": "Chessbase view",
 					"visuals": {
 						"600x600": [
-							"res/visuals/grant-acedrex-600x600-3d.png",
+							"res/visuals/grant-acedrex-600x600-3d.jpg",
 							"res/visuals/grant-acedrex-600x600-2d.png"
 						]
 					},
