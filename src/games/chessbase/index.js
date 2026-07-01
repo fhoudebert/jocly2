@@ -82,12 +82,15 @@ exports.games = (function () {
 	// "Expert" level: delegates the search to the Fairy-Stockfish engine
 	// (see src/core/jocly.fairy.js) instead of Jocly's native UCT/alpha-beta
 	// AI. Only declared for games that are both:
-	//  - exactly supported as a Fairy-Stockfish "variant" (UCI_Variant), and
+	//  - exactly supported as a Fairy-Stockfish "variant" (UCI_Variant) or
+	//    expressible via a customVariantIni, and
 	//  - able to export a standard FEN via mBoard.ExportBoardState()
-	// (currently classic-chess only - see config_model_levels_5_expert below).
+	// (classic-chess itself uses the plain "chess" variant below; see the
+	// many other config_model_levels_*_expert blocks throughout this file
+	// for every other game this has since been extended to).
 	var config_model_levels_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "chess",
 		"skillLevel": 20,
@@ -109,7 +112,7 @@ exports.games = (function () {
 	// Amazon: FEN matches exactly, no pieceMap needed.
 	var config_model_levels_amazon_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "amazon",
 		"skillLevel": 20,
@@ -125,7 +128,7 @@ exports.games = (function () {
 	// file - only the level object itself is needed here).
 	var config_model_levels_shako_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "shako",
 		"skillLevel": 20,
@@ -189,7 +192,7 @@ exports.games = (function () {
 	].join("\n");
 	var config_model_levels_pemba_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "pembachess",
 		"skillLevel": 20,
@@ -201,7 +204,7 @@ exports.games = (function () {
 	// Chancellor: FEN matches exactly, no pieceMap needed.
 	var config_model_levels_chancellor_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "chancellor",
 		"skillLevel": 20,
@@ -213,7 +216,7 @@ exports.games = (function () {
 	// (Jocly H(orse)/E(lephant) vs Fairy-Stockfish's N(knight)/B(ishop)).
 	var config_model_levels_xiangqi_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "xiangqi",
 		"skillLevel": 20,
@@ -226,7 +229,7 @@ exports.games = (function () {
 	// (Jocly E(lephant)/G(eneral) vs Fairy-Stockfish's B(ishop)/Q(ueen)).
 	var config_model_levels_shatranj_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "shatranj",
 		"skillLevel": 20,
@@ -244,7 +247,7 @@ exports.games = (function () {
 	// character-by-character pass, not sequential global replacements).
 	var config_model_levels_knightmate_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "knightmate",
 		"skillLevel": 20,
@@ -259,7 +262,7 @@ exports.games = (function () {
 	// chancellor (Jocly "M" vs Fairy-Stockfish "C").
 	var config_model_levels_grand_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "grand",
 		"skillLevel": 20,
@@ -337,7 +340,7 @@ exports.games = (function () {
 	].join("\n");
 	var config_model_levels_capablanca_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"skillLevel": 20,
 		"moveTimeMs": 1000,
@@ -367,7 +370,7 @@ exports.games = (function () {
 	// Jocly's own UI describes the game as "also known as" all of those.
 	var config_model_levels_antichess_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "antichess",
 		"skillLevel": 20,
@@ -393,7 +396,7 @@ exports.games = (function () {
 	// more closely (in Levenshtein distance) than the real castling move.
 	var config_model_levels_chess960_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "fischerandom",
 		"skillLevel": 20,
@@ -418,7 +421,7 @@ exports.games = (function () {
 	// practice.
 	var config_model_levels_makruk_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "makruk",
 		"skillLevel": 20,
@@ -485,7 +488,7 @@ exports.games = (function () {
 	].join("\n");
 	var config_model_levels_wildebeest_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "wildebeest",
 		"skillLevel": 20,
@@ -542,7 +545,7 @@ exports.games = (function () {
 	].join("\n");
 	var config_model_levels_heavychess_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "heavychess",
 		"skillLevel": 20,
@@ -575,7 +578,7 @@ exports.games = (function () {
 	// accepted *input* form for the FEN pocket).
 	var config_model_levels_shogi_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "shogi",
 		"skillLevel": 20,
@@ -589,7 +592,7 @@ exports.games = (function () {
 	// adjustment needed - Jocly's own piece letters already match exactly.
 	var config_model_levels_minishogi_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "minishogi",
 		"skillLevel": 20,
@@ -641,7 +644,7 @@ exports.games = (function () {
 	// building the pocket).
 	var config_model_levels_kyotoshogi_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "kyotoshogi",
 		"skillLevel": 20,
@@ -671,7 +674,7 @@ exports.games = (function () {
 	// set "dropPromoted" either.
 	var config_model_levels_torishogi_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "torishogi",
 		"skillLevel": 20,
@@ -683,7 +686,7 @@ exports.games = (function () {
 	// exactly, no pieceMap needed.
 	var config_model_levels_gardner_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "gardner",
 		"skillLevel": 20,
@@ -703,13 +706,268 @@ exports.games = (function () {
 	// with a custom variant config that would have preserved the bug.
 	var config_model_levels_losalamos_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "losalamos",
 		"skillLevel": 20,
 		"moveTimeMs": 1000
 	}
 	var config_model_levels_5_losalamos_expert = config_model_levels_5.concat([config_model_levels_losalamos_expert]);
+
+	// Basic Chess: exactly the same piece set, starting position and rules
+	// as classic-chess (base-model.js/famous/basic-model.js is identical to
+	// famous/classic-model.js except for the openings-book-only importGame/
+	// zobrist tweaks, which don't affect ExportBoardState or legal moves) -
+	// so it reuses classic-chess's own "chess" variant/FEN unchanged, no
+	// pieceMap or customVariantIni needed.
+	var config_model_levels_5_basic_expert = config_model_levels_5.concat([config_model_levels_expert]);
+
+	// --- Mini-chess family (mini/*.js): none of these boards/setups match
+	// a native Fairy-Stockfish variant, so each gets a customVariantIni.
+	// Derived from "chess" (not "gardner", whose gardner_variant() hardcodes
+	// doubleStep=false/castling=false) whenever the Jocly model actually
+	// uses cbInitialPawnGraph (double-step) and/or a "castle" table, so the
+	// inherited defaults already match; maxRank/maxFile/promotionRegion are
+	// still overridden explicitly since Variant::conclude() bakes them in
+	// relative to the *base* variant's own board size, not the derived one
+	// (verified directly: omitting promotionRegionWhite/Black here reproduces
+	// gardner's own Rank5BB default unchanged, which falls outside a 4-rank
+	// board and silently disables promotion altogether).
+
+	// Mini Chess 4x4 (mini4x4-model.js): R/Q/K + pawns only, single-square
+	// pawn moves only (cbPawnGraph, not cbInitialPawnGraph) and no castling
+	// table at all, so this is the one exception that's fine derived from
+	// "gardner" - its doubleStep=false/castling=false defaults already match.
+	// Promotion (pawn -> R/Q only, geometry.R(move.t)==3/0) needs both the
+	// piece-type restriction and the rank-4 region override.
+	var config_model_levels_mini4x4_expert_ini = [
+		"[mini4x4chess:gardner]",
+		"maxRank = 4",
+		"maxFile = d",
+		"startFen = rqkr/pppp/PPPP/RQKR w - - 0 1",
+		"promotionRegionWhite = *4",
+		"promotionRegionBlack = *1",
+		"promotionPieceTypes = rq",
+		""
+	].join("\n");
+	var config_model_levels_mini4x4_expert = {
+		"name": "expert",
+		"label": "Expert",
+		"ai": "fairy-stockfish",
+		"variant": "mini4x4chess",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"customVariantIni": config_model_levels_mini4x4_expert_ini
+	}
+	var config_model_levels_5_mini4x4_expert = config_model_levels_5.concat([config_model_levels_mini4x4_expert]);
+
+	// Mini Chess 4x5 (mini4x5-model.js): same R/Q/K + pawns piece set as
+	// mini4x4, but on a 4x5 board with double-step pawns (ipawn types) and
+	// still no castling table - derived from "chess" so double-step is on
+	// by default (castling is explicitly turned back off since "chess"
+	// defaults to castling=true). Verified directly against the real
+	// engine: with the initial position's pawns only one empty rank apart,
+	// a double-step landing square is occupied at the start (matching
+	// Jocly, whose own ipawn graph is equally blocked there), but becomes
+	// available again once that blocking pawn moves - confirming this is
+	// real double-step support, not a coincidentally-identical move count.
+	var config_model_levels_mini4x5_expert_ini = [
+		"[mini4x5chess:chess]",
+		"maxRank = 5",
+		"maxFile = d",
+		"startFen = rqkr/pppp/4/PPPP/RQKR w - - 0 1",
+		"promotionRegionWhite = *5",
+		"promotionRegionBlack = *1",
+		"promotionPieceTypes = rq",
+		"castling = false",
+		""
+	].join("\n");
+	var config_model_levels_mini4x5_expert = {
+		"name": "expert",
+		"label": "Expert",
+		"ai": "fairy-stockfish",
+		"variant": "mini4x5chess",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"customVariantIni": config_model_levels_mini4x5_expert_ini
+	}
+	var config_model_levels_5_mini4x5_expert = config_model_levels_5.concat([config_model_levels_mini4x5_expert]);
+
+	// Micro Chess (micro4x5-model.js, Glimne 1997): 4x5 board with a single
+	// pawn per side and one each of R/B/N/K - NOT the same starting
+	// position as Fairy-Stockfish's own native "microchess" (which places
+	// both sides' R/B/N/K in the *same* file order, king-vs-rook rather
+	// than king-vs-king), so it needs its own customVariantIni rather than
+	// reusing that native variant. Derived from "chess" for double-step.
+	// Castling (one king/rook pair per side, verified directly against the
+	// real Jocly move generator - not assumed from the castle table's
+	// k/r arrays, since a first pass at reading those backwards gave
+	// exactly-reversed king/rook destinations): White King d1/Rook a1 ->
+	// Kb1/Rc1 (a "queenside-shaped" castle since the rook sits below the
+	// king); Black King a5/Rook d5 -> Kc5/Rb5 (a "kingside-shaped" castle,
+	// same physical motion mirrored by the point-symmetric board). Jocly's
+	// own castling notation is plain "king start/king end" (e.g. "d1b1"),
+	// matching Fairy-Stockfish's *non*-Chess960 castling notation exactly -
+	// so, unlike the capablanca-family/pemba levels elsewhere in this file,
+	// this level deliberately does NOT set "chess960": true; doing so would
+	// switch both sides to "king takes own rook" notation instead and break
+	// the match against Jocly's own move list. Only one promotion region
+	// exists (rank 5/1) and only to N/B/R (no queen piece exists in this
+	// variant at all, verified from micro4x5-model.js's own promote()).
+	var config_model_levels_micro4x5_expert_ini = [
+		"[micro4x5chess:chess]",
+		"maxRank = 5",
+		"maxFile = d",
+		"startFen = knbr/p3/4/3P/RBNK w Qk - 0 1",
+		"castlingKingsideFile = c",
+		"castlingQueensideFile = b",
+		"promotionPieceTypes = nbr",
+		"promotionRegionWhite = *5",
+		"promotionRegionBlack = *1",
+		""
+	].join("\n");
+	var config_model_levels_micro4x5_expert = {
+		"name": "expert",
+		"label": "Expert",
+		"ai": "fairy-stockfish",
+		"variant": "micro4x5chess",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"customVariantIni": config_model_levels_micro4x5_expert_ini
+	}
+	var config_model_levels_5_micro4x5_expert = config_model_levels_5.concat([config_model_levels_micro4x5_expert]);
+
+	// Baby Chess (mini/baby-model.js, 5x5): standard R/N/B/Q/K piece set,
+	// mirrored back ranks (White RNBQK / Black KQBNR, kings facing kings),
+	// double-step pawns, one castling pair per side. NOTE: while
+	// implementing this level, a genuine pre-existing bug independent of
+	// this Fairy-Stockfish work was found and fixed directly in
+	// baby-model.js itself (same kind of fix, and same rationale, as the
+	// historical Los Alamos queen/king swap fixed earlier in this file):
+	// Black's castle table entry was keyed "24/20" (i.e. king at 24, rook
+	// at 20), but Black's actual king/rook start at 20/24 - the reverse -
+	// so the lookup (built from the *live* king.p+"/"+rook.p) could never
+	// match and Black could never castle at all, verified directly against
+	// the real Jocly move generator both before and after the fix (with a
+	// fully cleared, unattacked path and an unmoved king/rook, Black's
+	// castling move only appears in the legal move list after correcting
+	// the key to "20/24" together with the k/r target squares to their
+	// intended, rotationally-symmetric counterpart of White's own entry).
+	// Fairy-Stockfish's own castling classification (rook file vs king
+	// file) makes White's castle "queenside-shaped" and Black's
+	// "kingside-shaped", but both land the king on the same file (c) -
+	// exactly like Jocly's own (now-fixed) castle table.
+	var config_model_levels_baby_expert_ini = [
+		"[babychess:chess]",
+		"maxRank = 5",
+		"maxFile = e",
+		"startFen = kqbnr/ppppp/5/PPPPP/RNBQK w KQkq - 0 1",
+		"promotionRegionWhite = *5",
+		"promotionRegionBlack = *1",
+		"castlingKingsideFile = c",
+		"castlingQueensideFile = c",
+		""
+	].join("\n");
+	var config_model_levels_baby_expert = {
+		"name": "expert",
+		"label": "Expert",
+		"ai": "fairy-stockfish",
+		"variant": "babychess",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"customVariantIni": config_model_levels_baby_expert_ini
+	}
+	var config_model_levels_5_baby_expert = config_model_levels_5.concat([config_model_levels_baby_expert]);
+
+	// Malett Chess (mini/malett-model.js, 5x5, Jeff Mallett): the genuinely
+	// asymmetric variant where White plays with two knights and no bishops
+	// while Black plays with two bishops and no knights (verified directly
+	// from malett-model.js's own piece placement, not assumed from the
+	// name) - both are ordinary Fairy-Stockfish piece types, so this needs
+	// only a custom starting position, no custom pieces. Both sides castle
+	// the *same* physical way (king c-file -> b-file, rook a-file ->
+	// c-file - translational, not mirrored, matching the identical R.K.Q.
+	// back-rank layout shared by both colors), so only
+	// castlingQueensideFile is set (neither side's castle is
+	// "kingside-shaped"). Pawns promote to any of N/B/R/Q for either side
+	// (malett-model.js's own promote() returns the full [4,5,6,7] set
+	// regardless of which flank pieces that side started with).
+	var config_model_levels_malett_expert_ini = [
+		"[malettchess:chess]",
+		"maxRank = 5",
+		"maxFile = e",
+		"startFen = rbkqb/ppppp/5/PPPPP/RNKQN w Qq - 0 1",
+		"promotionRegionWhite = *5",
+		"promotionRegionBlack = *1",
+		"castlingQueensideFile = b",
+		""
+	].join("\n");
+	var config_model_levels_malett_expert = {
+		"name": "expert",
+		"label": "Expert",
+		"ai": "fairy-stockfish",
+		"variant": "malettchess",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"customVariantIni": config_model_levels_malett_expert_ini
+	}
+	var config_model_levels_5_malett_expert = config_model_levels_5.concat([config_model_levels_malett_expert]);
+
+	// Chess Attack (mini/attack-model.js, 5x6): standard R/N/B/Q/K piece
+	// set on a 5x6 board, both back ranks in the *same* file order (kings
+	// face each other on the e-file), double-step pawns, one castling pair
+	// per side landing the king on the same file (c) for both colors, same
+	// as baby-chess above.
+	var config_model_levels_attack_expert_ini = [
+		"[attackchess:chess]",
+		"maxRank = 6",
+		"maxFile = e",
+		"startFen = rnbqk/ppppp/5/5/PPPPP/RNBQK w Qq - 0 1",
+		"promotionRegionWhite = *6",
+		"promotionRegionBlack = *1",
+		"castlingQueensideFile = c",
+		"castlingKingsideFile = c",
+		""
+	].join("\n");
+	var config_model_levels_attack_expert = {
+		"name": "expert",
+		"label": "Expert",
+		"ai": "fairy-stockfish",
+		"variant": "attackchess",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"customVariantIni": config_model_levels_attack_expert_ini
+	}
+	var config_model_levels_5_attack_expert = config_model_levels_5.concat([config_model_levels_attack_expert]);
+
+	// Demi-Chess (standard/demi-model.js, 4x8, Peter Krystufek 1986): only
+	// K/B/N/R start on the board - no queen at all (queen only ever
+	// appears via promotion, verified from demi-model.js's own piece
+	// definition, which gives type 7 "queen" no "initial" array). Both
+	// back ranks share the same file order (kings face each other on the
+	// a-file), one castling pair per side, "kingside-shaped" for both
+	// colors (the only rook sits on the far side from the king on this
+	// narrow 4-file board).
+	var config_model_levels_demi_expert_ini = [
+		"[demichess:chess]",
+		"maxRank = 8",
+		"maxFile = d",
+		"startFen = kbnr/pppp/4/4/4/4/PPPP/KBNR w Kk - 0 1",
+		"promotionRegionWhite = *8",
+		"promotionRegionBlack = *1",
+		"castlingKingsideFile = c",
+		""
+	].join("\n");
+	var config_model_levels_demi_expert = {
+		"name": "expert",
+		"label": "Expert",
+		"ai": "fairy-stockfish",
+		"variant": "demichess",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"customVariantIni": config_model_levels_demi_expert_ini
+	}
+	var config_model_levels_5_demi_expert = config_model_levels_5.concat([config_model_levels_demi_expert]);
 
 	// Gustav III Chess: native Fairy-Stockfish variant "gustav3", FEN
 	// matches exactly (including the FEN's "*" wall-square markers -
@@ -721,7 +979,7 @@ exports.games = (function () {
 	// also verified directly to match.
 	var config_model_levels_gustav3_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "gustav3",
 		"skillLevel": 20,
@@ -733,7 +991,7 @@ exports.games = (function () {
 	// byte-for-byte. No pieceMap needed.
 	var config_model_levels_spartan_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "spartan",
 		"skillLevel": 20,
@@ -773,7 +1031,7 @@ exports.games = (function () {
 	].join("\n");
 	var config_model_levels_hectochess_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "hectochess",
 		"skillLevel": 20,
@@ -809,7 +1067,7 @@ exports.games = (function () {
 	].join("\n");
 	var config_model_levels_tuttifrutti_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "tuttifrutti",
 		"skillLevel": 20,
@@ -833,7 +1091,7 @@ exports.games = (function () {
 	// right after config_model_levels_10 itself is declared.
 	var config_model_levels_courier_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "courier",
 		"skillLevel": 20,
@@ -2600,7 +2858,7 @@ exports.games = (function () {
 					"gameOptions": config_model_gameOptions_2,
 					"obsolete": false,
 					"js": modelScripts_4,
-					"levels": config_model_levels_5,
+					"levels": config_model_levels_5_mini4x4_expert,
 					"description": {
 						"en": "res/rules/mini/mini4x4-description.html"
 					}
@@ -2651,7 +2909,7 @@ exports.games = (function () {
 					"gameOptions": config_model_gameOptions_2,
 					"obsolete": false,
 					"js": modelScripts_5,
-					"levels": config_model_levels_5,
+					"levels": config_model_levels_5_mini4x5_expert,
 					"description": {
 						"en": "res/rules/mini/mini4x5-description.html"
 					}
@@ -2702,7 +2960,7 @@ exports.games = (function () {
 					"gameOptions": config_model_gameOptions_2,
 					"obsolete": false,
 					"js": modelScripts_6,
-					"levels": config_model_levels_5,
+					"levels": config_model_levels_5_micro4x5_expert,
 					"description": {
 						"en": "res/rules/mini/micro4x5-description.html"
 					}
@@ -2753,7 +3011,7 @@ exports.games = (function () {
 					"gameOptions": config_model_gameOptions_2,
 					"obsolete": false,
 					"js": modelScripts_7,
-					"levels": config_model_levels_5,
+					"levels": config_model_levels_5_baby_expert,
 					"description": {
 						"en": "res/rules/mini/baby-description.html"
 					}
@@ -2804,7 +3062,7 @@ exports.games = (function () {
 					"gameOptions": config_model_gameOptions_2,
 					"obsolete": false,
 					"js": modelScripts_8,
-					"levels": config_model_levels_5,
+					"levels": config_model_levels_5_malett_expert,
 					"description": {
 						"en": "res/rules/mini/malett-description.html"
 					}
@@ -2906,7 +3164,7 @@ exports.games = (function () {
 					"gameOptions": config_model_gameOptions_2,
 					"obsolete": false,
 					"js": modelScripts_10,
-					"levels": config_model_levels_5,
+					"levels": config_model_levels_5_attack_expert,
 					"description": {
 						"en": "res/rules/mini/attack-description.html"
 					}
@@ -3317,7 +3575,7 @@ exports.games = (function () {
 					"gameOptions": config_model_gameOptions,
 					"obsolete": true,
 					"js": modelScripts_15,
-					"levels": config_model_levels_5
+					"levels": config_model_levels_5_basic_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -5114,7 +5372,7 @@ exports.games = (function () {
 					"gameOptions": config_model_gameOptions_2,
 					"obsolete": false,
 					"js": modelScripts_39,
-					"levels": config_model_levels_5,
+					"levels": config_model_levels_5_demi_expert,
 					"description": {
 						"en": "res/rules/demi/demi-description.html"
 					}

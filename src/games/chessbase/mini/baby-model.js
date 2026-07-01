@@ -112,7 +112,7 @@
 
 			castle: {
 				"4/0": {k:[3,2],r:[1,2,3],n:"O-O"},
-				"24/20": {k:[23,22],r:[21,22,23],n:"O-O"},
+				"20/24": {k:[21,22],r:[23,22,21],n:"O-O"},
 			},
 			
 			evaluate: function(aGame,evalValues,material) {

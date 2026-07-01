@@ -35,7 +35,7 @@
  *
  *   {
  *     "name": "expert",
- *     "label": "Expert (Fairy-Stockfish)",
+ *     "label": "Expert",
  *     "ai": "fairy-stockfish",
  *     "variant": "chess",      // Fairy-Stockfish variant name (UCI_Variant)
  *     "skillLevel": 20,        // 0-20, optional (defaults to full strength)

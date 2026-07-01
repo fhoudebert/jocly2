@@ -12,7 +12,7 @@ const mergeSequential = require('./merge-sequential.js');
 const rename = require("gulp-rename");
 const concat = require('gulp-concat');
 const sourcemaps = require('gulp-sourcemaps');
-const uglify = require('gulp-uglify');
+const terser = require('gulp-terser');
 const babel = require('gulp-babel');
 const browserify = require('browserify');
 const buffer = require("vinyl-buffer");
@@ -166,7 +166,7 @@ function HandleModuleGames(modelOnly) {
 					.pipe(gulpif(!argv.prod, sourcemaps.init()))
 					.pipe(prependVirtualFile('_', modulifyHeaders[which]))
 					.pipe(concat(fileName))
-					.pipe(gulpif(argv.prod, uglify()))
+					.pipe(gulpif(argv.prod, terser()))
 					.on('error', function (err) { log(colors.red('[Error]'), err.toString()); })
 					.pipe(gulpif(!argv.prod, sourcemaps.write('.')))
 					.pipe(through.obj(function (file, enc, next) {
@@ -223,7 +223,7 @@ function ProcessJS(stream, concatName, skipBabel) {
 			compact: !!argv.prod
 		}));
 	if (argv.prod)
-		stream = stream.pipe(uglify())
+		stream = stream.pipe(terser())
 			.on('error', function (err) {
 				log(colors.red('[Error]'), err.toString());
 				this.emit('end');
