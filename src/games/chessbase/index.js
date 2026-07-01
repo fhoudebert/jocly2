@@ -90,7 +90,7 @@ exports.games = (function () {
 	// for every other game this has since been extended to).
 	var config_model_levels_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "chess",
 		"skillLevel": 20,
@@ -112,7 +112,7 @@ exports.games = (function () {
 	// Amazon: FEN matches exactly, no pieceMap needed.
 	var config_model_levels_amazon_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "amazon",
 		"skillLevel": 20,
@@ -128,7 +128,7 @@ exports.games = (function () {
 	// file - only the level object itself is needed here).
 	var config_model_levels_shako_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "shako",
 		"skillLevel": 20,
@@ -192,7 +192,7 @@ exports.games = (function () {
 	].join("\n");
 	var config_model_levels_pemba_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "pembachess",
 		"skillLevel": 20,
@@ -204,7 +204,7 @@ exports.games = (function () {
 	// Chancellor: FEN matches exactly, no pieceMap needed.
 	var config_model_levels_chancellor_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "chancellor",
 		"skillLevel": 20,
@@ -216,7 +216,7 @@ exports.games = (function () {
 	// (Jocly H(orse)/E(lephant) vs Fairy-Stockfish's N(knight)/B(ishop)).
 	var config_model_levels_xiangqi_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "xiangqi",
 		"skillLevel": 20,
@@ -229,7 +229,7 @@ exports.games = (function () {
 	// (Jocly E(lephant)/G(eneral) vs Fairy-Stockfish's B(ishop)/Q(ueen)).
 	var config_model_levels_shatranj_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "shatranj",
 		"skillLevel": 20,
@@ -247,7 +247,7 @@ exports.games = (function () {
 	// character-by-character pass, not sequential global replacements).
 	var config_model_levels_knightmate_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "knightmate",
 		"skillLevel": 20,
@@ -262,7 +262,7 @@ exports.games = (function () {
 	// chancellor (Jocly "M" vs Fairy-Stockfish "C").
 	var config_model_levels_grand_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "grand",
 		"skillLevel": 20,
@@ -340,7 +340,7 @@ exports.games = (function () {
 	].join("\n");
 	var config_model_levels_capablanca_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"skillLevel": 20,
 		"moveTimeMs": 1000,
@@ -370,7 +370,7 @@ exports.games = (function () {
 	// Jocly's own UI describes the game as "also known as" all of those.
 	var config_model_levels_antichess_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "antichess",
 		"skillLevel": 20,
@@ -396,7 +396,7 @@ exports.games = (function () {
 	// more closely (in Levenshtein distance) than the real castling move.
 	var config_model_levels_chess960_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "fischerandom",
 		"skillLevel": 20,
@@ -421,7 +421,7 @@ exports.games = (function () {
 	// practice.
 	var config_model_levels_makruk_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "makruk",
 		"skillLevel": 20,
@@ -488,7 +488,7 @@ exports.games = (function () {
 	].join("\n");
 	var config_model_levels_wildebeest_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "wildebeest",
 		"skillLevel": 20,
@@ -545,7 +545,7 @@ exports.games = (function () {
 	].join("\n");
 	var config_model_levels_heavychess_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "heavychess",
 		"skillLevel": 20,
@@ -578,7 +578,7 @@ exports.games = (function () {
 	// accepted *input* form for the FEN pocket).
 	var config_model_levels_shogi_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "shogi",
 		"skillLevel": 20,
@@ -592,7 +592,7 @@ exports.games = (function () {
 	// adjustment needed - Jocly's own piece letters already match exactly.
 	var config_model_levels_minishogi_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "minishogi",
 		"skillLevel": 20,
@@ -644,7 +644,7 @@ exports.games = (function () {
 	// building the pocket).
 	var config_model_levels_kyotoshogi_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "kyotoshogi",
 		"skillLevel": 20,
@@ -674,7 +674,7 @@ exports.games = (function () {
 	// set "dropPromoted" either.
 	var config_model_levels_torishogi_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "torishogi",
 		"skillLevel": 20,
@@ -686,7 +686,7 @@ exports.games = (function () {
 	// exactly, no pieceMap needed.
 	var config_model_levels_gardner_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "gardner",
 		"skillLevel": 20,
@@ -706,7 +706,7 @@ exports.games = (function () {
 	// with a custom variant config that would have preserved the bug.
 	var config_model_levels_losalamos_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "losalamos",
 		"skillLevel": 20,
@@ -752,7 +752,7 @@ exports.games = (function () {
 	].join("\n");
 	var config_model_levels_mini4x4_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "mini4x4chess",
 		"skillLevel": 20,
@@ -784,7 +784,7 @@ exports.games = (function () {
 	].join("\n");
 	var config_model_levels_mini4x5_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "mini4x5chess",
 		"skillLevel": 20,
@@ -828,7 +828,7 @@ exports.games = (function () {
 	].join("\n");
 	var config_model_levels_micro4x5_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "micro4x5chess",
 		"skillLevel": 20,
@@ -870,7 +870,7 @@ exports.games = (function () {
 	].join("\n");
 	var config_model_levels_baby_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "babychess",
 		"skillLevel": 20,
@@ -904,7 +904,7 @@ exports.games = (function () {
 	].join("\n");
 	var config_model_levels_malett_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "malettchess",
 		"skillLevel": 20,
@@ -931,7 +931,7 @@ exports.games = (function () {
 	].join("\n");
 	var config_model_levels_attack_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "attackchess",
 		"skillLevel": 20,
@@ -960,7 +960,7 @@ exports.games = (function () {
 	].join("\n");
 	var config_model_levels_demi_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "demichess",
 		"skillLevel": 20,
@@ -979,7 +979,7 @@ exports.games = (function () {
 	// also verified directly to match.
 	var config_model_levels_gustav3_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "gustav3",
 		"skillLevel": 20,
@@ -991,7 +991,7 @@ exports.games = (function () {
 	// byte-for-byte. No pieceMap needed.
 	var config_model_levels_spartan_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "spartan",
 		"skillLevel": 20,
@@ -1031,7 +1031,7 @@ exports.games = (function () {
 	].join("\n");
 	var config_model_levels_hectochess_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "hectochess",
 		"skillLevel": 20,
@@ -1067,7 +1067,7 @@ exports.games = (function () {
 	].join("\n");
 	var config_model_levels_tuttifrutti_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "tuttifrutti",
 		"skillLevel": 20,
@@ -1091,7 +1091,7 @@ exports.games = (function () {
 	// right after config_model_levels_10 itself is declared.
 	var config_model_levels_courier_expert = {
 		"name": "expert",
-		"label": "Expert (Fairy-Stockfish)",
+		"label": "Expert",
 		"ai": "fairy-stockfish",
 		"variant": "courier",
 		"skillLevel": 20,
