@@ -2663,7 +2663,9 @@ exports.games = (function () {
 					"title-en": "Xiangqi",
 					"summary": "Chinese Chess",
 					"rules": {
-						"en": "res/rules/xiangqi/xiangqi-rules.html"
+						"en": "res/rules/xiangqi/xiangqi-rules.html",
+                        "fr": "res/rules/xiangqi/xiangqi-rules-fr.html",
+
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -4318,7 +4320,8 @@ exports.games = (function () {
 					"title-en": "Space Spartan",
 					"summary": "6x8x3 Chess",
 					"rules": {
-						"en": "res/rules/3dchess/space-spartan-rules.html"
+						"en": "res/rules/3dchess/space-spartan-rules.html",
+                        "fr": "res/rules/3dchess/space-spartan-rules-fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",

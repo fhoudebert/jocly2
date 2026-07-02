@@ -39,6 +39,10 @@ exports.games = (function() {
 		"res/visuals/ninemen-600x600-3d.jpg",
 		"res/visuals/ninemen-600x600-2d.jpg"
 	]
+	var config_model_rules = {
+		"en": "rules.html",
+		"fr": "rules-fr.html"
+	}
 	var config_view_visuals = {
 		"600x600": config_view_visuals_600x600
 	}
@@ -181,7 +185,7 @@ exports.games = (function() {
 				"model": {
 					"title-en": "9 Men´s Morris",
 					"summary": "An old board game",
-					"rules": "rules.html",
+					"rules": config_model_rules,
 					"maxLevel": 7,
 					"plazza": "true",
 					"thumbnail": "mensmorris9-thumb3d.png",
@@ -225,7 +229,7 @@ exports.games = (function() {
 				"model": {
 					"title-en": "9 Men´s Morris Fly",
 					"summary": "An old board game",
-					"rules": "rules.html",
+					"rules": config_model_rules,
 					"maxLevel": 7,
 					"plazza": "true",
 					"thumbnail": "mensmorris9-thumb3d.png",
@@ -298,7 +302,7 @@ exports.games = (function() {
 				"model": {
 					"title-en": "12 Men´s Morris Fly",
 					"summary": "An old board game",
-					"rules": "rules.html",
+					"rules": config_model_rules,
 					"maxLevel": 7,
 					"plazza": "true",
 					"thumbnail": "mensmorris12-thumb3d.png",
@@ -327,7 +331,7 @@ exports.games = (function() {
 				"model": {
 					"title-en": "6 Men´s Morris",
 					"summary": "An old board game",
-					"rules": "rules.html",
+					"rules": config_model_rules,
 					"maxLevel": 7,
 					"plazza": "true",
 					"thumbnail": "mensmorris6-thumb3d.png",
@@ -379,7 +383,7 @@ exports.games = (function() {
 				"model": {
 					"title-en": "6 Men´s Morris",
 					"summary": "An old board game",
-					"rules": "rules.html",
+					"rules": config_model_rules,
 					"maxLevel": 7,
 					"plazza": "true",
 					"thumbnail": "mensmorris3-thumb3d.png",
@@ -431,7 +435,7 @@ exports.games = (function() {
 				"model": {
 					"title-en": "7 Men´s Morris",
 					"summary": "An old board game",
-					"rules": "rules.html",
+					"rules": config_model_rules,
 					"maxLevel": 7,
 					"plazza": "true",
 					"thumbnail": "mensmorris7-thumb3d.png",
