@@ -624,6 +624,14 @@ JocGame.prototype.StartMachine = function(aOptions) {
 		else
 			JoclyUCT.startMachine(this,aOptions);
 	}
+	else if(aOptions.level && aOptions.level.ai=="scan" && typeof JoclyScan!="undefined") {
+		// Scan always runs in its own dedicated, long-lived worker (see
+		// jocly.scan.js / jocly.scanworker.js), the same way fairy-stockfish
+		// does just above: it does not use the generic
+		// StartThreadedMachine()/jocly.aiworker.js path used by the native
+		// "uct"/alpha-beta AIs, regardless of aOptions.threaded.
+		JoclyScan.startMachine(this,aOptions);
+	}
 	else { // default is legacy alpha-beta ai
 		if(aiThread)
 			this.StartThreadedMachine(aOptions,"alpha-beta");
@@ -694,6 +702,9 @@ JocGame.prototype.StopThreadedMachine = function() {
 	// move/level change.
 	if(typeof JoclyFairy != "undefined" && JoclyFairy.abortMachine)
 		JoclyFairy.abortMachine(this);
+	// Same rationale for Scan (see jocly.scan.js).
+	if(typeof JoclyScan != "undefined" && JoclyScan.abortMachine)
+		JoclyScan.abortMachine(this);
 }
 
 JocGame.prototype.ScheduleStep = function() {

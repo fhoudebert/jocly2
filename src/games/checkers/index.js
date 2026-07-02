@@ -532,7 +532,10 @@ exports.games = (function() {
 				"model": {
 					"title-en": "Roman Alquerque",
 					"summary": "Alquerque as played in France and England.",
-					"rules": "rules-alquerque-roman.html",
+                    "rules": {
+						"en": "rules-alquerque-roman.html",
+                        "fr": "rules-alquerque-roman-fr.html",
+					},
 					"maxLevel": 20,
 					"plazza": "true",
 					"thumbnail": "alquerque-roman-thumb3d.png",
@@ -615,7 +618,10 @@ exports.games = (function() {
 				"model": {
 					"title-en": "Arabic Alquerque",
 					"summary": "Alquerque as played in Middle-East and Spain.",
-					"rules": "rules-alquerque-arabic.html",
+                    "rules": {
+						"en": "rules-alquerque-arabic.html",
+                        "fr": "rules-alquerque-arabic-fr.html",
+					},
 					"maxLevel": 20,
 					"plazza": "true",
 					"thumbnail": "alquerque-arabic-thumb.png",

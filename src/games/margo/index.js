@@ -243,14 +243,14 @@ exports.games = (function() {
 					},
 					"credits": {
 						"en": "credits-spline.html",
-						"fr": "credits-spline.html"
+						"fr": "credits-spline.html",
 					},
 					"demoRandom": true,
 					"gameOptions": config_model_gameOptions,
 					"plazza": "true",
 					"rules": {
 						"en": "rules-spline.html",
-						"fr": "rules-spline.html"
+						"fr": "rules-spline-fr.html",
 					}
 				},
 				"view": {
@@ -305,14 +305,14 @@ exports.games = (function() {
 					},
 					"credits": {
 						"en": "credits-splineplus.html",
-						"fr": "credits-splineplus.html"
+						"fr": "credits-splineplus-fr.html"
 					},
 					"demoRandom": true,
 					"gameOptions": config_model_gameOptions,
 					"plazza": "true",
 					"rules": {
 						"en": "rules-splineplus.html",
-						"fr": "rules-splineplus.html"
+						"fr": "rules-splineplus-fr.html"
 					}
 				},
 				"view": {
