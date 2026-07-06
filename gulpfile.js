@@ -14,7 +14,7 @@ const concat = require('gulp-concat');
 const sourcemaps = require('gulp-sourcemaps');
 const terser = require('gulp-terser');
 const babel = require('gulp-babel');
-const browserify = require('browserify');
+const esbuild = require('esbuild');
 const buffer = require("vinyl-buffer");
 const source = require('vinyl-source-stream');
 const argv = require('minimist')(process.argv.slice(2));
@@ -289,15 +289,32 @@ gulp.task("build-browser-core", function () {
 
 	var _ProcessJS = function (s) { return s; };
 
-	var b = browserify({
-		entries: "src/browser/jocly.js",
-		debug: true,
-		standalone: "Jocly"
+	// Bundles src/browser/jocly.js (plus its one local require,
+	// browser-script-loader.js) into a single UMD-ish global "Jocly",
+	// the same role browserify's standalone option used to play here.
+	// esbuild does this synchronously and hands back the bundled code as
+	// a plain string - no need for vinyl-source-stream/vinyl-buffer's
+	// stream-to-vinyl dance, which only exists to adapt browserify's own
+	// streaming bundle() API. The result is still routed through the
+	// same ProcessJS (babel + terser) pipeline as before: esbuild is
+	// asked to bundle only, not to transpile or minify, so babel still
+	// does the ES2015+ -> target downleveling and terser still does the
+	// same minification as for every other bundle produced here.
+	var joclyBundleResult = esbuild.buildSync({
+		entryPoints: ["src/browser/jocly.js"],
+		bundle: true,
+		format: "iife",
+		globalName: "Jocly",
+		write: false,
+		logLevel: "silent"
 	});
+	var joclyBundleStream = through.obj();
+	joclyBundleStream.end(new Vinyl({
+		path: "jocly.js",
+		contents: Buffer.from(joclyBundleResult.outputFiles[0].contents)
+	}));
 
-	var joclyBrowserStream = ProcessJS(b.bundle()
-		.pipe(source('jocly.js'))
-		.pipe(buffer()));
+	var joclyBrowserStream = ProcessJS(joclyBundleStream);
 
 	// NOTE: joclyCoreStream and joclyExtraScriptsStream are intentionally
 	// combined into a single gulp.src()/babel pipeline below, rather than
