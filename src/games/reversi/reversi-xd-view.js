@@ -369,6 +369,22 @@
 		var yForScore2D = -6000+this.g.addedRowsFor2d*this.g.CSIZE_2D/2;
 		if (this.g.NBCOLS>this.g.NBROWS)
 			yForScore2D += (this.g.NBCOLS-this.g.NBROWS)*this.g.CSIZE_2D/4;
+		// Vertical clearance between the board's edge and the scoreboard
+		// plane, in the same raw units as CSIZE. The board's own half-height
+		// (NBROWS/2*CSIZE) is always 6000 regardless of board size, since
+		// CSIZE=12000/NBCELLS keeps the whole board normalized to the same
+		// absolute span - but the scoreboard plane itself (PlaneGeometry(8,3)
+		// below) has a fixed absolute size that does NOT shrink along with
+		// it. The original "+CSIZE/2" (half a cell) clearance shrank right
+		// along with CSIZE as NBCELLS grew, so it worked for reversi4/6
+		// (larger cells -> larger absolute margin) but left the scoreboard
+		// overlapping the board's top edge on reversi/reversi10 (smaller
+		// cells -> smaller absolute margin, same fixed-size plane). Using a
+		// flat clearance instead - independent of board size - fixes that
+		// for every size at once. 1500 matches reversi4's own (CSIZE/2 at
+		// NBCOLS=4) empirically-confirmed-good clearance, applied uniformly
+		// rather than only to the smallest board.
+		var SCORE_3D_CLEARANCE = 1500;
 		xdv.createGadget("scoreboardA",{
 			"2d":{
 				type: "canvas",
@@ -388,14 +404,15 @@
 			"3d":{
 				type: "custommesh3d",
 				z:800,
-				y:-($this.g.NBROWS+1)/2*this.g.CSIZE,
+				y:-($this.g.NBROWS/2*this.g.CSIZE+SCORE_3D_CLEARANCE),
 				create: function(callback){
 					
 					checkScoreTextureExists();
 
 					var plane = new THREE.Mesh( 
 							new THREE.PlaneGeometry(8,3), 
-					      	new THREE.MeshPhongMaterial({map:$this.g.textureScore,transparent: true}) );
+					      	new THREE.MeshPhongMaterial({map:$this.g.textureScore,transparent: true,depthTest:false}) );
+					plane.renderOrder = 999;
 					callback(plane);
 				},
 				receiveShadow: true,
@@ -405,7 +422,7 @@
 			"3d":{
 				type: "custommesh3d",
 				z:800,				
-				y:($this.g.NBROWS+1)/2*this.g.CSIZE,
+				y:($this.g.NBROWS/2*this.g.CSIZE+SCORE_3D_CLEARANCE),
 				rotate:180,
 				create: function(callback){
 					
@@ -413,7 +430,8 @@
 					
 					var plane = new THREE.Mesh( 
 							new THREE.PlaneGeometry(8,3), 
-					      	new THREE.MeshPhongMaterial({map:$this.g.textureScore,transparent: true}) );
+					      	new THREE.MeshPhongMaterial({map:$this.g.textureScore,transparent: true,depthTest:false}) );
+					plane.renderOrder = 999;
 					callback(plane);
 				},
 				receiveShadow: true,
