@@ -707,7 +707,10 @@ exports.games = (function() {
 				"model": {
 					"title-en": "International Draughts",
 					"summary": "Rules for draughts as played in worldwide competitions.",
-					"rules": "rules-draughts.html",
+                    "rules": {
+						"en": "rules-draughts.html",
+                        "fr": "rules-draughts_fr.html",
+					},
 					"maxLevel": 20,
 					"plazza": "true",
 					"thumbnail": "draughts-thumb3d.png",
@@ -915,7 +918,10 @@ exports.games = (function() {
 				"model": {
 					"title-en": "Suicide checkers",
 					"summary": "A.k.a Giveaway checkers or Anti-checkers",
-					"rules": "rules-suicide-checkers.html",
+                    "rules": {
+						"en": "rules-suicide-checkers.html",
+                        "fr": "rules-suicide-checkers_fr.html",
+					},
 					"maxLevel": 20,
 					"plazza": "true",
 					"thumbnail": "draughts8-suicide-thumb3d.png",
@@ -1252,7 +1258,10 @@ exports.games = (function() {
 				"model": {
 					"title-en": "Turkish Draughts",
 					"summary": "A 8x8 checkers on straight lines.",
-					"rules": "rules-turkish-draughts.html",
+                    "rules": {
+						"en": "rules-turkish-draughts.html",
+                        "fr": "rules-turkish-draughts_fr.html",
+					},
 					"maxLevel": 20,
 					"plazza": "true",
 					"thumbnail": "turkish-thumb3d.png",

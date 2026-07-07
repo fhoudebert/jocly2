@@ -2575,6 +2575,7 @@ exports.games = (function () {
 					"released": 1495039002,
 					"rules": {
 						"en": "res/rules/standard/losing-rules.html",
+						"fr": "res/rules/standard/losing-rules_fr.html",
 					},
 					"credits": {
 						"en": "res/rules/standard/credits.html",
@@ -3205,7 +3206,8 @@ exports.games = (function () {
 					"title-en": "Courier Chess",
 					"summary": "12x8 chess (12th century)",
 					"rules": {
-						"en": "res/rules/historical/courier-rules.html"
+						"en": "res/rules/historical/courier-rules.html",
+                        "fr": "res/rules/historical/courier-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -3310,7 +3312,8 @@ exports.games = (function () {
 					"title-en": "Makruk",
 					"summary": "Thai Chess",
 					"rules": {
-						"en": "res/rules/makruk/mk-rules.html"
+						"en": "res/rules/makruk/mk-rules.html",
+                        "fr": "res/rules/makruk/mk-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -3470,7 +3473,8 @@ exports.games = (function () {
 					"title-en": "Shatranj",
 					"summary": "Ancient Chess",
 					"rules": {
-						"en": "res/rules/shatranj/shatranj-rules.html"
+						"en": "res/rules/shatranj/shatranj-rules.html",
+                        "fr": "res/rules/shatranj/shatranj-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -3789,7 +3793,8 @@ exports.games = (function () {
 					"title-en": "Glinski Chess",
 					"summary": "Hexagonal Chess",
 					"rules": {
-						"en": "res/rules/glinski/glinski-rules.html"
+						"en": "res/rules/glinski/glinski-rules.html",
+                        "fr": "res/rules/glinski/glinski-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -4143,7 +4148,8 @@ exports.games = (function () {
 					"title-en": "Byzantine Chess",
 					"summary": "10th century circular Chess",
 					"rules": {
-						"en": "res/rules/byzantine/byzantine-rules.html"
+						"en": "res/rules/byzantine/byzantine-rules.html",
+                        "fr": "res/rules/byzantine/byzantine-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -4236,7 +4242,8 @@ exports.games = (function () {
 					"title-en": "3D Chess",
 					"summary": "Asymmetric 3D Chess (6x8x3)",
 					"rules": {
-						"en": "res/rules/3dchess/3dchess-rules.html"
+						"en": "res/rules/3dchess/3dchess-rules.html",
+                        "fr": "res/rules/3dchess/3dchess-rules-fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -4669,7 +4676,8 @@ exports.games = (function () {
 					"title-en": "Chess 960",
 					"summary": "Chess from randomized positions",
 					"rules": {
-						"en": "res/rules/famous/chess960-rules.html"
+						"en": "res/rules/famous/chess960-rules.html",
+                        "fr": "res/rules/famous/chess960-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -4682,7 +4690,8 @@ exports.games = (function () {
 					"obsolete": false,
 					"js": modelScripts_28,
 					"description": {
-						"en": "res/rules/famous/chess960-description.html"
+						"en": "res/rules/famous/chess960-description.html",
+                        "fr": "res/rules/famous/chess960-description_fr.html"
 					},
 					"levels": config_model_levels_5_chess960_expert
 				},
@@ -5996,7 +6005,8 @@ exports.games = (function () {
 					"title-en": "Reformed Courierspiel",
 					"summary": "Clément Bégnis, 2011",
 					"rules": {
-						"en": "res/rules/reformed-courier/reformed-courier-rules.html"
+						"en": "res/rules/reformed-courier/reformed-courier-rules.html",
+                        "fr": "res/rules/reformed-courier/reformed-courier-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -7725,7 +7735,8 @@ exports.games = (function () {
 					"title-en": "Spartan Chess",
 					"summary": "An unorthodox Spartan army combats FIDE",
 					"rules": {
-						"en": "res/rules/spartan/spartan-rules.html"
+						"en": "res/rules/spartan/spartan-rules.html",
+						"fr": "res/rules/3dchess/spartan-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
