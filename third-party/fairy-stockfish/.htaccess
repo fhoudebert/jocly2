@@ -27,3 +27,10 @@
 # a CORS-mode request - those are allowed under Cross-Origin-Embedder-Policy:
 # require-corp without any extra header on jQuery's CDN side. No change
 # needed there.
+
+# NOTE: this file can NOT fix "ReferenceError: Can't find variable:
+# SharedArrayBuffer". That error means the top-level HTML document is not
+# cross-origin isolated - the Cross-Origin-Opener-Policy/-Embedder-Policy
+# headers must be set on the *page*, e.g. in the site root .htaccess, not
+# here next to the wasm files. See README.md in this directory for the
+# exact snippet and caveats.
