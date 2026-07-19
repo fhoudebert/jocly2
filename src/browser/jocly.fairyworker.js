@@ -207,6 +207,34 @@ function RunSearch(engine, options) {
 				if (typeof line !== "string")
 					return;
 				//FairyLog("<<",line);
+				// Fatal NNUE guard: a *present but invalid* network (corrupted
+				// file, or one built for a different engine version /
+				// architecture) passes the variant-name gate, fails to load,
+				// and then - Stockfish-inherited behavior, reproduced on the
+				// real engine - the first "go" prints the two ERROR lines
+				// below and EXITS the engine process outright: no bestmove
+				// ever comes, and every later search on this dead engine
+				// would hang the UI on "thinking" forever. (A *missing*
+				// network is different and already handled: the fetch 404s
+				// and EvalFile is never set.) Detect it, remember this
+				// network as bad (so the next search skips it entirely and
+				// runs classical), discard the dead engine so the next
+				// search re-initializes a fresh one, and fail THIS search
+				// cleanly instead of hanging.
+				if (line.indexOf("info string ERROR:") === 0) {
+					FairyLog("engine rejected the NNUE network fatally:", line);
+					if (options.evalFile)
+						sfEvalFiles[options.evalFile + "|" + options.variant] = false;
+					engine.removeMessageListener(onLine);
+					RunSearch.currentStop = null;
+					// the engine process is exiting: force full re-init next time
+					sfEngine = null;
+					sfReady = null;
+					reject(new Error("fairy-stockfish rejected the configured NNUE network (" +
+						(options.evalFile || "?") + ") and terminated; it will be skipped from now on - " +
+						"check that the deployed .nnue file matches this engine build. Engine said: " + line));
+					return;
+				}
 				if (line.indexOf("info ") === 0) {
 					lastInfo = line;
 					var mDepth = /\bdepth (\d+)/.exec(line);

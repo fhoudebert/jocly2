@@ -37,6 +37,7 @@ File names expected by the level configs currently declared in
 | `shako.nnue`            | shako                 | shako                   |
 | `spartan.nnue`          | spartan-chess         | spartan                 |
 | `antichess.nnue`        | losing-chess          | antichess               |
+| `kyotoshogi.nnue`       | kyoto-shogi           | kyotoshogi              |
 | `capablanca-chess.nnue` | capablanca-chess      | capablanca (& setups)   |
 
 The on-disk names here are free-form: Fairy-Stockfish itself only accepts a

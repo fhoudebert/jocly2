@@ -674,7 +674,20 @@ exports.games = (function () {
 		"skillLevel": 20,
 		"moveTimeMs": 1000,
 		"pocketGeometry": true,
-		"dropPromoted": true
+		"dropPromoted": true,
+		// Optional NNUE (see third-party/fairy-stockfish/nnue/README.md):
+		// this level uses Fairy-Stockfish's NATIVE "kyotoshogi" variant, so
+		// a network trained for it matches both engine gates by
+		// construction - the variant-name gate (the worker installs it as
+		// /kyotoshogi.nnue) and the feature-dimension gate (same variant it
+		// was trained on; measured nnueDimensions = 10530). Absent file =
+		// classical evaluation, as everywhere. One caveat that matters
+		// here: the deployed .nnue must be compatible with THIS wasm
+		// engine build's NNUE architecture version - a present-but-
+		// incompatible file is a fatal engine error upstream, which
+		// jocly.fairyworker.js now detects and self-heals from (network
+		// blacklisted for the session, fresh engine, classical eval).
+		"evalFile": "nnue/kyotoshogi.nnue"
 	}
 
 	// Tori Shogi ("bird shogi"): same starting position as Fairy-Stockfish's
@@ -1632,8 +1645,9 @@ exports.games = (function () {
 	// the rank (verified on the real engine: rank "1r2i2b1" parses as
 	// "1r4b2" - squirrels gone AND the bishop moved a file over), so the
 	// engine searched a wrong position every move. The custom variant below
-	// - the exact [mnemonic:shogi] definition already used successfully in
-	// fairyground (customPiece1 i:NAD = knight+alfil+dabbaba compound; the
+	// - the same definition used successfully in fairyground (there under
+	// the section name [mnemonic:shogi]; the name is free, so it is
+	// derived from the game's own name here) (customPiece1 i:NAD = knight+alfil+dabbaba compound; the
 	// engine normalizes the bare startFen to "...[] w - - 0 1" itself) -
 	// fixes that, validated move-by-move against the real engine including
 	// I@ drops from hand.
@@ -1643,7 +1657,7 @@ exports.games = (function () {
 	// dimensions are derived from the variant's piece-type count
 	// (variant.cpp: nnuePieceIndices ~ bitset(pieceTypes).count()), and the
 	// squirrel adds one type - measured on the real engine:
-	// nnueDimensions = 150903 for shogi vs 166941 for [mnemonic:shogi] -
+	// nnueDimensions = 150903 for shogi vs 166941 for this variant -
 	// so loading shogi's net under this variant fails read_parameters (the
 	// file holds fewer weights than the variant expects) and the engine
 	// silently stays on classical evaluation. (In fairyground the same
@@ -1654,7 +1668,7 @@ exports.games = (function () {
 	// then rejects; the only way to get NNUE for this variant is training
 	// a dedicated net for it with Fairy-Stockfish's variant NNUE pipeline.
 	var config_model_levels_choshi_expert_ini = [
-		"[mnemonic:shogi]",
+		"[choshishogi:shogi]",
 		"customPiece1 = i:NAD",
 		"startFen = lnsgkgsnl/1r2i2b1/ppppppppp/9/9/9/PPPPPPPPP/1B2I2R1/LNSGKGSNL",
 		""
@@ -1663,7 +1677,7 @@ exports.games = (function () {
 		"name": "expert",
 		"label": "Expert",
 		"ai": "fairy-stockfish",
-		"variant": "mnemonic",
+		"variant": "choshishogi",
 		"skillLevel": 20,
 		"moveTimeMs": 1000,
 		"pocketGeometry": true,
@@ -8321,6 +8335,14 @@ exports.games = (function () {
 								"image|/res/shogi/shogi-picto-sprites.png"
 							]
 						},
+						{
+							"name": "skin2dmnemonic",
+							"title": "2D Mnemonic",
+							"3d": false,
+							"preload": [
+								"image|/res/shogi/shogi-mnemonic-sprites.png"
+							]
+						},
 						config_view_skins_2
 					],
 					"animateSelfMoves": false,
@@ -8392,6 +8414,14 @@ exports.games = (function () {
 							"3d": false,
 							"preload": [
 								"image|/res/shogi/shogi-picto-sprites"
+							]
+						},
+						{
+							"name": "skin2dmnemonic",
+							"title": "2D Mnemonic",
+							"3d": false,
+							"preload": [
+								"image|/res/shogi/shogi-mnemonic-sprites.png"
 							]
 						},
 						config_view_skins_2
