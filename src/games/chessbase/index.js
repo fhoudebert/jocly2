@@ -7955,6 +7955,14 @@ exports.games = (function () {
 								"image|/res/shogi/shogi-picto-sprites.png"
 							]
 						},
+						{
+							"name": "skin2dmnemonic",
+							"title": "2D Mnemonic",
+							"3d": false,
+							"preload": [
+								"image|/res/shogi/shogi-mnemonic-sprites.png"
+							]
+						},
 						config_view_skins_2
 					],
 					"animateSelfMoves": false,

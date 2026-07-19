@@ -35,6 +35,17 @@
 					file: this.mViewOptions.fullPath + "/res/shogi/shogi-sprites.png",
 					clipwidth: 100,
 					clipheight: 100,
+					// Same viewer-relative orientation fix as choshi-shogi-set-view.js
+					// (see the full rationale there): shogi sprites encode ownership
+					// through their ABSOLUTE orientation, and the two sheet rows also
+					// differ in coloring, so when the point of view switches to
+					// player B - which in 2D only remaps cell positions, unlike the
+					// 3D camera move - every piece sprite must be rotated 180 so
+					// "own pieces point away from the viewer" holds for both sides.
+					// Applies to all 2D skins built on this style (default sheet,
+					// skin2dwestern pictos, skin2dmnemonic), since they only
+					// override the sheet file.
+					rotate: this.mViewAs === -1 ? 180 : 0,
 				},
 			},
 			"sh-pawn": {
