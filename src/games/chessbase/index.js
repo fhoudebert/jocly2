@@ -1624,6 +1624,52 @@ exports.games = (function () {
 	]
 	var config_model_levels_15_shako_expert = config_model_levels_15.concat([config_model_levels_shako_expert]);
 	var config_model_levels_15_shogi_expert = config_model_levels_15.concat([config_model_levels_shogi_expert]);
+
+	// Choshi Shogi (shogi + squirrel): needs its OWN expert level - it was
+	// previously sharing shogi's verbatim, which is silently corrupt:
+	// Fairy-Stockfish parsing choshi's FEN under variant "shogi" doesn't
+	// reject the unknown squirrel letter, it SKIPS it, shifting the rest of
+	// the rank (verified on the real engine: rank "1r2i2b1" parses as
+	// "1r4b2" - squirrels gone AND the bishop moved a file over), so the
+	// engine searched a wrong position every move. The custom variant below
+	// - the exact [mnemonic:shogi] definition already used successfully in
+	// fairyground (customPiece1 i:NAD = knight+alfil+dabbaba compound; the
+	// engine normalizes the bare startFen to "...[] w - - 0 1" itself) -
+	// fixes that, validated move-by-move against the real engine including
+	// I@ drops from hand.
+	//
+	// Deliberately NO "evalFile" here: the shogi NNUE network CANNOT apply
+	// to this variant, under any name. Fairy-Stockfish's NNUE input
+	// dimensions are derived from the variant's piece-type count
+	// (variant.cpp: nnuePieceIndices ~ bitset(pieceTypes).count()), and the
+	// squirrel adds one type - measured on the real engine:
+	// nnueDimensions = 150903 for shogi vs 166941 for [mnemonic:shogi] -
+	// so loading shogi's net under this variant fails read_parameters (the
+	// file holds fewer weights than the variant expects) and the engine
+	// silently stays on classical evaluation. (In fairyground the same
+	// limits apply - its stronger play there came from searching the
+	// CORRECT position, which the old shared-with-shogi level here never
+	// did, not from NNUE.) Declaring the evalFile anyway would only add a
+	// misleading "NNUE network loaded" worker log for a net the engine
+	// then rejects; the only way to get NNUE for this variant is training
+	// a dedicated net for it with Fairy-Stockfish's variant NNUE pipeline.
+	var config_model_levels_choshi_expert_ini = [
+		"[mnemonic:shogi]",
+		"customPiece1 = i:NAD",
+		"startFen = lnsgkgsnl/1r2i2b1/ppppppppp/9/9/9/PPPPPPPPP/1B2I2R1/LNSGKGSNL",
+		""
+	].join("\n");
+	var config_model_levels_choshi_expert = {
+		"name": "expert",
+		"label": "Expert",
+		"ai": "fairy-stockfish",
+		"variant": "mnemonic",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pocketGeometry": true,
+		"customVariantIni": config_model_levels_choshi_expert_ini
+	}
+	var config_model_levels_15_choshi_expert = config_model_levels_15.concat([config_model_levels_choshi_expert]);
 	var config_model_levels_15_minishogi_expert = config_model_levels_15.concat([config_model_levels_minishogi_expert]);
 	var config_model_levels_15_kyotoshogi_expert = config_model_levels_15.concat([config_model_levels_kyotoshogi_expert]);
 	var config_model_levels_15_torishogi_expert = config_model_levels_15.concat([config_model_levels_torishogi_expert]);
@@ -7998,7 +8044,7 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/shogi/shogi-description.html"
 					},
-					"levels": config_model_levels_15_shogi_expert
+					"levels": config_model_levels_15_choshi_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
