@@ -27,3 +27,4 @@
 # a CORS-mode request - those are allowed under Cross-Origin-Embedder-Policy:
 # require-corp without any extra header on jQuery's CDN side. No change
 # needed there.
+

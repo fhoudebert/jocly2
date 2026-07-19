@@ -355,9 +355,28 @@ gulp.task("build-browser-core", function () {
 	var joclyFairyStockfishStream = gulp.src([
 		"third-party/fairy-stockfish/stockfish.js",
 		"third-party/fairy-stockfish/stockfish.wasm",
-		"third-party/fairy-stockfish/stockfish.worker.js"
-	]).pipe(rename(function (path) {
+		"third-party/fairy-stockfish/stockfish.worker.js",
+		// see this file's own comment for why it matters (silent wasm
+		// failure on Apache hosts without a global .wasm MIME type);
+		// {dot: true} is required for gulp.src() to pick up a dotfile.
+		"third-party/fairy-stockfish/.htaccess"
+	], { dot: true }).pipe(rename(function (path) {
 		path.dirname = "fairy-stockfish";
+	}));
+
+	// Optional NNUE evaluation networks (third-party/fairy-stockfish/nnue):
+	// none are bundled in the repo (see that directory's README.md for how
+	// to add them and where to download them) - this is a glob on purpose,
+	// so the build works identically whether the directory contains zero,
+	// some, or all of the networks referenced by "evalFile" level configs
+	// in src/games/chessbase/index.js. A referenced-but-absent network is
+	// equally harmless at runtime: jocly.fairyworker.js falls back to the
+	// engine's built-in classical evaluation (see MaybeLoadEvalFile()).
+	var joclyFairyNnueStream = gulp.src([
+		"third-party/fairy-stockfish/nnue/README.md",
+		"third-party/fairy-stockfish/nnue/*.nnue"
+	], { allowEmpty: true }).pipe(rename(function (path) {
+		path.dirname = "fairy-stockfish/nnue";
 	}));
 
 	// Scan (third-party/scan): same rationale as Fairy-Stockfish above -
@@ -387,7 +406,7 @@ gulp.task("build-browser-core", function () {
 	allGamesStream = ProcessJS(allGamesStream.pipe(buffer()));
 
 	return mergeSequential(joclyBrowserStream, joclyCoreStream, allGamesStream, joclyBaseStream,
-		joclyExtraStream, joclyFairyStockfishStream, joclyScanStream, joclyScanDataStream, joclyResStream)
+		joclyExtraStream, joclyFairyStockfishStream, joclyFairyNnueStream, joclyScanStream, joclyScanDataStream, joclyResStream)
     .pipe(through.obj(function (file, enc, next) {
       next(null, new Vinyl(file));
     }))

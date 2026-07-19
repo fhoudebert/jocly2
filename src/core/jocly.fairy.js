@@ -81,6 +81,36 @@
  * on each side of the king - true for standard 8x8 Chess960, not
  * necessarily for every large-board 960 variant).
  *
+ * evalFile (optional): by default Fairy-Stockfish uses its built-in
+ * handcrafted/classical evaluation - the ~1.6MB wasm build has no NNUE
+ * weights embedded (verified directly: with no EvalFile set, the engine
+ * itself logs "info string classical evaluation enabled"). Variant-specific
+ * NNUE networks (https://fairy-stockfish.github.io/nnue/), often several
+ * hundred Elo stronger (over +1000 for shogi, the largest documented gap
+ * of any variant), can be loaded at runtime instead: set this to a path
+ * relative to the "fairy-stockfish/" asset directory (e.g.
+ * "nnue/shogi.nnue"), and jocly.fairyworker.js's MaybeLoadEvalFile()
+ * fetches it, writes it into Emscripten's virtual FS, and points the
+ * EvalFile UCI option at it. The networks themselves are OPTIONAL and not
+ * bundled in this repo (see third-party/fairy-stockfish/nnue/README.md):
+ * a missing/failed fetch is remembered and logged once per worker, and the
+ * engine simply stays on classical evaluation - declaring evalFile on a
+ * level is therefore always safe, whether or not the file is deployed.
+ * Fairy-Stockfish only activates NNUE for a loaded file whose *name*
+ * starts with the current variant's own name or its "nnueAlias" - see
+ * evaluate.cpp's on_eval_file_change() - and custom (ini-derived) variants
+ * have no nnueAlias of their own (that field only exists on a handful of
+ * built-in C++ variant definitions; it is not an ini-parseable attribute,
+ * verified directly against parser.cpp). So the fetched file is always
+ * re-written under a name built from the resolved "variant" field itself
+ * (e.g. "/shogi.nnue"), regardless of its on-disk name: this matches
+ * unconditionally, for built-in and customVariantIni-derived variants
+ * alike, and lets one downloaded net be reused as-is for closely related
+ * variants sharing the same piece set and board size (e.g. the Capablanca
+ * prelude setups). A net whose feature dimensions don't match the variant
+ * fails Fairy-Stockfish's own load-time validation, again leaving the
+ * engine on classical evaluation rather than misbehaving.
+ *
  * customVariantIni (optional): some Jocly games/prelude setups have no
  * built-in Fairy-Stockfish variant equivalent, but use the exact same
  * piece set and movement rules as one - just a different starting
@@ -193,6 +223,14 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 					resolve();
 				else if (message.type == "Error")
 					reject(new Error(message.error));
+			};
+			// Safety net for failures the worker cannot report itself (the
+			// worker script failing to load at all, or an exception
+			// escaping its own error handling): without this, neither
+			// Ready nor Error would ever arrive and every Expert-level
+			// search would hang forever on this promise.
+			worker.onerror = function (e) {
+				reject(new Error("fairy-stockfish worker failed: " + ((e && e.message) || e)));
 			};
 			worker.postMessage({
 				type: "Init",
@@ -508,6 +546,47 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		return null;
 	}
 
+	/*
+	 * Called when the Fairy-Stockfish engine itself cannot run at all in
+	 * the current environment (worker creation failed, wasm couldn't
+	 * initialize - most commonly SharedArrayBuffer being unavailable
+	 * because the page isn't served cross-origin isolated, see
+	 * jocly.fairyworker.js's LoadEngine preflight and
+	 * third-party/fairy-stockfish/README.md). Rather than leaving the UI
+	 * stuck "thinking" or ending the turn with no move, degrade to the
+	 * strongest level in this game's own config whose AI is not
+	 * fairy-stockfish (levels are conventionally declared weakest-first
+	 * throughout src/games/chessbase/index.js, so the scan is from the
+	 * end) and restart the machine search through the normal
+	 * JocGame.StartMachine() dispatch. Only engine-*initialization*
+	 * failures come here: an error in an individual search on a working
+	 * engine keeps the pre-existing behavior (logged, empty move list).
+	 */
+	function FallbackToNativeAI(aGame, aOptions, err) {
+		delete aGame.mFairyAbort;
+		var levels = (aGame.config && aGame.config.model && aGame.config.model.levels) || [];
+		var native = null;
+		for (var i = levels.length - 1; i >= 0; i--) {
+			if (levels[i] && levels[i].ai !== "fairy-stockfish") {
+				native = levels[i];
+				break;
+			}
+		}
+		if (!native) {
+			console.error("fairy-stockfish engine unavailable and no non-fairy-stockfish level to fall back to:", err);
+			aGame.mBestMoves = [];
+			JocUtil.schedule(aGame, "Done", {});
+			return;
+		}
+		console.warn("fairy-stockfish engine unavailable (" + ((err && err.message) || err) + ") - falling back to native AI level '" + (native.label || native.name) + "' for this move");
+		var options = {};
+		for (var k in aOptions)
+			if (aOptions.hasOwnProperty(k))
+				options[k] = aOptions[k];
+		options.level = native;
+		aGame.StartMachine(options);
+	}
+
 	JoclyFairy.startMachine = function (aGame, aOptions) {
 		var level = ResolveLevel(aGame, aOptions.level || {});
 		var variant = level && level.variant;
@@ -528,13 +607,29 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		var fen = level.pocketGeometry ? BuildShogiStyleFen(aGame, level.dropPromoted) : aGame.mBoard.ExportBoardState(aGame);
 		var pieceMaps = BuildPieceMaps(level.pieceMap);
 		var fenForEngine = TranslitFen(fen, pieceMaps.toFairy);
-		var entry = GetOrCreateWorker(aGame, aOptions);
+		var entry;
+		try {
+			entry = GetOrCreateWorker(aGame, aOptions);
+		} catch (err) {
+			// e.g. no Worker in this environment (Node): the engine cannot
+			// run here at all - degrade to the native AI instead of failing.
+			FallbackToNativeAI(aGame, aOptions, err);
+			return;
+		}
 
 		aGame.mFairyAbort = function () {
 			entry.worker.postMessage({ type: "Stop" });
 		};
 
 		entry.ready
+			.catch(function (err) {
+				// The engine failed to initialize (as opposed to an
+				// individual search failing on a working engine): tag it so
+				// the final catch below routes it to FallbackToNativeAI.
+				err = err || new Error("fairy-stockfish engine initialization failed");
+				err.engineUnavailable = true;
+				throw err;
+			})
 			.then(function () {
 				return new Promise(function (resolve, reject) {
 					entry.worker.onmessage = function (e) {
@@ -563,7 +658,8 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 						moveTimeMs: level.moveTimeMs,
 						skillLevel: level.skillLevel,
 						chess960: level.chess960,
-						customVariantIni: level.customVariantIni
+						customVariantIni: level.customVariantIni,
+						evalFile: level.evalFile
 					});
 				});
 			})
@@ -587,6 +683,10 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 					aGame.mBestMoves = [];
 					aGame.mAborted = true;
 					aGame.Done();
+					return;
+				}
+				if (err && err.engineUnavailable) {
+					FallbackToNativeAI(aGame, aOptions, err);
 					return;
 				}
 				console.error("fairy-stockfish search failed:", err);

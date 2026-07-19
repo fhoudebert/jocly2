@@ -132,7 +132,8 @@ exports.games = (function () {
 		"ai": "fairy-stockfish",
 		"variant": "shako",
 		"skillLevel": 20,
-		"moveTimeMs": 1000
+		"moveTimeMs": 1000,
+		"evalFile": "nnue/shako.nnue"
 	}
 
 	// Pemba: 10x10 board with several fairy pieces that have no native
@@ -221,7 +222,8 @@ exports.games = (function () {
 		"variant": "xiangqi",
 		"skillLevel": 20,
 		"moveTimeMs": 1000,
-		"pieceMap": { "H": "N", "E": "B" }
+		"pieceMap": { "H": "N", "E": "B" },
+		"evalFile": "nnue/xiangqi.nnue"
 	}
 	var config_model_levels_5_xiangqi_expert = config_model_levels_5.concat([config_model_levels_xiangqi_expert]);
 
@@ -344,17 +346,27 @@ exports.games = (function () {
 		"ai": "fairy-stockfish",
 		"skillLevel": 20,
 		"moveTimeMs": 1000,
+		// "evalFile" on the Capablanca-piece-set setups only: they all play
+		// the exact same 10x8 board and R/N/B/Q/K + Archbishop + Chancellor
+		// piece set (just shuffled starting squares), so the one optional
+		// capablanca network (renamed per-variant by jocly.fairyworker.js's
+		// MaybeLoadEvalFile - see that function and
+		// third-party/fairy-stockfish/nnue/README.md) is dimensionally
+		// valid for every one of them. Janus is deliberately left out: its
+		// piece set differs (two Januses, no Chancellor), so the capablanca
+		// net's feature dimensions don't match - it would only fail the
+		// engine's load-time validation and add a pointless fetch.
 		"variants": [
-			{ "setup": 0, "variant": "capablanca", "pieceMap": { "M": "C" } },
-			{ "setup": 1, "variant": "gothic", "pieceMap": { "M": "C" } },
-			{ "setup": 4, "variant": "embassy", "pieceMap": { "M": "C" } },
+			{ "setup": 0, "variant": "capablanca", "pieceMap": { "M": "C" }, "evalFile": "nnue/capablanca-chess.nnue" },
+			{ "setup": 1, "variant": "gothic", "pieceMap": { "M": "C" }, "evalFile": "nnue/capablanca-chess.nnue" },
+			{ "setup": 4, "variant": "embassy", "pieceMap": { "M": "C" }, "evalFile": "nnue/capablanca-chess.nnue" },
 			{ "setup": 9, "variant": "janus", "pieceMap": { "A": "J" } },
-			{ "setup": 2, "variant": "joclybird", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini },
-			{ "setup": 3, "variant": "joclycarrera", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini },
-			{ "setup": 5, "variant": "joclyladorean", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini },
-			{ "setup": 6, "variant": "joclygrotesque", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini },
-			{ "setup": 7, "variant": "joclyschoolbook", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini },
-			{ "setup": 8, "variant": "joclyunivers", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini }
+			{ "setup": 2, "variant": "joclybird", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini, "evalFile": "nnue/capablanca-chess.nnue" },
+			{ "setup": 3, "variant": "joclycarrera", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini, "evalFile": "nnue/capablanca-chess.nnue" },
+			{ "setup": 5, "variant": "joclyladorean", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini, "evalFile": "nnue/capablanca-chess.nnue" },
+			{ "setup": 6, "variant": "joclygrotesque", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini, "evalFile": "nnue/capablanca-chess.nnue" },
+			{ "setup": 7, "variant": "joclyschoolbook", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini, "evalFile": "nnue/capablanca-chess.nnue" },
+			{ "setup": 8, "variant": "joclyunivers", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini, "evalFile": "nnue/capablanca-chess.nnue" }
 		]
 	}
 	var config_model_levels_5_capablanca_expert = config_model_levels_5.concat([config_model_levels_capablanca_expert]);
@@ -374,7 +386,8 @@ exports.games = (function () {
 		"ai": "fairy-stockfish",
 		"variant": "antichess",
 		"skillLevel": 20,
-		"moveTimeMs": 1000
+		"moveTimeMs": 1000,
+		"evalFile": "nnue/antichess.nnue"
 	}
 	var config_model_levels_5_antichess_expert = config_model_levels_5.concat([config_model_levels_antichess_expert]);
 
@@ -576,6 +589,16 @@ exports.games = (function () {
 	// lose pieces if used in the FEN pocket (as opposed to engine-side
 	// Sfen *output*, which does use a count prefix, but that's not an
 	// accepted *input* form for the FEN pocket).
+	//
+	// "evalFile": the wasm build ships with no NNUE weights (see
+	// jocly.fairy.js's own "evalFile" doc) - shogi has, by a wide margin,
+	// the single largest documented NNUE-vs-classical gap of any
+	// Fairy-Stockfish variant (over +1000 Elo, see
+	// https://fairy-stockfish.github.io/nnue/), so this is where NOT
+	// loading a net matters the most. Like every other "evalFile" in this
+	// file, the network itself is OPTIONAL and not bundled - see
+	// third-party/fairy-stockfish/nnue/README.md for how to deploy it;
+	// when absent, this level simply plays on classical evaluation.
 	var config_model_levels_shogi_expert = {
 		"name": "expert",
 		"label": "Expert",
@@ -583,7 +606,8 @@ exports.games = (function () {
 		"variant": "shogi",
 		"skillLevel": 20,
 		"moveTimeMs": 1000,
-		"pocketGeometry": true
+		"pocketGeometry": true,
+		"evalFile": "nnue/shogi.nnue"
 	}
 
 	// Mini-shogi: same rules and starting position as Fairy-Stockfish's
@@ -650,7 +674,20 @@ exports.games = (function () {
 		"skillLevel": 20,
 		"moveTimeMs": 1000,
 		"pocketGeometry": true,
-		"dropPromoted": true
+		"dropPromoted": true,
+		// Optional NNUE (see third-party/fairy-stockfish/nnue/README.md):
+		// this level uses Fairy-Stockfish's NATIVE "kyotoshogi" variant, so
+		// a network trained for it matches both engine gates by
+		// construction - the variant-name gate (the worker installs it as
+		// /kyotoshogi.nnue) and the feature-dimension gate (same variant it
+		// was trained on; measured nnueDimensions = 10530). Absent file =
+		// classical evaluation, as everywhere. One caveat that matters
+		// here: the deployed .nnue must be compatible with THIS wasm
+		// engine build's NNUE architecture version - a present-but-
+		// incompatible file is a fatal engine error upstream, which
+		// jocly.fairyworker.js now detects and self-heals from (network
+		// blacklisted for the session, fresh engine, classical eval).
+		"evalFile": "nnue/kyotoshogi.nnue"
 	}
 
 	// Tori Shogi ("bird shogi"): same starting position as Fairy-Stockfish's
@@ -995,7 +1032,8 @@ exports.games = (function () {
 		"ai": "fairy-stockfish",
 		"variant": "spartan",
 		"skillLevel": 20,
-		"moveTimeMs": 1000
+		"moveTimeMs": 1000,
+		"evalFile": "nnue/spartan.nnue"
 	}
 
 	// Hectochess: 10x10 board with several fairy pieces, none with a
@@ -1538,6 +1576,12 @@ exports.games = (function () {
 		"drop-model.js",
 		"shogi/kyoto-shogi-model.js"
 	]
+	var modelScripts_choshi = [
+		"base-model.js",
+		"grid-geo-model.js",
+		"drop-model.js",
+		"shogi/choshi-shogi-model.js"
+	]
 	var config_model_levels_11 = {
 		"name": "easy",
 		"label": "Easy",
@@ -1593,6 +1637,53 @@ exports.games = (function () {
 	]
 	var config_model_levels_15_shako_expert = config_model_levels_15.concat([config_model_levels_shako_expert]);
 	var config_model_levels_15_shogi_expert = config_model_levels_15.concat([config_model_levels_shogi_expert]);
+
+	// Choshi Shogi (shogi + squirrel): needs its OWN expert level - it was
+	// previously sharing shogi's verbatim, which is silently corrupt:
+	// Fairy-Stockfish parsing choshi's FEN under variant "shogi" doesn't
+	// reject the unknown squirrel letter, it SKIPS it, shifting the rest of
+	// the rank (verified on the real engine: rank "1r2i2b1" parses as
+	// "1r4b2" - squirrels gone AND the bishop moved a file over), so the
+	// engine searched a wrong position every move. The custom variant below
+	// - the same definition used successfully in fairyground (there under
+	// the section name [mnemonic:shogi]; the name is free, so it is
+	// derived from the game's own name here) (customPiece1 i:NAD = knight+alfil+dabbaba compound; the
+	// engine normalizes the bare startFen to "...[] w - - 0 1" itself) -
+	// fixes that, validated move-by-move against the real engine including
+	// I@ drops from hand.
+	//
+	// Deliberately NO "evalFile" here: the shogi NNUE network CANNOT apply
+	// to this variant, under any name. Fairy-Stockfish's NNUE input
+	// dimensions are derived from the variant's piece-type count
+	// (variant.cpp: nnuePieceIndices ~ bitset(pieceTypes).count()), and the
+	// squirrel adds one type - measured on the real engine:
+	// nnueDimensions = 150903 for shogi vs 166941 for this variant -
+	// so loading shogi's net under this variant fails read_parameters (the
+	// file holds fewer weights than the variant expects) and the engine
+	// silently stays on classical evaluation. (In fairyground the same
+	// limits apply - its stronger play there came from searching the
+	// CORRECT position, which the old shared-with-shogi level here never
+	// did, not from NNUE.) Declaring the evalFile anyway would only add a
+	// misleading "NNUE network loaded" worker log for a net the engine
+	// then rejects; the only way to get NNUE for this variant is training
+	// a dedicated net for it with Fairy-Stockfish's variant NNUE pipeline.
+	var config_model_levels_choshi_expert_ini = [
+		"[choshishogi:shogi]",
+		"customPiece1 = i:NAD",
+		"startFen = lnsgkgsnl/1r2i2b1/ppppppppp/9/9/9/PPPPPPPPP/1B2I2R1/LNSGKGSNL",
+		""
+	].join("\n");
+	var config_model_levels_choshi_expert = {
+		"name": "expert",
+		"label": "Expert",
+		"ai": "fairy-stockfish",
+		"variant": "choshishogi",
+		"skillLevel": 20,
+		"moveTimeMs": 1000,
+		"pocketGeometry": true,
+		"customVariantIni": config_model_levels_choshi_expert_ini
+	}
+	var config_model_levels_15_choshi_expert = config_model_levels_15.concat([config_model_levels_choshi_expert]);
 	var config_model_levels_15_minishogi_expert = config_model_levels_15.concat([config_model_levels_minishogi_expert]);
 	var config_model_levels_15_kyotoshogi_expert = config_model_levels_15.concat([config_model_levels_kyotoshogi_expert]);
 	var config_model_levels_15_torishogi_expert = config_model_levels_15.concat([config_model_levels_torishogi_expert]);
@@ -1650,6 +1741,13 @@ exports.games = (function () {
 		"shogi/seireigi-shogi-set-view.js",
 		"drop-view.js",
 		"shogi/seireigi-shogi-view.js"
+	]
+		var config_view_js_choshi = [
+		"base-view.js",
+		"grid-board-view.js",
+		"shogi/choshi-shogi-set-view.js",
+		"drop-view.js",
+		"shogi/shogi-view.js"
 	]
 	var config_view_js_105 = [
 		"base-view.js",
@@ -2575,6 +2673,7 @@ exports.games = (function () {
 					"released": 1495039002,
 					"rules": {
 						"en": "res/rules/standard/losing-rules.html",
+						"fr": "res/rules/standard/losing-rules_fr.html",
 					},
 					"credits": {
 						"en": "res/rules/standard/credits.html",
@@ -3205,7 +3304,8 @@ exports.games = (function () {
 					"title-en": "Courier Chess",
 					"summary": "12x8 chess (12th century)",
 					"rules": {
-						"en": "res/rules/historical/courier-rules.html"
+						"en": "res/rules/historical/courier-rules.html",
+                        "fr": "res/rules/historical/courier-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -3310,7 +3410,8 @@ exports.games = (function () {
 					"title-en": "Makruk",
 					"summary": "Thai Chess",
 					"rules": {
-						"en": "res/rules/makruk/mk-rules.html"
+						"en": "res/rules/makruk/mk-rules.html",
+                        "fr": "res/rules/makruk/mk-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -3470,7 +3571,8 @@ exports.games = (function () {
 					"title-en": "Shatranj",
 					"summary": "Ancient Chess",
 					"rules": {
-						"en": "res/rules/shatranj/shatranj-rules.html"
+						"en": "res/rules/shatranj/shatranj-rules.html",
+                        "fr": "res/rules/shatranj/shatranj-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -3789,7 +3891,8 @@ exports.games = (function () {
 					"title-en": "Glinski Chess",
 					"summary": "Hexagonal Chess",
 					"rules": {
-						"en": "res/rules/glinski/glinski-rules.html"
+						"en": "res/rules/glinski/glinski-rules.html",
+                        "fr": "res/rules/glinski/glinski-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -4143,7 +4246,8 @@ exports.games = (function () {
 					"title-en": "Byzantine Chess",
 					"summary": "10th century circular Chess",
 					"rules": {
-						"en": "res/rules/byzantine/byzantine-rules.html"
+						"en": "res/rules/byzantine/byzantine-rules.html",
+                        "fr": "res/rules/byzantine/byzantine-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -4236,7 +4340,8 @@ exports.games = (function () {
 					"title-en": "3D Chess",
 					"summary": "Asymmetric 3D Chess (6x8x3)",
 					"rules": {
-						"en": "res/rules/3dchess/3dchess-rules.html"
+						"en": "res/rules/3dchess/3dchess-rules.html",
+                        "fr": "res/rules/3dchess/3dchess-rules-fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -4669,7 +4774,8 @@ exports.games = (function () {
 					"title-en": "Chess 960",
 					"summary": "Chess from randomized positions",
 					"rules": {
-						"en": "res/rules/famous/chess960-rules.html"
+						"en": "res/rules/famous/chess960-rules.html",
+                        "fr": "res/rules/famous/chess960-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -4682,7 +4788,8 @@ exports.games = (function () {
 					"obsolete": false,
 					"js": modelScripts_28,
 					"description": {
-						"en": "res/rules/famous/chess960-description.html"
+						"en": "res/rules/famous/chess960-description.html",
+                        "fr": "res/rules/famous/chess960-description_fr.html"
 					},
 					"levels": config_model_levels_5_chess960_expert
 				},
@@ -5996,7 +6103,8 @@ exports.games = (function () {
 					"title-en": "Reformed Courierspiel",
 					"summary": "Clément Bégnis, 2011",
 					"rules": {
-						"en": "res/rules/reformed-courier/reformed-courier-rules.html"
+						"en": "res/rules/reformed-courier/reformed-courier-rules.html",
+                        "fr": "res/rules/reformed-courier/reformed-courier-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -7725,7 +7833,8 @@ exports.games = (function () {
 					"title-en": "Spartan Chess",
 					"summary": "An unorthodox Spartan army combats FIDE",
 					"rules": {
-						"en": "res/rules/spartan/spartan-rules.html"
+						"en": "res/rules/spartan/spartan-rules.html",
+						"fr": "res/rules/3dchess/spartan-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -7861,8 +7970,7 @@ exports.games = (function () {
 					"thumbnail": "res/rules/shogi/shogi-thumb.png",
 					"released": 1396536978,
 					"credits": {
-						"en": "res/rules/shogi/shogi-credits.html",
-						"fr": "res/rules/shogi/shogi-rules_fr.html"
+						"en": "res/rules/shogi/shogi-credits.html"
 					},
 					"gameOptions": config_model_gameOptions_2,
 					"js": modelScripts_105,
@@ -7907,6 +8015,14 @@ exports.games = (function () {
 								"image|/res/shogi/shogi-picto-sprites.png"
 							]
 						},
+						{
+							"name": "skin2dmnemonic",
+							"title": "2D Mnemonic",
+							"3d": false,
+							"preload": [
+								"image|/res/shogi/shogi-mnemonic-sprites.png"
+							]
+						},
 						config_view_skins_2
 					],
 					"animateSelfMoves": false,
@@ -7917,6 +8033,86 @@ exports.games = (function () {
 				}
 			},
 			"viewScripts": config_view_js_105
+		},
+		{
+			"name": "choshi-shogi",
+			"modelScripts": modelScripts_choshi,
+			"config": {
+				"status": true,
+				"model": {
+					"title-en": "Choshi Shogi",
+					"summary": "Shogi with squirrel",
+					"rules": {
+						"en": "res/rules/shogi/choshi-rules.html",
+						"fr": "res/rules/shogi/choshi-rules_fr.html"
+					},
+					"module": "chessbase",
+					"plazza": "true",
+					"thumbnail": "res/rules/shogi/shogi-thumb.png",
+					"released": 1396536978,
+					"credits": {
+						"en": "res/rules/shogi/choshi-credits.html"
+					},
+					"gameOptions": config_model_gameOptions_2,
+					"js": modelScripts_choshi,
+					"description": {
+						"en": "res/rules/shogi/shogi-description.html"
+					},
+					"levels": config_model_levels_15_choshi_expert
+				},
+				"view": {
+					"title-en": "Chessbase view",
+					"visuals": {
+						"600x600": [
+							"res/visuals/shogi-600x600-3d.jpg",
+							"res/visuals/shogi-600x600-2d.jpg"
+						]
+					},
+					"xdView": true,
+					"css": config_view_css,
+					"preferredRatio": 1,
+					"useShowMoves": true,
+					"useNotation": true,
+					"module": "chessbase",
+					"defaultOptions": config_view_defaultOptions,
+					"skins": [
+						{
+							"name": "skin3d",
+							"title": "3D Classic",
+							"3d": true,
+							"preload": [
+								"smoothedfilegeo|0|/res/ring-target.js",
+								"image|/res/images/cancel.png",
+								"image|/res/images/wikipedia.png"
+							],
+							"world": config_view_skins_world,
+							"camera": config_view_skins_camera
+						},
+						{
+							"name": "skin2dmnemonic",
+							"title": "2D Mnemonic",
+							"3d": false,
+							"preload": [
+								"image|/res/shogi/shogi-mnemonic-sprites.png"
+							]
+						},
+						{
+							"name": "skin2dwestern",
+							"title": "2D Pictos",
+							"3d": false,
+							"preload": [
+								"image|/res/shogi/shogi-picto-sprites.png"
+							]
+						}
+					],
+					"animateSelfMoves": false,
+					"switchable": true,
+					"sounds": config_view_sounds,
+					"js": config_view_js_105,
+					"useAutoComplete": true
+				}
+			},
+			"viewScripts": config_view_js_choshi
 		},
 		{
 			"name": "seireigi",
@@ -8139,6 +8335,14 @@ exports.games = (function () {
 								"image|/res/shogi/shogi-picto-sprites.png"
 							]
 						},
+						{
+							"name": "skin2dmnemonic",
+							"title": "2D Mnemonic",
+							"3d": false,
+							"preload": [
+								"image|/res/shogi/shogi-mnemonic-sprites.png"
+							]
+						},
 						config_view_skins_2
 					],
 					"animateSelfMoves": false,
@@ -8210,6 +8414,14 @@ exports.games = (function () {
 							"3d": false,
 							"preload": [
 								"image|/res/shogi/shogi-picto-sprites"
+							]
+						},
+						{
+							"name": "skin2dmnemonic",
+							"title": "2D Mnemonic",
+							"3d": false,
+							"preload": [
+								"image|/res/shogi/shogi-mnemonic-sprites.png"
 							]
 						},
 						config_view_skins_2

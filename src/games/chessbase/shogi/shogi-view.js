@@ -28,6 +28,10 @@
 					"3d": {
 						scale: [.42,.42,.42],
 					},
+                    "skin2dmnemonic": this.cbShogiMnemonicPieceStyle()["default"]["2d"],
+					"3d": {
+						scale: [.42,.42,.42],
+					},
 				},
 			});
 
