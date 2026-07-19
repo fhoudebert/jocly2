@@ -7910,8 +7910,7 @@ exports.games = (function () {
 					"thumbnail": "res/rules/shogi/shogi-thumb.png",
 					"released": 1396536978,
 					"credits": {
-						"en": "res/rules/shogi/shogi-credits.html",
-						"fr": "res/rules/shogi/shogi-rules_fr.html"
+						"en": "res/rules/shogi/shogi-credits.html"
 					},
 					"gameOptions": config_model_gameOptions_2,
 					"js": modelScripts_105,
@@ -7976,16 +7975,15 @@ exports.games = (function () {
 					"title-en": "Choshi Shogi",
 					"summary": "Shogi with squirrel",
 					"rules": {
-						"en": "res/rules/shogi/shogi-rules.html",
-						"fr": "res/rules/shogi/shogi-rules_fr.html"
+						"en": "res/rules/shogi/choshi-rules.html",
+						"fr": "res/rules/shogi/choshi-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
 					"thumbnail": "res/rules/shogi/shogi-thumb.png",
 					"released": 1396536978,
 					"credits": {
-						"en": "res/rules/shogi/shogi-credits.html",
-						"fr": "res/rules/shogi/shogi-rules_fr.html"
+						"en": "res/rules/shogi/choshi-credits.html"
 					},
 					"gameOptions": config_model_gameOptions_2,
 					"js": modelScripts_choshi,
@@ -8021,6 +8019,14 @@ exports.games = (function () {
 							],
 							"world": config_view_skins_world,
 							"camera": config_view_skins_camera
+						},
+						{
+							"name": "skin2dmnemonic",
+							"title": "2D Mnemonic",
+							"3d": false,
+							"preload": [
+								"image|/res/shogi/shogi-mnemonic-sprites.png"
+							]
 						},
 						{
 							"name": "skin2dwestern",

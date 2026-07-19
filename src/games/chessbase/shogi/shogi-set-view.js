@@ -508,6 +508,17 @@
 				},
 			}
 		},modifier);
-	}
+	};
+    View.Game.cbShogiMnemonicPieceStyle = function(modifier) {
+		
+		return $.extend(true,this.cbShogiPieceStyle(),{
+			"default": {
+				"2d": {
+					file: this.mViewOptions.fullPath + "/res/shogi/shogi-mnemonic-sprites.png",
+					                              
+				},
+			}
+		},modifier);
+	};
 
 })();
