@@ -35,31 +35,6 @@
 					file: this.mViewOptions.fullPath + "/res/shogi/shogi-mnemonic-sprites.png",
 					clipwidth: 100,
 					clipheight: 100,
-					// Shogi sprites encode ownership through their ABSOLUTE
-					// orientation: row 1 of the sheet (clipy 0, player 1) is
-					// drawn pointing up-screen, row 2 (clipy 100, player -1)
-					// pointing down-screen - and the two rows also differ in
-					// coloring, so they are NOT interchangeable by swapping
-					// clipy per viewer (verified pixel-wise on both the
-					// mnemonic and picto sheets). When the point of view is
-					// switched to player B, the 2D board only remaps cell
-					// positions (grid-board-view.js coordsFn) - unlike the 3D
-					// skin, where the camera physically moves to the other
-					// side and orientation follows for free - so every sprite
-					// would keep its absolute orientation and appear upside
-					// down relative to the viewer. Rotating every piece
-					// sprite by 180 when viewing as player B restores the
-					// invariant "own pieces point away from the viewer" for
-					// both sides at once. This is applied through the
-					// gadget's generic `rotate` option (GadgetSprite inherits
-					// GadgetElement's CSS-transform rotation), and a 180
-					// rotation of a square raster is pixel-exact - no
-					// resampling artifacts. `this.mViewAs` is current at the
-					// time this style is built because cbDefineView() (our
-					// caller, via cbShogi*PieceStyle) is re-evaluated on
-					// every setViewOptions({viewAs}) -> GameInitView() ->
-					// xdInit()/xdBuildScene() pass.
-					rotate: this.mViewAs === -1 ? 180 : 0,
 				},
 			},
 			"sh-pawn": {
@@ -566,6 +541,20 @@
 			"default": {
 				"2d": {
 					file: this.mViewOptions.fullPath + "/res/shogi/shogi-mnemonic-sprites.png",
+					// Viewer-relative orientation, for THIS skin only - same
+					// scoping as shogi-set-view.js's own
+					// cbShogiMnemonicPieceStyle (see the full rationale
+					// there): the mnemonic sheet encodes ownership through
+					// the sprites' ABSOLUTE orientation, so viewing as
+					// player B needs every sprite rotated 180 - but the
+					// picto sheet (skin2dwestern) is orientation-neutral
+					// (both rows upright, ownership by fill color), so the
+					// rotation must not live in the shared cbShogiPieceStyle
+					// "2d" spec. Wired through the "skin2dmnemonic" key,
+					// which the gadget layer merges last (mergeOptions:
+					// base, "2d", then skin key), it applies exactly when
+					// this skin is active and never otherwise.
+					rotate: this.mViewAs === -1 ? 180 : 0,
 					                              
 				},
 			}

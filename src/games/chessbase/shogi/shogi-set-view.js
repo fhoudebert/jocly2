@@ -35,17 +35,6 @@
 					file: this.mViewOptions.fullPath + "/res/shogi/shogi-sprites.png",
 					clipwidth: 100,
 					clipheight: 100,
-					// Same viewer-relative orientation fix as choshi-shogi-set-view.js
-					// (see the full rationale there): shogi sprites encode ownership
-					// through their ABSOLUTE orientation, and the two sheet rows also
-					// differ in coloring, so when the point of view switches to
-					// player B - which in 2D only remaps cell positions, unlike the
-					// 3D camera move - every piece sprite must be rotated 180 so
-					// "own pieces point away from the viewer" holds for both sides.
-					// Applies to all 2D skins built on this style (default sheet,
-					// skin2dwestern pictos, skin2dmnemonic), since they only
-					// override the sheet file.
-					rotate: this.mViewAs === -1 ? 180 : 0,
 				},
 			},
 			"sh-pawn": {
@@ -526,6 +515,30 @@
 			"default": {
 				"2d": {
 					file: this.mViewOptions.fullPath + "/res/shogi/shogi-mnemonic-sprites.png",
+					// Viewer-relative orientation, for THIS skin only: the
+					// mnemonic sheet encodes ownership through the sprites'
+					// ABSOLUTE orientation (row 1 points up-screen, row 2
+					// down-screen - and the rows also differ in coloring, so
+					// they must never be swapped per viewer). Since the 2D
+					// view-switch only remaps cell positions - unlike the 3D
+					// camera move - every sprite must be rotated 180 when
+					// viewing as player B so "own pieces point away from the
+					// viewer" holds for both sides. The picto sheet
+					// (skin2dwestern) is orientation-NEUTRAL instead - both
+					// rows upright, ownership shown by fill color, verified
+					// with a color-independent shape comparison - so the
+					// rotation must NOT live in the shared cbShogiPieceStyle
+					// "2d" spec (where it would leak into every 2D skin): it
+					// sits here, in this style's "default"."2d", which
+					// shogi-view.js wires under the "skin2dmnemonic" key of
+					// the piece spec - and the gadget layer merges
+					// options[currentSkin.name] LAST (jocly.xd-view.js
+					// mergeOptions: base, then "2d", then skin key), so it
+					// applies exactly when this skin is active and never
+					// otherwise. `this.mViewAs` is current at style-build
+					// time (setViewOptions -> GameInitView -> cbDefineView
+					// re-evaluates styles on every view switch).
+					rotate: this.mViewAs === -1 ? 180 : 0,
 					                              
 				},
 			}
