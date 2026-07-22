@@ -59,10 +59,13 @@ edge rule, so it may cross onto the ring.
 * **Cannon-Pawn promotion** - on reaching the far rank a Pawn promotes to a
   captured friendly piece from a reserve (`drop-model.js` has the reserve
   bookkeeping to build on).
-* **Suicide** of an immobilized piece, and **three-fold repetition = loss**.
+* **Three-fold repetition = loss** (the model only ends the game on King
+  capture or having no move).
 * The Swapper's **"no immediate swap-back"** rule (against an enemy Swapper or
   Chameleon) is not enforced yet - it needs one ply of history. Mutual
   destruction is currently offered against any adjacent enemy.
+* Promotion does not consume the reserve piece it copies (you may promote to
+  any type you currently have off the board); this is a modelling choice.
 
 Because the Chameleon generates no moves yet, a full game is not playable
 through jocly; the consistency playouts are of a reduced variant and assert

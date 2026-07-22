@@ -17,7 +17,7 @@ function check(label, actual, expected) {
 	else { failed++; console.log("FAIL " + label + "\n  expected " + e + "\n  actual   " + a); }
 }
 
-const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "rococo-model.js"]);
+const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/rococo-model.js"]);
 const game = h.newGame(sb);
 
 const from = (pieces, sq, who) => h.movesFrom(h.setup(sb, game, pieces, who), game, sq);
@@ -110,6 +110,9 @@ check("mutual: not offered against a non-adjacent enemy",
 	b.ApplyMove(game, mut);
 	check("mutual ApplyMove: swapper and enemy gone",
 		h.census(b, game).sort(), ["bK@h8", "wK@a1"]);
+	// regression: both pieces are gone, so lastMove.c must be cleared or the
+	// base Evaluate dereferences the now-empty destination square
+	check("mutual ApplyMove: lastMove.c cleared (Evaluate safety)", b.lastMove.c, null);
 }
 
 /* ------------------------------------ swap counts as capture on the ring */
@@ -130,9 +133,9 @@ check("mutual: not offered against a non-adjacent enemy",
 
 /* --------------------------------------- immobilized Swapper is frozen */
 
-check("frozen: a Swapper next to an enemy Immobilizer makes no move at all",
+check("frozen: a Swapper next to an enemy Immobilizer can only suicide",
 	from({ a1: "wK", h8: "bK", d4: "wS", d5: "bI" }, "d4"),
-	[]);
+	["Sd4(suicide)"]);
 
 console.log((failed ? "FAILED" : "OK") + " - " + passed + " passed, " + failed + " failed");
 process.exit(failed ? 1 : 0);

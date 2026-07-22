@@ -20,7 +20,7 @@ function check(label, actual, expected) {
 	else { failed++; console.log("FAIL " + label + "\n  expected " + e + "\n  actual   " + a); }
 }
 
-const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "rococo-model.js"]);
+const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/rococo-model.js"]);
 const game = h.newGame(sb);
 
 /* ------------------------------------------------------------ playouts */
@@ -50,6 +50,8 @@ function playout(seed, maxPlies) {
 		let v;
 		if(move.swap != null)
 			v = 0;						// a swap removes nobody
+		else if(move.suicide)
+			v = 1;						// suicide removes the mover itself
 		else if(move.mutual)
 			v = 2;						// mutual destruction removes the Swapper and the enemy
 		else

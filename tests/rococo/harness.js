@@ -46,6 +46,7 @@ function newBoard(sandbox, game) {
 	const board = Object.create(sandbox.Model.Board);
 	board.Init && board.Init(game);
 	board.InitialPosition(game);
+	board.__game = game;
 	return board;
 }
 
@@ -86,6 +87,8 @@ function setup(sandbox, game, pieces, who) {
 }
 
 function moveStr(board, move) {
+	if(move.suicide)
+		return (move.a || "") + nameOf(move.f) + "(suicide)";
 	if(move.swap != null)
 		return (move.a || "") + nameOf(move.f) + "<>" + nameOf(board.pieces[move.swap].p);
 	if(move.mutual)
@@ -98,7 +101,14 @@ function moveStr(board, move) {
 		move.kills.forEach((k) => victims.push(nameOf(board.pieces[k].p)));
 	if(victims.length)
 		str += "x" + victims.sort().join(",");
+	if(move.pr != null)
+		str += "=" + game_fenAbbrev(board, move.pr);
 	return str;
+}
+
+// resolve a piece type index to its FEN abbrev via the game bound to the board
+function game_fenAbbrev(board, t) {
+	return board.__game ? board.__game.cbVar.pieceTypes[t].fenAbbrev : ("t" + t);
 }
 
 function movesFrom(board, game, square) {

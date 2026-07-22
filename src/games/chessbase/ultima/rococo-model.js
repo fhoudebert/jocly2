@@ -34,6 +34,10 @@
 	function isEdge(p) { var r = R(p), c = C(p); return r === 0 || r === H - 1 || c === 0 || c === W - 1; }
 
 	Model.Game.cbOnStaleMate = -1;		// unable to move loses
+	// three-fold repetition loses for the repeater (activated by the match's
+	// preventRepeat option, set in the manifest). Same mechanism as scirocco.
+	Model.Game.cbOnPerpetual = 1;
+	Model.Game.cbMaxRepeats = 3;
 
 	// initial back rank, files a..h: Immobilizer Withdrawer Leaper King Chameleon Leaper Advancer Swapper
 	var BACK = [IMMOBILIZER, WITHDRAWER, LEAPER, KING, CHAMELEON, LEAPER, ADVANCER, SWAPPER];
@@ -114,8 +118,12 @@
 			var piece = this.pieces[i];
 			if(piece.p < 0 || piece.s != who)
 				continue;
-			if(this.rocFrozen(piece))
+			if(this.rocFrozen(piece)) {
+				// an immobilized piece other than a King may remove itself
+				if(piece.t != KING && emit(mk(piece, piece.p, { suicide: true })))
+					return true;
 				continue;
+			}
 			if(this.rocGeneratePiece(aGame, piece, emit))
 				return true;
 		}
@@ -131,7 +139,7 @@
 			case IMMOBILIZER: return this.rocGenSlider(piece, emit);	// no capture
 			case PAWN:        return this.rocGenCannonPawn(piece, emit);
 			case SWAPPER:     return this.rocGenSwapper(piece, emit);
-			// CHAMELEON: not implemented yet
+			case CHAMELEON:   return this.rocGenChameleon(piece, emit);
 		}
 		return false;
 	}
@@ -254,7 +262,8 @@
 
 	// Cannon Pawn: single step in any direction; or hop over an adjacent piece
 	// (either side) to the empty square beyond (non-capturing); or that same
-	// hop landing on an enemy just beyond (capture by displacement).
+	// hop landing on an enemy just beyond (capture by displacement). A self-move
+	// that reaches the far rank may promote (see rocEmitPawn).
 	Model.Board.rocGenCannonPawn = function(piece, emit) {
 		var r0 = R(piece.p), c0 = C(piece.p);
 		for(var d = 0; d < 8; d++) {
@@ -264,7 +273,7 @@
 				continue;
 			var mount = this.board[POS(r1, c1)];
 			if(mount < 0) {
-				if(emit(mk(piece, POS(r1, c1))))	// plain single step
+				if(this.rocEmitPawn(piece, POS(r1, c1), null, emit))	// plain single step
 					return true;
 				continue;
 			}
@@ -273,14 +282,44 @@
 				continue;
 			var beyond = this.board[POS(r2, c2)];
 			if(beyond < 0) {
-				if(emit(mk(piece, POS(r2, c2))))	// hop to empty
+				if(this.rocEmitPawn(piece, POS(r2, c2), null, emit))	// hop to empty
 					return true;
 			} else if(this.pieces[beyond].s != piece.s) {
-				if(emit(mk(piece, POS(r2, c2), { c: beyond })))	// hop-capture
+				if(this.rocEmitPawn(piece, POS(r2, c2), { c: beyond }, emit))	// hop-capture
 					return true;
 			}
 		}
 		return false;
+	}
+
+	// distinct types of this side's pieces currently off the board (its reserve)
+	Model.Board.rocReserveTypes = function(who) {
+		var seen = {}, types = [];
+		for(var i = 0; i < this.pieces.length; i++) {
+			var p = this.pieces[i];
+			if(p.p < 0 && p.s == who && p.t != PAWN && !seen[p.t]) {
+				seen[p.t] = true;
+				types.push(p.t);
+			}
+		}
+		return types;
+	}
+
+	// emit a Cannon Pawn move, adding a promotion variant per reserve type when
+	// it lands on the far rank (the opposing King's start rank, or the edge rank
+	// past it). Promotion is optional, so the plain move is emitted as well.
+	Model.Board.rocEmitPawn = function(piece, to, extra, emit) {
+		var row = R(to), promo = (piece.s > 0 ? row >= 8 : row <= 1);
+		if(promo) {
+			var reserve = this.rocReserveTypes(piece.s);
+			for(var i = 0; i < reserve.length; i++) {
+				var m = mk(piece, to, extra);
+				m.pr = reserve[i];
+				if(emit(m))
+					return true;
+			}
+		}
+		return emit(mk(piece, to, extra));
 	}
 
 	/*
@@ -323,7 +362,91 @@
 		return false;
 	}
 
-	// squares the piece travels through, destination included, origin excluded
+	/*
+	 * Chameleon: passive Queen; to capture, it mimics its victim's own method.
+	 * It leaps over enemy Long Leapers, withdraws from enemy Withdrawers,
+	 * approaches enemy Advancers, hops a mount onto an enemy Cannon Pawn, takes
+	 * an adjacent enemy King by displacement, and swaps with (or mutually
+	 * destroys) an enemy Swapper. A single sliding or leaping move may combine
+	 * withdrawal, approach and overtaking; swaps and the King/Cannon hops are
+	 * their own moves. It freezes Immobilizers (handled by rocFrozen) but never
+	 * captures one, and cannot capture another Chameleon.
+	 */
+	Model.Board.rocGenChameleon = function(piece, emit) {
+		var who = piece.s, from = piece.p, r0 = R(from), c0 = C(from);
+		for(var d = 0; d < 8; d++) {
+			var dr = DIRS[d][0], dc = DIRS[d][1];
+			var wv = this.rocFoe(who, POS(r0 - dr, c0 - dc), WITHDRAWER);	// withdraw from an enemy Withdrawer
+
+			// slide, and leap over enemy Long Leapers, along this line
+			var r = r0, c = c0, leapKills = [];
+			for(;;) {
+				r += dr; c += dc;
+				if(!onBoard(r, c))
+					break;
+				var index = this.board[POS(r, c)];
+				if(index < 0) {
+					if(this.rocChameleonEmit(piece, POS(r, c), dr, dc, wv, leapKills, emit))
+						return true;
+					continue;
+				}
+				var target = this.pieces[index];
+				if(target.s == who || target.t != LEAPER)
+					break;						// only an enemy Long Leaper can be leapt
+				var r1 = r + dr, c1 = c + dc;
+				if(!onBoard(r1, c1) || this.board[POS(r1, c1)] >= 0)
+					break;						// no empty square behind it
+				leapKills.push(index);
+				r = r1; c = c1;
+				if(this.rocChameleonEmit(piece, POS(r, c), dr, dc, wv, leapKills, emit))
+					return true;
+			}
+
+			// take an adjacent enemy King by displacement
+			var king = this.rocFoe(who, POS(r0 + dr, c0 + dc), KING);
+			if(king >= 0 && emit(mk(piece, POS(r0 + dr, c0 + dc), { c: king })))
+				return true;
+
+			// mimic a Cannon Pawn: hop an adjacent mount onto an enemy Cannon Pawn
+			if(onBoard(r0 + dr, c0 + dc) && this.board[POS(r0 + dr, c0 + dc)] >= 0
+				&& onBoard(r0 + 2 * dr, c0 + 2 * dc)) {
+				var beyond = this.rocFoe(who, POS(r0 + 2 * dr, c0 + 2 * dc), PAWN);
+				if(beyond >= 0 && emit(mk(piece, POS(r0 + 2 * dr, c0 + 2 * dc), { c: beyond })))
+					return true;
+			}
+
+			// mimic a Swapper: swap with the nearest piece if it is an enemy Swapper
+			for(var rr = r0 + dr, cc = c0 + dc; onBoard(rr, cc); rr += dr, cc += dc) {
+				var ii = this.board[POS(rr, cc)];
+				if(ii >= 0) {
+					if(this.pieces[ii].s != who && this.pieces[ii].t == SWAPPER
+						&& emit(mk(piece, POS(rr, cc), { swap: ii })))
+						return true;
+					break;
+				}
+			}
+
+			// mutual destruction with an adjacent enemy Swapper
+			var sw = this.rocFoe(who, POS(r0 + dr, c0 + dc), SWAPPER);
+			if(sw >= 0 && emit(mk(piece, POS(r0 + dr, c0 + dc), { c: sw, mutual: true })))
+				return true;
+		}
+		return false;
+	}
+
+	// emit one Chameleon landing, folding in the leap victims, the withdrawal
+	// victim behind the origin, and an approach victim one step further on
+	Model.Board.rocChameleonEmit = function(piece, to, dr, dc, wv, leapKills, emit) {
+		var kills = leapKills.slice();
+		if(wv >= 0)
+			kills.push(wv);
+		var av = this.rocFoe(piece.s, POS(R(to) + dr, C(to) + dc), ADVANCER);
+		if(av >= 0)
+			kills.push(av);
+		return emit(mk(piece, to, kills.length ? { kills: kills } : null));
+	}
+
+		// squares the piece travels through, destination included, origin excluded
 	function pathSquares(from, to) {
 		if(from == to)
 			return [];
@@ -452,6 +575,21 @@
 
 	var OriginalApplyMove = Model.Board.ApplyMove;
 	Model.Board.ApplyMove = function(aGame, move) {
+		if(move.suicide) {
+			var self = this.pieces[this.board[move.f]];
+			this.zSign ^= aGame.bKey(self);
+			this.board[self.p] = -1;
+			self.p = -1;
+			self.m = true;
+			this.noCaptCount = 0;
+			var hh = this.oppoCheck;
+			this.oppoCheck = this.check;
+			this.check = 0;
+			this.lastMove = { f: move.f, t: move.t, c: null };
+			this.epTarget = null;
+			this.zSign ^= aGame.wKey(1);		// side-to-move key
+			return;
+		}
 		if(move.swap != null) {
 			// exchange the mover and the swapped piece; reuse the base move by
 			// lifting the swapped piece off first so the base sees an empty
@@ -478,6 +616,9 @@
 			this.board[swapper.p] = -1;
 			swapper.p = -1;
 			swapper.m = true;
+			// both pieces are gone, so there is no capturer left on move.t; clear
+			// lastMove.c so Evaluate does not dereference the now-empty square
+			this.lastMove.c = null;
 			return;
 		}
 		if(move.kills)
@@ -497,6 +638,13 @@
 
 	var OriginalQuickApply = Model.Board.cbQuickApply;
 	Model.Board.cbQuickApply = function(aGame, move) {
+		if(move.suicide) {
+			var self = this.pieces[this.board[move.f]];
+			var undo = [{ i: self.i, f: -1, t: move.f, ty: self.t }];
+			this.board[self.p] = -1;
+			self.p = -1;
+			return undo;
+		}
 		if(move.swap != null) {
 			// fully manual: restore both pieces by position only (f: -1) so
 			// unapply never clears a square the other piece was put back on.
@@ -537,7 +685,9 @@
 	var OriginalToString = Model.Move.ToString;
 	Model.Move.ToString = function(format) {
 		var str = OriginalToString.apply(this, arguments);
-		if(this.swap != null)
+		if(this.suicide)
+			str += '(suicide)';
+		else if(this.swap != null)
 			str += '<>';
 		else if(this.mutual)
 			str += '!!';
@@ -552,7 +702,8 @@
 	Model.Move.Equals = function(move) {
 		return OriginalEquals.call(this, move)
 			&& (this.swap === move.swap || (this.swap == null && move.swap == null))
-			&& !this.mutual == !move.mutual;
+			&& !this.mutual == !move.mutual
+			&& !this.suicide == !move.suicide;
 	}
 
 })();

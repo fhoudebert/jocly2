@@ -18,7 +18,7 @@ function check(label, actual, expected) {
 	else { failed++; console.log("FAIL " + label + "\n  expected " + e + "\n  actual   " + a); }
 }
 
-const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "rococo-model.js"]);
+const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/rococo-model.js"]);
 const game = h.newGame(sb);
 
 const moves = (pieces, sq, who) => h.movesFrom(h.setup(sb, game, pieces, who), game, sq);
@@ -122,17 +122,17 @@ check("cannon pawn: no capture when the square beyond the mount is empty of enem
 
 /* ---------------------------------------------------- Immobilizer */
 
-check("immobilizer: freezes an adjacent enemy",
+check("immobilizer: an adjacent enemy can only remove itself (suicide)",
 	moves({ a1: "wK", h8: "bK", d4: "wI", d5: "bP" }, "d5", -1),
-	[]);
+	["Pd5(suicide)"]);
 
 check("immobilizer: never captures",
 	caps({ a1: "wK", h8: "bK", d4: "wI", d5: "bP", d6: "wP" }, "d4"),
 	[]);
 
-check("immobilizer: mutual freeze with an adjacent enemy immobilizer",
+check("immobilizer: mutual freeze - each can only suicide",
 	moves({ a1: "wK", h8: "bK", d4: "wI", d5: "bI" }, "d4").concat(moves({ a1: "wK", h8: "bK", d4: "wI", d5: "bI" }, "d5", -1)),
-	[]);
+	["Id4(suicide)", "Id5(suicide)"]);
 
 /* ----------------------------------------------------- King capture */
 

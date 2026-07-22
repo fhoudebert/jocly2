@@ -25,7 +25,7 @@ function check(label, actual, expected) {
 	}
 }
 
-const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima-model.js"]);
+const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/ultima-model.js"]);
 const game = h.newGame(sb);
 
 /* ------------------------------------------------------------- playouts */

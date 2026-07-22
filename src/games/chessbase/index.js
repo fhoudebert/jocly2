@@ -1495,15 +1495,25 @@ exports.games = (function () {
 		"grid-geo-model.js",
 		"team-mate-model.js"
 	]
+	var modelScripts_rococo = [
+		"base-model.js",
+		"grid-geo-model.js",
+		"ultima/rococo-model.js"
+	]
+	var config_view_js_rococo = [
+		"base-view.js",
+		"grid-board-view.js",
+		"ultima/rococo-view.js"
+	]
 	var modelScripts_ultima = [
 		"base-model.js",
 		"grid-geo-model.js",
-		"ultima-model.js"
+		"ultima/ultima-model.js"
 	]
 	var config_view_js_ultima = [
 		"base-view.js",
 		"grid-board-view.js",
-		"ultima-view.js"
+		"ultima/ultima-view.js"
 	]
 	var modelScripts_101 = [
 		"base-model.js",
@@ -7742,6 +7752,41 @@ exports.games = (function () {
 				}
 			},
 			"viewScripts": config_view_js_ultima
+		},
+		{
+			"name": "rococo",
+			"modelScripts": modelScripts_rococo,
+			"config": {
+				"status": true,
+				"preventRepeat": true,
+				"model": {
+					"title-en": "Rococo",
+					"summary": "an Ultima cousin on a 10x10 board with an edge ring",
+					"module": "chessbase",
+					"gameOptions": config_model_gameOptions,
+					"js": modelScripts_rococo,
+					"levels": config_model_levels_15
+				},
+				"view": {
+					"title-en": "Chessbase view",
+					"xdView": true,
+					"css": config_view_css,
+					"preferredRatio": 1,
+					"useShowMoves": true,
+					"useNotation": true,
+					"module": "chessbase",
+					"defaultOptions": config_view_defaultOptions,
+					"skins": [
+						config_view_skins_2
+					],
+					"animateSelfMoves": false,
+					"switchable": true,
+					"sounds": config_view_sounds,
+					"js": config_view_js_rococo,
+					"useAutoComplete": true
+				}
+			},
+			"viewScripts": config_view_js_rococo
 		},
 		{
 			"name": "werewolf-chess",
