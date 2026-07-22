@@ -16,19 +16,22 @@
 		height: 40px;
 		vertical-align: middle;
 		background-image: url({GAME}/res/ultima/ultima-picto-sprites.png);
-		/* sheet is 7 columns x 2 rows of square cells; show the white (top) row */
 		background-repeat: no-repeat;
-		background-size: 700% 200%;
+		/* The sheet holds --u-cols columns x 2 rows of square cells; show the
+		   white (top) row. Only --u-cols has to change when the sheet grows. */
+		--u-cols: 9;
+		background-size: calc(var(--u-cols) * 100%) 200%;
 		background-position-y: 0;
+		background-position-x: calc(var(--u-col) / (var(--u-cols) - 1) * 100%);
 	}
-	/* one column per piece: column c of 7 sits at c/6 of the sheet width */
-	.u-pawn        { background-position-x: 0%; }
-	.u-coordinator { background-position-x: 16.6667%; }
-	.u-leaper      { background-position-x: 33.3333%; }
-	.u-withdrawer  { background-position-x: 50%; }
-	.u-chameleon   { background-position-x: 66.6667%; }
-	.u-immobilizer { background-position-x: 83.3333%; }
-	.u-king        { background-position-x: 100%; }
+	/* column index of each piece within the shared sprite sheet */
+	.u-pawn        { --u-col: 0; }
+	.u-coordinator { --u-col: 1; }
+	.u-leaper      { --u-col: 2; }
+	.u-withdrawer  { --u-col: 3; }
+	.u-chameleon   { --u-col: 4; }
+	.u-immobilizer { --u-col: 5; }
+	.u-king        { --u-col: 6; }
 </style>
 
 <h1>Ultima</h1>

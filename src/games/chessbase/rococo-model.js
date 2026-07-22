@@ -130,7 +130,8 @@
 			case LEAPER:      return this.rocGenLeaper(piece, emit);
 			case IMMOBILIZER: return this.rocGenSlider(piece, emit);	// no capture
 			case PAWN:        return this.rocGenCannonPawn(piece, emit);
-			// SWAPPER, CHAMELEON: not implemented yet
+			case SWAPPER:     return this.rocGenSwapper(piece, emit);
+			// CHAMELEON: not implemented yet
 		}
 		return false;
 	}
@@ -282,7 +283,45 @@
 		return false;
 	}
 
-	/* --------------------------------------------- edge-square rule */
+	/*
+	 * Swapper: passive Queen (non-capturing slides), plus two special moves.
+	 *
+	 *  - swap: exchange places with the nearest piece (of either side) along
+	 *    any Queen line. Carried by move.swap = that piece's index. A swap
+	 *    counts as a capture for the edge rule.
+	 *  - mutual destruction: remove itself together with an adjacent enemy.
+	 *    Carried by move.mutual = true, with move.c = that enemy and move.t its
+	 *    square (so the move reads as a distance-1 capture for the edge rule).
+	 *
+	 * Not yet: the "no immediate swap-back" rule against an enemy Swapper or
+	 * Chameleon (needs one-ply history), and mutual destruction is offered
+	 * against any adjacent enemy.
+	 */
+	Model.Board.rocGenSwapper = function(piece, emit) {
+		if(this.rocGenSlider(piece, emit))		// non-capturing slides
+			return true;
+		var r0 = R(piece.p), c0 = C(piece.p);
+		for(var d = 0; d < 8; d++) {
+			var dr = DIRS[d][0], dc = DIRS[d][1];
+			// swap with the nearest piece in this direction
+			for(var n = 1; n < W; n++) {
+				var r = r0 + n * dr, c = c0 + n * dc;
+				if(!onBoard(r, c))
+					break;
+				var index = this.board[POS(r, c)];
+				if(index >= 0) {
+					if(emit(mk(piece, POS(r, c), { swap: index })))
+						return true;
+					break;						// blocked beyond the first piece
+				}
+			}
+			// mutual destruction with an adjacent enemy
+			var foe = this.rocFoe(piece.s, POS(r0 + dr, c0 + dc));
+			if(foe >= 0 && emit(mk(piece, POS(r0 + dr, c0 + dc), { c: foe, mutual: true })))
+				return true;
+		}
+		return false;
+	}
 
 	// squares the piece travels through, destination included, origin excluded
 	function pathSquares(from, to) {
@@ -313,6 +352,8 @@
 			caps.push(move.c);
 		if(move.kills)
 			caps.push.apply(caps, move.kills);
+		if(move.swap != null)			// a swap counts as a capture for the edge rule
+			caps.push(move.swap);
 		return caps.sort(function(a, b) { return a - b; }).join(',');
 	}
 
@@ -411,6 +452,34 @@
 
 	var OriginalApplyMove = Model.Board.ApplyMove;
 	Model.Board.ApplyMove = function(aGame, move) {
+		if(move.swap != null) {
+			// exchange the mover and the swapped piece; reuse the base move by
+			// lifting the swapped piece off first so the base sees an empty
+			// destination, then dropping it on the vacated origin.
+			var other = this.pieces[move.swap], from = move.f, to = move.t;
+			this.zSign ^= aGame.bKey(other);
+			this.board[to] = -1;
+			OriginalApplyMove.call(this, aGame, { f: from, t: to, c: null, a: move.a });
+			other.p = from;
+			other.m = true;
+			this.board[from] = other.i;
+			this.zSign ^= aGame.bKey(other);
+			var oroyal = aGame.g.pTypes[other.t].isKing;
+			if(oroyal)
+				this.kings[other.s * oroyal] = from;
+			return;
+		}
+		if(move.mutual) {
+			// base captures the adjacent enemy (move.c) and walks the Swapper
+			// onto its square; then the Swapper removes itself too.
+			var swapper = this.pieces[this.board[move.f]];
+			OriginalApplyMove.call(this, aGame, move);
+			this.zSign ^= aGame.bKey(swapper);
+			this.board[swapper.p] = -1;
+			swapper.p = -1;
+			swapper.m = true;
+			return;
+		}
 		if(move.kills)
 			for(var i = 0; i < move.kills.length; i++) {
 				var victim = this.pieces[move.kills[i]];
@@ -428,6 +497,30 @@
 
 	var OriginalQuickApply = Model.Board.cbQuickApply;
 	Model.Board.cbQuickApply = function(aGame, move) {
+		if(move.swap != null) {
+			// fully manual: restore both pieces by position only (f: -1) so
+			// unapply never clears a square the other piece was put back on.
+			var mover = this.pieces[this.board[move.f]], other = this.pieces[move.swap];
+			var from = move.f, to = move.t;
+			var undo = [{ i: mover.i, f: -1, t: from, ty: mover.t }, { i: other.i, f: -1, t: to }];
+			var mroyal = aGame.g.pTypes[mover.t].isKing, oroyal = aGame.g.pTypes[other.t].isKing;
+			if(mroyal) { undo[0].who = mover.s * mroyal; undo[0].kp = this.kings[mover.s * mroyal]; }
+			if(oroyal) { undo[1].who = other.s * oroyal; undo[1].kp = this.kings[other.s * oroyal]; }
+			this.board[to] = mover.i; mover.p = to;
+			this.board[from] = other.i; other.p = from;
+			if(mroyal) this.kings[mover.s * mroyal] = to;
+			if(oroyal) this.kings[other.s * oroyal] = from;
+			return undo;
+		}
+		if(move.mutual) {
+			var swapper = this.pieces[this.board[move.f]], enemy = this.pieces[move.c];
+			var undo2 = [{ i: swapper.i, f: -1, t: move.f, ty: swapper.t }, { i: enemy.i, f: -1, t: enemy.p }];
+			var eroyal = aGame.g.pTypes[enemy.t].isKing;
+			if(eroyal) { undo2[1].who = enemy.s * eroyal; undo2[1].kp = this.kings[enemy.s * eroyal]; }
+			this.board[swapper.p] = -1; swapper.p = -1;
+			this.board[enemy.p] = -1; enemy.p = -1;
+			return undo2;
+		}
 		var undo = OriginalQuickApply.apply(this, arguments);
 		if(move.kills)
 			for(var i = 0; i < move.kills.length; i++) {
@@ -444,9 +537,22 @@
 	var OriginalToString = Model.Move.ToString;
 	Model.Move.ToString = function(format) {
 		var str = OriginalToString.apply(this, arguments);
-		if(this.kills && this.kills.length)
+		if(this.swap != null)
+			str += '<>';
+		else if(this.mutual)
+			str += '!!';
+		else if(this.kills && this.kills.length)
 			str += '*' + this.kills.length;
 		return str;
+	}
+
+	// a swap and a mutual-destruction can share from/to squares (both target an
+	// adjacent piece), so the discriminators must be part of move identity
+	var OriginalEquals = Model.Move.Equals;
+	Model.Move.Equals = function(move) {
+		return OriginalEquals.call(this, move)
+			&& (this.swap === move.swap || (this.swap == null && move.swap == null))
+			&& !this.mutual == !move.mutual;
 	}
 
 })();

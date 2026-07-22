@@ -124,18 +124,25 @@ check("the rules page is the one declared in the manifest",
 check("the rules page draws its pieces from the sprite sheet",
 	rules.indexOf("{GAME}" + file) >= 0, true);
 
-// .u-p-<name> { background-position-x: c/(n-1)*100% } must agree with the view
+// the page declares --u-cols: it must equal the sheet's real column count, or
+// every icon is mis-framed (this is exactly what breaks when the shared sheet
+// grows a column and the page is not updated)
+const declaredCols = parseInt(/--u-cols:\s*(\d+)/.exec(rules)[1]);
+check("the rules page column count matches the sprite sheet width",
+	declaredCols, size.width / CELL);
+
+// .u-<name> { --u-col: c } must name the same column the view clips
 const wrong = [];
 aspects.forEach((aspect) => {
 	const name = aspect.replace(/^ultima-/, "");
-	const found = new RegExp("\\.u-p-" + name + "\\s*\\{[^}]*background-position-x:\\s*([0-9.]+)%").exec(rules);
+	const found = new RegExp("\\.u-" + name + "\\s*\\{[^}]*--u-col:\\s*(\\d+)").exec(rules);
 	if(!found) {
 		wrong.push(name + ": no rule in the page");
 		return;
 	}
-	const expected = 100 * (style[aspect]["2d"].clipx / CELL) / (aspects.length - 1);
-	if(Math.abs(parseFloat(found[1]) - expected) > 0.01)
-		wrong.push(name + ": page says " + found[1] + "%, view says " + expected.toFixed(4) + "%");
+	const col = style[aspect]["2d"].clipx / CELL;
+	if(parseInt(found[1]) !== col)
+		wrong.push(name + ": page column " + found[1] + ", view column " + col);
 });
 check("the rules page and the view agree on every sprite column", wrong, []);
 

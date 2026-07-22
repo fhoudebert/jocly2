@@ -86,6 +86,10 @@ function setup(sandbox, game, pieces, who) {
 }
 
 function moveStr(board, move) {
+	if(move.swap != null)
+		return (move.a || "") + nameOf(move.f) + "<>" + nameOf(board.pieces[move.swap].p);
+	if(move.mutual)
+		return (move.a || "") + nameOf(move.f) + "!!" + nameOf(board.pieces[move.c].p);
 	let str = (move.a || "") + nameOf(move.f) + "-" + nameOf(move.t);
 	const victims = [];
 	if(move.c != null)

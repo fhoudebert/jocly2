@@ -14,6 +14,7 @@ No build needed - the tests load the model in a sandbox and drive
 
     node tests/rococo/rules.test.js         # piece rules, from the source diagrams
     node tests/rococo/edge.test.js          # the outer edge-square ring
+    node tests/rococo/swapper.test.js       # the Swapper (swap + mutual destruction)
     node tests/rococo/consistency.test.js   # undo integrity, playouts, perft
 
 ## Board and victory
@@ -38,25 +39,33 @@ rather than forbidding the capture.
 
 ## Implemented
 
-King, Advancer, Withdrawer, Long Leaper, Immobilizer, Cannon Pawn, the
-multi-victim capture plumbing (`move.kills` with hooked ApplyMove /
+King, Advancer, Withdrawer, Long Leaper, Immobilizer, Cannon Pawn, Swapper,
+the multi-victim capture plumbing (`move.kills` with hooked ApplyMove /
 cbQuickApply / cbQuickUnapply), and the edge-square rule.
+
+The Swapper carries two move kinds the base model has no notion of: `move.swap`
+(exchange places with the piece whose index it holds - the first swap in jocly
+where a move relocates a *second* piece) and `move.mutual` (remove the Swapper
+together with the adjacent enemy in `move.c`). Both are handled in the apply /
+unapply hooks, keeping the Zobrist signature, `kings[]` and the undo stack
+exact, and `Model.Move.Equals` is extended so a swap and a mutual-destruction
+that share from/to squares stay distinct. A swap counts as a capture for the
+edge rule, so it may cross onto the ring.
 
 ## Not done yet
 
-* **Swapper** - moves like a Queen, or swaps places with any piece a Queen's
-  move away, plus mutual destruction. A swap relocates a second piece rather
-  than removing it, which needs a new move field (and view support) that does
-  not exist anywhere in jocly yet; this is the main remaining engine work.
 * **Chameleon** - captures by mimicking its victim (approach, withdraw, leap,
   swap, take an adjacent King), combinable in one move; freezes Immobilizers.
 * **Cannon-Pawn promotion** - on reaching the far rank a Pawn promotes to a
   captured friendly piece from a reserve (`drop-model.js` has the reserve
   bookkeeping to build on).
 * **Suicide** of an immobilized piece, and **three-fold repetition = loss**.
+* The Swapper's **"no immediate swap-back"** rule (against an enemy Swapper or
+  Chameleon) is not enforced yet - it needs one ply of history. Mutual
+  destruction is currently offered against any adjacent enemy.
 
-Because Swapper and Chameleon generate no moves yet, a full game is not
-playable through jocly; the consistency playouts are of a reduced variant and
-assert only engine bookkeeping, not game outcomes. The perft anchors (22, 484)
-are produced by this implementation, not cross-checked against another Rococo
+Because the Chameleon generates no moves yet, a full game is not playable
+through jocly; the consistency playouts are of a reduced variant and assert
+only engine bookkeeping, not game outcomes. The perft anchors (25, 625) are
+produced by this implementation, not cross-checked against another Rococo
 program.

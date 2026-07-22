@@ -7,8 +7,8 @@
  * the multi-victim `kills` array and the edge filter touch), plus perft
  * anchors from the initial position. The anchors are produced by this
  * implementation - they guard against regressions, not against a shared
- * misreading of the rules. Swapper and Chameleon generate no moves yet, so
- * these games are of a reduced variant; only engine bookkeeping is asserted.
+ * misreading of the rules. Chameleon still generates no moves, so
+ * these games are of a reduced variant; only engine bookkeeping is asserted (Chameleon still generates no moves).
  */
 
 const h = require("./harness.js");
@@ -47,7 +47,13 @@ function playout(seed, maxPlies) {
 		}
 
 		const move = board.mMoves[next() % board.mMoves.length];
-		const v = (move.kills ? move.kills.length : 0) + (move.c != null ? 1 : 0);
+		let v;
+		if(move.swap != null)
+			v = 0;						// a swap removes nobody
+		else if(move.mutual)
+			v = 2;						// mutual destruction removes the Swapper and the enemy
+		else
+			v = (move.kills ? move.kills.length : 0) + (move.c != null ? 1 : 0);
 		if(v) captures++;
 		if(v > 1) multi++;
 		const count = before.length;
@@ -90,8 +96,8 @@ function perft(board, depth) {
 	return total;
 }
 
-check("perft(1) from the initial position", perft(h.newBoard(sb, game), 1), 22);
-check("perft(2) from the initial position", perft(h.newBoard(sb, game), 2), 484);
+check("perft(1) from the initial position", perft(h.newBoard(sb, game), 1), 25);
+check("perft(2) from the initial position", perft(h.newBoard(sb, game), 2), 625);
 
 console.log((failed ? "FAILED" : "OK") + " - " + passed + " passed, " + failed + " failed");
 process.exit(failed ? 1 : 0);
