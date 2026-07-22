@@ -4,8 +4,6 @@
 	//var geometry = Model.Game.cbBoardGeometryCubic(4,5,3,["01","02","03","04","12","13","15","24","25","34","35","45"]); 
 	var geometry = Model.Game.cbBoardGeometryCubic(4,4,4,["01","04","35","25"]); 
 	
-
-
 	Model.Game.cbDefine = function() {
 		
 		return {
@@ -17,8 +15,8 @@
 				0: {
 					name: 'pawn-w',
 					aspect: 'pawn',
-					//graph: this.cbPawnGraph(geometry,1),
-					graph: this.cbAuthorGraph(geometry),
+					graph: this.cbPawnGraph(geometry,1),
+					//graph: this.cbAuthorGraph(geometry),
 					value: 1,
 					abbrev: '',
 					fenAbbrev: 'P',
@@ -28,8 +26,8 @@
 				1: {
 					name: 'ipawn-w',
 					aspect: 'pawn',
-					//graph: this.cbInitialPawnGraph(geometry,1),
-					graph: this.cbAuthorGraph(geometry),
+					graph: this.cbInitialPawnGraph(geometry,1),
+					//graph: this.cbAuthorGraph(geometry),
 					value: 1,
 					abbrev: '',
 					fenAbbrev: 'P',
@@ -40,8 +38,8 @@
 				2: {
 					name: 'pawn-b',
 					aspect: 'pawn',
-					//graph: this.cbPawnGraph(geometry,-1),
-					graph: this.cbAuthorGraph(geometry),
+					graph: this.cbPawnGraph(geometry,-1),
+					//graph: this.cbAuthorGraph(geometry),
 					value: 1,
 					abbrev: '',
 					fenAbbrev: 'P',
@@ -51,8 +49,8 @@
 				3: {
 					name: 'ipawn-b',
 					aspect: 'pawn',
-					//graph: this.cbInitialPawnGraph(geometry,-1),
-					graph: this.cbAuthorGraph(geometry),
+					graph: this.cbInitialPawnGraph(geometry,-1),
+					//graph: this.cbAuthorGraph(geometry),
 					value: 1,
 					abbrev: '',
 					fenAbbrev: 'P',
@@ -62,8 +60,8 @@
 				
 				4: {
 					name: 'knight',
-					//graph: this.cbKnightGraph(geometry),
-					graph: this.cbAuthorGraph(geometry),
+					graph: this.cbKnightGraph(geometry),
+					//graph: this.cbAuthorGraph(geometry),
 					value: 2.9,
 					abbrev: 'N',
 					initial: [{s:1,p:8},{s:1,p:7},{s:-1,p:81},{s:-1,p:94}],
@@ -71,8 +69,8 @@
 				
 				5: {
 					name: 'bishop',
-					//graph: this.cbBishopGraph(geometry),
-					graph: this.cbAuthorGraph(geometry),
+					graph: this.cbBishopGraph(geometry),
+					//graph: this.cbAuthorGraph(geometry),
 					value: 3.1,
 					abbrev: 'B',
 					initial: [{s:1,p:5},{s:1,p:9},{s:-1,p:85},{s:-1,p:86}],
@@ -80,8 +78,9 @@
 
 				6: {
 					name: 'rook',
+					graph: this.cbRookGraph(geometry),
 					//graph: this.cbCubicRookGraph(geometry),
-					graph: this.cbAuthorGraph(geometry),
+					//graph: this.cbAuthorGraph(geometry),
 					value: 5,
 					abbrev: 'R',
 					initial: [{s:1,p:4},{s:1,p:11},{s:-1,p:82},{s:-1,p:93}],
@@ -90,8 +89,8 @@
 
 				7: {
 					name: 'queen',
-					//graph: this.cbMergeGraphs(geometry,this.cbCubicRookGraph(geometry),this.cbBishopGraph(geometry)),
-					graph: this.cbAuthorGraph(geometry),
+					graph: this.cbMergeGraphs(geometry,this.cbCubicRookGraph(geometry),this.cbBishopGraph(geometry)),
+					//graph: this.cbAuthorGraph(geometry),
 					value: 9,
 					abbrev: 'Q',
 					initial: [{s:1,p:6},{s:-1,p:90}],
@@ -100,8 +99,8 @@
 				8: {
 					name: 'king',
 					isKing: true,
-					//graph: this.cbKingGraph(geometry),
-					graph: this.cbAuthorGraph(geometry),
+					graph: this.cbKingGraph(geometry),
+					//graph: this.cbAuthorGraph(geometry),
 					abbrev: 'K',
 					initial: [{s:1,p:10},{s:-1,p:89}],
 				},
