@@ -7713,7 +7713,8 @@ exports.games = (function () {
 					"title-en": "Ultima",
 					"summary": "every piece captures in its own exotic way",
 					"rules": {
-						"en": "res/rules/ultima/ultima-rules.html"
+						"en": "res/rules/ultima/ultima-rules.html",
+                        "fr": "res/rules/ultima/ultima-rules_fr.html"
 					},
 					"module": "chessbase",
                     "thumbnail": "res/rules/ultima/ultima-thumb.png",
