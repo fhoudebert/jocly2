@@ -7712,7 +7712,11 @@ exports.games = (function () {
 				"model": {
 					"title-en": "Ultima",
 					"summary": "every piece captures in its own exotic way",
+					"rules": {
+						"en": "res/rules/ultima/ultima-rules.html"
+					},
 					"module": "chessbase",
+                    "thumbnail": "res/rules/ultima/ultima-thumb.png",
 					"gameOptions": config_model_gameOptions,
 					"js": modelScripts_ultima,
 					"levels": config_model_levels_15
