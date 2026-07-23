@@ -129,9 +129,11 @@ to capture a piece standing there.</p>
 <p>You win by capturing the enemy King. A player who cannot make a legal move loses, and so does a player
 who brings about a threefold repetition.</p>
 
-<h2>About this implementation</h2>
-<p>The published rules are followed in full, down to their finer points: a move onto the ring must be the
-single shortest way of making that particular capture, a Swapper and an enemy Swapper or Chameleon may not swap
-straight back on the following turn, and promoting a Cannon Pawn uses up the captured piece it copies. One technical
-detail: a pending swap-back ban is not part of the position's fingerprint, so two positions differing only by it count
-as the same one for the repetition rule.</p>
+<h2>Additional rules</h2>
+<ul>
+    <li>A move to the edge border must be the shortest move that achieves that capture.</li>
+    <li>A Swapper cannot swap back with an enemy Swapper or Chameleon in the opposite direction on the next move.</li>
+    <li>A Cannon Pawn is promoted from the list of captured pieces.</li>
+    <li>A frozen piece may commit suicide.</li>
+</ul>
+

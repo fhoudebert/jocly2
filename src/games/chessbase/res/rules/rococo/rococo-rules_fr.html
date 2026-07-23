@@ -66,6 +66,7 @@ et non en le mettant échec et mat.</p>
 <tr><td><span class="r-icon r-immobilizer"></span> <b>Immobilisateur</b></td><td>comme une Dame</td><td>ne capture jamais - il paralyse à la place</td></tr>
 <tr><td><span class="r-icon r-king"></span> <b>Roi</b></td><td>une case</td><td>par déplacement, comme un Roi d’échecs</td></tr>
 </table>
+
 <p>Toutes les pièces, à l’exception du Pion-canon et du Roi, se déplacent comme une Dame :
 d’un nombre quelconque de cases le long d’une rangée, d’une colonne ou d’une diagonale, uniquement au-dessus de cases vides,
 et jamais sur une case occupée. Aucune pièce ne peut sauter par-dessus une autre - le Bondissant et le Pion-canon le font,
@@ -140,10 +141,10 @@ Il ne peut entrer sur une case de bord que pour y capturer une pièce.</p>
 <p>La victoire s’obtient en capturant le Roi adverse. Un joueur qui ne peut effectuer aucun coup légal perd
 la partie, tout comme celui qui provoque une triple répétition.</p>
 
-<h2>À propos de cette implémentation</h2>
-<p>Les règles publiées sont respectées intégralement, jusque dans leurs points de détail : un coup vers l’anneau
-doit être l’unique coup le plus court réalisant cette capture précise, un Permutateur et un Permutateur ou Caméléon
-ennemi ne peuvent pas permuter à nouveau en sens inverse au coup suivant, et la promotion d’un Pion-canon consomme la
-pièce capturée qu’elle copie. Un détail technique : l’interdiction de ré-échange en cours ne fait pas partie de
-l’empreinte de la position, si bien que deux positions qui n’en diffèrent que par elle comptent pour une seule au
-regard de la règle de répétition.</p>
+<h2>Règles complémentaires</h2>
+<ul>
+    <li>Un coup vers la bande de bordure doit être le coup le plus court permettant cette capture.</li>
+    <li>Un Permutateur ne peut pas permuter à nouveau avec un Permutateur ou un Caméléon ennemi en sens inverse au coup suivant.</li>
+    <li>La promotion d’un Pion-canon se fait dans la liste des pièces capturées.</li>
+    <li>Une pièce gelée peut se suicider.</li>
+</ul>
