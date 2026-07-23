@@ -16,6 +16,7 @@ No build needed - the tests load the model in a sandbox and drive
     node tests/rococo/edge.test.js          # the outer edge-square ring
     node tests/rococo/swapper.test.js       # the Swapper (swap + mutual destruction)
     node tests/rococo/consistency.test.js   # undo integrity, playouts, perft
+    node tests/rococo/view.test.js          # sprite columns, 10x10 ring, rules pages
 
 ## Board and victory
 

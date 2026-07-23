@@ -7762,7 +7762,12 @@ exports.games = (function () {
 				"model": {
 					"title-en": "Rococo",
 					"summary": "an Ultima cousin on a 10x10 board with an edge ring",
+					"rules": {
+						"en": "res/rules/rococo/rococo-rules.html",
+						"fr": "res/rules/rococo/rococo-rules_fr.html"
+					},
 					"module": "chessbase",
+					"thumbnail": "res/rules/rococo/rococo-thumb.png",
 					"gameOptions": config_model_gameOptions,
 					"js": modelScripts_rococo,
 					"levels": config_model_levels_15
