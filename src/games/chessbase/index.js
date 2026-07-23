@@ -8526,6 +8526,14 @@ exports.games = (function () {
 					"defaultOptions": config_view_defaultOptions,
 					"skins": [
 						{
+							"name": "skin2dmnemonic",
+							"title": "2D Mnemonic",
+							"3d": false,
+							"preload": [
+								"image|/res/shogi/shogi-mnemonic-sprites.png"
+							]
+						},
+						{
 							"name": "skin3d",
 							"title": "3D Classic",
 							"3d": true,
@@ -8545,14 +8553,7 @@ exports.games = (function () {
 								"image|/res/shogi/shogi-picto-sprites"
 							]
 						},
-						{
-							"name": "skin2dmnemonic",
-							"title": "2D Mnemonic",
-							"3d": false,
-							"preload": [
-								"image|/res/shogi/shogi-mnemonic-sprites.png"
-							]
-						},
+
 						config_view_skins_2
 					],
 					"animateSelfMoves": false,
