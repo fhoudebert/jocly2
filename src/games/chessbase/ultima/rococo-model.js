@@ -327,9 +327,18 @@
 		return types;
 	}
 
-	// emit a Cannon Pawn move, adding a promotion variant per reserve type when
-	// it lands on the far rank (the opposing King's start rank, or the edge rank
-	// past it). Promotion is optional, so the plain move is emitted as well.
+	/*
+	 * Emit a Cannon Pawn move, adding a promotion variant per reserve type when
+	 * it lands on the far rank (the opposing King's start rank, or the edge rank
+	 * past it).
+	 *
+	 * Promotion is optional, so a "stay a Cannon Pawn" move is emitted too. When
+	 * there is a choice it carries pr = PAWN rather than no pr at all: the view
+	 * builds its promotion panel from the pr of every move reaching the square,
+	 * so a move without one would have no icon to offer - and the piece type it
+	 * names is the one the Pawn already is, which makes it a no-op on the board
+	 * and the natural "do not promote" entry in the panel.
+	 */
 	Model.Board.rocEmitPawn = function(piece, to, extra, emit) {
 		var row = R(to), promo = (piece.s > 0 ? row >= 8 : row <= 1);
 		if(promo) {
@@ -339,6 +348,11 @@
 				m.pr = reserve[i];
 				if(emit(m))
 					return true;
+			}
+			if(reserve.length) {
+				var stay = mk(piece, to, extra);
+				stay.pr = PAWN;
+				return emit(stay);
 			}
 		}
 		return emit(mk(piece, to, extra));
@@ -820,6 +834,8 @@
 	var OriginalToString = Model.Move.ToString;
 	Model.Move.ToString = function(format) {
 		var str = OriginalToString.apply(this, arguments);
+		if(this.pr === PAWN)			// "stay a Cannon Pawn" is not a promotion
+			str = str.replace(/=[^=]*$/, '');
 		if(this.suicide)
 			str += '(suicide)';
 		else if(this.swap != null)

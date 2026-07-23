@@ -20,6 +20,8 @@ No build needed - the tests load the model in a sandbox and drive
     node tests/rococo/promote.test.js       # cannon-pawn promotion + suicide
     node tests/rococo/consistency.test.js   # undo integrity, playouts, perft
     node tests/rococo/view.test.js          # sprite columns, 10x10 ring, rules pages
+    node tests/rococo/anim.test.js          # capture animation for the family's move kinds
+    node tests/rococo/input.test.js         # entering a suicide from the board
 
 ## Board and victory
 
@@ -89,8 +91,37 @@ because the search clones boards, and stashed on the undo list for
 positions differing only by a pending ban hash alike - the same trade-off the
 base model makes for other one-ply state.
 
+## Animation
+
+The base chessbase view animates the moving piece and the single piece it
+displaces (`move.c`). `ultima/ultima-capture-view.js`, listed in the view
+scripts of both Ultima and Rococo, extends it for the move kinds this family
+adds: the extra victims of a multi-piece capture fade where they stand, the
+swapped piece travels into the square the Swapper leaves, a Swapper destroying
+itself fades once it has arrived, and a piece removing itself fades without
+travelling. Without it those pieces just blink out when the board is
+redisplayed - the position was always right, only the transition was missing.
+
+## Entering a suicide, and the promotion panel
+
+A piece removing itself does not travel, so the move's destination is the
+square it already stands on. A move is entered in two clicks - the piece, then
+the destination - and that destination falls on the same gadgets as "click the
+piece again to cancel", which jocly binds last and which therefore wins: by
+hand the move was unreachable. `rococo-view.js` overrides `xdInput` to put the
+suicide on the panel the view already uses for choosing a promotion, so a
+frozen piece raises its own picture beside the cancel button.
+
+That panel needed three fixes to work at all. Promotion here is optional, so
+the "stay a Cannon Pawn" move shares its destination with the real promotions;
+the view builds the panel from the `pr` of every move reaching the square and
+threw on the one that had none, leaving the panel stuck open. That move now
+carries `pr = PAWN`, which names the type the piece already is - a no-op on the
+board and the natural "do not promote" entry in the panel. In `base-view.js`,
+the piece pictures were never made visible when the panel opened, and were
+never hidden when it closed; both are fixed there, for every game.
+
 ## Known limits
 
 The perft anchors (25, 625) are produced by this implementation, not
-cross-checked against another Rococo program. There is no 3D view, and a move
-removing several pieces at once is not animated piece by piece.
+cross-checked against another Rococo program. There is no 3D view.

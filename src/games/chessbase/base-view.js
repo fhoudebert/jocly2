@@ -494,6 +494,12 @@
 					visible: false,
 				}
 			});		
+			for(var i=0;i<aGame.g.pTypes.length;i++)
+				xdv.updateGadget("promo#"+i,{
+					base: {
+						visible: false,
+					}
+				});
 		}
 		
 		return {
@@ -618,6 +624,7 @@
 												}
 												xdv.updateGadget("promo#"+move.pr, {
 													base: $.extend(aspectSpec["2d"], { 
+														visible: true,
 														x: (index-promoMoves.length/2)*aGame.cbPromoSize 
 													}),														
 												});												

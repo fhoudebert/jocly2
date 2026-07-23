@@ -1503,7 +1503,8 @@ exports.games = (function () {
 	var config_view_js_rococo = [
 		"base-view.js",
 		"grid-board-view.js",
-		"ultima/rococo-view.js"
+		"ultima/rococo-view.js",
+		"ultima/ultima-capture-view.js"
 	]
 	var modelScripts_ultima = [
 		"base-model.js",
@@ -1513,7 +1514,8 @@ exports.games = (function () {
 	var config_view_js_ultima = [
 		"base-view.js",
 		"grid-board-view.js",
-		"ultima/ultima-view.js"
+		"ultima/ultima-view.js",
+		"ultima/ultima-capture-view.js"
 	]
 	var modelScripts_101 = [
 		"base-model.js",

@@ -19,8 +19,9 @@ Simple human vs computer: [Classic chess](https://fhoudebert.github.io/jocly/exa
 [Middle-age chess](https://fhoudebert.github.io/jocly/examples/browser/simple.html?game=courier-chess),
 [Shogi](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=shogi),
 [Draughts](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=draughts)
-
-
+[Metamachy](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=metamachy)
+[Spartan chess](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=spartan-chess)
+[Ultima](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=ultima)
 
 Or see and try [all available games](https://fhoudebert.github.io/jocly/examples/browser/multiple.html)
 
