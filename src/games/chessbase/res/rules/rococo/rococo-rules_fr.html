@@ -1,0 +1,150 @@
+
+<style>
+	table.r-pieces {
+		border-collapse: collapse;
+		margin: 12px 0;
+	}
+	table.r-pieces th, table.r-pieces td {
+		border-bottom: 1px solid #ccc;
+		padding: 6px 12px 6px 0;
+		text-align: left;
+		vertical-align: middle;
+	}
+	.r-icon {
+		display: inline-block;
+		width: 40px;
+		height: 40px;
+		vertical-align: middle;
+		background-image: url({GAME}/res/ultima/ultima-picto-sprites.png);
+		background-repeat: no-repeat;
+		/* The sheet holds --r-cols columns x 2 rows of square cells; show the
+		   white (top) row. Only --r-cols has to change when the sheet grows. */
+		--r-cols: 10;
+		background-size: calc(var(--r-cols) * 100%) 200%;
+		background-position-y: 0;
+		background-position-x: calc(var(--r-col) / (var(--r-cols) - 1) * 100%);
+	}
+	/* column index of each piece within the sprite sheet shared with Ultima */
+	.r-leaper      { --r-col: 2; }
+	.r-withdrawer  { --r-col: 3; }
+	.r-chameleon   { --r-col: 4; }
+	.r-immobilizer { --r-col: 5; }
+	.r-king        { --r-col: 6; }
+	.r-pawn        { --r-col: 7; }
+	.r-swapper     { --r-col: 8; }
+	.r-advancer    { --r-col: 9; }
+	.r-edge {
+		display: inline-block;
+		width: 14px;
+		height: 14px;
+		vertical-align: middle;
+		background: #2f5320;
+		border: 1px solid #888;
+	}
+</style>
+
+<h1>Rococo</h1>
+<p>Rococo a été conçu par Peter Aronson et David Howe en 2002. Il appartient à la même famille qu’Ultima,
+mais c’est un jeu à part entière, remanié pour donner l’avantage à l’attaque plutôt qu’à la défense.
+Comme dans Ultima, presque chaque pièce possède sa propre manière, très particulière, de prendre les pièces ennemies,
+et un seul coup peut en éliminer plusieurs. Deux traits distinguent Rococo :
+le plateau est un 10x10 doté d’un anneau extérieur particulier, et la victoire s’obtient en <b>capturant</b> le Roi adverse,
+et non en le mettant échec et mat.</p>
+<h2>Position de départ</h2>
+<p style='text-align:center'><img style="max-width:100%;" src="{GAME}/res/rules/rococo/initial-setup.jpg"/></p>
+
+
+<h2>Les pièces</h2>
+<table class="r-pieces">
+<tr><th>Pièce</th><th>Déplacement</th><th>Capture</th></tr>
+<tr><td><span class="r-icon r-pawn"></span> <b>Pion-canon</b></td><td>une case, ou un saut</td><td>en sautant par-dessus un voisin pour retomber sur l’ennemi juste derrière</td></tr>
+<tr><td><span class="r-icon r-advancer"></span> <b>Percuteur</b></td><td>comme une Dame</td><td>l’ennemi devant lequel il vient s’arrêter (capture par approche)</td></tr>
+<tr><td><span class="r-icon r-withdrawer"></span> <b>Décrocheur</b></td><td>comme une Dame</td><td>la pièce adjacente dont il s’éloigne directement (capture par retrait)</td></tr>
+<tr><td><span class="r-icon r-leaper"></span> <b>Bondissant</b></td><td>comme une Dame</td><td>en sautant par-dessus les ennemis, autant que la ligne le permet</td></tr>
+<tr><td><span class="r-icon r-swapper"></span> <b>Permutateur</b></td><td>comme une Dame</td><td>échange sa place avec n’importe quelle pièce, ou se détruit avec un voisin</td></tr>
+<tr><td><span class="r-icon r-chameleon"></span> <b>Caméléon</b></td><td>comme une Dame</td><td>chaque ennemi selon sa propre méthode de capture</td></tr>
+<tr><td><span class="r-icon r-immobilizer"></span> <b>Immobilisateur</b></td><td>comme une Dame</td><td>ne capture jamais - il paralyse à la place</td></tr>
+<tr><td><span class="r-icon r-king"></span> <b>Roi</b></td><td>une case</td><td>par déplacement, comme un Roi d’échecs</td></tr>
+</table>
+
+<p>Toutes les pièces, à l’exception du Pion-canon et du Roi, se déplacent comme une Dame :
+d’un nombre quelconque de cases le long d’une rangée, d’une colonne ou d’une diagonale, uniquement au-dessus de cases vides,
+et jamais sur une case occupée. Aucune pièce ne peut sauter par-dessus une autre - le Bondissant et le Pion-canon le font,
+mais uniquement dans le cadre de leur capture.</p>
+
+<h2>Le plateau et les cases de bord</h2>
+<p>Le plateau est un 10x10. Le carré intérieur de 8x8 constitue l’aire de jeu ; les 36 cases de l’anneau
+extérieur, affichées plus sombres <span class="r-edge"></span> dans le jeu, sont les <b>cases de bord</b>.
+Une pièce ne peut franchir une case de bord ou s’y arrêter que si cela est nécessaire pour réaliser une capture,
+et elle doit alors traverser le moins de cases de bord possible. Un coup qui ne capture rien ne peut jamais toucher l’anneau.
+Cette idée, empruntée à Jumping Chess, empêche les pièces de se mettre à l’abri le long du pourtour.</p>
+<p>L’échange du Permutateur compte ici comme une capture : il peut donc permuter avec une pièce située sur l’anneau.</p>
+
+<h2>Mise en place initiale</h2>
+<p>Chaque joueur dispose de 8 Pions-canons sur la deuxième rangée et, derrière eux :
+Immobilisateur, Décrocheur, Bondissant, Roi, Caméléon, Bondissant, Percuteur, Permutateur.
+Les deux armées sont disposées dans le même ordre, face à face. Les Blancs jouent en premier.</p>
+
+<h2><span class="r-icon r-pawn"></span> Pion-canon</h2>
+<p>Le Pion-canon se déplace sans capturer de deux façons : d’un pas dans n’importe quelle direction,
+ou par un saut par-dessus une pièce adjacente, de l’une ou l’autre couleur, pour retomber sur la case vide située
+juste derrière. Il capture de la même façon qu’il saute : il franchit une pièce adjacente - la monture, alliée ou ennemie -
+et se pose sur une pièce ennemie située immédiatement derrière, en prenant sa place.</p>
+<p>Un Pion-canon qui atteint, par un déplacement qui lui est propre, la rangée de départ du Roi adverse
+(ou la rangée de bord au-delà) peut se promouvoir en n’importe quelle pièce alliée capturée et actuellement hors du plateau,
+à l’exception d’un autre Pion-canon. La promotion est facultative.</p>
+
+<h2><span class="r-icon r-advancer"></span> Percuteur</h2>
+<p>Le Percuteur se déplace comme une Dame et capture par approche : s’il s’arrête directement devant une
+pièce ennemie, c’est-à-dire si la case suivante dans sa direction de déplacement est occupée par un ennemi, celui-ci est
+capturé. La capture fait partie du déplacement et n’est pas facultative : un Percuteur ne peut pas s’arrêter à côté d’un
+ennemi situé dans sa ligne de déplacement sans le prendre.</p>
+
+<h2><span class="r-icon r-withdrawer"></span> Décrocheur</h2>
+<p>Le Décrocheur capture par retrait : placé à côté d’une pièce ennemie, il s’en éloigne directement d’une
+distance quelconque et la capture. Seule la pièce dont il s’écarte est prise, et seulement si elle était déjà adjacente avant
+le déplacement. Comme celle du Percuteur, cette capture est obligatoire.</p>
+
+<h2><span class="r-icon r-leaper"></span> Bondissant</h2>
+<p>Le Bondissant se déplace comme une Dame mais peut sauter par-dessus une pièce ennemie et la capturer,
+à condition que la case immédiatement derrière cette pièce soit libre. Il peut ensuite continuer dans la même direction et
+prendre d’autres ennemis aux mêmes conditions, avant de terminer sur n’importe quelle case libre située plus loin.
+Il ne peut jamais sauter par-dessus une pièce alliée, ni par-dessus deux ennemis adjacents.</p>
+
+<h2><span class="r-icon r-swapper"></span> Permutateur</h2>
+<p>Le Permutateur se déplace comme une Dame sans capturer, ou bien il peut <b>échanger sa place</b> avec
+n’importe quelle pièce, alliée ou ennemie, située à portée de Dame sans obstacle. Il peut également détruire simultanément
+une pièce ennemie adjacente et lui-même, par destruction mutuelle - un coup qu’il ne peut pas jouer lorsqu’il est immobilisé.</p>
+
+<h2><span class="r-icon r-chameleon"></span> Caméléon</h2>
+<p>Le Caméléon se déplace comme une Dame et capture chaque ennemi selon la méthode propre à cette pièce :
+il approche les Percuteurs, se décroche des Décrocheurs, bondit par-dessus les Bondissants, saute une monture pour prendre
+les Pions-canons, permute avec les Permutateurs (ou se détruit mutuellement avec eux) et capture un Roi ennemi adjacent en
+prenant sa place. Plusieurs de ces captures peuvent être combinées en un seul coup : en bondissant par-dessus un Bondissant,
+il peut prendre du même coup un Décrocheur laissé derrière lui et un Percuteur atteint à l’arrivée.</p>
+<p>Le Caméléon immobilise un Immobilisateur ennemi, et est immobilisé par lui en retour, mais il ne peut
+jamais en capturer un - et il ne peut pas capturer un autre Caméléon.</p>
+
+<h2><span class="r-icon r-immobilizer"></span> Immobilisateur</h2>
+<p>L’Immobilisateur ne capture jamais. Toute pièce ennemie située sur l’une des huit cases qui l’entourent
+est immobilisée et ne peut plus se déplacer. Deux Immobilisateurs face à face se paralysent mutuellement.
+Une pièce immobilisée autre qu’un Roi peut néanmoins <b>se retirer elle-même du plateau</b>, ce qui compte comme son coup -
+généralement pour ouvrir une ligne. L’Immobilisateur ne peut jamais entrer de lui-même sur une case de bord,
+mais il peut y être amené par une permutation.</p>
+
+<h2><span class="r-icon r-king"></span> Roi</h2>
+<p>Le Roi se déplace d’une case dans n’importe quelle direction et capture par déplacement, comme le Roi des
+échecs classiques. Il n’y a ni échec ni mat : un Roi peut se placer en danger et se tenir à côté du Roi adverse.
+Il ne peut entrer sur une case de bord que pour y capturer une pièce.</p>
+
+<h2>Fin de la partie</h2>
+<p>La victoire s’obtient en capturant le Roi adverse. Un joueur qui ne peut effectuer aucun coup légal perd
+la partie, tout comme celui qui provoque une triple répétition.</p>
+
+<h2>Règles complémentaires</h2>
+<ul>
+    <li>Un coup vers la bande de bordure doit être le coup le plus court permettant cette capture.</li>
+    <li>Un Permutateur ne peut pas permuter à nouveau avec un Permutateur ou un Caméléon ennemi en sens inverse au coup suivant.</li>
+    <li>La promotion d’un Pion-canon se fait dans la liste des pièces capturées.</li>
+    <li>Une pièce gelée peut se suicider.</li>
+</ul>

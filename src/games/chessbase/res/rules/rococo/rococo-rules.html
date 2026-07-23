@@ -1,0 +1,139 @@
+
+<style>
+	table.r-pieces {
+		border-collapse: collapse;
+		margin: 12px 0;
+	}
+	table.r-pieces th, table.r-pieces td {
+		border-bottom: 1px solid #ccc;
+		padding: 6px 12px 6px 0;
+		text-align: left;
+		vertical-align: middle;
+	}
+	.r-icon {
+		display: inline-block;
+		width: 40px;
+		height: 40px;
+		vertical-align: middle;
+		background-image: url({GAME}/res/ultima/ultima-picto-sprites.png);
+		background-repeat: no-repeat;
+		/* The sheet holds --r-cols columns x 2 rows of square cells; show the
+		   white (top) row. Only --r-cols has to change when the sheet grows. */
+		--r-cols: 10;
+		background-size: calc(var(--r-cols) * 100%) 200%;
+		background-position-y: 0;
+		background-position-x: calc(var(--r-col) / (var(--r-cols) - 1) * 100%);
+	}
+	/* column index of each piece within the sprite sheet shared with Ultima */
+	.r-leaper      { --r-col: 2; }
+	.r-withdrawer  { --r-col: 3; }
+	.r-chameleon   { --r-col: 4; }
+	.r-immobilizer { --r-col: 5; }
+	.r-king        { --r-col: 6; }
+	.r-pawn        { --r-col: 7; }
+	.r-swapper     { --r-col: 8; }
+	.r-advancer    { --r-col: 9; }
+	.r-edge {
+		display: inline-block;
+		width: 14px;
+		height: 14px;
+		vertical-align: middle;
+		background: #2f5320;
+		border: 1px solid #888;
+	}
+</style>
+
+<h1>Rococo</h1>
+<p>Rococo was designed by Peter Aronson and David Howe in 2002. It belongs to the same family as Ultima,
+but it is a game in its own right, reworked to favour attack over defence. As in Ultima, almost every piece has its
+own alien way of removing enemy pieces, and one move may remove several at once. Two things set Rococo apart:
+the board is 10x10 with a special outer ring, and you win by <b>capturing</b> the enemy King rather than by checkmating it.</p>
+<h2>Initial setup</h2>
+<p style='text-align:center'><img style="max-width:100%;" src="{GAME}/res/rules/rococo/initial-setup.jpg"/></p>
+
+<h2>The pieces</h2>
+<table class="r-pieces">
+<tr><th>Piece</th><th>Move</th><th>Capture</th></tr>
+<tr><td><span class="r-icon r-pawn"></span> <b>Cannon Pawn</b></td><td>one square, or a hop</td><td>by hopping over a neighbour onto the enemy just beyond</td></tr>
+<tr><td><span class="r-icon r-advancer"></span> <b>Advancer</b></td><td>like a Queen</td><td>the enemy it stops right in front of</td></tr>
+<tr><td><span class="r-icon r-withdrawer"></span> <b>Withdrawer</b></td><td>like a Queen</td><td>the adjacent piece it moves directly away from</td></tr>
+<tr><td><span class="r-icon r-leaper"></span> <b>Long Leaper</b></td><td>like a Queen</td><td>by leaping over enemies, as many as the line allows</td></tr>
+<tr><td><span class="r-icon r-swapper"></span> <b>Swapper</b></td><td>like a Queen</td><td>trades places with any piece, or destroys a neighbour and itself</td></tr>
+<tr><td><span class="r-icon r-chameleon"></span> <b>Chameleon</b></td><td>like a Queen</td><td>each enemy by that enemy's own method</td></tr>
+<tr><td><span class="r-icon r-immobilizer"></span> <b>Immobilizer</b></td><td>like a Queen</td><td>never captures - it paralyses instead</td></tr>
+<tr><td><span class="r-icon r-king"></span> <b>King</b></td><td>one square</td><td>by displacement, like a chess King</td></tr>
+</table>
+<p>Every piece except the Cannon Pawn and the King moves like a Queen: any distance along a rank, a file or a
+diagonal, over empty squares only, and never onto an occupied square. No piece may jump over another - the Long Leaper
+and the Cannon Pawn do, but only as part of their capture.</p>
+
+<h2>The board and the edge squares</h2>
+<p>The board is 10x10. The inner 8x8 is the playing area; the 36 squares of the outer ring, shown darker
+<span class="r-edge"></span> in the game, are <b>edge squares</b>. A piece may only pass over or stop on an edge square
+when doing so is needed to make a capture - and then it must cross as few edge squares as possible. A move that captures
+nothing may never touch the ring. This idea, borrowed from Jumping Chess, stops pieces from sheltering along the rim.</p>
+<p>A Swapper's exchange counts as a capture here, so a Swapper may swap with a piece standing on the ring.</p>
+
+<h2>Initial setup</h2>
+<p>Each player has 8 Cannon Pawns on the second rank and, behind them: Immobilizer, Withdrawer, Long Leaper,
+King, Chameleon, Long Leaper, Advancer, Swapper. Both armies are set up in the same order, facing each other. White moves first.</p>
+
+<h2><span class="r-icon r-pawn"></span> Cannon Pawn</h2>
+<p>A Cannon Pawn moves without capturing in two ways: one step in any direction, or a hop over an adjacent
+piece of either colour onto the empty square directly beyond it. It captures the same way it hops: it jumps over an adjacent
+piece - the mount, friend or foe - and lands on an enemy standing immediately beyond, taking its place.</p>
+<p>A Cannon Pawn that reaches, by a move of its own, the rank where the enemy King started (or the edge rank
+beyond it) may promote to any friendly piece that has been captured and is off the board - anything but another Cannon Pawn.
+Promotion is optional.</p>
+
+<h2><span class="r-icon r-advancer"></span> Advancer</h2>
+<p>The Advancer moves like a Queen and captures by approach: if it stops directly in front of an enemy piece,
+that is, if the next square in its direction of travel holds an enemy, that enemy is removed. The capture is part of the move
+and is not optional - an Advancer cannot stop next to an enemy in its line of travel and spare it.</p>
+
+<h2><span class="r-icon r-withdrawer"></span> Withdrawer</h2>
+<p>The Withdrawer captures by retreat: standing next to an enemy piece, it moves any distance directly away
+from it and takes it. Only the piece it backs away from is captured, and only if it was already adjacent before the move.
+Like the Advancer's, this capture is compulsory.</p>
+
+<h2><span class="r-icon r-leaper"></span> Long Leaper</h2>
+<p>The Long Leaper moves like a Queen but may jump over an enemy piece and capture it, provided the square
+immediately behind that piece is free. It may then carry on in the same direction and take further enemies on the same
+conditions, before landing on any free square beyond. It may never jump a friendly piece, nor two enemies standing side by side.</p>
+
+<h2><span class="r-icon r-swapper"></span> Swapper</h2>
+<p>The Swapper moves like a Queen without capturing, or it may <b>trade places</b> with any piece, friendly
+or enemy, that stands a clear Queen's move away. It can also destroy an adjacent enemy piece and itself at the same time,
+by mutual destruction - a move it cannot make while immobilized.</p>
+
+<h2><span class="r-icon r-chameleon"></span> Chameleon</h2>
+<p>The Chameleon moves like a Queen and captures each enemy by that enemy's own method: it approaches
+Advancers, withdraws from Withdrawers, leaps over Long Leapers, hops a mount onto Cannon Pawns, swaps with (or mutually
+destroys) Swappers, and takes an adjacent enemy King by moving onto it. Several of these may be combined in a single move:
+leaping over a Long Leaper can, in the same move, take a Withdrawer left behind and an Advancer reached at the end.</p>
+<p>A Chameleon freezes an enemy Immobilizer, and is frozen by it in return, but can never capture one -
+and it cannot capture another Chameleon.</p>
+
+<h2><span class="r-icon r-immobilizer"></span> Immobilizer</h2>
+<p>The Immobilizer never captures. Every enemy piece on one of the eight squares around it is frozen and
+cannot move. Two facing Immobilizers paralyse each other. A frozen piece other than a King may still <b>remove itself
+from the board</b>, which counts as its move - usually to open a line. The Immobilizer may never enter an edge square by
+its own move, though it may be swapped onto one.</p>
+
+<h2><span class="r-icon r-king"></span> King</h2>
+<p>The King moves one square in any direction and captures by displacement, like a chess King. There is no
+check and no checkmate: a King may walk into danger and may stand next to the enemy King. It may only enter an edge square
+to capture a piece standing there.</p>
+
+<h2>Ending the game</h2>
+<p>You win by capturing the enemy King. A player who cannot make a legal move loses, and so does a player
+who brings about a threefold repetition.</p>
+
+<h2>Additional rules</h2>
+<ul>
+    <li>A move to the edge border must be the shortest move that achieves that capture.</li>
+    <li>A Swapper cannot swap back with an enemy Swapper or Chameleon in the opposite direction on the next move.</li>
+    <li>A Cannon Pawn is promoted from the list of captured pieces.</li>
+    <li>A frozen piece may commit suicide.</li>
+</ul>
+

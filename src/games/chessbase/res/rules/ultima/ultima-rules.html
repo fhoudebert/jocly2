@@ -1,0 +1,104 @@
+
+<style>
+	table.u-pieces {
+		border-collapse: collapse;
+		margin: 12px 0;
+	}
+	table.u-pieces th, table.u-pieces td {
+		border-bottom: 1px solid #ccc;
+		padding: 6px 12px 6px 0;
+		text-align: left;
+		vertical-align: middle;
+	}
+	.u-icon {
+		display: inline-block;
+		width: 40px;
+		height: 40px;
+		vertical-align: middle;
+		background-image: url({GAME}/res/ultima/ultima-picto-sprites.png);
+		background-repeat: no-repeat;
+		/* The sheet holds --u-cols columns x 2 rows of square cells; show the
+		   white (top) row. Only --u-cols has to change when the sheet grows. */
+		--u-cols: 10;
+		background-size: calc(var(--u-cols) * 100%) 200%;
+		background-position-y: 0;
+		background-position-x: calc(var(--u-col) / (var(--u-cols) - 1) * 100%);
+	}
+	/* column index of each piece within the shared sprite sheet */
+	.u-pawn        { --u-col: 0; }
+	.u-coordinator { --u-col: 1; }
+	.u-leaper      { --u-col: 2; }
+	.u-withdrawer  { --u-col: 3; }
+	.u-chameleon   { --u-col: 4; }
+	.u-immobilizer { --u-col: 5; }
+	.u-king        { --u-col: 6; }
+</style>
+
+<h1>Ultima</h1>
+<p>Ultima - also known as Baroque Chess - was invented by Robert Abbott in 1962.
+It is played on a normal chessboard, and the object is the same as in chess: checkmate the enemy King.
+Everything else is different. Apart from the King, no piece captures by moving onto its victim:
+each piece has its own, quite alien, way of removing enemy pieces, and a single move may remove several of them at once.</p>
+
+<h2>The pieces</h2>
+<table class="u-pieces">
+<tr><th>Piece</th><th>Move</th><th>Capture</th></tr>
+<tr><td><span class="u-icon u-pawn"></span> <b>Pincer Pawn</b></td><td>like a Rook</td><td>pinces an enemy between itself and a friendly piece</td></tr>
+<tr><td><span class="u-icon u-coordinator"></span> <b>Coordinator</b></td><td>like a Queen</td><td>on the corners of the rectangle it forms with its own King</td></tr>
+<tr><td><span class="u-icon u-leaper"></span> <b>Long Leaper</b></td><td>like a Queen</td><td>by leaping over enemies, as many as the line allows</td></tr>
+<tr><td><span class="u-icon u-withdrawer"></span> <b>Withdrawer</b></td><td>like a Queen</td><td>the adjacent piece it moves directly away from</td></tr>
+<tr><td><span class="u-icon u-chameleon"></span> <b>Chameleon</b></td><td>like a Queen</td><td>each enemy by that enemy's own method</td></tr>
+<tr><td><span class="u-icon u-immobilizer"></span> <b>Immobilizer</b></td><td>like a Queen</td><td>never captures - it paralyses instead</td></tr>
+<tr><td><span class="u-icon u-king"></span> <b>King</b></td><td>one square</td><td>by displacement, like a chess King</td></tr>
+</table>
+<p>Every piece except the Pincer Pawn and the King moves exactly like a Queen: any distance along a rank,
+a file or a diagonal, over empty squares only. No piece may jump over another - the Long Leaper does, but only to capture.</p>
+
+<h2>Initial setup</h2>
+<p>White moves first. The two armies face each other rotated, not mirrored: the Immobilizer of one player stands opposite the Coordinator of the other.</p>
+
+<h2><span class="u-icon u-pawn"></span> Pincer Pawn</h2>
+<p>The Pincer Pawn moves like a Rook. When it lands, every enemy piece orthogonally adjacent to it
+is captured if a friendly piece stands directly beyond that enemy, on the same rank or file. Up to four pieces can be
+taken in one move. Diagonal sandwiches do nothing.</p>
+<p>Pawns capture only when they move: a piece that walks <i>between</i> two enemy Pawns of its own accord is safe.</p>
+
+<h2><span class="u-icon u-withdrawer"></span> Withdrawer</h2>
+<p>The Withdrawer captures the piece it is standing next to by moving directly away from it, any distance.
+Only one piece can be taken this way per move, and only if it was adjacent before the move.</p>
+
+<h2><span class="u-icon u-coordinator"></span> Coordinator</h2>
+<p>The Coordinator works with its own King. After it moves, look at the rectangle whose opposite corners
+are the Coordinator and the King: any enemy piece on either of the two remaining corners is removed. It captures nothing
+if those squares are empty or occupied by friendly pieces.</p>
+
+<h2><span class="u-icon u-leaper"></span> Long Leaper</h2>
+<p>The Long Leaper moves like a Queen but may, along the way, jump over an enemy piece and capture it,
+provided the square immediately behind that piece is empty. It may then continue in the same direction and jump further
+enemies under the same condition, and it may land on any free square beyond. It can never jump over a friendly piece,
+nor over two enemy pieces standing next to each other.</p>
+
+<h2><span class="u-icon u-immobilizer"></span> Immobilizer</h2>
+<p>The Immobilizer never captures anything. Instead, every enemy piece on one of the eight squares
+around it is frozen: it cannot move at all. A frozen piece is not otherwise affected - it still captures nothing, it
+still blocks lines, and it can still be captured.</p>
+
+<h2><span class="u-icon u-chameleon"></span> Chameleon</h2>
+<p>The Chameleon moves like a Queen and captures each kind of enemy piece by that piece's own method:
+it pinces enemy Pincer Pawns, withdraws from enemy Withdrawers, coordinates with its King against enemy Coordinators,
+leaps over enemy Long Leapers, and takes an adjacent enemy King by moving onto it. Standing next to an enemy Immobilizer,
+it freezes it - and is frozen by it in return, so the two paralyse each other.</p>
+<p>Having no capturing power of its own, a Chameleon can never capture another Chameleon.</p>
+
+<h2><span class="u-icon u-king"></span> King</h2>
+<p>The King moves one square in any direction and captures like a chess King, by displacement.</p>
+
+<h2>Ending the game</h2>
+<p>A King is in check when the opponent could remove it next move - by any of the methods above, which is
+much harder to see than in chess: a Coordinator far away, a Pawn arriving next to it, a Leaper crossing it. A player who
+cannot make a legal move loses, so stalemating the opponent wins the game.</p>
+
+<h2>About this implementation</h2>
+<p>Two points of Abbott's rules are simplified here. A Withdrawer that moves away from an adjacent enemy
+always takes it, whereas the original rules let the player decline the capture. And a piece frozen by an Immobilizer
+cannot remove itself from the board, a "suicide" move that some rule sets allow.</p>

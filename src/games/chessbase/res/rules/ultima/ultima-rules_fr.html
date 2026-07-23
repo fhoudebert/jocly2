@@ -1,0 +1,109 @@
+<style>
+	table.u-pieces {
+		border-collapse: collapse;
+		margin: 12px 0;
+	}
+	table.u-pieces th, table.u-pieces td {
+		border-bottom: 1px solid #ccc;
+		padding: 6px 12px 6px 0;
+		text-align: left;
+		vertical-align: middle;
+	}
+	.u-icon {
+		display: inline-block;
+		width: 40px;
+		height: 40px;
+		vertical-align: middle;
+		background-image: url({GAME}/res/ultima/ultima-picto-sprites.png);
+		background-repeat: no-repeat;
+		/* The sheet holds --u-cols columns x 2 rows of square cells; show the
+		   white (top) row. Only --u-cols has to change when the sheet grows. */
+		--u-cols: 10;
+		background-size: calc(var(--u-cols) * 100%) 200%;
+		background-position-y: 0;
+		background-position-x: calc(var(--u-col) / (var(--u-cols) - 1) * 100%);
+	}
+	/* column index of each piece within the shared sprite sheet */
+	.u-pawn        { --u-col: 0; }
+	.u-coordinator { --u-col: 1; }
+	.u-leaper      { --u-col: 2; }
+	.u-withdrawer  { --u-col: 3; }
+	.u-chameleon   { --u-col: 4; }
+	.u-immobilizer { --u-col: 5; }
+	.u-king        { --u-col: 6; }
+</style>
+
+<h1>Ultima</h1>
+<p>Ultima - également connu sous le nom d’Échecs baroques - a été inventé par Robert Abbott en 1962.
+Il se joue sur un échiquier classique, et l’objectif est le même qu’aux échecs : mettre le Roi adverse échec et mat.
+Tout le reste est différent. À l’exception du Roi, aucune pièce ne capture en prenant la place de sa victime :
+chaque pièce possède sa propre manière, très particulière, de prendre les pièces ennemies,
+et un seul coup peut en éliminer plusieurs simultanément.</p>
+
+<h2>Les pièces</h2>
+<table class="u-pieces">
+<tr><th>Pièce</th><th>Déplacement</th><th>Capture</th></tr>
+<tr><td><span class="u-icon u-pawn"></span> <b>Rabatteur</b></td><td>comme une Tour</td><td>prend en tenaille une pièce ennemie entre lui et une pièce alliée</td></tr>
+<tr><td><span class="u-icon u-coordinator"></span> <b>Coordinateur</b></td><td>comme une Dame</td><td>sur les coins du rectangle qu’il forme avec son propre Roi</td></tr>
+<tr><td><span class="u-icon u-leaper"></span> <b>Bondissant</b></td><td>comme une Dame</td><td>en sautant par-dessus les ennemis, autant que la ligne le permet</td></tr>
+<tr><td><span class="u-icon u-withdrawer"></span> <b>Décrocheur</b></td><td>comme une Dame</td><td>la pièce adjacente dont il s’éloigne directement (capture par retrait)</td></tr>
+<tr><td><span class="u-icon u-chameleon"></span> <b>Caméléon</b></td><td>comme une Dame</td><td>chaque ennemi selon sa propre méthode de capture</td></tr>
+<tr><td><span class="u-icon u-immobilizer"></span> <b>Immobilisateur</b></td><td>comme une Dame</td><td>ne capture jamais - il paralyse à la place</td></tr>
+<tr><td><span class="u-icon u-king"></span> <b>Roi</b></td><td>une case</td><td>par déplacement, comme un Roi d’échecs</td></tr>
+</table>
+
+<p>Toutes les pièces, à l’exception du Rabatteur et du Roi, se déplacent exactement comme une Dame :
+d’un nombre quelconque de cases le long d’une rangée, d’une colonne ou d’une diagonale, uniquement au-dessus de cases vides.
+Aucune pièce ne peut sauter par-dessus une autre - le Bondissant le peut, mais uniquement pour capturer.</p>
+
+<h2>Mise en place initiale</h2>
+<p>Les Blancs jouent en premier. Les deux armées se font face en étant tournées, sans symétrie :
+l’Immobilisateur d’un joueur se trouve en face du Coordinateur de l’autre.</p>
+
+<h2><span class="u-icon u-pawn"></span> Rabatteur</h2>
+<p>Le Rabatteur se déplace comme une Tour. Lorsqu’il termine son déplacement, toute pièce ennemie orthogonalement adjacente est capturée si une pièce alliée se trouve directement derrière cette pièce ennemie, sur la même rangée ou la même colonne. Jusqu’à quatre pièces peuvent être capturées en un seul coup. Les prises en tenaille diagonales n’ont aucun effet.</p>
+<p>Les Rabatteurs ne capturent que lorsqu’ils se déplacent : une pièce qui vient d’elle-même se placer <i>entre</i> deux Rabatteurs ennemis reste hors de danger.</p>
+
+<h2><span class="u-icon u-withdrawer"></span> Décrocheur</h2>
+<p>Le Décrocheur capture la pièce à laquelle il est adjacent en se déplaçant directement dans la direction opposée, d’une distance quelconque.
+Une seule pièce peut être capturée de cette manière par coup, et seulement si elle était adjacente avant le déplacement.</p>
+
+<h2><span class="u-icon u-coordinator"></span> Coordinateur</h2>
+<p>Le Coordinateur agit avec son propre Roi. Après son déplacement, considérez le rectangle dont les coins opposés sont occupés par le Coordinateur et le Roi :
+toute pièce ennemie située sur l’un des deux autres coins est retirée de l’échiquier.
+Il ne capture rien si ces cases sont vides ou occupées par des pièces alliées.</p>
+
+<h2><span class="u-icon u-leaper"></span> Bondissant</h2>
+<p>Le Bondissant se déplace comme une Dame mais peut, pendant son déplacement, sauter par-dessus une pièce ennemie et la capturer,
+à condition que la case immédiatement derrière cette pièce soit libre. Il peut ensuite continuer dans la même direction et sauter d’autres ennemis selon la même condition,
+avant de terminer son mouvement sur n’importe quelle case libre située plus loin.
+Il ne peut jamais sauter par-dessus une pièce alliée, ni par-dessus deux pièces ennemies adjacentes.</p>
+
+<h2><span class="u-icon u-immobilizer"></span> Immobilisateur</h2>
+<p>L’Immobilisateur ne capture jamais aucune pièce. À la place, toute pièce ennemie située sur l’une des huit cases qui l’entourent est immobilisée :
+elle ne peut plus se déplacer. Une pièce immobilisée n’est pas affectée autrement :
+elle ne capture toujours rien, elle continue de bloquer les lignes de déplacement et elle peut toujours être capturée.</p>
+
+<h2><span class="u-icon u-chameleon"></span> Caméléon</h2>
+<p>Le Caméléon se déplace comme une Dame et capture chaque type de pièce ennemie selon la méthode propre à cette pièce :
+il prend en tenaille les Rabatteurs ennemis, se décroche des Décrocheurs ennemis, coordonne avec son Roi contre les Coordinateurs ennemis,
+saute par-dessus les Bondissants ennemis et capture un Roi ennemi adjacent en prenant sa place.
+Lorsqu’il est placé à côté d’un Immobilisateur ennemi, il l’immobilise - et est immobilisé en retour :
+les deux pièces se paralysent mutuellement.</p>
+<p>N’ayant aucun pouvoir de capture propre, un Caméléon ne peut jamais capturer un autre Caméléon.</p>
+
+<h2><span class="u-icon u-king"></span> Roi</h2>
+<p>Le Roi se déplace d’une case dans n’importe quelle direction et capture comme le Roi des échecs classiques, par déplacement sur la case occupée.</p>
+
+<h2>Fin de la partie</h2>
+<p>Un Roi est en échec lorsque l’adversaire pourrait le prendre au coup suivant - par l’une des méthodes décrites ci-dessus,
+ce qui est beaucoup plus difficile à prévoir qu’aux échecs classiques :
+un Coordinateur éloigné, un Rabatteur arrivant à côté de lui, un Bondissant le traversant.
+Un joueur qui ne peut effectuer aucun coup légal perd la partie : ainsi, bloquer complètement l’adversaire est une victoire.</p>
+
+<h2>À propos de cette implémentation</h2>
+<p>Deux points des règles d’Abbott sont simplifiés ici.
+Un Décrocheur qui s’éloigne d’une pièce ennemie adjacente la capture toujours,
+alors que les règles originales permettent au joueur de renoncer à cette capture.
+De plus, une pièce immobilisée par un Immobilisateur ne peut pas se retirer elle-même de l’échiquier par un « suicide »,
+un coup autorisé par certains ensembles de règles.</p>
