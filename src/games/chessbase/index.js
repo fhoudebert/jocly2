@@ -7963,7 +7963,7 @@ exports.games = (function () {
 					},
 					"rules": {
 						"en": "res/rules/spartan/spartan-rules.html",
-						"fr": "res/rules/3dchess/spartan-rules_fr.html"
+						"fr": "res/rules/spartan/spartan-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
