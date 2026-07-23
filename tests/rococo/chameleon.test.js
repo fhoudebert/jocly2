@@ -118,5 +118,38 @@ check("combines leap + withdrawal + approach in one move",
 	check("combo unapply: signature restored", b.zSign, sign);
 }
 
+/* ------------------------------- swaps combined with the other captures */
+
+{
+	// swapping with a Swapper, while withdrawing from a Withdrawer left behind
+	// and approaching an Advancer beyond the landing square
+	const b = h.setup(sb, game, { a1: "wK", h8: "bK", d4: "wC", d6: "bS", d3: "bW", d7: "bA" }, 1);
+	b.GenerateMoves(game);
+	const combo = b.mMoves.filter((m) => m.f === h.posOf("d4") && m.swap != null)[0];
+	check("swap combo: the move exists", combo !== undefined, true);
+	check("swap combo: it takes both the Withdrawer and the Advancer",
+		(combo.kills || []).map((k) => h.nameOf(b.pieces[k].p)).sort(), ["d3", "d7"]);
+
+	const before = h.census(b, game), sign = b.zSign;
+	const undo = b.cbQuickApply(game, combo);
+	check("swap combo: two pieces removed, the swap still exchanges the other two",
+		h.census(b, game).sort(), ["bS@d4", "bK@h8", "wC@d6", "wK@a1"].sort());
+	b.cbQuickUnapply(game, undo);
+	check("swap combo: undo restores the position", h.census(b, game), before);
+	check("swap combo: undo restores the signature", b.zSign, sign);
+
+	b.ApplyMove(game, combo);
+	check("swap combo: ApplyMove agrees with the quick apply",
+		h.census(b, game).sort(), ["bS@d4", "bK@h8", "wC@d6", "wK@a1"].sort());
+}
+
+check("swap combo: a plain swap with nothing else around captures nobody",
+	(() => {
+		const b = h.setup(sb, game, { a1: "wK", h8: "bK", d4: "wC", d6: "bS" }, 1);
+		b.GenerateMoves(game);
+		const m = b.mMoves.filter((x) => x.f === h.posOf("d4") && x.swap != null)[0];
+		return m && m.kills === undefined;
+	})(), true);
+
 console.log((failed ? "FAILED" : "OK") + " - " + passed + " passed, " + failed + " failed");
 process.exit(failed ? 1 : 0);

@@ -137,5 +137,63 @@ check("frozen: a Swapper next to an enemy Immobilizer can only suicide",
 	from({ a1: "wK", h8: "bK", d4: "wS", d5: "bI" }, "d4"),
 	["Sd4(suicide)"]);
 
+/* ------------------------------------------ no immediate swap-back */
+
+{
+	// after two Swappers trade places, neither may swap straight back
+	const b = h.setup(sb, game, { a1: "wK", h8: "bK", d4: "wS", d7: "bS" }, 1);
+	b.GenerateMoves(game);
+	const swap = b.mMoves.filter((m) => h.moveStr(b, m) === "Sd4<>d7")[0];
+	check("swap-back: the first swap exists", swap !== undefined, true);
+	b.ApplyMove(game, swap);
+	b.mWho = -1;
+	b.GenerateMoves(game);
+	const backs = b.mMoves.filter((m) => m.f === h.posOf("d4") && m.swap != null)
+		.map((m) => h.moveStr(b, m));
+	check("swap-back: the reverse swap is not offered next turn",
+		backs.filter((m) => m.indexOf("d7") >= 0), []);
+	check("swap-back: other swaps stay available", backs.length > 0, true);
+
+	// any other move clears the ban
+	const other = b.mMoves.filter((m) => m.f === h.posOf("h8"))[0];
+	b.ApplyMove(game, other);
+	b.mWho = 1;
+	b.GenerateMoves(game);
+	check("swap-back: allowed again once another move has been played",
+		b.mMoves.filter((m) => m.f === h.posOf("d7") && m.swap != null)
+			.map((m) => h.moveStr(b, m)).filter((m) => m.indexOf("d4") >= 0),
+		["Sd7<>d4"]);
+}
+
+{
+	// the ban only covers Swapper/Chameleon pairs: swapping with anything else
+	// may be undone immediately
+	const b = h.setup(sb, game, { a1: "wK", h8: "bK", d4: "wS", d7: "bL" }, 1);
+	b.GenerateMoves(game);
+	const swap = b.mMoves.filter((m) => h.moveStr(b, m) === "Sd4<>d7")[0];
+	b.ApplyMove(game, swap);
+	b.mWho = 1;								// same side plays again, for the test
+	b.GenerateMoves(game);
+	check("swap-back: no ban after swapping with an ordinary piece",
+		b.mMoves.filter((m) => m.f === h.posOf("d7") && m.swap != null)
+			.map((m) => h.moveStr(b, m)).filter((m) => m.indexOf("d4") >= 0),
+		["Sd7<>d4"]);
+}
+
+{
+	// the pending ban must survive a board copy (the search clones boards)
+	const b = h.setup(sb, game, { a1: "wK", h8: "bK", d4: "wS", d7: "bS" }, 1);
+	b.GenerateMoves(game);
+	b.ApplyMove(game, b.mMoves.filter((m) => h.moveStr(b, m) === "Sd4<>d7")[0]);
+	const clone = h.newBoard(sb, game);
+	clone.CopyFrom(b);
+	clone.mWho = -1;
+	clone.GenerateMoves(game);
+	check("swap-back: the ban is carried across CopyFrom",
+		clone.mMoves.filter((m) => m.f === h.posOf("d4") && m.swap != null)
+			.map((m) => h.moveStr(clone, m)).filter((m) => m.indexOf("d7") >= 0),
+		[]);
+}
+
 console.log((failed ? "FAILED" : "OK") + " - " + passed + " passed, " + failed + " failed");
 process.exit(failed ? 1 : 0);

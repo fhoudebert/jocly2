@@ -141,8 +141,9 @@ Il ne peut entrer sur une case de bord que pour y capturer une pièce.</p>
 la partie, tout comme celui qui provoque une triple répétition.</p>
 
 <h2>À propos de cette implémentation</h2>
-<p>Trois points de détail des règles publiées sont simplifiés ici. Lorsque deux coups différents réaliseraient
-exactement la même capture à travers l’anneau, les règles originales interdisent purement et simplement la capture ;
-cette implémentation conserve les coups à égalité. La règle empêchant un Permutateur et un Permutateur ou Caméléon ennemi
-de permuter à nouveau en sens inverse au coup suivant n’est pas appliquée. Enfin, la promotion d’un Pion-canon ne consomme
-pas la pièce capturée qu’elle copie : deux Pions peuvent donc se promouvoir en une pièce du même type.</p>
+<p>Les règles publiées sont respectées intégralement, jusque dans leurs points de détail : un coup vers l’anneau
+doit être l’unique coup le plus court réalisant cette capture précise, un Permutateur et un Permutateur ou Caméléon
+ennemi ne peuvent pas permuter à nouveau en sens inverse au coup suivant, et la promotion d’un Pion-canon consomme la
+pièce capturée qu’elle copie. Un détail technique : l’interdiction de ré-échange en cours ne fait pas partie de
+l’empreinte de la position, si bien que deux positions qui n’en diffèrent que par elle comptent pour une seule au
+regard de la règle de répétition.</p>

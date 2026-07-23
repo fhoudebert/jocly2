@@ -3,8 +3,11 @@
  *   node tests/rococo/promote.test.js
  *
  * A Cannon Pawn making a move by itself onto the opposing King's start rank
- * (or the edge rank past it) may promote to any friendly piece type currently
- * off the board. An immobilized piece other than a King may remove itself.
+ * (or the edge rank past it) may promote to one of its own pieces that has
+ * been captured and is still off the board. Promotion consumes that captured
+ * piece, so a type is on offer only while the side has fewer of it on the
+ * board than it started with. An immobilized piece other than a King may
+ * remove itself.
  */
 
 const h = require("./harness.js");
@@ -21,63 +24,90 @@ const game = h.newGame(sb);
 
 const moves = (pieces, sq, who) => h.movesFrom(h.setup(sb, game, pieces, who), game, sq);
 
+// White's full complement of back-rank pieces, parked out of the way, plus
+// both Kings. Dropping an entry is what "having that piece captured" means.
+const FULL = {
+	a1: "wK", h5: "bK",
+	a3: "wA", a4: "wL", a5: "wL", a6: "wS", b1: "wW", b3: "wC", b4: "wI",
+};
+function without() {
+	const out = Object.assign({}, FULL);
+	for(const sq of arguments)
+		delete out[sq];
+	return out;
+}
+const toRank8 = (list) => list.filter((m) => m.indexOf("g8") >= 0).sort();
+
 /* --------------------------------------------------------- promotion */
 
-// a white pawn stepping onto g8 (the black King's start rank) with an empty
-// reserve can only stay a pawn - promotion needs a captured piece to copy
-check("promotion: no options when the reserve is empty",
-	moves({ a1: "wK", h5: "bK", g7: "wP" }, "g7")
-		.filter((m) => m.indexOf("g8") >= 0).sort(),
+check("promotion: nothing on offer while the side is at full strength",
+	toRank8(moves(Object.assign({ g7: "wP" }, FULL), "g7")),
 	["Pg7-g8"]);
 
-// give the side a reserve by putting captured pieces off-board via a crafted
-// position: two white pieces already off the board are simulated by removing
-// them from the initial set (they simply are not placed, so they count as
-// captured). We build the board directly for control.
-{
-	const b = h.setup(sb, game, { a1: "wK", h5: "bK", g7: "wP" }, 1);
-	// simulate a reserve: append two off-board white pieces (Withdrawer, Leaper)
-	for(const t of ["W", "L", "L"]) {
-		const type = { P: 0, A: 1, L: 2, S: 3, W: 4, C: 5, I: 6, K: 7 }[t];
-		b.pieces.push({ s: 1, t: type, p: -1, m: true });
-	}
-	b.GenerateMoves(game);
-	const g8 = b.mMoves.filter((m) => m.f === h.posOf("g7") && h.nameOf(m.t) === "g8")
-		.map((m) => h.moveStr(b, m)).sort();
-	check("promotion: one variant per distinct reserve type, plus the plain move",
-		g8, ["Pg7-g8", "Pg7-g8=L", "Pg7-g8=W"]);
-}
+check("promotion: one variant per captured type still missing",
+	toRank8(moves(Object.assign({ g7: "wP" }, without("b1", "a5")), "g7")),
+	["Pg7-g8", "Pg7-g8=L", "Pg7-g8=W"]);
 
-check("promotion: no promotion before the far rank",
-	moves({ a1: "wK", h5: "bK", g6: "wP" }, "g6").filter((m) => m.indexOf("=") >= 0),
+check("promotion: never to a Cannon Pawn, never to a King",
+	toRank8(moves(Object.assign({ g7: "wP" }, without("b1")), "g7")).filter((m) => /=[PK]$/.test(m)),
 	[]);
 
+check("promotion: no promotion before the far rank",
+	moves(Object.assign({ g6: "wP" }, without("b1")), "g6").filter((m) => m.indexOf("=") >= 0),
+	[]);
+
+check("promotion: black promotes on its own far rank (rank 1)",
+	moves({ a8: "bK", h5: "wK", g2: "bP", a6: "bA", a5: "bL", a4: "bL", a3: "bS", b8: "bC", b6: "bI" }, "g2", -1)
+		.filter((m) => m.indexOf("g1") >= 0).sort(),
+	["Pg2-g1", "Pg2-g1=W"]);
+
+/* ------------------------------------------ promotion consumes the reserve */
+
 {
-	// applying a promotion changes the pawn's type
-	const b = h.setup(sb, game, { a1: "wK", h5: "bK", g7: "wP" }, 1);
-	b.pieces.push({ s: 1, t: 4, p: -1, m: true });		// a captured white Withdrawer
+	// only the Withdrawer is missing; two Pawns stand one step from the far rank
+	const b = h.setup(sb, game, Object.assign({ g7: "wP", f7: "wP" }, without("b1")), 1);
+	b.GenerateMoves(game);
+	// a Cannon Pawn steps one square in any direction, so each Pawn reaches
+	// three squares of the far rank
+	check("consume: both Pawns may become the missing Withdrawer",
+		b.mMoves.filter((m) => m.pr != null).map((m) => h.moveStr(b, m)).sort(),
+		["Pf7-e8=W", "Pf7-f8=W", "Pf7-g8=W", "Pg7-f8=W", "Pg7-g8=W", "Pg7-h8=W"]);
+
+	const promo = b.mMoves.filter((m) => h.moveStr(b, m) === "Pg7-g8=W")[0];
+	b.ApplyMove(game, promo);
+	b.GenerateMoves(game);
+	check("consume: once one Pawn has taken it, the other cannot",
+		b.mMoves.filter((m) => m.pr != null).map((m) => h.moveStr(b, m)), []);
+}
+
+{
+	// both Long Leapers captured: two promotions to Long Leaper are allowed
+	const b = h.setup(sb, game, Object.assign({ g7: "wP", f7: "wP" }, without("a4", "a5")), 1);
+	b.GenerateMoves(game);
+	const promo = b.mMoves.filter((m) => h.moveStr(b, m) === "Pg7-g8=L")[0];
+	check("consume: a doubled type is offered", promo !== undefined, true);
+	b.ApplyMove(game, promo);
+	b.GenerateMoves(game);
+	check("consume: the second one is still available",
+		b.mMoves.filter((m) => m.pr != null).map((m) => h.moveStr(b, m)).sort(),
+		["Pf7-e8=L", "Pf7-f8=L"]);
+}
+
+{
+	// applying a promotion changes the pawn's type, and undo puts it back
+	const b = h.setup(sb, game, Object.assign({ g7: "wP" }, without("b1")), 1);
 	b.GenerateMoves(game);
 	const promo = b.mMoves.filter((m) => h.moveStr(b, m) === "Pg7-g8=W")[0];
 	check("promotion apply: exists", promo !== undefined, true);
 	const sign = b.zSign;
 	const undo = b.cbQuickApply(game, promo);
-	check("promotion apply: pawn became a Withdrawer on g8",
+	check("promotion apply: the Pawn became a Withdrawer on g8",
 		game.cbVar.pieceTypes[b.pieces[b.board[h.posOf("g8")]].t].fenAbbrev, "W");
 	b.cbQuickUnapply(game, undo);
 	check("promotion unapply: back to a Pawn on g7",
 		game.cbVar.pieceTypes[b.pieces[b.board[h.posOf("g7")]].t].fenAbbrev, "P");
 	check("promotion unapply: signature restored", b.zSign, sign);
 }
-
-check("promotion: black promotes on its far rank (row 1)",
-	(() => {
-		const b = h.setup(sb, game, { a8: "bK", h5: "wK", g2: "bP" }, -1);
-		b.pieces.push({ s: -1, t: 2, p: -1, m: true });	// captured black Leaper
-		b.GenerateMoves(game);
-		return b.mMoves.filter((m) => m.f === h.posOf("g2") && h.nameOf(m.t) === "g1")
-			.map((m) => h.moveStr(b, m)).sort();
-	})(),
-	["Pg2-g1", "Pg2-g1=L"]);
 
 /* ----------------------------------------------------------- suicide */
 

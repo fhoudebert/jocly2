@@ -49,7 +49,7 @@ function playout(seed, maxPlies) {
 		const move = board.mMoves[next() % board.mMoves.length];
 		let v;
 		if(move.swap != null)
-			v = 0;						// a swap removes nobody
+			v = move.kills ? move.kills.length : 0;	// a swap exchanges; a Chameleon's may also capture
 		else if(move.suicide)
 			v = 1;						// suicide removes the mover itself
 		else if(move.mutual)

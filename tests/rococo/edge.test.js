@@ -100,5 +100,65 @@ function movesRaw(b, from) {
 		km.filter((m) => m.indexOf("@") >= 0 && m.indexOf("x") < 0), []);
 }
 
+/* ------------------------ piece-specific restrictions stated by the source */
+
+const isEdge = (p) => { const r = Math.floor(p / 10), c = p % 10; return r === 0 || r === 9 || c === 0 || c === 9; };
+function ringDestinations(b, from) {
+	b.GenerateMoves(game);
+	return b.mMoves.filter((m) => m.f === from && isEdge(m.t)).map((m) => h.moveStr(b, m));
+}
+
+{
+	// "An Advancer may only enter an edge square if swapped there": capturing by
+	// approach never lands it on the ring, since the victim would have to sit
+	// off the board. It still captures ring pieces from an inner square.
+	const b = board({ a1: "wK", h8: "bK", b4: "wA" },
+		{ "4,0": "bP", "4,9": "bP", "0,3": "bP", "9,2": "bP" }, 1);
+	check("advancer: never enters the ring by its own move",
+		ringDestinations(b, h.posOf("b4")), []);
+	check("advancer: still captures a ring piece from an inner square",
+		movesRaw(b, h.posOf("b4")).filter((m) => m.indexOf("x@0,4") >= 0), ["Ab4-a4x@0,4"]);
+}
+
+{
+	// "once on an edge square it may make capturing moves along the edge"
+	const b = board({ a1: "wK", h8: "bK" }, { "0,3": "wA", "0,5": "bP" }, 1);
+	check("advancer: once on the ring, it captures along the ring",
+		movesRaw(b, h.posRC(0, 3)).filter((m) => m.indexOf("x") >= 0), ["A@3,0-@4,0x@5,0"]);
+}
+
+{
+	// "The Immobilizer may never move to ... an edge square" - it never captures,
+	// so the general rule already keeps it off the ring
+	const b = board({ a1: "wK", h8: "bK", b4: "wI" }, { "4,0": "bP" }, 1);
+	check("immobilizer: never enters the ring", ringDestinations(b, h.posOf("b4")), []);
+}
+
+/* ------------------------------- rule 4: the ring move must be the only one */
+
+// rocFilterEdge is a pure function of the move list, so the tie can be shown
+// directly: two moves from the same square, capturing the same piece, crossing
+// the same single edge square, at the same distance. Neither may be played.
+{
+	const b = h.setup(sb, game, { a1: "wK", h8: "bK" }, 1);
+	const from = h.posRC(1, 1);					// inner corner
+	const twin = () => [
+		{ f: from, t: h.posRC(0, 0), c: 7, a: "L" },
+		{ f: from, t: h.posRC(0, 1), c: 7, a: "L" },
+	];
+	check("rule 4: tied ring captures are both forbidden",
+		b.rocFilterEdge(twin()).length, 0);
+
+	check("rule 4: the same capture stays legal when only one move makes it",
+		b.rocFilterEdge([twin()[0]]).map((m) => h.nameOf(m.t)), ["@0,0"]);
+
+	// differing in distance is not a tie: the shorter one is the legal move
+	check("rule 4: the shortest of two unequal ring moves is kept",
+		b.rocFilterEdge([
+			{ f: from, t: h.posRC(0, 0), c: 7, a: "L" },
+			{ f: h.posRC(1, 1), t: h.posRC(0, 1), c: 8, a: "L" },
+		]).length, 2);
+}
+
 console.log((failed ? "FAILED" : "OK") + " - " + passed + " passed, " + failed + " failed");
 process.exit(failed ? 1 : 0);

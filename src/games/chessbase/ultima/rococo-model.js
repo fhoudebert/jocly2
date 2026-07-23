@@ -292,15 +292,37 @@
 		return false;
 	}
 
-	// distinct types of this side's pieces currently off the board (its reserve)
+	// how many pieces of each type a side starts with (King excluded: it can
+	// never be off the board while the game is running)
+	var INITIAL_COUNT = (function() {
+		var count = {};
+		count[PAWN] = 8;
+		for(var i = 0; i < BACK.length; i++)
+			count[BACK[i]] = (count[BACK[i]] || 0) + 1;
+		return count;
+	})();
+
+	/*
+	 * Types this side may promote a Cannon Pawn to: one of its own pieces that
+	 * has been captured and is still off the board.
+	 *
+	 * Availability is measured as "fewer of this type on the board than the
+	 * side started with", so a promotion consumes the captured piece it copies:
+	 * promoting the only captured Withdrawer puts a Withdrawer back on the
+	 * board and closes the option, while a side that lost both Long Leapers may
+	 * promote twice.
+	 */
 	Model.Board.rocReserveTypes = function(who) {
-		var seen = {}, types = [];
+		var onBoard = {}, types = [];
 		for(var i = 0; i < this.pieces.length; i++) {
 			var p = this.pieces[i];
-			if(p.p < 0 && p.s == who && p.t != PAWN && !seen[p.t]) {
-				seen[p.t] = true;
-				types.push(p.t);
-			}
+			if(p.p >= 0 && p.s == who)
+				onBoard[p.t] = (onBoard[p.t] || 0) + 1;
+		}
+		for(var t in INITIAL_COUNT) {
+			t = +t;
+			if(t != PAWN && t != KING && (onBoard[t] || 0) < INITIAL_COUNT[t])
+				types.push(t);
 		}
 		return types;
 	}
@@ -349,7 +371,8 @@
 					break;
 				var index = this.board[POS(r, c)];
 				if(index >= 0) {
-					if(emit(mk(piece, POS(r, c), { swap: index })))
+					if(!this.rocSwapBlocked(piece, index)
+						&& emit(mk(piece, POS(r, c), { swap: index })))
 						return true;
 					break;						// blocked beyond the first piece
 				}
@@ -415,13 +438,26 @@
 					return true;
 			}
 
-			// mimic a Swapper: swap with the nearest piece if it is an enemy Swapper
+			// mimic a Swapper: swap with the nearest piece if it is an enemy
+			// Swapper. Such a swap may be combined with the Chameleon's other
+			// captures along the same line.
 			for(var rr = r0 + dr, cc = c0 + dc; onBoard(rr, cc); rr += dr, cc += dc) {
 				var ii = this.board[POS(rr, cc)];
 				if(ii >= 0) {
 					if(this.pieces[ii].s != who && this.pieces[ii].t == SWAPPER
-						&& emit(mk(piece, POS(rr, cc), { swap: ii })))
-						return true;
+						&& !this.rocSwapBlocked(piece, ii)) {
+						var swapTo = POS(rr, cc), swapKills = [];
+						if(wv >= 0)
+							swapKills.push(wv);				// withdrawal, behind the origin
+						var sav = this.rocFoe(who, POS(rr + dr, cc + dc), ADVANCER);
+						if(sav >= 0)
+							swapKills.push(sav);			// approach, beyond the landing
+						var sm = mk(piece, swapTo, { swap: ii });
+						if(swapKills.length)
+							sm.kills = swapKills;
+						if(emit(sm))
+							return true;
+					}
 					break;
 				}
 			}
@@ -487,11 +523,13 @@
 	/*
 	 * Keep a move that never touches an edge square. A move that does touch one
 	 * is legal only if it captures, only if the same capture cannot be made
-	 * without touching an edge square, and then only by the move(s) crossing
-	 * the fewest edge squares (nearest landing among those).
+	 * without touching an edge square, only among the moves crossing the fewest
+	 * edge squares, and - rule 4 of the source - only if it is then the single
+	 * shortest such move: when two moves would make exactly the same capture at
+	 * the same cost, neither is legal.
 	 *
-	 * Rule 4 of the source - that such a move must be *unique* - is relaxed: on
-	 * a genuine tie we keep the tied moves rather than forbidding the capture.
+	 * Moves are grouped by (moving piece, set of captured pieces), which is the
+	 * "capturing move c" the source's rules 3 and 4 are stated over.
 	 */
 	Model.Board.rocFilterEdge = function(moves) {
 		var groups = {};
@@ -516,12 +554,15 @@
 					minEdge = grp[k]._edge;
 			if(minEdge == 0 || mv._edge != minEdge)
 				continue;						// an inner (or shallower) alternative exists
-			var minDist = Infinity;
+			var minDist = Infinity, shortest = 0;
 			for(var l = 0; l < grp.length; l++)
-				if(grp[l]._edge == minEdge)
-					minDist = Math.min(minDist, chebyshev(grp[l].f, grp[l].t));
-			if(chebyshev(mv.f, mv.t) == minDist)
-				result.push(mv);
+				if(grp[l]._edge == minEdge) {
+					var d = chebyshev(grp[l].f, grp[l].t);
+					if(d < minDist) { minDist = d; shortest = 1; }
+					else if(d == minDist) shortest++;
+				}
+			if(shortest == 1 && chebyshev(mv.f, mv.t) == minDist)
+				result.push(mv);				// the single shortest way to make this capture
 		}
 		for(var z = 0; z < result.length; z++) {
 			delete result[z]._edge;
@@ -593,8 +634,19 @@
 		if(move.swap != null) {
 			// exchange the mover and the swapped piece; reuse the base move by
 			// lifting the swapped piece off first so the base sees an empty
-			// destination, then dropping it on the vacated origin.
+			// destination, then dropping it on the vacated origin. A Chameleon
+			// may combine the swap with its own captures, carried in move.kills.
 			var other = this.pieces[move.swap], from = move.f, to = move.t;
+			if(move.kills)
+				for(var s = 0; s < move.kills.length; s++) {
+					var prey = this.pieces[move.kills[s]];
+					if(prey.p < 0)
+						continue;
+					this.zSign ^= aGame.bKey(prey);
+					this.board[prey.p] = -1;
+					prey.p = -1;
+					prey.m = true;
+				}
 			this.zSign ^= aGame.bKey(other);
 			this.board[to] = -1;
 			OriginalApplyMove.call(this, aGame, { f: from, t: to, c: null, a: move.a });
@@ -605,6 +657,8 @@
 			var oroyal = aGame.g.pTypes[other.t].isKing;
 			if(oroyal)
 				this.kings[other.s * oroyal] = from;
+			if(move.kills && move.kills.length)
+				this.noCaptCount = 0;
 			return;
 		}
 		if(move.mutual) {
@@ -658,6 +712,15 @@
 			this.board[from] = other.i; other.p = from;
 			if(mroyal) this.kings[mover.s * mroyal] = to;
 			if(oroyal) this.kings[other.s * oroyal] = from;
+			if(move.kills)					// a Chameleon's swap may capture as well
+				for(var s = 0; s < move.kills.length; s++) {
+					var prey = this.pieces[move.kills[s]];
+					if(prey.p < 0)
+						continue;
+					undo.push({ i: move.kills[s], f: -1, t: prey.p });
+					this.board[prey.p] = -1;
+					prey.p = -1;
+				}
 			return undo;
 		}
 		if(move.mutual) {
@@ -680,6 +743,78 @@
 				victim.p = -1;
 			}
 		return undo;
+	}
+
+	/* ------------------------------------- no immediate swap-back (1 ply) */
+
+	/*
+	 * When a Swapper or Chameleon swaps with an opposing Swapper or Chameleon,
+	 * those two pieces may not swap straight back on the following turn; any
+	 * other move clears the ban. That needs exactly one ply of history, kept in
+	 * board.rocLastSwap as the pair of piece indices (or null).
+	 *
+	 * The pair is not part of the Zobrist signature, so two positions differing
+	 * only by a pending ban hash alike - the same trade-off the base model makes
+	 * for other one-ply state.
+	 */
+	function swapPair(board, move) {
+		if(move.swap == null)
+			return null;
+		var mover = board.pieces[board.board[move.f]], other = board.pieces[move.swap];
+		if(!mover || !other || mover.s == other.s)
+			return null;
+		var a = mover.t, b = other.t;
+		if((a != SWAPPER && a != CHAMELEON) || (b != SWAPPER && b != CHAMELEON))
+			return null;
+		return mover.i < other.i ? [mover.i, other.i] : [other.i, mover.i];
+	}
+
+	Model.Board.rocSwapBlocked = function(piece, otherIndex) {
+		var last = this.rocLastSwap;
+		if(!last)
+			return false;
+		var lo = piece.i < otherIndex ? piece.i : otherIndex;
+		var hi = piece.i < otherIndex ? otherIndex : piece.i;
+		return last[0] == lo && last[1] == hi;
+	}
+
+	var OriginalInitialPosition = Model.Board.InitialPosition;
+	Model.Board.InitialPosition = function(aGame) {
+		OriginalInitialPosition.apply(this, arguments);
+		this.rocLastSwap = null;
+	}
+
+	// the search clones boards, so the pending ban has to travel with them
+	var OriginalCopyFrom = Model.Board.CopyFrom;
+	Model.Board.CopyFrom = function(aBoard) {
+		OriginalCopyFrom.apply(this, arguments);
+		this.rocLastSwap = aBoard.rocLastSwap || null;
+	}
+
+	var RococoApplyMove = Model.Board.ApplyMove;
+	Model.Board.ApplyMove = function(aGame, move) {
+		var pair = swapPair(this, move);
+		RococoApplyMove.apply(this, arguments);
+		this.rocLastSwap = pair;
+	}
+
+	// the undo list is an array, so the previous value rides along as a
+	// property on it: the base unapply loop only walks the numeric indices
+	var RococoQuickApply = Model.Board.cbQuickApply;
+	Model.Board.cbQuickApply = function(aGame, move) {
+		var previous = this.rocLastSwap || null;
+		var pair = swapPair(this, move);
+		var undo = RococoQuickApply.apply(this, arguments);
+		undo.rocLastSwap = previous;
+		this.rocLastSwap = pair;
+		return undo;
+	}
+
+	var OriginalQuickUnapply = Model.Board.cbQuickUnapply;
+	Model.Board.cbQuickUnapply = function(aGame, undo) {
+		OriginalQuickUnapply.apply(this, arguments);
+		if(undo && undo.rocLastSwap !== undefined)
+			this.rocLastSwap = undo.rocLastSwap;
 	}
 
 	var OriginalToString = Model.Move.ToString;

@@ -130,8 +130,8 @@ to capture a piece standing there.</p>
 who brings about a threefold repetition.</p>
 
 <h2>About this implementation</h2>
-<p>Three fine points of the published rules are simplified here. Where two different moves would make exactly
-the same capture across the ring, the original rules forbid the capture altogether; this implementation allows the tied moves
-instead. The rule preventing a Swapper and an enemy Swapper or Chameleon from swapping straight back on the following turn is
-not enforced. And promoting a Cannon Pawn does not use up the captured piece it copies, so two Pawns may promote to the same
-kind of piece.</p>
+<p>The published rules are followed in full, down to their finer points: a move onto the ring must be the
+single shortest way of making that particular capture, a Swapper and an enemy Swapper or Chameleon may not swap
+straight back on the following turn, and promoting a Cannon Pawn uses up the captured piece it copies. One technical
+detail: a pending swap-back ban is not part of the position's fingerprint, so two positions differing only by it count
+as the same one for the repetition rule.</p>
