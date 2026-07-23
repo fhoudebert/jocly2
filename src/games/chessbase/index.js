@@ -2594,7 +2594,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Chess",
-					"summary": "Regular Orthodox Classic Western Chess",
+					"summary": {
+						"en":"Regular Orthodox Classic Western Chess",
+						"fr": "Les Échecs classiques (Orthodoxe)",
+					},
 					"thumbnail": "res/rules/famous/knight-thumbnail.png",
 					"module": "chessbase",
 					"plazza": "true",
@@ -3802,7 +3805,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Raumschach",
-					"summary": "5x5x5 Chess",
+					"summary": {
+						"en":"5x5x5 Chess",
+						"fr": "Échecs 3D 5x5x5"
+					},
 					"rules": {
 						"en": "res/rules/raumschach/raumschach-rules.html"
 					},
@@ -3839,7 +3845,7 @@ exports.games = (function () {
 					"skins": [
 						{
 							"name": "skin3d",
-							"title": "3D Classic",
+							"title": "3D ClaDssic",
 							"3d": true,
 							"preload": [
 								"smoothedfilegeo|0|/res/ring-target.js",
@@ -4266,7 +4272,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Byzantine Chess",
-					"summary": "10th century circular Chess",
+					"summary": {
+						"en":"10th century circular Chess",
+						"fr": "Échecs circulaires (Xe siècle)",
+					},
 					"rules": {
 						"en": "res/rules/byzantine/byzantine-rules.html",
                         "fr": "res/rules/byzantine/byzantine-rules_fr.html"
@@ -4794,7 +4803,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Chess 960",
-					"summary": "Chess from randomized positions",
+					"summary": {
+						"en":"Chess from randomized positions",
+						"fr": "Échecs avec placement aléatoire"
+					},
 					"rules": {
 						"en": "res/rules/famous/chess960-rules.html",
                         "fr": "res/rules/famous/chess960-rules_fr.html"
@@ -6847,7 +6859,7 @@ exports.games = (function () {
 				"model": {
 					"title-en": "Bigorra",
 
-					"summary": "FantasticXIII and Gigachess II on 16x16",
+					"summary": "FantasticXIII + Gigachess II - 16x16",
 					"rules": {
 						"en": "res/rules/fantasticXIII/bigorra-rules.html",
                         			"fr": "res/rules/fantasticXIII/bigorra-rules-fr.html"
@@ -7723,7 +7735,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Ultima",
-					"summary": "every piece captures in its own exotic way",
+					"summary": {
+						"en":"Chaque pièce capture d’une manière exotique",
+						"fr": "Un cousin de Ultima sur un tablier de 10x10 avec une bordure externe"
+					},
 					"rules": {
 						"en": "res/rules/ultima/ultima-rules.html",
                         "fr": "res/rules/ultima/ultima-rules_fr.html"
@@ -7763,7 +7778,14 @@ exports.games = (function () {
 				"preventRepeat": true,
 				"model": {
 					"title-en": "Rococo",
-					"summary": "an Ultima cousin on a 10x10 board with an edge ring",
+					"summary": {
+						"en":"an Ultima cousin on a 10x10 board with an edge ring",
+						"fr": "Un cousin de Ultima sur un tablier de 10x10 avec une bordure externe"
+					},
+					"rules": {
+						"en": "res/rules/rococo/rococo-rules.html",
+						"fr": "res/rules/rococo/rococo-rules_fr.html"
+					},
 					"rules": {
 						"en": "res/rules/rococo/rococo-rules.html",
 						"fr": "res/rules/rococo/rococo-rules_fr.html"
@@ -7802,7 +7824,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Werewolf Chess",
-					"summary": "a contageous Werewolf replaces the Queen",
+					"summary": {
+						"en":"a contageous Werewolf replaces the Queen",
+						"fr": "Un loup garou contagieux remplace la reine"
+					},
 					"rules": {
 						"en": "res/rules/werewolf/werewolf-rules.html",
 						"fr": "res/rules/werewolf/werewolf-rules_fr.html",
@@ -7932,7 +7957,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Spartan Chess",
-					"summary": "An unorthodox Spartan army combats FIDE",
+					"summary": {
+						"en":"An unorthodox Spartan army combats FIDE",
+						"fr": "L’armée spartiate combat la FIDE"
+					},
 					"rules": {
 						"en": "res/rules/spartan/spartan-rules.html",
 						"fr": "res/rules/3dchess/spartan-rules_fr.html"

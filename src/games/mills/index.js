@@ -184,7 +184,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "9 Men´s Morris",
-					"summary": "An old board game",
+					"summary": {
+						"en":"An old board game",
+						"fr": "Jeu de marelle"
+					},
 					"rules": config_model_rules,
 					"maxLevel": 7,
 					"plazza": "true",

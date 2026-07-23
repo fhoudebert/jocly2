@@ -167,7 +167,7 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Annexation",
-					"summary": "Also called Reversi or Othello",
+					"summary": "Reversi / Othello",
 					"thumbnail": "thumb-reversi.png",
 					"js": modelScripts,
 					"module": "reversi",

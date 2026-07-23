@@ -616,7 +616,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Alea Evangelii",
-					"summary": "19x19 board (from England)",
+					"summary": {
+						"en":"19x19 board (from England)",
+						"fr": "Tablier de 19x19 (Angleterre)",
+					},
 					"rules": {
 						"en": "rules-alea-evangelii.html",
 						"fr": "rules-alea-evangelii-fr.html"

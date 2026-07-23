@@ -137,6 +137,10 @@ exports.games = (function() {
 				"model": {
 					"title-en": "Four In A Row",
 					"summary": "Four In A Row game",
+					"summary": {
+						"en":"Four In A Row game",
+						"fr": "Puissance 4",
+					},
 					"thumbnail": "fiar-thumb.png",
 					"js": modelScripts,
 					"plazza": "true",
@@ -281,7 +285,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Five In A Row",
-					"summary": "Variant of Four In A Row",
+					"summary": {
+						"en":"Variant of Four In A Row",
+						"fr": "Variante de Puissance 4",
+					},
 					"thumbnail": "fiar-thumb.png",
 					"js": modelScripts,
 					"plazza": "true",

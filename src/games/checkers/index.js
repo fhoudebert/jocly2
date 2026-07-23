@@ -706,7 +706,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "International Draughts",
-					"summary": "Rules for draughts as played in worldwide competitions.",
+					"summary": {
+						"en":"Rules for draughts as played in worldwide competitions.",
+						"fr": "Jeu de Dames international"
+					},
                     "rules": {
 						"en": "rules-draughts.html",
                         "fr": "rules-draughts_fr.html",
@@ -1257,7 +1260,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Turkish Draughts",
-					"summary": "A 8x8 checkers on straight lines.",
+					"summary": {
+						"en":"A 8x8 checkers on straight lines.",
+						"fr": "Sur un damier en ligne droite"
+					},
                     "rules": {
 						"en": "rules-turkish-draughts.html",
                         "fr": "rules-turkish-draughts_fr.html",
