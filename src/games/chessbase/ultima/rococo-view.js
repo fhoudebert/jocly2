@@ -63,41 +63,70 @@
 	}
 
 	/*
-	 * Suicide, and why it needs its own input handling.
+	 * Choosing between moves the board cannot tell apart.
 	 *
-	 * A piece removing itself does not go anywhere: the move's destination is
-	 * the square it already stands on. The board is picked in two clicks - the
-	 * piece, then the destination - so the suicide's destination lands on the
-	 * very gadgets that the second click already means "cancel, I changed my
-	 * mind" (jocly binds that cancel last, so it wins). The move would be
-	 * unreachable by hand.
+	 * A Swapper standing next to an enemy can do two different things to it:
+	 * trade places, or destroy them both. Clicking that neighbour therefore
+	 * means two moves at once, and the board input tells moves apart only by
+	 * where they land. The same goes for a suicide, whose destination is the
+	 * square the piece already occupies - which is also the square that means
+	 * "cancel, I changed my mind".
 	 *
-	 * So the suicide is moved off the board and onto the panel the view already
-	 * uses to choose a promotion: selecting a frozen piece brings up its own
-	 * picture next to the cancel button. Clicking the picture removes the piece,
-	 * clicking cancel - or the piece on the board - goes back.
+	 * These choices are offered on the panel the view uses for promotions. The
+	 * promotion pictures cannot serve: there is one per piece type, so a
+	 * Swapper facing an enemy Swapper would need the same picture for both of
+	 * its choices - exactly the case where the choice matters most. The panel
+	 * therefore gets its own pictures, which can show any piece.
 	 */
+	var CHOICES = ["roc-choice-0", "roc-choice-1", "roc-choice-2", "roc-choice-3",
+		"roc-choice-4", "roc-choice-5", "roc-choice-6", "roc-choice-7"];
+
+	var OriginalCreatePromo = View.Game.cbCreatePromo;
+	View.Game.cbCreatePromo = function(xdv) {
+		OriginalCreatePromo.apply(this, arguments);
+		CHOICES.forEach(function(id) {
+			xdv.createGadget(id, {
+				base: {
+					y: 0,
+					z: 109,
+					type: "sprite",
+					clipwidth: 100,
+					clipheight: 100,
+					width: 1200,
+					height: 1200,
+					visible: false,
+				},
+			});
+		});
+	}
+
+	// the sprite spec the view uses for a piece, as the board itself draws it
+	function pictureOf(aGame, piece) {
+		var types = aGame.cbVar.pieceTypes, aspect = types[piece.t].aspect || types[piece.t].name;
+		var spec = $.extend(true, {}, aGame.cbView.pieces["default"], aGame.cbView.pieces[aspect]);
+		if(aGame.cbView.pieces[piece.s])
+			spec = $.extend(true, spec, aGame.cbView.pieces[piece.s]["default"],
+				aGame.cbView.pieces[piece.s][aspect]);
+		return spec["2d"];
+	}
+
 	View.Board.rocHidePanel = function(xdv, aGame) {
 		xdv.updateGadget("promo-board", { base: { visible: false } });
 		xdv.updateGadget("promo-cancel", { base: { visible: false } });
-		for(var i = 0; i < aGame.g.pTypes.length; i++)
-			xdv.updateGadget("promo#" + i, { base: { visible: false } });
+		CHOICES.forEach(function(id) {
+			xdv.updateGadget(id, { base: { visible: false } });
+		});
 	}
 
-	// draw the panel with one picture per choice, laid out like the promotion one
 	View.Board.rocShowPanel = function(xdv, aGame, pieces) {
 		var size = aGame.cbPromoSize;
 		xdv.updateGadget("promo-board", { base: { visible: true, width: size * (pieces.length + 1) } });
 		xdv.updateGadget("promo-cancel", { base: { visible: true, x: pieces.length * size / 2 } });
-		var types = aGame.cbVar.pieceTypes;
 		pieces.forEach(function(piece, index) {
-			var aspect = types[piece.t].aspect || types[piece.t].name;
-			var spec = $.extend(true, {}, aGame.cbView.pieces["default"], aGame.cbView.pieces[aspect]);
-			if(aGame.cbView.pieces[piece.s])
-				spec = $.extend(true, spec, aGame.cbView.pieces[piece.s]["default"],
-					aGame.cbView.pieces[piece.s][aspect]);
-			xdv.updateGadget("promo#" + piece.t, {
-				base: $.extend(spec["2d"], {
+			if(index >= CHOICES.length)
+				return;
+			xdv.updateGadget(CHOICES[index], {
+				base: $.extend(pictureOf(aGame, piece), {
 					visible: true,
 					x: (index - pieces.length / 2) * size,
 				}),
@@ -106,21 +135,29 @@
 	}
 
 	/*
-	 * The picture a choice is offered under:
+	 * The picture a choice is shown under - what the square is about to hold:
 	 *
+	 *   swap                - the mover, which ends up standing there
+	 *   mutual destruction  - the neighbour, which is what goes
 	 *   suicide             - the piece itself, which is what leaves the board
-	 *   mutual destruction  - the neighbour it takes along, so several
-	 *                         neighbours give one picture each
 	 *
-	 * A plain swap keeps its ordinary destination square and never reaches the
-	 * panel: clicking the piece you want to trade places with is enough.
+	 * Facing an enemy Swapper the two are the same piece type but not the same
+	 * picture, one being White and the other Black; they still need a slot each,
+	 * which is why the panel carries its own pictures rather than the promotion
+	 * ones, indexed by type.
 	 */
 	function choicePiece(board, move) {
-		if(move.suicide)
+		if(move.swap != null)
 			return board.pieces[board.board[move.f]];
 		if(move.mutual)
 			return board.pieces[move.c];
-		return null;
+		return board.pieces[board.board[move.f]];
+	}
+
+	// moves the board cannot separate: several reaching one square, none of
+	// them a promotion (those the view already handles by piece type)
+	function needsChoice(moves) {
+		return moves.length > 1 && moves.every(function(m) { return m.pr == null });
 	}
 
 	var OriginalInput = View.Board.xdInput;
@@ -132,43 +169,70 @@
 			var actions = originalGetActions.call(this, moves, currentInput);
 			var $board = this;
 
-			// back to picking a piece: whatever the panel was showing is stale,
-			// which also covers the player cancelling out of it
+			// back to picking a piece: a panel still up is stale, which also
+			// covers the player cancelling out of it
 			if(currentInput.f == null) {
 				this.rocHidePanel(xdv, aGame);
 				return actions;
 			}
-			if(currentInput.t != null)
-				return actions;
 
-			// A move that leaves the piece where it stands - a suicide, or a
-			// mutual destruction - has the square it came from as destination,
-			// so its click would land on the gadgets that already mean "cancel"
-			// (jocly binds that last, so it wins). Offer those on the panel
-			// instead, one picture per choice, so each is a click of its own.
-			var own = actions[currentInput.f];
-			if(!own)
-				return actions;
-			var standing = own.moves.filter(function(m) { return m.suicide || m.mutual });
-			if(standing.length == 0 || standing.length != own.moves.length)
-				return actions;
+			// the choice itself: one action per move, each under its own picture
+			if(currentInput.t != null) {
+				if(!needsChoice(moves))
+					return actions;
+				var chosen = {};
+				moves.forEach(function(move, index) {
+					if(index >= CHOICES.length)
+						return;
+					chosen["choice#" + index] = {
+						moves: [move],
+						click: [CHOICES[index]],
+						view: [],
+						validate: {},
+						cancel: ["promo-cancel"],
+						post: function() { $board.rocHidePanel(xdv, aGame) },
+					};
+				});
+				return chosen;
+			}
 
-			var choices = standing.map(function(m) { return choicePiece($board, m) });
-			delete actions[currentInput.f];
-			standing.forEach(function(move, index) {
-				var piece = choices[index];
-				if(!piece)
-					return;
-				actions["standing#" + index] = {
-					moves: [move],
-					click: ["promo#" + piece.t],
-					view: [],
-					validate: { t: move.t },
-					cancel: ["promo-cancel"],
-					pre: function() { $board.rocShowPanel(xdv, aGame, choices) },
-					post: function() { $board.rocHidePanel(xdv, aGame) },
-				};
-			});
+			for(var key in actions) {
+				var action = actions[key];
+				var pictures = action.moves.map(function(m) { return choicePiece($board, m) });
+
+				// several moves onto one square: keep the square clickable, and
+				// raise the panel when it is clicked instead of animating a move
+				// nobody has chosen yet
+				if(needsChoice(action.moves)) {
+					action.execute = (function(pictures) {
+						return function(callback) {
+							$board.rocShowPanel(xdv, aGame, pictures);
+							callback();
+						}
+					})(pictures);
+					action.unexecute = function() { $board.rocHidePanel(xdv, aGame) };
+					continue;
+				}
+
+				// a move that leaves the piece where it stands has the square it
+				// came from as destination, which is the gadget that already
+				// means "cancel" - jocly binds that last, so it would win. Put
+				// this one on the panel instead.
+				if(+key === currentInput.f && action.moves.length == 1) {
+					delete actions[key];
+					actions["standing"] = {
+						moves: action.moves,
+						click: [CHOICES[0]],
+						view: [],
+						validate: { t: action.moves[0].t },
+						cancel: ["promo-cancel"],
+						pre: (function(pictures) {
+							return function() { $board.rocShowPanel(xdv, aGame, pictures) }
+						})(pictures),
+						post: function() { $board.rocHidePanel(xdv, aGame) },
+					};
+				}
+			}
 			return actions;
 		}
 		return spec;

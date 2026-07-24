@@ -102,29 +102,40 @@ itself fades once it has arrived, and a piece removing itself fades without
 travelling. Without it those pieces just blink out when the board is
 redisplayed - the position was always right, only the transition was missing.
 
-## Moves that leave the piece where it stands
+## Choosing between trading places and going down together
 
-A suicide and a mutual destruction do not move the piece anywhere, so both
-carry the square they started from as their destination. That matters twice
-over. It keeps a mutual destruction apart from the plain swap with the same
-neighbour - the two used to share a destination, and the board input, which
-tells moves apart by where they land, could not distinguish them: the view
-took them for a promotion, tried to read a piece type off each, threw, and
-left an empty panel with no way out. And a destination that is the square the
-piece came from falls on the same gadgets as "click the piece again to
-cancel", which jocly binds last and which therefore wins.
+A Swapper standing next to an enemy can do two things to it: trade places, or
+destroy them both. Both moves name that neighbour's square, and the board input
+tells moves apart only by where they land - so it cannot separate the two on
+its own. The view took the pair for a promotion, read a piece type off each,
+found none, threw inside the animation callback, and left an empty panel with
+nothing bound to close it. That was the empty popup. A suicide runs into the
+same wall for a different reason: its destination is the square the piece
+already occupies, which is also the square that means "click the piece again to
+cancel" - and jocly binds that cancel last, so it wins.
 
-So `rococo-view.js` overrides `xdInput` and offers those moves on the panel
-the view already uses for choosing a promotion, one picture per choice: a
-suicide under the picture of the piece itself, since that is what leaves the
-board, and a mutual destruction under the picture of the neighbour it takes
-along - so a Swapper beside two enemies gets one picture each. A plain swap is
-untouched and stays a single click on the piece you want to trade places with.
+`rococo-view.js` overrides `xdInput` and asks the question where the player is
+already looking. Picking up the Swapper raises nothing. Clicking a neighbour
+that offers both moves stays an ordinary board click, but instead of playing a
+move nobody has chosen it brings up the panel the view uses for promotions,
+with one picture per choice - what that square is about to hold:
 
-Because the piece does not move, these moves no longer cross anything, and the
-edge-square rule leaves them alone: a Swapper may destroy itself together with
-a neighbour standing on the ring. Its *swap* with that neighbour still answers
-to the rule, as a swap does move both pieces.
+* the **Swapper's own picture** - it ends up standing there: trade places;
+* the **neighbour's picture** - it is what leaves: destroy them both.
+
+A suicide, having nothing to target, is offered on the panel under the picture
+of the piece itself. A neighbour that only allows a swap (no adjacent enemy to
+destroy, or the swap-back ban forbidding it) stays a single click with no
+panel; but when the only thing left against a neighbour is the mutual
+destruction, the panel still opens, so it is never played without a confirming
+click.
+
+The panel carries its own pictures (`roc-choice-0..7`), not the promotion ones.
+Those are indexed by piece type - one slot per type - so a Swapper facing an
+enemy Swapper would have had a single slot for both of its choices, the very
+position where the choice matters most. Its own pictures can show any piece,
+side included, so that case reads as the white Swapper (trade places) beside
+the black one (destroy both).
 
 ## The promotion panel
 

@@ -108,7 +108,7 @@ function stages(pieces, square, who) {
 
 	const leaper = s.board.pieces[s.board.board[h.posOf("d4")]];
 	check("the suicide is offered on the panel, not on the board square",
-		action.click, ["promo#" + leaper.t]);
+		action.click, ["roc-choice-0"]);
 	check("and it carries exactly the one move", action.moves.length, 1);
 	check("so it no longer competes with the cancel click",
 		JSON.stringify(action.click) === JSON.stringify(s.pick.click), false);
@@ -118,15 +118,15 @@ function stages(pieces, square, who) {
 	action.pre.call(s.viewBoard);
 	check("selecting the piece raises the panel, the cancel button and its picture",
 		s.updates.filter((u) => u.visible === true).map((u) => u.name).sort(),
-		["promo#" + leaper.t, "promo-board", "promo-cancel"].sort());
+		["promo-board", "promo-cancel", "roc-choice-0"].sort());
 
 	s.reset();
 	action.post.call(s.viewBoard);
 	check("playing it puts the panel away",
 		s.updates.filter((u) => u.visible === true), []);
-	check("including every piece picture",
-		s.updates.filter((u) => u.name.indexOf("promo#") === 0 && u.visible === false).length,
-		types.length);
+	check("including every choice picture",
+		s.updates.filter((u) => u.name.indexOf("roc-choice") === 0 && u.visible === false).length > 0,
+		true);
 
 	// going back to picking a piece must clear a panel left on screen
 	s.reset();
@@ -138,30 +138,43 @@ function stages(pieces, square, who) {
 /* ------------------------------------------------ mutual destruction */
 
 {
-	// a Swapper beside two enemies: trading places is a plain click on the
-	// neighbour, while destroying itself with one of them goes on the panel,
-	// under that neighbour's picture
-	const s = stages({ a1: "wK", h8: "bK", d4: "wS", d5: "bW", e4: "bL" }, "d4", 1);
-	const keys = Object.keys(s.second);
-	const board = s.board;
-	const onPanel = keys.filter((k) => (s.second[k].click || []).some((g) => g.indexOf("promo#") === 0));
-	const onBoard = keys.filter((k) => onPanel.indexOf(k) < 0);
-
-	check("both mutual destructions are offered, one per neighbour", onPanel.length, 2);
-	check("each is a single move", onPanel.map((k) => s.second[k].moves.length), [1, 1]);
-	check("each is offered under the picture of the neighbour it takes along",
-		onPanel.map((k) => s.second[k].click[0]).sort(),
-		[board.pieces[board.board[h.posOf("d5")]].t, board.pieces[board.board[h.posOf("e4")]].t]
-			.map((t) => "promo#" + t).sort());
-	check("swapping with a neighbour stays an ordinary click on it",
-		onBoard.some((k) => +k === h.posOf("d5")) && onBoard.some((k) => +k === h.posOf("e4")), true);
-	check("none of the panel choices lands on the piece's own square",
-		onPanel.filter((k) => +k === h.posOf("d4")), []);
+	// a Swapper beside an enemy Swapper: trading places and destroying them
+	// both name the same square, so clicking it has to raise the panel - and
+	// the two choices need different pictures, which the promotion pictures
+	// (one per piece type) could not have given here
+	const s = stages({ a1: "wK", h8: "bK", d4: "wS", d5: "bS" }, "d4", 1);
+	const action = s.second[h.posOf("d5")];
+	check("clicking the neighbour is still an ordinary board click",
+		action !== undefined && !(action.click || []).some((g) => g.indexOf("roc-choice") === 0), true);
+	check("and it carries both moves", action.moves.length, 2);
 
 	s.reset();
-	s.second[onPanel[0]].pre.call(s.viewBoard);
-	check("the panel shows one picture per neighbour, plus the cancel button",
+	action.execute.call(s.viewBoard, () => {});
+	check("clicking it raises the panel with two pictures and the cancel button",
 		s.updates.filter((u) => u.visible === true).length, 4);
+
+	// the choice itself
+	const third = s.spec.getActions.call(s.viewBoard, action.moves,
+		{ f: h.posOf("d4"), t: h.posOf("d5"), pr: null });
+	const keys = Object.keys(third);
+	check("the panel offers one choice per move", keys.length, 2);
+	check("each choice carries exactly one move", keys.map((k) => third[k].moves.length), [1, 1]);
+	check("each sits on its own picture, so the two are never confused",
+		new Set(keys.map((k) => third[k].click[0])).size, 2);
+	check("both offer a way out", keys.every((k) => JSON.stringify(third[k].cancel) === '["promo-cancel"]'), true);
+	check("the swap and the destruction are both reachable",
+		keys.map((k) => third[k].moves[0].swap != null ? "swap" : "mutual").sort(), ["mutual", "swap"]);
+
+	s.reset();
+	action.unexecute.call(s.viewBoard);
+	check("backing out of the panel closes it", s.updates.filter((u) => u.visible === true), []);
+}
+
+{
+	// with two enemies around, each neighbour keeps its own click
+	const s = stages({ a1: "wK", h8: "bK", d4: "wS", d5: "bW", e4: "bL" }, "d4", 1);
+	check("each neighbour is a separate destination",
+		[s.second[h.posOf("d5")].moves.length, s.second[h.posOf("e4")].moves.length], [2, 2]);
 }
 
 /* ------------------------------------- ordinary pieces are left alone */

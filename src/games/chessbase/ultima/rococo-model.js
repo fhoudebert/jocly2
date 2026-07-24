@@ -391,13 +391,11 @@
 					break;						// blocked beyond the first piece
 				}
 			}
-			// mutual destruction with an adjacent enemy. The Swapper does not
-			// travel - both pieces go where they stand - so the move keeps its
-			// own square as destination. That also keeps it apart from the swap
-			// with the same neighbour, which the board input could not otherwise
-			// tell from it, both being a click on that neighbour.
+			// mutual destruction with an adjacent enemy. It names that enemy's
+			// square, like the swap with the same neighbour does: clicking the
+			// neighbour then raises the panel that tells the two apart.
 			var foe = this.rocFoe(piece.s, POS(r0 + dr, c0 + dc));
-			if(foe >= 0 && emit(mk(piece, piece.p, { c: foe, mutual: true })))
+			if(foe >= 0 && emit(mk(piece, POS(r0 + dr, c0 + dc), { c: foe, mutual: true })))
 				return true;
 		}
 		return false;
@@ -480,10 +478,9 @@
 				}
 			}
 
-			// mutual destruction with an adjacent enemy Swapper (as above, the
-			// Chameleon stays where it is, so the move keeps its own square)
+			// mutual destruction with an adjacent enemy Swapper
 			var sw = this.rocFoe(who, POS(r0 + dr, c0 + dc), SWAPPER);
-			if(sw >= 0 && emit(mk(piece, from, { c: sw, mutual: true })))
+			if(sw >= 0 && emit(mk(piece, POS(r0 + dr, c0 + dc), { c: sw, mutual: true })))
 				return true;
 		}
 		return false;
