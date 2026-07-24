@@ -84,18 +84,43 @@
 			xdv.updateGadget("promo#" + i, { base: { visible: false } });
 	}
 
-	View.Board.rocShowSuicidePanel = function(xdv, aGame, piece) {
+	// draw the panel with one picture per choice, laid out like the promotion one
+	View.Board.rocShowPanel = function(xdv, aGame, pieces) {
 		var size = aGame.cbPromoSize;
-		xdv.updateGadget("promo-board", { base: { visible: true, width: size * 2 } });
-		xdv.updateGadget("promo-cancel", { base: { visible: true, x: size / 2 } });
+		xdv.updateGadget("promo-board", { base: { visible: true, width: size * (pieces.length + 1) } });
+		xdv.updateGadget("promo-cancel", { base: { visible: true, x: pieces.length * size / 2 } });
+		var types = aGame.cbVar.pieceTypes;
+		pieces.forEach(function(piece, index) {
+			var aspect = types[piece.t].aspect || types[piece.t].name;
+			var spec = $.extend(true, {}, aGame.cbView.pieces["default"], aGame.cbView.pieces[aspect]);
+			if(aGame.cbView.pieces[piece.s])
+				spec = $.extend(true, spec, aGame.cbView.pieces[piece.s]["default"],
+					aGame.cbView.pieces[piece.s][aspect]);
+			xdv.updateGadget("promo#" + piece.t, {
+				base: $.extend(spec["2d"], {
+					visible: true,
+					x: (index - pieces.length / 2) * size,
+				}),
+			});
+		});
+	}
 
-		var types = aGame.cbVar.pieceTypes, aspect = types[piece.t].aspect || types[piece.t].name;
-		var spec = $.extend(true, {}, aGame.cbView.pieces["default"], aGame.cbView.pieces[aspect]);
-		if(aGame.cbView.pieces[piece.s])
-			spec = $.extend(true, spec, aGame.cbView.pieces[piece.s]["default"],
-				aGame.cbView.pieces[piece.s][aspect]);
-		xdv.updateGadget("promo#" + piece.t,
-			{ base: $.extend(spec["2d"], { visible: true, x: -size / 2 }) });
+	/*
+	 * The picture a choice is offered under:
+	 *
+	 *   suicide             - the piece itself, which is what leaves the board
+	 *   mutual destruction  - the neighbour it takes along, so several
+	 *                         neighbours give one picture each
+	 *
+	 * A plain swap keeps its ordinary destination square and never reaches the
+	 * panel: clicking the piece you want to trade places with is enough.
+	 */
+	function choicePiece(board, move) {
+		if(move.suicide)
+			return board.pieces[board.board[move.f]];
+		if(move.mutual)
+			return board.pieces[move.c];
+		return null;
 	}
 
 	var OriginalInput = View.Board.xdInput;
@@ -116,21 +141,34 @@
 			if(currentInput.t != null)
 				return actions;
 
-			for(var key in actions) {
-				var action = actions[key];
-				var suicide = action.moves.filter(function(m) { return m.suicide })[0];
-				if(!suicide || action.moves.length != 1)
-					continue;
-				var piece = $board.pieces[$board.board[suicide.f]];
+			// A move that leaves the piece where it stands - a suicide, or a
+			// mutual destruction - has the square it came from as destination,
+			// so its click would land on the gadgets that already mean "cancel"
+			// (jocly binds that last, so it wins). Offer those on the panel
+			// instead, one picture per choice, so each is a click of its own.
+			var own = actions[currentInput.f];
+			if(!own)
+				return actions;
+			var standing = own.moves.filter(function(m) { return m.suicide || m.mutual });
+			if(standing.length == 0 || standing.length != own.moves.length)
+				return actions;
+
+			var choices = standing.map(function(m) { return choicePiece($board, m) });
+			delete actions[currentInput.f];
+			standing.forEach(function(move, index) {
+				var piece = choices[index];
 				if(!piece)
-					continue;
-				// take the action off the board squares and onto the panel
-				action.click = ["promo#" + piece.t];
-				action.cancel = ["promo-cancel"];
-				action.view = [];
-				action.pre = function() { $board.rocShowSuicidePanel(xdv, aGame, piece) };
-				action.post = function() { $board.rocHidePanel(xdv, aGame) };
-			}
+					return;
+				actions["standing#" + index] = {
+					moves: [move],
+					click: ["promo#" + piece.t],
+					view: [],
+					validate: { t: move.t },
+					cancel: ["promo-cancel"],
+					pre: function() { $board.rocShowPanel(xdv, aGame, choices) },
+					post: function() { $board.rocHidePanel(xdv, aGame) },
+				};
+			});
 			return actions;
 		}
 		return spec;

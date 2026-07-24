@@ -109,6 +109,7 @@ function stages(pieces, square, who) {
 	const leaper = s.board.pieces[s.board.board[h.posOf("d4")]];
 	check("the suicide is offered on the panel, not on the board square",
 		action.click, ["promo#" + leaper.t]);
+	check("and it carries exactly the one move", action.moves.length, 1);
 	check("so it no longer competes with the cancel click",
 		JSON.stringify(action.click) === JSON.stringify(s.pick.click), false);
 	check("and there is a way out", action.cancel, ["promo-cancel"]);
@@ -132,6 +133,35 @@ function stages(pieces, square, who) {
 	s.spec.getActions.call(s.viewBoard, s.board.mMoves, { f: null, t: null, pr: null });
 	check("cancelling out of it clears the panel too",
 		s.updates.filter((u) => u.visible === false).length > 0, true);
+}
+
+/* ------------------------------------------------ mutual destruction */
+
+{
+	// a Swapper beside two enemies: trading places is a plain click on the
+	// neighbour, while destroying itself with one of them goes on the panel,
+	// under that neighbour's picture
+	const s = stages({ a1: "wK", h8: "bK", d4: "wS", d5: "bW", e4: "bL" }, "d4", 1);
+	const keys = Object.keys(s.second);
+	const board = s.board;
+	const onPanel = keys.filter((k) => (s.second[k].click || []).some((g) => g.indexOf("promo#") === 0));
+	const onBoard = keys.filter((k) => onPanel.indexOf(k) < 0);
+
+	check("both mutual destructions are offered, one per neighbour", onPanel.length, 2);
+	check("each is a single move", onPanel.map((k) => s.second[k].moves.length), [1, 1]);
+	check("each is offered under the picture of the neighbour it takes along",
+		onPanel.map((k) => s.second[k].click[0]).sort(),
+		[board.pieces[board.board[h.posOf("d5")]].t, board.pieces[board.board[h.posOf("e4")]].t]
+			.map((t) => "promo#" + t).sort());
+	check("swapping with a neighbour stays an ordinary click on it",
+		onBoard.some((k) => +k === h.posOf("d5")) && onBoard.some((k) => +k === h.posOf("e4")), true);
+	check("none of the panel choices lands on the piece's own square",
+		onPanel.filter((k) => +k === h.posOf("d4")), []);
+
+	s.reset();
+	s.second[onPanel[0]].pre.call(s.viewBoard);
+	check("the panel shows one picture per neighbour, plus the cancel button",
+		s.updates.filter((u) => u.visible === true).length, 4);
 }
 
 /* ------------------------------------- ordinary pieces are left alone */

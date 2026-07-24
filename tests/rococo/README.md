@@ -102,24 +102,40 @@ itself fades once it has arrived, and a piece removing itself fades without
 travelling. Without it those pieces just blink out when the board is
 redisplayed - the position was always right, only the transition was missing.
 
-## Entering a suicide, and the promotion panel
+## Moves that leave the piece where it stands
 
-A piece removing itself does not travel, so the move's destination is the
-square it already stands on. A move is entered in two clicks - the piece, then
-the destination - and that destination falls on the same gadgets as "click the
-piece again to cancel", which jocly binds last and which therefore wins: by
-hand the move was unreachable. `rococo-view.js` overrides `xdInput` to put the
-suicide on the panel the view already uses for choosing a promotion, so a
-frozen piece raises its own picture beside the cancel button.
+A suicide and a mutual destruction do not move the piece anywhere, so both
+carry the square they started from as their destination. That matters twice
+over. It keeps a mutual destruction apart from the plain swap with the same
+neighbour - the two used to share a destination, and the board input, which
+tells moves apart by where they land, could not distinguish them: the view
+took them for a promotion, tried to read a piece type off each, threw, and
+left an empty panel with no way out. And a destination that is the square the
+piece came from falls on the same gadgets as "click the piece again to
+cancel", which jocly binds last and which therefore wins.
 
-That panel needed three fixes to work at all. Promotion here is optional, so
-the "stay a Cannon Pawn" move shares its destination with the real promotions;
-the view builds the panel from the `pr` of every move reaching the square and
-threw on the one that had none, leaving the panel stuck open. That move now
-carries `pr = PAWN`, which names the type the piece already is - a no-op on the
-board and the natural "do not promote" entry in the panel. In `base-view.js`,
-the piece pictures were never made visible when the panel opened, and were
-never hidden when it closed; both are fixed there, for every game.
+So `rococo-view.js` overrides `xdInput` and offers those moves on the panel
+the view already uses for choosing a promotion, one picture per choice: a
+suicide under the picture of the piece itself, since that is what leaves the
+board, and a mutual destruction under the picture of the neighbour it takes
+along - so a Swapper beside two enemies gets one picture each. A plain swap is
+untouched and stays a single click on the piece you want to trade places with.
+
+Because the piece does not move, these moves no longer cross anything, and the
+edge-square rule leaves them alone: a Swapper may destroy itself together with
+a neighbour standing on the ring. Its *swap* with that neighbour still answers
+to the rule, as a swap does move both pieces.
+
+## The promotion panel
+
+Promotion here is optional, so the "stay a Cannon Pawn" move shares its
+destination with the real promotions. The view builds the panel from the `pr`
+of every move reaching the square and threw on the one that had none, leaving
+the panel stuck open. That move now carries `pr = PAWN`, which names the type
+the piece already is - a no-op on the board and the natural "do not promote"
+entry in the panel. In `base-view.js`, the piece pictures were never made
+visible when the panel opened, and never hidden when it closed; both are fixed
+there, for every game.
 
 ## Known limits
 
