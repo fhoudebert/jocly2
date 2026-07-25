@@ -29,7 +29,8 @@
 		function P(pos){ return Math.floor(pos/(SZ*SZ)); }
 		function locC(pos){ return pos % SZ; }
 		function locR(pos){ return Math.floor((pos % (SZ*SZ)) / SZ); }
-		function POSf(pi,c,r){ return pi*SZ*SZ + r*SZ + c; }
+		function POSf(pi,c,r){ return pi*SZ*SZ + r*SZ + c; }              // internal (face,col,row)
+		function POS(c,r,f){ return f*SZ*SZ + r*SZ + c; }                // public: matches the view's POS(col,row,face)
 
 		function center(pos){
 			var pi=P(pos), o=O[pi], xb=(locC(pos)-(SZ-1)/2), yb=(locR(pos)-(SZ-1)/2);
@@ -161,7 +162,7 @@
 			boardSize: boardSize, width: SZ, height: SZ, depth: SZ, cube:true, walls: WALLS,
 			fences: (walls||[]).slice(),
 			planes: planes,
-			P:P, C:locC, R:locR, F:P, POS:POSf, Graph:Graph,
+			P:P, C:locC, R:locR, F:P, POS:POS, Graph:Graph,
 			PosName:PosName, PosByName:PosByName, CompactCrit:CompactCrit,
 			GetDistances:function(){return distance;}, distEdge:distEdges, corners:null,
 			orthoDirs:orthoDirs, diagPairs:diagPairs, orthoRay:orthoRay, diagRay:diagRay,
