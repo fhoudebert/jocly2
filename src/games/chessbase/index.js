@@ -4634,7 +4634,6 @@ exports.games = (function () {
 					"released": 1395590178,
 					"credits": config_model_credits,
 					"gameOptions": config_model_gameOptions,
-					"obsolete": true,
 					"js": modelScripts_26,
 					"levels": config_model_levels_5
 				},
