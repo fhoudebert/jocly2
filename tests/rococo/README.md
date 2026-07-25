@@ -17,6 +17,7 @@ No build needed - the tests load the model in a sandbox and drive
     node tests/rococo/edge.test.js          # the outer edge-square ring
     node tests/rococo/swapper.test.js       # swap, mutual destruction, swap-back ban
     node tests/rococo/chameleon.test.js     # the Chameleon (mimics its victim)
+    node tests/rococo/combo.test.js         # the four-powers-in-one Chameleon move
     node tests/rococo/promote.test.js       # cannon-pawn promotion + suicide
     node tests/rococo/consistency.test.js   # undo integrity, playouts, perft
     node tests/rococo/view.test.js          # sprite columns, 10x10 ring, rules pages
@@ -26,13 +27,23 @@ No build needed - the tests load the model in a sandbox and drive
 ## Board and victory
 
 10x10 board, position = row*10 + col. The inner 8x8 (rows/cols 1..8) is normal
-ground and is named a1..h8 in the tests; the 36 squares of the outer ring
+ground and is named a1..h8 in most of the tests, following the source page; the 36 squares of the outer ring
 (row/col 0 or 9) are edge squares. Victory is by capturing the enemy King -
 there is no check or checkmate, the King may move next to the enemy King, and
 a side with no legal move (or whose King has just been taken) loses. This lets
 the model skip all self-check filtering: pseudo-legal moves are legal.
 Three-fold repetition loses for the repeater (`cbOnPerpetual` / `cbMaxRepeats`
 in the model, `preventRepeat` in the manifest).
+
+Two square namings therefore coexist. The source page (and `posOf`/`nameOf` in
+the harness) names only the inner 8x8, a1..h8. The engine, the game notation
+and the board on screen name all 10x10 squares, edge ring included, a1..j10 -
+so inner a1 is board b2. `harness.bpos`/`harness.bname` bridge the two, and
+`setup`, `moveStr`, `movesFrom`, `capturesFrom` and `census` all take the
+naming to use, so a test file can be written entirely in either one.
+`combo.test.js` uses board naming to quote a position exactly as it is read off
+the screen; the older suites use the inner naming of the diagrams they came
+from.
 
 ## The edge-square rule
 
@@ -76,7 +87,24 @@ undo stack stay exact:
 differing in kind stay distinct.
 
 A Chameleon's swap may be combined with its other captures in the same move,
-so `move.swap` and `move.kills` can appear together.
+so `move.swap` and `move.kills` can appear together. The swap is generated as
+the end of the Chameleon's travel along a line, not as a separate scan for the
+nearest piece: the Chameleon walks its line, sliding over empty squares and
+leaping over enemy Long Leapers, and an enemy Swapper found on the way is where
+that travel may stop - trading places is what lets the move end on an occupied
+square. Every landing along the way folds in the same withdrawal victim behind
+the origin and any Advancer approached at the far end, so one move can use all
+four mimicked powers at once. `combo.test.js` pins down the sharpest case:
+
+    Chameleon c5 -> h5 (board naming) captures the Withdrawer b5 by withdrawing,
+    the Long Leaper f5 by leaping over it, the Advancer i5 by approaching, and
+    trades places with the Swapper h5 - which the leap over f5 is what makes
+    reachable. On h5 the Chameleon freezes the Immobilizer i6 and is frozen by
+    it, which is the only reason the adjacent King i4 survives the turn.
+
+Generating the swap from a separate scan, as an earlier version did, silently
+loses that move: the scan stops at the first piece on the line, so the Long
+Leaper standing in front of the Swapper hides it.
 
 Promotion uses the base model's `move.pr`. It is offered only while the side
 has fewer pieces of that type on the board than it started with, so promoting

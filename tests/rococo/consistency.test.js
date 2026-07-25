@@ -7,8 +7,8 @@
  * the multi-victim `kills` array and the edge filter touch), plus perft
  * anchors from the initial position. The anchors are produced by this
  * implementation - they guard against regressions, not against a shared
- * misreading of the rules. Chameleon still generates no moves, so
- * these games are of a reduced variant; only engine bookkeeping is asserted (Chameleon still generates no moves).
+ * misreading of the rules; only engine bookkeeping is asserted here, the piece
+ * rules being checked by the other suites.
  */
 
 const h = require("./harness.js");
