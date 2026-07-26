@@ -202,8 +202,19 @@
 			var piece = this.pieces[i];
 			if(piece.p < 0 || piece.s != who)
 				continue;
-			if(this.ultimaFrozen(piece))
+			if(this.ultimaFrozen(piece)) {
+				// frozen: the one move left is to take oneself off the board,
+				// as everywhere else in the family. A King never may.
+				if(piece.t != KING && emit({
+					f: piece.p,
+					t: piece.p,
+					c: null,
+					a: aGame.g.pTypes[piece.t].abbrev,
+					suicide: true,
+				}))
+					return true;
 				continue;
+			}
 			if(this.ultimaGeneratePiece(aGame, piece, emit))
 				return true;
 		}
@@ -237,7 +248,11 @@
 					var target = this.pieces[index];
 					if(target.s != piece.s && n == 1 &&
 						(piece.t == KING || (piece.t == CHAMELEON && target.t == KING))) {
-						if(emit({ f: from, t: to, c: index, a: abbrev }))
+						var away = [];
+						if(piece.t == CHAMELEON)
+							this.ultimaWithdrawVictims(piece.s, from, dr, dc, away, WITHDRAWER);
+						if(emit({ f: from, t: to, c: index, a: abbrev,
+							kills: away.length ? away : undefined }))
 							return true;
 					}
 					break;
@@ -298,6 +313,8 @@
 						if(dr == 0 || dc == 0)
 							this.ultimaPincerVictims(piece.s, P(r, c), extra, PAWN);
 						this.ultimaCoordVictims(piece.s, P(r, c), extra, COORDINATOR);
+						// leaping is still moving away from whatever stands behind
+						this.ultimaWithdrawVictims(piece.s, from, dr, dc, extra, WITHDRAWER);
 					}
 					if(emit({
 						f: from,
@@ -325,6 +342,7 @@
 				if(dr == 0 || dc == 0)
 					this.ultimaPincerVictims(piece.s, P(r, c), extra2, PAWN);
 				this.ultimaCoordVictims(piece.s, P(r, c), extra2, COORDINATOR);
+				this.ultimaWithdrawVictims(piece.s, from, dr, dc, extra2, WITHDRAWER);
 			}
 			if(emit({
 				f: from,
@@ -379,6 +397,20 @@
 
 	var OriginalApplyMove = Model.Board.ApplyMove;
 	Model.Board.ApplyMove = function(aGame, move) {
+		if(move.suicide) {
+			var self = this.pieces[this.board[move.f]];
+			this.zSign ^= aGame.bKey(self);
+			this.board[self.p] = -1;
+			self.p = -1;
+			self.m = true;
+			this.noCaptCount = 0;
+			this.oppoCheck = this.check;
+			this.check = 0;
+			this.lastMove = { f: move.f, t: move.t, c: null };
+			this.epTarget = null;
+			this.zSign ^= aGame.wKey(1);				// side-to-move key
+			return;
+		}
 		if(move.kills)
 			for(var i = 0; i < move.kills.length; i++) {
 				var victim = this.pieces[move.kills[i]];
@@ -396,6 +428,13 @@
 
 	var OriginalQuickApply = Model.Board.cbQuickApply;
 	Model.Board.cbQuickApply = function(aGame, move) {
+		if(move.suicide) {
+			var self = this.pieces[this.board[move.f]];
+			var undo = [{ i: self.i, f: -1, t: move.f, ty: self.t }];
+			this.board[self.p] = -1;
+			self.p = -1;
+			return undo;
+		}
 		var undo = OriginalQuickApply.apply(this, arguments);
 		if(move.kills)
 			for(var i = 0; i < move.kills.length; i++) {
@@ -416,9 +455,18 @@
 	var OriginalToString = Model.Move.ToString;
 	Model.Move.ToString = function(format) {
 		var str = OriginalToString.apply(this, arguments);
+		if(this.suicide)
+			return str + '(suicide)';
 		if(this.kills && this.kills.length)
 			str += '*' + this.kills.length;
 		return str;
+	}
+
+	// a suicide has the same from and to as nothing else, but it must not be
+	// confused with a null move when the interface matches what it was given
+	var OriginalEquals = Model.Move.Equals;
+	Model.Move.Equals = function(move) {
+		return OriginalEquals.call(this, move) && !this.suicide == !move.suicide;
 	}
 
 })();

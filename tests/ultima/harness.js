@@ -93,6 +93,8 @@ function nameOf(pos) {
 
 // readable form of a generated move, e.g. "Wd4-d6xc4,e5"
 function moveStr(board, move) {
+	if(move.suicide)
+		return (move.a || "") + nameOf(move.f) + "(suicide)";
 	let str = (move.a || "") + nameOf(move.f) + "-" + nameOf(move.t);
 	const victims = [];
 	if(move.c != null)

@@ -54,7 +54,9 @@ function playout(seed, maxPlies) {
 		}
 
 		const move = board.mMoves[next() % board.mMoves.length];
-		const victims = (move.kills ? move.kills.length : 0) + (move.c != null ? 1 : 0);
+		// a suicide takes the mover off the board too, so it counts as a victim
+		const victims = (move.kills ? move.kills.length : 0) + (move.c != null ? 1 : 0)
+			+ (move.suicide ? 1 : 0);
 		if(victims) captures++;
 		if(victims > 1) multi++;
 		const pieceCount = before.length;
