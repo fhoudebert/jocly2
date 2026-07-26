@@ -67,6 +67,7 @@ function ReceiveMessage(event)
             Jocly.createMatch(message.gameName).then((match) => {
                 gMatch = match;
                 match.game.Load({
+                    initialBoard: message.initialBoard,
                     playedMoves: message.playedMoves
                 });
                 function Start() {
@@ -120,9 +121,11 @@ function ReceiveMessage(event)
             break;
         case "destroy":
             var playedMoves = gMatch.game.mPlayedMoves;
+            var initialBoard = gMatch.game.mInitialString;
             gMatch.destroy()
                 .then( ()=> {
                     Reply({
+                        initialBoard: initialBoard,
                         playedMoves: playedMoves
                     });
                 });

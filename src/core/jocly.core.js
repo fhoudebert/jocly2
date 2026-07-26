@@ -398,6 +398,7 @@
 					type: "init",
 					id: self.id,
 					gameName: self.gameName,
+					initialBoard: self.game.mInitialString,
 					playedMoves: self.game.mPlayedMoves,
 					options: options
 				}, (error, reply) => {
@@ -422,12 +423,13 @@
 		var promise = new Promise(function (resolve, reject) {
 			Promise.all([
 				CreateInternalGame(self.gameName),
-				ProxiedMethod(self, "getPlayedMoves")
+				ProxiedMethod(self, "save")			// playedMoves AND initialBoard
 			])
-				.then(([game, moves]) => {
+				.then(([game, saved]) => {
 					self.game = game;
 					game.Load({
-						playedMoves: moves
+						initialBoard: saved.initialBoard,
+						playedMoves: saved.playedMoves
 					});
 					return ProxiedMethod(self, "destroy");
 				})

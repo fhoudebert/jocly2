@@ -47,6 +47,7 @@ onmessage = function(e) {
             Jocly._createInternalGame(message.gameName,options).then((game)=>{
                 game.mBoard.mMoves = [];
                 game.Load({
+                    initialBoard: message.initialBoard,
                     playedMoves: message.playedMoves
                 });
                 game.mDoneCallback = function(doneData) {
