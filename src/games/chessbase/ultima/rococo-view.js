@@ -6,8 +6,8 @@
  * shaded distinctly so players can see it.
  *
  * The panel that separates a swap from a mutual destruction, and that carries
- * the suicide of a frozen piece, lives in roc-choice-view.js, shared with
- * Ultima.
+ * the suicide of a frozen piece, lives in baroque-choice-view.js, shared with
+ * the other games of the family.
  *
  * Pieces are drawn from the sprite sheet shared with Ultima,
  * res/ultima/ultima-picto-sprites.png (a grid of CELL x CELL cells: one column

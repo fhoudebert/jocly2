@@ -76,13 +76,17 @@ function nameOf(pos) {
 	return "@" + c + "," + r;					// edge square
 }
 
-// board naming, edge ring included: "c5" -> row 4, col 2 ; a..j = columns 0..9
-function bpos(square) {
-	return (parseInt(square.slice(1), 10) - 1) * W + (square.charCodeAt(0) - 97);
+// board naming, edge ring included: "c5" -> row 4, col 2 ; a.. = columns 0..
+// width defaults to 10, the board Rococo and Ultima are played on; Rocaille
+// passes 12.
+function bpos(square, width) {
+	width = width || W;
+	return (parseInt(square.slice(1), 10) - 1) * width + (square.charCodeAt(0) - 97);
 }
 
-function bname(pos) {
-	return String.fromCharCode(97 + pos % W) + (Math.floor(pos / W) + 1);
+function bname(pos, width) {
+	width = width || W;
+	return String.fromCharCode(97 + pos % width) + (Math.floor(pos / width) + 1);
 }
 
 function setup(sandbox, game, pieces, who, pos) {

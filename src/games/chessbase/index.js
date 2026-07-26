@@ -1498,14 +1498,28 @@ exports.games = (function () {
 	var modelScripts_rococo = [
 		"base-model.js",
 		"grid-geo-model.js",
+		"ultima/baroque-core.js",
 		"ultima/rococo-model.js"
 	]
 	var config_view_js_rococo = [
 		"base-view.js",
 		"grid-board-view.js",
 		"ultima/rococo-view.js",
-		"ultima/roc-choice-view.js",
-		"ultima/ultima-capture-view.js"
+		"ultima/baroque-choice-view.js",
+		"ultima/baroque-capture-view.js"
+	]
+	var modelScripts_rocaille = [
+		"base-model.js",
+		"grid-geo-model.js",
+		"ultima/baroque-core.js",
+		"ultima/rocaille-model.js"
+	]
+	var config_view_js_rocaille = [
+		"base-view.js",
+		"grid-board-view.js",
+		"ultima/rocaille-view.js",
+		"ultima/baroque-choice-view.js",
+		"ultima/baroque-capture-view.js"
 	]
 	var modelScripts_ultima = [
 		"base-model.js",
@@ -1516,8 +1530,8 @@ exports.games = (function () {
 		"base-view.js",
 		"grid-board-view.js",
 		"ultima/ultima-view.js",
-		"ultima/roc-choice-view.js",
-		"ultima/ultima-capture-view.js"
+		"ultima/baroque-choice-view.js",
+		"ultima/baroque-capture-view.js"
 	]
 	var modelScripts_101 = [
 		"base-model.js",
@@ -7738,8 +7752,8 @@ exports.games = (function () {
 				"model": {
 					"title-en": "Ultima",
 					"summary": {
-						"en":"Chaque pièce capture d’une manière exotique",
-						"fr": "Un cousin de Ultima sur un tablier de 10x10 avec une bordure externe"
+						"en":"Each piece has its own exotic way of capturing.",
+						"fr":"Chaque pièce capture d’une manière exotique."
 					},
 					"rules": {
 						"en": "res/rules/ultima/ultima-rules.html",
@@ -7818,6 +7832,45 @@ exports.games = (function () {
 				}
 			},
 			"viewScripts": config_view_js_rococo
+		},
+		{
+			"name": "rocaille",
+			"modelScripts": modelScripts_rocaille,
+			"config": {
+				"status": true,
+				"preventRepeat": true,
+				"model": {
+					"title-en": "Rocaille",
+					"summary": {
+						"en": "a quieter Rococo on a 10x8 board, with no edge ring and check",
+						"fr": "Un Rococo apaisé sur un tablier de 10x8, sans bordure et avec l'échec"
+					},
+					// rules pages and thumbnail still to be written
+					"module": "chessbase",
+					"gameOptions": config_model_gameOptions,
+					"js": modelScripts_rocaille,
+					"levels": config_model_levels_15
+				},
+				"view": {
+					"title-en": "Chessbase view",
+					"xdView": true,
+					"css": config_view_css,
+					"preferredRatio": 1.2,
+					"useShowMoves": true,
+					"useNotation": true,
+					"module": "chessbase",
+					"defaultOptions": config_view_defaultOptions,
+					"skins": [
+						config_view_skins_2
+					],
+					"animateSelfMoves": false,
+					"switchable": true,
+					"sounds": config_view_sounds,
+					"js": config_view_js_rocaille,
+					"useAutoComplete": true
+				}
+			},
+			"viewScripts": config_view_js_rocaille
 		},
 		{
 			"name": "werewolf-chess",

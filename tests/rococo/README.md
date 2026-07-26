@@ -48,7 +48,7 @@ from.
 ## The edge-square rule
 
 A move may only pass over or end on an edge square when a capture requires it.
-It is enforced as a post-filter (`rocFilterEdge`) over the generated moves,
+It is enforced as a post-filter (`baroqueFilterEdge`) over the generated moves,
 which groups them by (moving piece, set of captured pieces) - the "capturing
 move" the source states its rules over. A move touching the ring is kept only
 if it captures, only if that same capture cannot be made without touching the
@@ -112,7 +112,7 @@ consumes the captured piece it copies: the only captured Withdrawer can be
 brought back once, while a side that lost both Long Leapers may promote twice.
 
 The no-immediate-swap-back rule needs one ply of history, kept in
-`board.rocLastSwap` as the pair of piece indices that just swapped (or null).
+`board.baroqueLastSwap` as the pair of piece indices that just swapped (or null).
 It is set by `ApplyMove`, cleared by any other move, carried across `CopyFrom`
 because the search clones boards, and stashed on the undo list for
 `cbQuickApply`. It is deliberately *not* part of the Zobrist signature, so two
@@ -122,7 +122,7 @@ base model makes for other one-ply state.
 ## Animation
 
 The base chessbase view animates the moving piece and the single piece it
-displaces (`move.c`). `ultima/ultima-capture-view.js`, listed in the view
+displaces (`move.c`). `ultima/baroque-capture-view.js`, listed in the view
 scripts of both Ultima and Rococo, extends it for the move kinds this family
 adds: the extra victims of a multi-piece capture fade where they stand, the
 swapped piece travels into the square the Swapper leaves, a Swapper destroying
@@ -158,7 +158,7 @@ panel; but when the only thing left against a neighbour is the mutual
 destruction, the panel still opens, so it is never played without a confirming
 click.
 
-The panel carries its own pictures (`roc-choice-0..7`), not the promotion ones.
+The panel carries its own pictures (`baroque-choice-0..7`), not the promotion ones.
 Those are indexed by piece type - one slot per type - so a Swapper facing an
 enemy Swapper would have had a single slot for both of its choices, the very
 position where the choice matters most. Its own pictures can show any piece,

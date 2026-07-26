@@ -9,7 +9,7 @@
  * jocly binds last and therefore wins. Left alone, the move is impossible to
  * enter by hand however many of them the model generates.
  *
- * roc-choice-view.js, shared with Rococo, moves the action onto the panel the
+ * baroque-choice-view.js, shared with Rococo, moves the action onto the panel the
  * view already had for choosing a promotion. Checked here: that the action no
  * longer competes with the cancel click, that it offers a way out, and that
  * the panel is put away again - one left open would block the board.
@@ -57,7 +57,7 @@ const sandbox = {
 sandbox.global = sandbox;
 sandbox.window = sandbox;
 vm.createContext(sandbox);
-["base-view.js", "grid-board-view.js", "ultima/ultima-view.js", "ultima/roc-choice-view.js"].forEach((script) => {
+["base-view.js", "grid-board-view.js", "ultima/ultima-view.js", "ultima/baroque-choice-view.js"].forEach((script) => {
 	vm.runInContext(fs.readFileSync(path.join(CHESSBASE, script), "utf8"), sandbox, { filename: script });
 });
 
@@ -108,7 +108,7 @@ function stages(pieces, square, who) {
 	const action = s.second[keys[0]];
 
 	check("the suicide is offered on the panel, not on the board square",
-		action.click, ["roc-choice-0"]);
+		action.click, ["baroque-choice-0"]);
 	check("and it carries exactly the one move", action.moves.length, 1);
 	check("so it no longer competes with the cancel click",
 		JSON.stringify(action.click) === JSON.stringify(s.pick.click), false);
@@ -118,7 +118,7 @@ function stages(pieces, square, who) {
 	action.pre.call(s.viewBoard);
 	check("selecting the piece raises the panel, the cancel button and its picture",
 		s.updates.filter((u) => u.visible === true).map((u) => u.name).sort(),
-		["promo-board", "promo-cancel", "roc-choice-0"].sort());
+		["promo-board", "promo-cancel", "baroque-choice-0"].sort());
 
 	s.reset();
 	action.post.call(s.viewBoard);

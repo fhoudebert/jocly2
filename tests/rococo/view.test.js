@@ -85,7 +85,7 @@ const style = def.pieces;
 /* ------------------------------------------------------- sprite mapping */
 
 const CELL = 100;
-const modelSb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/rococo-model.js"]);
+const modelSb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/baroque-core.js", "ultima/rococo-model.js"]);
 const game = h.newGame(modelSb);
 const aspects = Object.keys(game.cbVar.pieceTypes).map((t) => game.cbVar.pieceTypes[t].aspect);
 

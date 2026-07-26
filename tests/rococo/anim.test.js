@@ -2,7 +2,7 @@
  * Capture-animation tests - pure Node:
  *   node tests/rococo/anim.test.js
  *
- * ultima/ultima-capture-view.js extends the base view animation so that the
+ * ultima/baroque-capture-view.js extends the base view animation so that the
  * move kinds specific to the Ultima family are shown, instead of the affected
  * pieces simply blinking out when the board is redisplayed after the move.
  *
@@ -64,7 +64,7 @@ function run(script) {
 }
 
 // the real view files load first, so the test also proves they coexist
-["base-view.js", "grid-board-view.js", "ultima/rococo-view.js", "ultima/roc-choice-view.js"].forEach(run);
+["base-view.js", "grid-board-view.js", "ultima/rococo-view.js", "ultima/baroque-choice-view.js"].forEach(run);
 
 // stand in for jocly's own animation, then load the file under test on top
 let baseCalls;
@@ -72,7 +72,7 @@ sandbox.View.Board.cbAnimate = function(xdv, aGame, aMove, callback) {
 	baseCalls.push(aMove);
 	callback();
 };
-run("ultima/ultima-capture-view.js");
+run("ultima/baroque-capture-view.js");
 
 // a view-side game reduced to what the wrapper actually asks of it
 const viewGame = {
@@ -80,7 +80,7 @@ const viewGame = {
 	cbMakeDisplaySpecForPiece: (aGame, pos, piece) => ({ sentTo: pos, piece: piece.i }),
 };
 
-const modelSb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/rococo-model.js"]);
+const modelSb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/baroque-core.js", "ultima/rococo-model.js"]);
 const game = h.newGame(modelSb);
 
 function animate(pieces, moveStr, who) {
