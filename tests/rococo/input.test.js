@@ -8,7 +8,7 @@
  * piece again to cancel", which jocly binds last and therefore wins. The move
  * would be impossible to enter by hand.
  *
- * rococo-view.js moves the suicide onto the panel the view already uses for
+ * roc-choice-view.js moves the suicide onto the panel the view already uses for
  * choosing a promotion. What is checked here is that the action no longer
  * competes with the cancel click, that it offers a way out, and that the panel
  * is put away again - a panel left open would block the board.
@@ -56,7 +56,7 @@ const sandbox = {
 sandbox.global = sandbox;
 sandbox.window = sandbox;
 vm.createContext(sandbox);
-["base-view.js", "grid-board-view.js", "ultima/rococo-view.js"].forEach((script) => {
+["base-view.js", "grid-board-view.js", "ultima/rococo-view.js", "ultima/roc-choice-view.js"].forEach((script) => {
 	vm.runInContext(fs.readFileSync(path.join(CHESSBASE, script), "utf8"), sandbox, { filename: script });
 });
 

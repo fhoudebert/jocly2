@@ -1504,6 +1504,7 @@ exports.games = (function () {
 		"base-view.js",
 		"grid-board-view.js",
 		"ultima/rococo-view.js",
+		"ultima/roc-choice-view.js",
 		"ultima/ultima-capture-view.js"
 	]
 	var modelScripts_ultima = [
@@ -1515,6 +1516,7 @@ exports.games = (function () {
 		"base-view.js",
 		"grid-board-view.js",
 		"ultima/ultima-view.js",
+		"ultima/roc-choice-view.js",
 		"ultima/ultima-capture-view.js"
 	]
 	var modelScripts_101 = [
