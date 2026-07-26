@@ -59,10 +59,14 @@ while in, through, or into check, and the squares between king and rook must be 
 <p>A pawn promotes to queen, rook, bishop or knight when it reaches row&nbsp;B or&nbsp;C of the opposing
 home panel (panel&nbsp;6 for White, panel&nbsp;1 for Black).</p>
 
-<h2>Not yet enforced</h2>
-<p>For now this implementation omits three finer points of the full Frontier ruleset:
-<b>en&nbsp;passant</b> capture, the special <b>sideways pawn move</b> along an opponent's wall on the side
-panels, and any further castling refinements. These may be added later.</p>
+<h2>En passant</h2>
+<p>As in orthodox chess, a pawn that has just advanced two squares on its first move can be captured
+en&nbsp;passant by an enemy pawn attacking the square it skipped over, on the very next move only.</p>
+
+<h2>Special sideways move</h2>
+<p>If a pawn is carried onto one of the side panels by diagonal captures over the edges, it may step
+sideways off that panel onto an adjacent through-panel, so it can resume its forward march. This
+sideways step is allowed only in that situation.</p>
 
 <hr/>
 
@@ -79,4 +83,6 @@ ferm&eacute;es par un <b>mur</b> infranchissable.</p>
 franchit pas un sommet du cube ; le cavalier saute les pi&egrave;ces mais pas les murs ; le pion avance le
 long de son m&eacute;ridien (deux cases au premier coup) et prend en diagonale. <b>Roque</b> petit c&ocirc;t&eacute;
 seulement (Blancs 1C2&rarr;1C4, Noirs 6B2&rarr;6B4). <b>Promotion</b> sur les rang&eacute;es B ou&nbsp;C de la
-base adverse. Non encore g&eacute;r&eacute;s : la prise en passant et le coup lat&eacute;ral sp&eacute;cial du pion.</p>
+base adverse. <b>Prise en passant</b> comme aux &eacute;checs classiques (sur le double pas, au coup suivant
+seulement). <b>Coup lat&eacute;ral sp&eacute;cial</b> : un pion amen&eacute; sur un panneau lat&eacute;ral par des
+prises diagonales peut faire un pas de c&ocirc;t&eacute; vers un panneau-couloir voisin pour reprendre sa marche.</p>

@@ -946,6 +946,7 @@
 						var ept=this.epTarget.p;
 						do {
 							if(ept==pos1) { nonCapt=false; break; }
+							if(cbVar.geometry.cube) break; // cube surface: the skipped square is the only e.p. target; index-arithmetic retrace doesn't apply across faces
 							ept+=this.epTarget.p-this.lastMove.t;
 						} while(ept!=this.lastMove.f);
 					}

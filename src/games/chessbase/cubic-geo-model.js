@@ -142,6 +142,24 @@
 				if(score>0) caps.push(nx.pos); });
 			return caps;
 		}
+		// A "side" face is walled off from BOTH pole panels (faces 0 and 5): a pawn can only
+		// reach it by capturing over an edge. Pole faces are 0 (White base) and 5 (Black base).
+		function isSideFace(pi){
+			if(pi===0 || pi===5) return false;
+			return !!(WALLS[edgeLabel(0*SZ*SZ, pi*SZ*SZ)] && WALLS[edgeLabel(pi*SZ*SZ, 5*SZ*SZ)]);
+		}
+		// Special sideways move: a pawn stranded on a side face (reached by diagonal captures)
+		// may step orthogonally onto an adjacent corridor face from which it can resume its march.
+		function pawnLateral(pos, side){
+			if(!isSideFace(P(pos))) return [];
+			var out=[];
+			orthoDirs(P(pos)).forEach(function(dir){ var nx=orthoNbr(pos,dir); if(!nx) return;
+				if(isSideFace(P(nx.pos))) return;      // must land on a corridor face
+				if(P(nx.pos)===0 || P(nx.pos)===5) return; // not onto a base panel
+				if(pawnForward(nx.pos, side)) out.push(nx.pos); // and be able to continue forward there
+			});
+			return out;
+		}
 
 		function PosName(pos){ return ""+(P(pos)+1)+String.fromCharCode(65+locR(pos))+(locC(pos)+1); }
 		function PosByName(str){ var m=/^([1-6])([A-D])([1-4])$/.exec((str||"").toUpperCase());
@@ -167,7 +185,7 @@
 			GetDistances:function(){return distance;}, distEdge:distEdges, corners:null,
 			orthoDirs:orthoDirs, diagPairs:diagPairs, orthoRay:orthoRay, diagRay:diagRay,
 			orthoNbr:orthoNbr, diagNbr:diagNbr, ostep:ostep, dstep:dstep, dirVec:dirVec,
-			pawnForward:pawnForward, pawnCaptures:pawnCaptures, dNorth:dNorth, dSouth:dSouth,
+			pawnForward:pawnForward, pawnCaptures:pawnCaptures, pawnLateral:pawnLateral, isSideFace:isSideFace, dNorth:dNorth, dSouth:dSouth,
 			FLAGS:{ MOVE:FLAG_MOVE, CAPTURE:FLAG_CAPTURE, STOP:FLAG_STOP }
 		};
 	};
@@ -248,6 +266,8 @@
 			var fw=geometry.pawnForward(pos, side);
 			if(fw) g[pos].push(typed(self,[fw.nx.pos|C.FLAG_MOVE]));
 			geometry.pawnCaptures(pos, side).forEach(function(cp){ g[pos].push(typed(self,[cp|C.FLAG_CAPTURE])); });
+			// special sideways move off a side panel back onto a corridor (non-capturing)
+			geometry.pawnLateral(pos, side).forEach(function(lp){ g[pos].push(typed(self,[lp|C.FLAG_MOVE])); });
 		}
 		return g;
 	};

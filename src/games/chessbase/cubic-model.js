@@ -19,7 +19,7 @@
 					name: 'pawn-w', aspect: 'pawn',
 					graph: this.cbCubicPawnGraph(geometry,1),
 					value: 1, abbrev: '', fenAbbrev: 'P',
-					epCatch: false,
+					epCatch: true,
 				},
 				1: {
 					name: 'ipawn-w', aspect: 'pawn',
@@ -27,13 +27,13 @@
 					value: 1, abbrev: '', fenAbbrev: 'P',
 					// White home pawns: panel 1 rows A (0..3) and D (12..15)
 					initial: [{s:1,p:0},{s:1,p:1},{s:1,p:2},{s:1,p:3},{s:1,p:12},{s:1,p:13},{s:1,p:14},{s:1,p:15}],
-					epTarget: false,
+					epTarget: true,
 				},
 				2: {
 					name: 'pawn-b', aspect: 'pawn',
 					graph: this.cbCubicPawnGraph(geometry,-1),
 					value: 1, abbrev: '', fenAbbrev: 'P',
-					epCatch: false,
+					epCatch: true,
 				},
 				3: {
 					name: 'ipawn-b', aspect: 'pawn',
@@ -41,7 +41,7 @@
 					value: 1, abbrev: '', fenAbbrev: 'P',
 					// Black home pawns: panel 6 rows A (80..83) and D (92..95)
 					initial: [{s:-1,p:80},{s:-1,p:81},{s:-1,p:82},{s:-1,p:83},{s:-1,p:92},{s:-1,p:93},{s:-1,p:94},{s:-1,p:95}],
-					epTarget: false,
+					epTarget: true,
 				},
 
 				4: {

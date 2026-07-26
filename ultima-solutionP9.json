@@ -1,0 +1,28 @@
+{
+  "playedMoves": [
+    {
+      "f": 53,
+      "t": 53,
+      "c": null,
+      "a": "P",
+      "suicide": true,
+      "ck": false
+    },
+    {
+      "f": 63,
+      "t": 54,
+      "c": null,
+      "a": "L",
+      "ck": false
+    },
+    {
+      "f": 60,
+      "t": 46,
+      "c": null,
+      "a": "X",
+      "ck": true
+    }
+  ],
+  "initialBoard": "4XLPl/4XP1P/4ip1p/4PkIp/8/8/1K6/8 w - - 5 64",
+  "game": "ultima"
+}
