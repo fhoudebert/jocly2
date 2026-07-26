@@ -57,7 +57,7 @@ const sandbox = {
 sandbox.global = sandbox;
 sandbox.window = sandbox;
 vm.createContext(sandbox);
-["base-view.js", "grid-board-view.js", "ultima/ultima-view.js", "ultima/baroque-choice-view.js"].forEach((script) => {
+["base-view.js", "grid-board-view.js", "ultima/baroque-view.js", "ultima/ultima-view.js", "ultima/baroque-choice-view.js"].forEach((script) => {
 	vm.runInContext(fs.readFileSync(path.join(CHESSBASE, script), "utf8"), sandbox, { filename: script });
 });
 

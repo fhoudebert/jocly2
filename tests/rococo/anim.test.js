@@ -64,7 +64,7 @@ function run(script) {
 }
 
 // the real view files load first, so the test also proves they coexist
-["base-view.js", "grid-board-view.js", "ultima/rococo-view.js", "ultima/baroque-choice-view.js"].forEach(run);
+["base-view.js", "grid-board-view.js", "ultima/baroque-view.js", "ultima/rococo-view.js", "ultima/baroque-choice-view.js"].forEach(run);
 
 // stand in for jocly's own animation, then load the file under test on top
 let baseCalls;

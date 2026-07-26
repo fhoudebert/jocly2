@@ -1504,6 +1504,7 @@ exports.games = (function () {
 	var config_view_js_rococo = [
 		"base-view.js",
 		"grid-board-view.js",
+		"ultima/baroque-view.js",
 		"ultima/rococo-view.js",
 		"ultima/baroque-choice-view.js",
 		"ultima/baroque-capture-view.js"
@@ -1517,6 +1518,7 @@ exports.games = (function () {
 	var config_view_js_rocaille = [
 		"base-view.js",
 		"grid-board-view.js",
+		"ultima/baroque-view.js",
 		"ultima/rocaille-view.js",
 		"ultima/baroque-choice-view.js",
 		"ultima/baroque-capture-view.js"
@@ -1529,6 +1531,7 @@ exports.games = (function () {
 	var config_view_js_ultima = [
 		"base-view.js",
 		"grid-board-view.js",
+		"ultima/baroque-view.js",
 		"ultima/ultima-view.js",
 		"ultima/baroque-choice-view.js",
 		"ultima/baroque-capture-view.js"
@@ -7845,8 +7848,12 @@ exports.games = (function () {
 						"en": "a quieter Rococo on a 10x8 board, with no edge ring and check",
 						"fr": "Un Rococo apaisé sur un tablier de 10x8, sans bordure et avec l'échec"
 					},
-					// rules pages and thumbnail still to be written
+					"rules": {
+						"en": "res/rules/rocaille/rocaille-rules.html",
+						"fr": "res/rules/rocaille/rocaille-rules_fr.html"
+					},
 					"module": "chessbase",
+					"thumbnail": "res/rules/rocaille/rocaille-thumb.png",
 					"gameOptions": config_model_gameOptions,
 					"js": modelScripts_rocaille,
 					"levels": config_model_levels_15
