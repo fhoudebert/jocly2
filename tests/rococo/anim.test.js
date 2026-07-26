@@ -64,7 +64,7 @@ function run(script) {
 }
 
 // the real view files load first, so the test also proves they coexist
-["base-view.js", "grid-board-view.js", "ultima/rococo-view.js"].forEach(run);
+["base-view.js", "grid-board-view.js", "ultima/rococo-view.js", "ultima/roc-choice-view.js"].forEach(run);
 
 // stand in for jocly's own animation, then load the file under test on top
 let baseCalls;
@@ -139,7 +139,7 @@ function animate(pieces, moveStr, who) {
 
 {
 	// a Chameleon's swap may capture as well
-	const r = animate({ a1: "wK", h8: "bK", d4: "wC", d6: "bS", d3: "bW", d7: "bA" }, "Cd4<>d6", 1);
+	const r = animate({ a1: "wK", h8: "bK", d4: "wC", d6: "bS", d3: "bW", d7: "bA" }, "Cd4<>d6xd3,d7", 1);
 	check("swap + capture: the victims fade",
 		r.faded(), [r.gadget("d3"), r.gadget("d7")].sort());
 	check("swap + capture: the partner still travels",

@@ -127,9 +127,10 @@ check("leaper: no capture by displacement",
 
 /* ----------------------------------------------------------- Immobilizer */
 
-check("immobilizer: an adjacent enemy piece cannot move",
+// frozen no longer means "no move at all": the piece may remove itself
+	check("immobilizer: an adjacent enemy piece may only take itself off the board",
 	movesFrom({ a1: "wK", h8: "bK", d4: "wI", d5: "bP" }, "d5", -1),
-	[]);
+	["Pd5(suicide)"]);
 
 check("immobilizer: a piece one square further is free",
 	movesFrom({ a1: "wK", h8: "bK", d4: "wI", d6: "bP" }, "d6", -1).length > 0,
@@ -137,11 +138,11 @@ check("immobilizer: a piece one square further is free",
 
 check("immobilizer: frozen by an adjacent enemy Chameleon",
 	movesFrom({ a1: "wK", h8: "bK", d4: "wI", d5: "bX" }, "d4"),
-	[]);
+	["Id4(suicide)"]);
 
 check("immobilizer: the Chameleon it touches is frozen as well",
 	movesFrom({ a1: "wK", h8: "bK", d4: "wI", d5: "bX" }, "d5", -1),
-	[]);
+	["Xd5(suicide)"]);
 
 check("immobilizer: never captures",
 	capturesFrom({ a1: "wK", h8: "bK", d4: "wI", d6: "bP", d7: "wP" }, "d4"),
@@ -230,6 +231,59 @@ check("king: captures by displacement",
 		["bK@h8", "wK@a1", "wP@d4", "wP@d6", "wP@f4"]);
 	check("apply move: signature changed", board.zSign != sign, true);
 }
+
+/* ------------------------------------------- suicide of a frozen piece */
+
+// Everywhere in this family a piece that cannot move may still take itself off
+// the board; Ultima had the freeze but not the way out.
+check("a frozen piece has exactly one move: removing itself",
+	movesFrom({ a1: "wK", h8: "bK", d4: "wL", d5: "bI" }, "d4"),
+	["Ld4(suicide)"]);
+
+check("unfrozen, the same piece moves normally",
+	movesFrom({ a1: "wK", h8: "bK", d4: "wL", f6: "bI" }, "d4").length > 1, true);
+
+check("a King never gets that option",
+	movesFrom({ d4: "wK", h8: "bK", d5: "bI", a1: "wL" }, "d4"), []);
+
+{
+	const board = h.setup(sb, game, { a1: "wK", h8: "bK", d4: "wL", d5: "bI" }, 1);
+	board.GenerateMoves(game);
+	const move = board.mMoves.filter((m) => m.suicide)[0];
+	const before = h.census(board, game), sign = board.zSign;
+	const undo = board.cbQuickApply(game, move);
+	const during = h.census(board, game);
+	board.cbQuickUnapply(game, undo);
+	check("it really leaves the board", during, ["bI@d5", "bK@h8", "wK@a1"]);
+	check("and undo puts it back", h.census(board, game), before);
+	check("with the signature restored", board.zSign, sign);
+}
+
+/* ------------------- a Chameleon that leaps still withdraws (regression) */
+
+// Reported position, White to play:
+//   5K2/pkp1pp2/Pp1pPc2/2l2p2/8/2l5/2X5/2w5 w - - 0 52
+// The white Chameleon on c2 goes to c6: it leaps the two Long Leapers on c3
+// and c5, pincers the Pawns on b6 and d6 against its own on a6 and e6, and
+// coordinates with its King on f8 to take the Coordinator on f6. It also moves
+// straight away from the black Withdrawer on c1, which it used to forget: the
+// withdrawal victim was dropped by every move that leapt.
+check("leaping does not cost the Chameleon its withdrawal victim",
+	capturesFrom({
+		f8: "wK", a7: "bP", b7: "bK", c7: "bP", e7: "bP", f7: "bP",
+		a6: "wP", b6: "bP", d6: "bP", e6: "wP", f6: "bC",
+		c5: "bL", f5: "bP", c3: "bL", c2: "wX", c1: "bW",
+	}, "c2"),
+	["Xc2-c4xc1,c3", "Xc2-c6xb6,c1,c3,c5,d6,f6"]);
+
+check("isolated: the victim behind is kept whatever the leap does",
+	capturesFrom({ a1: "wK", h8: "bK", d4: "wX", d3: "bW", d5: "bL" }, "d4"),
+	["Xd4-d6xd3,d5", "Xd4-d7xd3,d5", "Xd4-d8xd3,d5"]);
+
+check("and the King taken by displacement carries it too",
+	capturesFrom({ a1: "wK", d5: "bK", d4: "wX", d3: "bW" }, "d4")
+		.filter((m) => m.indexOf("d5") >= 0),
+	["Xd4-d5xd3,d5"]);
 
 console.log((failed ? "FAILED" : "OK") + " - " + passed + " passed, " + failed + " failed");
 process.exit(failed ? 1 : 0);

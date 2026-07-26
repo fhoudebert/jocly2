@@ -946,6 +946,7 @@
 						var ept=this.epTarget.p;
 						do {
 							if(ept==pos1) { nonCapt=false; break; }
+							if(cbVar.geometry.cube) break; // cube surface: the skipped square is the only e.p. target; index-arithmetic retrace doesn't apply across faces
 							ept+=this.epTarget.p-this.lastMove.t;
 						} while(ept!=this.lastMove.f);
 					}
@@ -1412,13 +1413,16 @@
 			for(var index in cbVar.pieceTypes) {
 				var pType=cbVar.pieceTypes[index];
 				var abbrev=pType.fenAbbrev || pType.abbrev || 'X';
+				// keys of an object are strings: a piece type must stay a number,
+				// or a model comparing types strictly (switch, ===) sees none of them
+				var pieceType=parseInt(index);
 				piecesMap[abbrev.toUpperCase()]={
 					s: 1,
-					t: index,
+					t: pieceType,
 				}
 				piecesMap[abbrev.toLowerCase()]={
 					s: -1,
-					t: index,
+					t: pieceType,
 				}
 			}
 			
@@ -1449,9 +1453,18 @@
 						}
 						piece.m=moved;
 						pieces.push(piece);
-					} else if(!isNaN(parseInt(ch))) 
-						colIndex+=parseInt(ch);
-					else {
+					} else if(!isNaN(parseInt(ch))) {
+						// a run of empty squares is written as a decimal number,
+						// so boards wider than 9 export "10" and the digits of
+						// one number must be read together
+						var digits=ch;
+						while(i+1<row.length && !isNaN(parseInt(row.substr(i+1,1)))
+							&& piecesMap[row.substr(i+1,1)]===undefined) {
+							i++;
+							digits+=row.substr(i,1);
+						}
+						colIndex+=parseInt(digits);
+					} else {
 						console.warn("FEN invalid board spec",ch);
 						return result;
 					}

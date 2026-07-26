@@ -1504,6 +1504,7 @@ exports.games = (function () {
 		"base-view.js",
 		"grid-board-view.js",
 		"ultima/rococo-view.js",
+		"ultima/roc-choice-view.js",
 		"ultima/ultima-capture-view.js"
 	]
 	var modelScripts_ultima = [
@@ -1515,6 +1516,7 @@ exports.games = (function () {
 		"base-view.js",
 		"grid-board-view.js",
 		"ultima/ultima-view.js",
+		"ultima/roc-choice-view.js",
 		"ultima/ultima-capture-view.js"
 	]
 	var modelScripts_101 = [
@@ -3810,7 +3812,8 @@ exports.games = (function () {
 						"fr": "Échecs 3D 5x5x5"
 					},
 					"rules": {
-						"en": "res/rules/raumschach/raumschach-rules.html"
+						"en": "res/rules/raumschach/raumschach-rules.html",
+                        "fr": "res/rules/raumschach/raumschach-rules_fr.html",
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -4633,7 +4636,6 @@ exports.games = (function () {
 					"released": 1395590178,
 					"credits": config_model_credits,
 					"gameOptions": config_model_gameOptions,
-					"obsolete": true,
 					"js": modelScripts_26,
 					"levels": config_model_levels_5
 				},
@@ -7963,7 +7965,7 @@ exports.games = (function () {
 					},
 					"rules": {
 						"en": "res/rules/spartan/spartan-rules.html",
-						"fr": "res/rules/3dchess/spartan-rules_fr.html"
+						"fr": "res/rules/spartan/spartan-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -8700,7 +8702,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Makromachy",
-					"summary": "14x14 variant with flying pieces",
+					"summary": {
+						"en": "14x14 variant with flying pieces",
+						"fr": "14x14 avec des pièces volantes"
+					},
 					"rules": {
 						"en": "res/rules/makromachy/makromachy-rules.html",
 						"fr": "res/rules/makromachy/makromachy-rules_fr.html"
@@ -8765,7 +8770,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Minjiku Shogi",
-					"summary": "10x10 variant with flying pieces and Fire Dragon",
+					"summary": {
+						"en": "10x10 variant with flying pieces and Fire Dragon",
+						"fr": "10x10 avec des pièces volantes et un dragon de feu"
+					},
 					"rules": {
 						"en": "res/rules/minjiku-shogi/minjiku-shogi-rules.html",
 						"fr": "res/rules/minjiku-shogi/minjiku-shogi-rules_fr.html"
@@ -8831,7 +8839,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Grant acedrex",
-					"summary": "Medieval Castillan chess variant",
+					"summary": {
+						"en": "Medieval Castillan chess variant",
+						"fr": "Variante d’échecs médiévale de Castille"
+					},
 					"rules": {
 						"en": "res/rules/historical/grant-acedrex-rules.html",
 						"fr": "res/rules/historical/grant-acedrex-rules_fr.html"

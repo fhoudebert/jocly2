@@ -1,20 +1,88 @@
 <style>
+	.side { float: right; max-width: 100%; }
 	@media screen and (max-width: 520px) {
-		.side {
-			float: none;
-			display: block;
-			max-width: 100%;
-			margin-right: auto;
-			margin-left: auto;
-		}		
+		.side { float: none; display: block; max-width: 100%; margin-right: auto; margin-left: auto; }
 	}
+	h1,h2,h3,h4 { clear: both; }
+	table.cc { border-collapse: collapse; margin: 8px 0; }
+	table.cc td, table.cc th { border: 1px solid #999; padding: 3px 8px; text-align: center; }
 </style>
 
-<p>This Cubic Chess implementation does not enforce any rule !</p>
+<h1>Cube Chess &mdash; Frontier variant</h1>
 
-<p>It is to be used as a support to invent your own rules. If you come up with interesting rules and want to see them implemented into Jocly,
-please open an issue about it on the Jocly repository.</p>
+<p>Chess played on the surface of a 4&times;4&times;4 cube: six 4&times;4 panels, 96 squares in all.
+This implementation now <b>enforces the rules</b> (checks, checkmate, stalemate and legal-move
+generation all work), so it can be played against the computer as well as human&nbsp;vs&nbsp;human.</p>
 
-<p>A consequence of the fact that no enforced rule is that playing against an artificial intelligence is pointless. You should only use
-this Cubic Chess in human-vs-human mode.</p>
+<h2>Panels and notation</h2>
+<p>The six panels are numbered 1 to 6. Panel&nbsp;1 is the White home base, panel&nbsp;6 the Black
+home base; panels 2&ndash;5 wrap around the sides. A square is named
+<span class="psymb-bold">&lt;panel&gt;&lt;row&gt;&lt;column&gt;</span>, with rows A&ndash;D and columns 1&ndash;4
+&mdash; for example <b>1C2</b> is panel&nbsp;1, row&nbsp;C, column&nbsp;2 (the White king's starting square).</p>
 
+<h2>Frontier walls</h2>
+<p>Along each home base, the two edges where squares of the <i>same</i> colour meet are closed by a
+<b>wall</b>: no piece may move across them. These walls fence off the two base panels from the side
+panels along those edges, while leaving the pawns' corridors and the equator open. A rook or queen
+sliding along an open ring travels the full great circle (16 squares) until it is blocked or reaches a wall.</p>
+
+<h2>Initial setup</h2>
+<p>Each side has 16 men: 8 pawns, 2 rooks, 2 knights, 2 bishops, 1 queen and 1 king. Pawns occupy the
+two open edges of the home panel (rows&nbsp;A and&nbsp;D); the pieces fill the two inner rows (B and&nbsp;C).</p>
+<table class="cc">
+<tr><th>White (panel 1)</th><th>col 1</th><th>col 2</th><th>col 3</th><th>col 4</th></tr>
+<tr><th>row A</th><td>P</td><td>P</td><td>P</td><td>P</td></tr>
+<tr><th>row B</th><td>R</td><td>Q</td><td>B</td><td>N</td></tr>
+<tr><th>row C</th><td>N</td><td>K</td><td>B</td><td>R</td></tr>
+<tr><th>row D</th><td>P</td><td>P</td><td>P</td><td>P</td></tr>
+</table>
+<p>Black's panel&nbsp;6 mirrors this, with the king on <b>6B2</b> and its castling rook on <b>6B4</b>.</p>
+
+<h2>How the pieces move</h2>
+<ul>
+<li><b>Rook</b> &mdash; slides along the cube's orthogonal great circles, turning naturally across panel edges.</li>
+<li><b>Bishop</b> &mdash; slides diagonally across the surface, wrapping around edges. It cannot pass through
+a cube <i>corner</i> (a vertex where three panels meet): a diagonal aimed at a vertex stops there.</li>
+<li><b>Queen</b> &mdash; rook and bishop combined.</li>
+<li><b>Knight</b> &mdash; the usual (2,1) leap, transported across edges; it jumps over pieces but not over walls.</li>
+<li><b>King</b> &mdash; one square in any of its (up to eight) surface directions.</li>
+<li><b>Pawn</b> &mdash; advances straight along its meridian away from its home panel, one square at a time
+(two on its first move, from either home row). It captures onto the two forward diagonal squares.</li>
+</ul>
+
+<h2>Castling</h2>
+<p>Short-side castling only. White plays King <b>1C2&rarr;1C4</b> with Rook <b>1C4&rarr;1C3</b>;
+Black plays King <b>6B2&rarr;6B4</b> with Rook <b>6B4&rarr;6B3</b>. As in orthodox chess it is illegal
+while in, through, or into check, and the squares between king and rook must be empty.</p>
+
+<h2>Promotion</h2>
+<p>A pawn promotes to queen, rook, bishop or knight when it reaches row&nbsp;B or&nbsp;C of the opposing
+home panel (panel&nbsp;6 for White, panel&nbsp;1 for Black).</p>
+
+<h2>En passant</h2>
+<p>As in orthodox chess, a pawn that has just advanced two squares on its first move can be captured
+en&nbsp;passant by an enemy pawn attacking the square it skipped over, on the very next move only.</p>
+
+<h2>Special sideways move</h2>
+<p>If a pawn is carried onto one of the side panels by diagonal captures over the edges, it may step
+sideways off that panel onto an adjacent through-panel, so it can resume its forward march. This
+sideways step is allowed only in that situation.</p>
+
+<hr/>
+
+<h1>&Eacute;checs cubiques &mdash; variante Frontier (fran&ccedil;ais)</h1>
+<p>Jeu d'&eacute;checs sur la surface d'un cube 4&times;4&times;4 : six panneaux de 4&times;4, 96 cases.
+Les r&egrave;gles sont d&eacute;sormais appliqu&eacute;es (&eacute;chec, mat, pat et coups l&eacute;gaux),
+donc jouable aussi contre l'ordinateur.</p>
+<p>Les panneaux 1 &agrave; 6 : le&nbsp;1 est la base des Blancs, le&nbsp;6 celle des Noirs. Une case se
+note <b>&lt;panneau&gt;&lt;rang&eacute;e A&ndash;D&gt;&lt;colonne 1&ndash;4&gt;</b> (ex. <b>1C2</b>).
+Le long de chaque base, les deux ar&ecirc;tes o&ugrave; se rejoignent des cases de m&ecirc;me couleur sont
+ferm&eacute;es par un <b>mur</b> infranchissable.</p>
+<p>Chaque camp a 8 pions (rang&eacute;es A et&nbsp;D), 2 tours, 2 cavaliers, 2 fous, 1 dame, 1 roi
+(rang&eacute;es B et&nbsp;C). La tour parcourt les grands cercles ; le fou glisse en diagonale mais ne
+franchit pas un sommet du cube ; le cavalier saute les pi&egrave;ces mais pas les murs ; le pion avance le
+long de son m&eacute;ridien (deux cases au premier coup) et prend en diagonale. <b>Roque</b> petit c&ocirc;t&eacute;
+seulement (Blancs 1C2&rarr;1C4, Noirs 6B2&rarr;6B4). <b>Promotion</b> sur les rang&eacute;es B ou&nbsp;C de la
+base adverse. <b>Prise en passant</b> comme aux &eacute;checs classiques (sur le double pas, au coup suivant
+seulement). <b>Coup lat&eacute;ral sp&eacute;cial</b> : un pion amen&eacute; sur un panneau lat&eacute;ral par des
+prises diagonales peut faire un pas de c&ocirc;t&eacute; vers un panneau-couloir voisin pour reprendre sa marche.</p>

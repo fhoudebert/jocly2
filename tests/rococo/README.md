@@ -17,6 +17,7 @@ No build needed - the tests load the model in a sandbox and drive
     node tests/rococo/edge.test.js          # the outer edge-square ring
     node tests/rococo/swapper.test.js       # swap, mutual destruction, swap-back ban
     node tests/rococo/chameleon.test.js     # the Chameleon (mimics its victim)
+    node tests/rococo/combo.test.js         # the four-powers-in-one Chameleon move
     node tests/rococo/promote.test.js       # cannon-pawn promotion + suicide
     node tests/rococo/consistency.test.js   # undo integrity, playouts, perft
     node tests/rococo/view.test.js          # sprite columns, 10x10 ring, rules pages
@@ -26,13 +27,23 @@ No build needed - the tests load the model in a sandbox and drive
 ## Board and victory
 
 10x10 board, position = row*10 + col. The inner 8x8 (rows/cols 1..8) is normal
-ground and is named a1..h8 in the tests; the 36 squares of the outer ring
+ground and is named a1..h8 in most of the tests, following the source page; the 36 squares of the outer ring
 (row/col 0 or 9) are edge squares. Victory is by capturing the enemy King -
 there is no check or checkmate, the King may move next to the enemy King, and
 a side with no legal move (or whose King has just been taken) loses. This lets
 the model skip all self-check filtering: pseudo-legal moves are legal.
 Three-fold repetition loses for the repeater (`cbOnPerpetual` / `cbMaxRepeats`
 in the model, `preventRepeat` in the manifest).
+
+Two square namings therefore coexist. The source page (and `posOf`/`nameOf` in
+the harness) names only the inner 8x8, a1..h8. The engine, the game notation
+and the board on screen name all 10x10 squares, edge ring included, a1..j10 -
+so inner a1 is board b2. `harness.bpos`/`harness.bname` bridge the two, and
+`setup`, `moveStr`, `movesFrom`, `capturesFrom` and `census` all take the
+naming to use, so a test file can be written entirely in either one.
+`combo.test.js` uses board naming to quote a position exactly as it is read off
+the screen; the older suites use the inner naming of the diagrams they came
+from.
 
 ## The edge-square rule
 
@@ -76,7 +87,24 @@ undo stack stay exact:
 differing in kind stay distinct.
 
 A Chameleon's swap may be combined with its other captures in the same move,
-so `move.swap` and `move.kills` can appear together.
+so `move.swap` and `move.kills` can appear together. The swap is generated as
+the end of the Chameleon's travel along a line, not as a separate scan for the
+nearest piece: the Chameleon walks its line, sliding over empty squares and
+leaping over enemy Long Leapers, and an enemy Swapper found on the way is where
+that travel may stop - trading places is what lets the move end on an occupied
+square. Every landing along the way folds in the same withdrawal victim behind
+the origin and any Advancer approached at the far end, so one move can use all
+four mimicked powers at once. `combo.test.js` pins down the sharpest case:
+
+    Chameleon c5 -> h5 (board naming) captures the Withdrawer b5 by withdrawing,
+    the Long Leaper f5 by leaping over it, the Advancer i5 by approaching, and
+    trades places with the Swapper h5 - which the leap over f5 is what makes
+    reachable. On h5 the Chameleon freezes the Immobilizer i6 and is frozen by
+    it, which is the only reason the adjacent King i4 survives the turn.
+
+Generating the swap from a separate scan, as an earlier version did, silently
+loses that move: the scan stops at the first piece on the line, so the Long
+Leaper standing in front of the Swapper hides it.
 
 Promotion uses the base model's `move.pr`. It is offered only while the side
 has fewer pieces of that type on the board than it started with, so promoting
@@ -102,24 +130,51 @@ itself fades once it has arrived, and a piece removing itself fades without
 travelling. Without it those pieces just blink out when the board is
 redisplayed - the position was always right, only the transition was missing.
 
-## Entering a suicide, and the promotion panel
+## Choosing between trading places and going down together
 
-A piece removing itself does not travel, so the move's destination is the
-square it already stands on. A move is entered in two clicks - the piece, then
-the destination - and that destination falls on the same gadgets as "click the
-piece again to cancel", which jocly binds last and which therefore wins: by
-hand the move was unreachable. `rococo-view.js` overrides `xdInput` to put the
-suicide on the panel the view already uses for choosing a promotion, so a
-frozen piece raises its own picture beside the cancel button.
+A Swapper standing next to an enemy can do two things to it: trade places, or
+destroy them both. Both moves name that neighbour's square, and the board input
+tells moves apart only by where they land - so it cannot separate the two on
+its own. The view took the pair for a promotion, read a piece type off each,
+found none, threw inside the animation callback, and left an empty panel with
+nothing bound to close it. That was the empty popup. A suicide runs into the
+same wall for a different reason: its destination is the square the piece
+already occupies, which is also the square that means "click the piece again to
+cancel" - and jocly binds that cancel last, so it wins.
 
-That panel needed three fixes to work at all. Promotion here is optional, so
-the "stay a Cannon Pawn" move shares its destination with the real promotions;
-the view builds the panel from the `pr` of every move reaching the square and
-threw on the one that had none, leaving the panel stuck open. That move now
-carries `pr = PAWN`, which names the type the piece already is - a no-op on the
-board and the natural "do not promote" entry in the panel. In `base-view.js`,
-the piece pictures were never made visible when the panel opened, and were
-never hidden when it closed; both are fixed there, for every game.
+`rococo-view.js` overrides `xdInput` and asks the question where the player is
+already looking. Picking up the Swapper raises nothing. Clicking a neighbour
+that offers both moves stays an ordinary board click, but instead of playing a
+move nobody has chosen it brings up the panel the view uses for promotions,
+with one picture per choice - what that square is about to hold:
+
+* the **Swapper's own picture** - it ends up standing there: trade places;
+* the **neighbour's picture** - it is what leaves: destroy them both.
+
+A suicide, having nothing to target, is offered on the panel under the picture
+of the piece itself. A neighbour that only allows a swap (no adjacent enemy to
+destroy, or the swap-back ban forbidding it) stays a single click with no
+panel; but when the only thing left against a neighbour is the mutual
+destruction, the panel still opens, so it is never played without a confirming
+click.
+
+The panel carries its own pictures (`roc-choice-0..7`), not the promotion ones.
+Those are indexed by piece type - one slot per type - so a Swapper facing an
+enemy Swapper would have had a single slot for both of its choices, the very
+position where the choice matters most. Its own pictures can show any piece,
+side included, so that case reads as the white Swapper (trade places) beside
+the black one (destroy both).
+
+## The promotion panel
+
+Promotion here is optional, so the "stay a Cannon Pawn" move shares its
+destination with the real promotions. The view builds the panel from the `pr`
+of every move reaching the square and threw on the one that had none, leaving
+the panel stuck open. That move now carries `pr = PAWN`, which names the type
+the piece already is - a no-op on the board and the natural "do not promote"
+entry in the panel. In `base-view.js`, the piece pictures were never made
+visible when the panel opened, and never hidden when it closed; both are fixed
+there, for every game.
 
 ## Known limits
 

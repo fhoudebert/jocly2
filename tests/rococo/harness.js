@@ -2,10 +2,21 @@
  * Pure-Node harness for the Rococo model (10x10 board with an outer edge ring).
  * Loads the model scripts in a sandbox and drives Model.Board directly.
  *
- * Square naming follows the source page: the inner 8x8 playing area is a1..h8
- * (file a = inner column 1, rank 1 = inner row 1). Raw board positions run
- * 0..99 as row*10 + col, so a1 = row 1 col 1 = 11 and h8 = 88. Edge squares
- * can be named with the same scheme using column 0/9 or row 0/9 via posRC.
+ * Two square namings coexist, and a test may use either one:
+ *
+ *  - posOf/nameOf follow the source page, which names the inner 8x8 playing
+ *    area a1..h8 (file a = inner column 1, rank 1 = inner row 1) and leaves
+ *    the edge ring unnamed. Raw board positions run 0..99 as row*10 + col, so
+ *    a1 = row 1 col 1 = 11 and h8 = 88. Edge squares can be reached with the
+ *    same scheme using column 0/9 or row 0/9 via posRC.
+ *
+ *  - bpos/bname name the whole 10x10 board a1..j10, edge ring included, which
+ *    is what the engine prints and what the player reads on screen. Inner a1
+ *    is board b2, inner h8 is board i9.
+ *
+ * setup() takes a position function (posOf by default) and moveStr, movesFrom,
+ * capturesFrom and census take a naming function (nameOf by default), so a
+ * whole test file can be written in either naming by passing bpos/bname.
  */
 
 const fs = require("fs");
@@ -65,7 +76,17 @@ function nameOf(pos) {
 	return "@" + c + "," + r;					// edge square
 }
 
-function setup(sandbox, game, pieces, who) {
+// board naming, edge ring included: "c5" -> row 4, col 2 ; a..j = columns 0..9
+function bpos(square) {
+	return (parseInt(square.slice(1), 10) - 1) * W + (square.charCodeAt(0) - 97);
+}
+
+function bname(pos) {
+	return String.fromCharCode(97 + pos % W) + (Math.floor(pos / W) + 1);
+}
+
+function setup(sandbox, game, pieces, who, pos) {
+	pos = pos || posOf;
 	const types = game.cbVar.pieceTypes;
 	const list = [];
 	for(const square in pieces) {
@@ -78,7 +99,7 @@ function setup(sandbox, game, pieces, who) {
 				type = parseInt(t);
 		if(type === null)
 			throw new Error("unknown piece " + spec);
-		list.push({ s: side, t: type, p: posOf(square), m: true });
+		list.push({ s: side, t: type, p: pos(square), m: true });
 	}
 	game.mInitial = { pieces: list, turn: who === undefined ? 1 : who };
 	const board = newBoard(sandbox, game);
@@ -86,19 +107,24 @@ function setup(sandbox, game, pieces, who) {
 	return board;
 }
 
-function moveStr(board, move) {
+function moveStr(board, move, name) {
+	name = name || nameOf;
 	if(move.suicide)
-		return (move.a || "") + nameOf(move.f) + "(suicide)";
-	if(move.swap != null)
-		return (move.a || "") + nameOf(move.f) + "<>" + nameOf(board.pieces[move.swap].p);
+		return (move.a || "") + name(move.f) + "(suicide)";
+	if(move.swap != null) {
+		// a Chameleon's swap may carry captures made on the way
+		const extra = (move.kills || []).map((k) => name(board.pieces[k].p)).sort();
+		return (move.a || "") + name(move.f) + "<>" + name(board.pieces[move.swap].p)
+			+ (extra.length ? "x" + extra.join(",") : "");
+	}
 	if(move.mutual)
-		return (move.a || "") + nameOf(move.f) + "!!" + nameOf(board.pieces[move.c].p);
-	let str = (move.a || "") + nameOf(move.f) + "-" + nameOf(move.t);
+		return (move.a || "") + name(move.f) + "!!" + name(board.pieces[move.c].p);
+	let str = (move.a || "") + name(move.f) + "-" + name(move.t);
 	const victims = [];
 	if(move.c != null)
-		victims.push(nameOf(board.pieces[move.c].p));
+		victims.push(name(board.pieces[move.c].p));
 	if(move.kills)
-		move.kills.forEach((k) => victims.push(nameOf(board.pieces[k].p)));
+		move.kills.forEach((k) => victims.push(name(board.pieces[k].p)));
 	if(victims.length)
 		str += "x" + victims.sort().join(",");
 	if(move.pr != null)
@@ -111,20 +137,21 @@ function game_fenAbbrev(board, t) {
 	return board.__game ? board.__game.cbVar.pieceTypes[t].fenAbbrev : ("t" + t);
 }
 
-function movesFrom(board, game, square) {
-	const from = posOf(square);
+function movesFrom(board, game, square, name) {
+	const from = typeof square === "number" ? square : posOf(square);
 	board.GenerateMoves(game);
-	return board.mMoves.filter((m) => m.f === from).map((m) => moveStr(board, m)).sort();
+	return board.mMoves.filter((m) => m.f === from).map((m) => moveStr(board, m, name)).sort();
 }
 
-function capturesFrom(board, game, square) {
-	return movesFrom(board, game, square).filter((m) => m.indexOf("x") >= 0);
+function capturesFrom(board, game, square, name) {
+	return movesFrom(board, game, square, name).filter((m) => m.indexOf("x") >= 0);
 }
 
-function census(board, game) {
+function census(board, game, name) {
+	name = name || nameOf;
 	return board.pieces.filter((p) => p.p >= 0)
-		.map((p) => (p.s > 0 ? "w" : "b") + game.cbVar.pieceTypes[p.t].fenAbbrev + "@" + nameOf(p.p))
+		.map((p) => (p.s > 0 ? "w" : "b") + game.cbVar.pieceTypes[p.t].fenAbbrev + "@" + name(p.p))
 		.sort();
 }
 
-module.exports = { loadModel, newGame, newBoard, setup, posOf, posRC, nameOf, moveStr, movesFrom, capturesFrom, census, W };
+module.exports = { loadModel, newGame, newBoard, setup, posOf, posRC, bpos, bname, nameOf, moveStr, movesFrom, capturesFrom, census, W };

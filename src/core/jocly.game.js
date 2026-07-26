@@ -678,6 +678,9 @@ JocGame.prototype.StartThreadedMachine = function(aOptions,algo) {
 	}
 	this.aiWorker.postMessage({
 		type: "Play",
+		// the moves alone are not the game: a match started from a given
+		// position replays them onto the wrong board without this
+		initialBoard: this.mInitialString,
 		playedMoves: this.mPlayedMoves,
 		gameOptions: this.mOptions,
 		gameName: this.name,

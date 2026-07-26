@@ -1,350 +1,289 @@
 
 (function() {
-	
-	Model.Game.cbBoardGeometryCubic = function(width,height,floors,fences) {
 
-		var boardSize = 2*width*height+2*width*floors+2*height*floors;
-		var planes = [{
-			cols:width,
-			rows:height,
-			start:0,
-		},{
-			cols:height,
-			rows:floors,
-			start:width*height,
-		},{
-			cols:width,
-			rows:floors,
-			start:width*height+height*floors,
-		},{
-			cols:width,
-			rows:floors,
-			start:width*height+height*floors+width*floors,
-		},{
-			cols:height,
-			rows:floors,
-			start:width*height+height*floors+2*width*floors,
-		},{
-			cols:width,
-			rows:height,
-			start:width*height+2*height*floors+2*width*floors,
-		}];
-		
-		function C(pos) {
-			return pos%width;
-		}
-		function R(pos) {
-			return Math.floor((pos%(width*height))/width);
-		}
-		function F(pos) {
-			return Math.floor(pos/(width*height));
-		}
-		function P(pos) {
-			for(var i=1;i<6;i++)
-				if(pos<planes[i].start)
-					return i-1;
-			return 5;
-		}
-		function POS(c,r,f) {
-			return planes[f].start+r*planes[f].cols+c;
-		}
-		function Graph(pos,delta) {
-			var c0=C(pos);
-			var r0=R(pos);
-			var c=c0+delta[0]
-			while(c<0)
-				c+=width;
-			c%=width;
-			var r=r0+delta[1];
-			if(r<0 || r>=height)
-				return null;
-			return POS(c,r);
-		}
-		
-		var distance={};
-		for(var pos=0;pos<boardSize;pos++) {
-			distance[pos]={};
-			
-			for(var pos1=0;pos1<boardSize;pos1++)
-				distance[pos][pos1]=1;
+	var FLAG_MOVE = 0x10000, FLAG_CAPTURE = 0x20000, FLAG_STOP = 0x40000;
 
-			distance[pos][pos]=0;
+	// Exact surface topology of a size^3 cube, derived from the SAME face
+	// placement table used by cubic-board-view, so model and view agree.
+	// walls: face-pair labels ("01","04","15","45") that pieces cannot cross.
+	Model.Game.cbBoardGeometryCubic = function(width, height, floors, walls) {
+
+		var SZ = width;
+		if(height !== width || floors !== width)
+			console.warn("cubic geometry expects a cube; got", width, height, floors);
+
+		var boardSize = 6*SZ*SZ;
+		var planes = [];
+		for(var pi=0; pi<6; pi++) planes.push({ cols:SZ, rows:SZ, start:pi*SZ*SZ });
+
+		// face orientations (unit basis; matches cubic-board-view orients dx/dy/dz)
+		var O = [
+			{ tX:0,    tY:0,    tZ:-SZ/2, dx:[1,0],  dy:[0,1],  dz:[0,0]  },
+			{ tX:-SZ/2,tY:0,    tZ:0,     dx:[0,0],  dy:[1,0],  dz:[0,1]  },
+			{ tX:0,    tY:SZ/2, tZ:0,     dx:[1,0],  dy:[0,0],  dz:[0,1]  },
+			{ tX:0,    tY:-SZ/2,tZ:0,     dx:[-1,0], dy:[0,0],  dz:[0,1]  },
+			{ tX:SZ/2, tY:0,    tZ:0,     dx:[0,0],  dy:[-1,0], dz:[0,1]  },
+			{ tX:0,    tY:0,    tZ:SZ/2,  dx:[1,0],  dy:[0,-1], dz:[0,0]  }
+		];
+
+		function P(pos){ return Math.floor(pos/(SZ*SZ)); }
+		function locC(pos){ return pos % SZ; }
+		function locR(pos){ return Math.floor((pos % (SZ*SZ)) / SZ); }
+		function POSf(pi,c,r){ return pi*SZ*SZ + r*SZ + c; }              // internal (face,col,row)
+		function POS(c,r,f){ return f*SZ*SZ + r*SZ + c; }                // public: matches the view's POS(col,row,face)
+
+		function center(pos){
+			var pi=P(pos), o=O[pi], xb=(locC(pos)-(SZ-1)/2), yb=((SZ-1)/2-locR(pos)); // row flipped to match the view (mViewAs)
+			return [ -o.tX - xb*o.dx[0] - yb*o.dx[1],
+			         -o.tY - xb*o.dy[0] - yb*o.dy[1],
+			         -o.tZ - xb*o.dz[0] - yb*o.dz[1] ];
 		}
-		/*
-		var steps=[[1,-1],[1,0],[1,1],[0,-1],[0,1],[-1,-1],[-1,0],[-1,-1]];
-		var modifs=true;
-		while(modifs) {
-			modifs=false;
-			for(var pos=0;pos<boardSize;pos++) {
-				steps.forEach(function(delta) {
-					var pos1=Graph(pos,delta);
-					if(pos1==null)
-						return;
-					if(distance[pos][pos1]!=1) {
-						distance[pos][pos1]=1;
-						distance[pos1][pos]=1;
-						modifs=true;
-					} 
-					for(var pos2=0;pos2<boardSize;pos2++) {
-						if(pos2==pos)
-							continue;
-						if(distance[pos1][pos2]===undefined && distance[pos][pos2]!==undefined) {
-							distance[pos1][pos2]=distance[pos][pos2]+1;
-							distance[pos2][pos1]=distance[pos][pos2]+1;
-							modifs=true;
-						} else if(distance[pos1][pos2]!==undefined && distance[pos][pos2]!==undefined && distance[pos1][pos2]>distance[pos][pos2]+1) {
-							distance[pos1][pos2]=distance[pos][pos2]+1;
-							distance[pos2][pos1]=distance[pos][pos2]+1;
-							modifs=true;
-						}
-					}
-				});
+		function u(v){ var n=Math.hypot(v[0],v[1],v[2]); return [v[0]/n,v[1]/n,v[2]/n]; }
+		function basis(pi){ var o=O[pi]; return [ u([-o.dx[0],-o.dy[0],-o.dz[0]]), u([o.dx[1],o.dy[1],o.dz[1]]) ]; } // row basis flipped to match center()
+		function sub(a,b){ return [a[0]-b[0],a[1]-b[1],a[2]-b[2]]; }
+		function dot(a,b){ return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]; }
+		function nrm(a){ return Math.hypot(a[0],a[1],a[2]); }
+
+		var CTR=[]; for(var p=0;p<boardSize;p++) CTR.push(center(p));
+
+		var FOLD=[]; for(var i=0;i<boardSize;i++) FOLD.push([]);
+		for(var a=0;a<boardSize;a++) for(var b=0;b<boardSize;b++){
+			if(P(a)===P(b)) continue;
+			if(Math.abs(nrm(sub(CTR[a],CTR[b]))-Math.SQRT1_2)<1e-9) FOLD[a].push(b);
+		}
+		function edgeLabel(a,b){ var x=[P(a),P(b)].sort(); return ""+x[0]+x[1]; }
+
+		function localOf(pi,dir){ var B=basis(pi); return [Math.round(dot(dir,B[0])), Math.round(dot(dir,B[1]))]; }
+		function dirVec(pi,ca,rb){ var B=basis(pi); return u([B[0][0]*ca+B[1][0]*rb, B[0][1]*ca+B[1][1]*rb, B[0][2]*ca+B[1][2]*rb]); }
+
+		// one orthogonal surface step, transporting direction across a fold; null at cube vertex
+		function ostep(pos, dir){
+			var pi=P(pos), l=localOf(pi,dir), ca=l[0], rb=l[1];
+			var nc=locC(pos)+ca, nr=locR(pos)+rb;
+			var inC=(nc>=0&&nc<SZ), inR=(nr>=0&&nr<SZ);
+			if(inC&&inR) return { pos:POSf(pi,nc,nr), dir:dir, edge:null };
+			if(!inC&&!inR) return null;
+			var best=-1,bd=-2;
+			for(var k=0;k<FOLD[pos].length;k++){ var q=FOLD[pos][k];
+				var al=dot(u(sub(CTR[q],CTR[pos])), dir); if(al>bd){bd=al;best=q;} }
+			if(best<0||bd<0.5) return null;
+			var pj=P(best), nl=localOf(pj,u(sub(CTR[best],CTR[pos])));
+			return { pos:best, dir:dirVec(pj,nl[0],nl[1]), edge:edgeLabel(pos,best) };
+		}
+		function projSnap(pi,v){
+			var B=basis(pi), n=u([B[0][1]*B[1][2]-B[0][2]*B[1][1], B[0][2]*B[1][0]-B[0][0]*B[1][2], B[0][0]*B[1][1]-B[0][1]*B[1][0]]);
+			var t=[v[0]-n[0]*dot(v,n), v[1]-n[1]*dot(v,n), v[2]-n[2]*dot(v,n)], nl=localOf(pi,t);
+			return dirVec(pi,nl[0],nl[1]);
+		}
+		// diagonal step = two orthogonal steps, transporting both axes; null at cube vertex
+		function dstep(pos, e1, e2){
+			var s1=ostep(pos,e1); if(!s1) return null;
+			var s2=ostep(s1.pos, s1.edge?projSnap(P(s1.pos),e2):e2); if(!s2) return null;
+			var t1=ostep(pos,e2); if(!t1) return null;
+			var t2=ostep(t1.pos, t1.edge?projSnap(P(t1.pos),e1):e1);
+			if(!t2 || t2.pos!==s2.pos) return null; // vertex singularity: stop
+			return { pos:s2.pos, e1:(s2.edge?projSnap(P(s2.pos),s1.dir):s1.dir), e2:s2.dir, edges:[s1.edge,s2.edge].filter(Boolean) };
+		}
+
+		var WALLS = {}; (walls||[]).forEach(function(w){ WALLS[w]=true; });
+		function wallHit(edge){ return edge && WALLS[edge]; }
+
+		function orthoDirs(pi){ return [ dirVec(pi,1,0), dirVec(pi,-1,0), dirVec(pi,0,1), dirVec(pi,0,-1) ]; }
+		function diagPairs(pi){
+			return [ [dirVec(pi,1,0),dirVec(pi,0,1)], [dirVec(pi,1,0),dirVec(pi,0,-1)],
+			         [dirVec(pi,-1,0),dirVec(pi,0,1)], [dirVec(pi,-1,0),dirVec(pi,0,-1)] ];
+		}
+		function orthoRay(pos, dir){
+			var out=[], st={pos:pos,dir:dir}, guard=0;
+			while(guard++ < boardSize){
+				var nx=ostep(st.pos, st.dir); if(!nx || wallHit(nx.edge) || nx.pos===pos) break;
+				out.push(nx.pos); st=nx;
 			}
+			return out;
 		}
-		*/
-		
-		var distEdges={};
-		for(var pos=0;pos<boardSize;pos++)
-			distEdges[pos]=1;
-		/*
-		var modifs=true;
-		while(modifs) {
-			modifs=false;
-			for(var pos=0;pos<boardSize;pos++) {
-				if(pos in distEdges)
-					continue;
-				steps.forEach(function(delta) {
-					var pos1=Graph(pos,delta);
-					if(pos1==null)
-						distEdges[pos]=1;
-					else if(pos1 in distEdges) {
-						if(!(pos in distEdges) || distEdges[pos]>distEdges[pos1]+1) {
-							distEdges[pos]=distEdges[pos1]+1;
-							modifs=true;
-						}
-					}
-				});
+		function diagRay(pos, e1, e2){
+			var out=[], st={pos:pos,e1:e1,e2:e2}, guard=0;
+			while(guard++ < boardSize){
+				var nx=dstep(st.pos, st.e1, st.e2);
+				if(!nx || nx.edges.some(wallHit) || nx.pos===pos) break;
+				out.push(nx.pos); st=nx;
 			}
+			return out;
 		}
-		*/
-		
-		function PosName(pos) {
-			 return String.fromCharCode(("a".charCodeAt(0))+C(pos)) + (R(pos)+1);
+		function orthoNbr(pos, dir){ var nx=ostep(pos,dir); return (!nx||wallHit(nx.edge))?null:nx; }
+		function diagNbr(pos, e1, e2){ var nx=dstep(pos,e1,e2); return (!nx||nx.edges.some(wallHit))?null:nx; }
+
+		// ---- pawn "forward" field: BFS potential toward each pole face ----
+		// pole faces: 0 (panel 1, White home) and 5 (panel 6, Black home).
+		function bfsFrom(seedFaces){
+			var d=new Array(boardSize).fill(-1), q=[];
+			for(var pp=0;pp<boardSize;pp++) if(seedFaces.indexOf(P(pp))>=0){ d[pp]=0; q.push(pp); }
+			while(q.length){ var x=q.shift();
+				orthoDirs(P(x)).forEach(function(dir){ var nx=orthoNbr(x,dir);
+					if(nx && d[nx.pos]<0){ d[nx.pos]=d[x]+1; q.push(nx.pos); } }); }
+			return d;
 		}
-		function PosByName(str) {
-			var m=/^([a-z])([0-9]+)$/.exec(str);
-			if(!m)
-				return -1;
-			var c=m[1].charCodeAt(0)-"a".charCodeAt(0);
-			var r=parseInt(m[2])-1;
-			return POS(c,r);
+		var dNorth=bfsFrom([0]), dSouth=bfsFrom([5]);
+		// signed "height" along the meridian: -SZ deep in White home (face0) .. +SZ deep in Black home (face5)
+		function H(pos){ return dNorth[pos]-dSouth[pos]; }
+		// White (+1) climbs H toward face5; Black (-1) descends toward face0. Forward = steepest orthogonal step.
+		function pawnForward(pos, side){
+			var pi=P(pos), best=null, bestScore=0;
+			orthoDirs(pi).forEach(function(dir){ var nx=orthoNbr(pos,dir); if(!nx) return;
+				var score = side>0 ? (H(nx.pos)-H(pos)) : (H(pos)-H(nx.pos));
+				if(score>bestScore){ bestScore=score; best={dir:dir,nx:nx}; } });
+			return best; // null if no strictly-advancing step (pawn cannot move forward)
 		}
-		function CompactCrit(pos,index) {
-			if(index==0)
-				return String.fromCharCode(("a".charCodeAt(0))+C(pos));
-			else if(index==1)
-				return (R(pos)+1);
-			else
-				return null;
+		// forward-diagonal captures: the diagonal neighbours that also advance in H
+		function pawnCaptures(pos, side){
+			var pi=P(pos), caps=[];
+			diagPairs(pi).forEach(function(pr){ var nx=diagNbr(pos,pr[0],pr[1]); if(!nx) return;
+				var score = side>0 ? (H(nx.pos)-H(pos)) : (H(pos)-H(nx.pos));
+				if(score>0) caps.push(nx.pos); });
+			return caps;
 		}
-		function GetDistances() {
-			return distance;
+		// A "side" face is walled off from BOTH pole panels (faces 0 and 5): a pawn can only
+		// reach it by capturing over an edge. Pole faces are 0 (White base) and 5 (Black base).
+		function isSideFace(pi){
+			if(pi===0 || pi===5) return false;
+			return !!(WALLS[edgeLabel(0*SZ*SZ, pi*SZ*SZ)] && WALLS[edgeLabel(pi*SZ*SZ, 5*SZ*SZ)]);
 		}
-		
+		// Special sideways move: a pawn stranded on a side face (reached by diagonal captures)
+		// may step orthogonally onto an adjacent corridor face from which it can resume its march.
+		function pawnLateral(pos, side){
+			if(!isSideFace(P(pos))) return [];
+			var out=[];
+			orthoDirs(P(pos)).forEach(function(dir){ var nx=orthoNbr(pos,dir); if(!nx) return;
+				if(isSideFace(P(nx.pos))) return;      // must land on a corridor face
+				if(P(nx.pos)===0 || P(nx.pos)===5) return; // not onto a base panel
+				if(pawnForward(nx.pos, side)) out.push(nx.pos); // and be able to continue forward there
+			});
+			return out;
+		}
+
+		function PosName(pos){ return ""+(P(pos)+1)+String.fromCharCode(65+locR(pos))+(locC(pos)+1); }
+		function PosByName(str){ var m=/^([1-6])([A-D])([1-4])$/.exec((str||"").toUpperCase());
+			return m ? POSf(parseInt(m[1])-1, parseInt(m[3])-1, m[2].charCodeAt(0)-65) : -1; }
+		function CompactCrit(pos,index){
+			if(index===0) return ""+(P(pos)+1);
+			if(index===1) return String.fromCharCode(65+locR(pos));
+			if(index===2) return ""+(locC(pos)+1);
+			return null;
+		}
+		function Graph(pos,delta){ var pi=P(pos), c=locC(pos)+delta[0], r=locR(pos)+delta[1];
+			return (c<0||c>=SZ||r<0||r>=SZ)?null:POSf(pi,c,r); }
+
+		var distEdges={}; for(var q0=0;q0<boardSize;q0++) distEdges[q0]=1;
+		var distance={}; for(var d1=0;d1<boardSize;d1++){ distance[d1]={}; for(var d2=0;d2<boardSize;d2++) distance[d1][d2]=(d1===d2?0:1); }
+
 		return {
-			boardSize: boardSize,
-			width: width,
-			height: height,
-			depth: floors,
-			C: C,
-			R: R,
-			F: F,
-			P: P,
-			POS: POS,
-			Graph: Graph, 
-			PosName: PosName,
-			PosByName: PosByName,
-			CompactCrit: CompactCrit,
-			GetDistances: GetDistances,
-			distEdge: distEdges,
-			corners: null,
+			boardSize: boardSize, width: SZ, height: SZ, depth: SZ, cube:true, walls: WALLS,
+			fences: (walls||[]).slice(),
 			planes: planes,
-			fences: fences || [],
+			P:P, C:locC, R:locR, F:P, POS:POS, Graph:Graph,
+			PosName:PosName, PosByName:PosByName, CompactCrit:CompactCrit,
+			GetDistances:function(){return distance;}, distEdge:distEdges, corners:null,
+			orthoDirs:orthoDirs, diagPairs:diagPairs, orthoRay:orthoRay, diagRay:diagRay,
+			orthoNbr:orthoNbr, diagNbr:diagNbr, ostep:ostep, dstep:dstep, dirVec:dirVec,
+			pawnForward:pawnForward, pawnCaptures:pawnCaptures, pawnLateral:pawnLateral, isSideFace:isSideFace, dNorth:dNorth, dSouth:dSouth,
+			FLAGS:{ MOVE:FLAG_MOVE, CAPTURE:FLAG_CAPTURE, STOP:FLAG_STOP }
 		};
-	}
+	};
 
-	Model.Game.cbPawnGraph = function(geometry,side) {
-		var $this=this;
-		var graph={};
-		for(var pos=0;pos<geometry.boardSize;pos++) {
-			var directions=[];
-			var pos1=geometry.Graph(pos,[0,side]);
-			if(pos1!=null)
-				directions.push($this.cbTypedArray([pos1 | $this.cbConstants.FLAG_MOVE]));
-			[-1,1].forEach(function(dc) {
-				var pos2=geometry.Graph(pos,[dc,side]);
-				if(pos2!=null)
-					directions.push($this.cbTypedArray([pos2 | $this.cbConstants.FLAG_CAPTURE]));				
-			});
-			graph[pos]=directions;
+	// ---------- cube-aware piece graph builders ----------
+	function typed(self,arr){ return self.cbTypedArray ? self.cbTypedArray(arr) : arr; }
+
+	Model.Game.cbCubicRookGraph = function(geometry){
+		var C=this.cbConstants, MC=C.FLAG_MOVE|C.FLAG_CAPTURE, self=this, g={};
+		for(var pos=0;pos<geometry.boardSize;pos++){ g[pos]=[];
+			geometry.orthoDirs(geometry.P(pos)).forEach(function(dir){
+				var ray=geometry.orthoRay(pos,dir), line=[];
+				for(var i=0;i<ray.length;i++) line.push(ray[i]|MC);
+				if(line.length) g[pos].push(typed(self,line));
+			}); }
+		return g;
+	};
+	Model.Game.cbCubicBishopGraph = function(geometry){
+		var C=this.cbConstants, MC=C.FLAG_MOVE|C.FLAG_CAPTURE, self=this, g={};
+		for(var pos=0;pos<geometry.boardSize;pos++){ g[pos]=[];
+			geometry.diagPairs(geometry.P(pos)).forEach(function(pr){
+				var ray=geometry.diagRay(pos,pr[0],pr[1]), line=[];
+				for(var i=0;i<ray.length;i++) line.push(ray[i]|MC);
+				if(line.length) g[pos].push(typed(self,line));
+			}); }
+		return g;
+	};
+	Model.Game.cbCubicQueenGraph = function(geometry){
+		return this.cbMergeGraphs(geometry, this.cbCubicRookGraph(geometry), this.cbCubicBishopGraph(geometry));
+	};
+	Model.Game.cbCubicKingGraph = function(geometry){
+		var C=this.cbConstants, MC=C.FLAG_MOVE|C.FLAG_CAPTURE, self=this;
+		var seen=[]; for(var i=0;i<geometry.boardSize;i++) seen.push({});
+		for(var pos=0;pos<geometry.boardSize;pos++){
+			geometry.orthoDirs(geometry.P(pos)).forEach(function(dir){ var nx=geometry.orthoNbr(pos,dir); if(nx) seen[pos][nx.pos]=1; });
+			geometry.diagPairs(geometry.P(pos)).forEach(function(pr){ var nx=geometry.diagNbr(pos,pr[0],pr[1]); if(nx) seen[pos][nx.pos]=1; });
 		}
-		return graph;
+		for(var a=0;a<geometry.boardSize;a++) for(var b in seen[a]) seen[b][a]=1; // symmetric adjacency
+		var g={};
+		for(var p2=0;p2<geometry.boardSize;p2++){ g[p2]=[];
+			for(var t in seen[p2]) g[p2].push(typed(self,[(t|0)|MC])); }
+		return g;
+	};
+	function perpDirs(geometry, dir, pi){
+		var out=[]; geometry.orthoDirs(pi).forEach(function(d){
+			if(Math.abs(d[0]*dir[0]+d[1]*dir[1]+d[2]*dir[2])<0.5) out.push(d); });
+		return out;
 	}
-		
-	Model.Game.cbInitialPawnGraph = function(geometry,side) {
-		var $this=this;
-		var graph={};
-		for(var pos=0;pos<geometry.boardSize;pos++) {
-			var directions=[];
-			var pos1=geometry.Graph(pos,[0,side]);
-			if(pos1!=null) {
-				var direction=[pos1 | $this.cbConstants.FLAG_MOVE];
-				var pos2=geometry.Graph(pos1,[0,side]);
-				if(pos2!=null)
-					direction.push(pos2 | $this.cbConstants.FLAG_MOVE);
-				directions.push($this.cbTypedArray(direction));
+	Model.Game.cbCubicKnightGraph = function(geometry){
+		var C=this.cbConstants, MC=C.FLAG_MOVE|C.FLAG_CAPTURE, self=this;
+		// targets[pos] = set of reachable cells via a wall-free L-path (2+1 and 1+2 decompositions)
+		var targets=[]; for(var i=0;i<geometry.boardSize;i++) targets.push({});
+		for(var pos=0;pos<geometry.boardSize;pos++){
+			geometry.orthoDirs(geometry.P(pos)).forEach(function(dir){
+				// long axis = 2 steps along dir, then 1 step perpendicular
+				var s1=geometry.orthoNbr(pos,dir);
+				if(s1){ var s2=geometry.orthoNbr(s1.pos,s1.dir);
+					if(s2) perpDirs(geometry, s2.dir, geometry.P(s2.pos)).forEach(function(pd){
+						var s3=geometry.orthoNbr(s2.pos,pd); if(s3 && s3.pos!==pos) targets[pos][s3.pos]=1; });
+					// short axis = 1 step along dir, then 2 steps perpendicular
+					perpDirs(geometry, s1.dir, geometry.P(s1.pos)).forEach(function(pd){
+						var t1=geometry.orthoNbr(s1.pos,pd); if(!t1) return;
+						var t2=geometry.orthoNbr(t1.pos,t1.dir); if(t2 && t2.pos!==pos) targets[pos][t2.pos]=1; });
+				}
+			});
+		}
+		// symmetrise: a (2,1) leaper relation on a cube is symmetric; vertex path-drops break it
+		for(var a=0;a<geometry.boardSize;a++) for(var b in targets[a]) targets[b][a]=1;
+		var g={};
+		for(var p2=0;p2<geometry.boardSize;p2++){ g[p2]=[];
+			for(var t in targets[p2]) g[p2].push(typed(self,[(t|0)|MC])); }
+		return g;
+	};
+	// pawn: forward (FLAG_MOVE) + two diagonal captures (FLAG_CAPTURE); side +1 white / -1 black
+	Model.Game.cbCubicPawnGraph = function(geometry, side){
+		var C=this.cbConstants, self=this, g={};
+		for(var pos=0;pos<geometry.boardSize;pos++){ g[pos]=[];
+			var fw=geometry.pawnForward(pos, side);
+			if(fw) g[pos].push(typed(self,[fw.nx.pos|C.FLAG_MOVE]));
+			geometry.pawnCaptures(pos, side).forEach(function(cp){ g[pos].push(typed(self,[cp|C.FLAG_CAPTURE])); });
+			// special sideways move off a side panel back onto a corridor (non-capturing)
+			geometry.pawnLateral(pos, side).forEach(function(lp){ g[pos].push(typed(self,[lp|C.FLAG_MOVE])); });
+		}
+		return g;
+	};
+	// initial pawn: forward one or two (FLAG_MOVE) + captures
+	Model.Game.cbCubicInitialPawnGraph = function(geometry, side){
+		var C=this.cbConstants, self=this, g={};
+		for(var pos=0;pos<geometry.boardSize;pos++){ g[pos]=[];
+			var fw=geometry.pawnForward(pos, side);
+			if(fw){ var line=[fw.nx.pos|C.FLAG_MOVE];
+				var fw2=geometry.pawnForward(fw.nx.pos, side);
+				if(fw2) line.push(fw2.nx.pos|C.FLAG_MOVE);
+				g[pos].push(typed(self,line));
 			}
-			[-1,1].forEach(function(dc) {
-				var pos2=geometry.Graph(pos,[dc,side]);
-				if(pos2!=null)
-					directions.push($this.cbTypedArray([pos2 | $this.cbConstants.FLAG_CAPTURE]));				
-			});
-			graph[pos]=directions;
+			geometry.pawnCaptures(pos, side).forEach(function(cp){ g[pos].push(typed(self,[cp|C.FLAG_CAPTURE])); });
 		}
-		return graph;
-	}
+		return g;
+	};
 
-	Model.Game.cbKingGraph = function(geometry) {
-		return this.cbShortRangeGraph(geometry,[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]]);
-	}
-
-	Model.Game.cbKnightGraph = function(geometry) {
-		return this.cbShortRangeGraph(geometry,[[2,-1],[2,1],[-2,-1],[-2,1],[-1,2],[-1,-2],[1,2],[1,-2]]);
-	}
-
-	Model.Game.cbHorseGraph = function(geometry) {
-		var $this=this;
-		var graph={};
-		for(var pos=0;pos<geometry.boardSize;pos++) {
-			graph[pos]=[];
-			[[1,0,2,-1],[1,0,2,1],[-1,0,-2,-1],[-1,0,-2,1],[0,1,-1,2],[0,-1,-1,-2],[0,1,1,2],[0,-1,1,-2]].forEach(function(desc) {
-				var pos1=geometry.Graph(pos,[desc[0],desc[1]]);
-				if(pos1!=null) {
-					var pos2=geometry.Graph(pos,[desc[2],desc[3]]);
-					if(pos2!=null)
-						graph[pos].push($this.cbTypedArray([pos1 | $this.cbConstants.FLAG_STOP, pos2 | $this.cbConstants.FLAG_MOVE | $this.cbConstants.FLAG_CAPTURE]));
-				}
-			});
-		}
-		return graph;
-	}
-
-	
-	Model.Game.cbRookGraph = function(geometry) {
-		return this.cbLongRangeGraph(geometry,[[0,-1],[0,1],[-1,0],[1,0]]);
-	}
-	
-	Model.Game.cbBishopGraph = function(geometry) {
-		return this.cbLongRangeGraph(geometry,[[1,-1],[1,1],[-1,1],[-1,-1]]);
-	}
-	
-	Model.Game.cbQueenGraph = function(geometry) {
-		return this.cbLongRangeGraph(geometry,[[0,-1],[0,1],[-1,0],[1,0],[1,-1],[1,1],[-1,1],[-1,-1]]);
-	}
-
-	Model.Game.cbXQGeneralGraph = function(geometry,confine) {
-		var $this=this;
-		var graph={};
-		for(var pos=0;pos<geometry.boardSize;pos++) {
-			graph[pos]=[];
-			[[-1,0,false],[0,-1,true],[0,1,true],[1,0,false]].forEach(function(delta) {
-				var direction=[];
-				var pos1=geometry.Graph(pos,delta);
-				if(pos1!=null) {
-					if(!confine || (pos1 in confine))
-					direction.push(pos1 | $this.cbConstants.FLAG_MOVE | $this.cbConstants.FLAG_CAPTURE);
-					if(delta[2]) {
-						var pos2=geometry.Graph(pos1,delta);
-						while(pos2!=null) {
-							if(!confine || (pos2 in confine))
-								direction.push(pos2 | $this.cbConstants.FLAG_CAPTURE | $this.cbConstants.FLAG_CAPTURE_KING);
-							else
-								direction.push(pos2 | $this.cbConstants.FLAG_STOP);
-							pos2=geometry.Graph(pos2,delta);
-						}
-					}
-				}
-				if(direction.length>0)
-					graph[pos].push($this.cbTypedArray(direction));
-			});
-		}
-		return graph;
-	}
-	
-	Model.Game.cbXQSoldierGraph = function(geometry,side) {
-		return this.cbShortRangeGraph(geometry,[[0,side]]);
-	}
-
-	Model.Game.cbXQPromoSoldierGraph = function(geometry,side) {
-		return this.cbShortRangeGraph(geometry,[[0,side],[-1,0],[1,0]]);
-	}
-
-	Model.Game.cbXQAdvisorGraph = function(geometry,confine) {
-		return this.cbShortRangeGraph(geometry,[[1,1],[-1,1],[1,-1],[-1,-1]],confine);
-	}
-
-	Model.Game.cbXQCannonGraph = function(geometry) {
-		return this.cbLongRangeGraph(geometry,[[0,-1],[0,1],[-1,0],[1,0]],null,this.cbConstants.FLAG_MOVE | this.cbConstants.FLAG_SCREEN_CAPTURE);
-	}
-	
-	Model.Game.cbXQElephantGraph = function(geometry,confine) {
-		var $this=this;
-		var graph={};
-		for(var pos=0;pos<geometry.boardSize;pos++) {
-			graph[pos]=[];
-			if(confine && !(pos in confine))
-				continue;
-			[[1,1,2,2],[1,-1,2,-2],[-1,1,-2,2],[-1,-1,-2,-2]].forEach(function(desc) {
-				var pos1=geometry.Graph(pos,[desc[0],desc[1]]);
-				if(pos1!=null) {
-					var pos2=geometry.Graph(pos,[desc[2],desc[3]]);
-					if(pos2!=null && (!confine || (pos2 in confine)))
-						graph[pos].push($this.cbTypedArray([pos1 | $this.cbConstants.FLAG_STOP, pos2 | $this.cbConstants.FLAG_MOVE | $this.cbConstants.FLAG_CAPTURE]));
-				}
-			});
-		}
-		return graph;
-	}
-	
-	Model.Game.cbSilverGraph = function(geometry,side) {
-		return this.cbShortRangeGraph(geometry,[[0,side],[-1,-1],[-1,1],[1,-1],[1,1]]);
-	}
-	
-	Model.Game.cbFersGraph = function(geometry,side) {
-		return this.cbShortRangeGraph(geometry,[[-1,-1],[-1,1],[1,-1],[1,1]]);
-	}	
-
-	Model.Game.cbElephantGraph = function(geometry,side) {
-		return this.cbShortRangeGraph(geometry,[[-2,-2],[-2,2],[2,-2],[2,2]]);
-	}	
-
-	Model.Game.cbSchleichGraph = function(geometry,side) {
-		return this.cbShortRangeGraph(geometry,[[-1,0],[1,0],[0,-1],[0,1]]);
-	}	
-	
-	Model.Game.cbAlfilGraph = function(geometry,side) {
-		return this.cbShortRangeGraph(geometry,[[-2,-2],[-2,2],[2,2],[2,-2]]);
-	}	
-
-	Model.Game.cbCubicRookGraph = function(geometry) {
-		console.log("cbCubicRookGraph",geometry);
-		return this.cbLongRangeGraph(geometry,[[0,-1],[0,1],[-1,0],[1,0]],null,null,Math.max(geometry.width,geometry.height)-1);
-	}
-
-	Model.Game.cbCircularPawnGraph = function(geometry,cc,range) {
-		var moveGraph = this.cbLongRangeGraph(geometry,cc?[[1,0]]:[[-1,0]],null,this.cbConstants.FLAG_MOVE,range);
-		var captGraph = this.cbShortRangeGraph(geometry,cc?[[1,1],[1,-1]]:[[-1,1],[-1,-1]],null,this.cbConstants.FLAG_CAPTURE);
-		return this.cbMergeGraphs(geometry,moveGraph,captGraph);
-	}
-	
 })();

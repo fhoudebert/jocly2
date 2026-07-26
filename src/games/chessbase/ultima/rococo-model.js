@@ -391,7 +391,9 @@
 					break;						// blocked beyond the first piece
 				}
 			}
-			// mutual destruction with an adjacent enemy
+			// mutual destruction with an adjacent enemy. It names that enemy's
+			// square, like the swap with the same neighbour does: clicking the
+			// neighbour then raises the panel that tells the two apart.
 			var foe = this.rocFoe(piece.s, POS(r0 + dr, c0 + dc));
 			if(foe >= 0 && emit(mk(piece, POS(r0 + dr, c0 + dc), { c: foe, mutual: true })))
 				return true;
@@ -415,7 +417,10 @@
 			var dr = DIRS[d][0], dc = DIRS[d][1];
 			var wv = this.rocFoe(who, POS(r0 - dr, c0 - dc), WITHDRAWER);	// withdraw from an enemy Withdrawer
 
-			// slide, and leap over enemy Long Leapers, along this line
+			// Walk this line: slide over empty squares, leap over enemy Long
+			// Leapers, and stop on an enemy Swapper by trading places with it.
+			// Every landing folds in the same withdrawal and approach victims,
+			// so one move can combine all four mimicked powers.
 			var r = r0, c = c0, leapKills = [];
 			for(;;) {
 				r += dr; c += dc;
@@ -428,7 +433,18 @@
 					continue;
 				}
 				var target = this.pieces[index];
-				if(target.s == who || target.t != LEAPER)
+				if(target.s == who)
+					break;						// never leap or swap with a friend
+				if(target.t == SWAPPER) {
+					// mimic a Swapper: the swap is what lets the move end on
+					// an occupied square, and it carries along whatever the
+					// travel captured on the way (leaps, withdrawal, approach)
+					if(!this.rocSwapBlocked(piece, index)
+						&& this.rocChameleonEmit(piece, POS(r, c), dr, dc, wv, leapKills, emit, index))
+						return true;
+					break;						// the swap ends the move
+				}
+				if(target.t != LEAPER)
 					break;						// only an enemy Long Leaper can be leapt
 				var r1 = r + dr, c1 = c + dc;
 				if(!onBoard(r1, c1) || this.board[POS(r1, c1)] >= 0)
@@ -452,30 +468,6 @@
 					return true;
 			}
 
-			// mimic a Swapper: swap with the nearest piece if it is an enemy
-			// Swapper. Such a swap may be combined with the Chameleon's other
-			// captures along the same line.
-			for(var rr = r0 + dr, cc = c0 + dc; onBoard(rr, cc); rr += dr, cc += dc) {
-				var ii = this.board[POS(rr, cc)];
-				if(ii >= 0) {
-					if(this.pieces[ii].s != who && this.pieces[ii].t == SWAPPER
-						&& !this.rocSwapBlocked(piece, ii)) {
-						var swapTo = POS(rr, cc), swapKills = [];
-						if(wv >= 0)
-							swapKills.push(wv);				// withdrawal, behind the origin
-						var sav = this.rocFoe(who, POS(rr + dr, cc + dc), ADVANCER);
-						if(sav >= 0)
-							swapKills.push(sav);			// approach, beyond the landing
-						var sm = mk(piece, swapTo, { swap: ii });
-						if(swapKills.length)
-							sm.kills = swapKills;
-						if(emit(sm))
-							return true;
-					}
-					break;
-				}
-			}
-
 			// mutual destruction with an adjacent enemy Swapper
 			var sw = this.rocFoe(who, POS(r0 + dr, c0 + dc), SWAPPER);
 			if(sw >= 0 && emit(mk(piece, POS(r0 + dr, c0 + dc), { c: sw, mutual: true })))
@@ -485,15 +477,21 @@
 	}
 
 	// emit one Chameleon landing, folding in the leap victims, the withdrawal
-	// victim behind the origin, and an approach victim one step further on
-	Model.Board.rocChameleonEmit = function(piece, to, dr, dc, wv, leapKills, emit) {
+	// victim behind the origin, and an approach victim one step further on.
+	// swap, when given, is the enemy Swapper standing on the landing square.
+	Model.Board.rocChameleonEmit = function(piece, to, dr, dc, wv, leapKills, emit, swap) {
 		var kills = leapKills.slice();
 		if(wv >= 0)
 			kills.push(wv);
 		var av = this.rocFoe(piece.s, POS(R(to) + dr, C(to) + dc), ADVANCER);
 		if(av >= 0)
 			kills.push(av);
-		return emit(mk(piece, to, kills.length ? { kills: kills } : null));
+		var extra = kills.length ? { kills: kills } : null;
+		if(swap != null) {
+			extra = extra || {};
+			extra.swap = swap;
+		}
+		return emit(mk(piece, to, extra));
 	}
 
 		// squares the piece travels through, destination included, origin excluded
@@ -838,8 +836,11 @@
 			str = str.replace(/=[^=]*$/, '');
 		if(this.suicide)
 			str += '(suicide)';
-		else if(this.swap != null)
+		else if(this.swap != null) {
 			str += '<>';
+			if(this.kills && this.kills.length)		// a Chameleon's swap may capture as well
+				str += '*' + this.kills.length;
+		}
 		else if(this.mutual)
 			str += '!!';
 		else if(this.kills && this.kills.length)
