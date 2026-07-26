@@ -33,13 +33,13 @@
 		function POS(c,r,f){ return f*SZ*SZ + r*SZ + c; }                // public: matches the view's POS(col,row,face)
 
 		function center(pos){
-			var pi=P(pos), o=O[pi], xb=(locC(pos)-(SZ-1)/2), yb=(locR(pos)-(SZ-1)/2);
+			var pi=P(pos), o=O[pi], xb=(locC(pos)-(SZ-1)/2), yb=((SZ-1)/2-locR(pos)); // row flipped to match the view (mViewAs)
 			return [ -o.tX - xb*o.dx[0] - yb*o.dx[1],
 			         -o.tY - xb*o.dy[0] - yb*o.dy[1],
 			         -o.tZ - xb*o.dz[0] - yb*o.dz[1] ];
 		}
 		function u(v){ var n=Math.hypot(v[0],v[1],v[2]); return [v[0]/n,v[1]/n,v[2]/n]; }
-		function basis(pi){ var o=O[pi]; return [ u([-o.dx[0],-o.dy[0],-o.dz[0]]), u([-o.dx[1],-o.dy[1],-o.dz[1]]) ]; }
+		function basis(pi){ var o=O[pi]; return [ u([-o.dx[0],-o.dy[0],-o.dz[0]]), u([o.dx[1],o.dy[1],o.dz[1]]) ]; } // row basis flipped to match center()
 		function sub(a,b){ return [a[0]-b[0],a[1]-b[1],a[2]-b[2]]; }
 		function dot(a,b){ return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]; }
 		function nrm(a){ return Math.hypot(a[0],a[1],a[2]); }
