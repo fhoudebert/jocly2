@@ -1712,11 +1712,24 @@ exports.games = (function () {
 	// a dedicated net for it with Fairy-Stockfish's variant NNUE pipeline.
 	var config_model_levels_kotaishi_expert_ini = [
 		"[kotaishishogi:shogi]",
-		"customPiece1 = e:FfsW",
-		"customPiece2 = p:K",
-		"promotedPieceType = e:p",
+		"customPiece1 = e:FfsW", // Drunk Elephant: steps in every direction but straight back
+		// Crown Prince (promoted Drunk Elephant, moves as a King). Internal
+		// letter 'c' - NOT 'p', which is already Shogi's pawn: reusing 'p' here
+		// would silently turn every pawn into a King-mover. In FEN the prince is
+		// still written "+E"/"+e" (Shogi-style promoted-elephant notation), which
+		// is exactly what Jocly exports, so no pieceMap is needed.
+		"customPiece2 = c:K",
+		"promotedPieceType = e:c",
 		"promotionRegionWhite = *7 *8 *9",
 		"promotionRegionBlack = *1 *2 *3",
+		// Prince is a SECOND ROYAL (Shō Shogi rule): the side is lost only when
+		// BOTH the king AND the prince are gone, and cannot be mated while it
+		// still holds both. Fairy-Stockfish expresses co-royalty with
+		// pseudo-royal extinction - the same mechanism its built-in chushogi and
+		// the "chak" variant use for a king plus a promoted royal piece.
+		"extinctionValue = loss",
+		"extinctionPieceTypes = kc",
+		"extinctionPseudoRoyal = true",
 		"startFen = lnsgkgsnl/1r2e2b1/ppppppppp/9/9/9/PPPPPPPPP/1B2E2R1/LNSGKGSNL",
 		""
 	].join("\n");

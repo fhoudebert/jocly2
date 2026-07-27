@@ -233,7 +233,7 @@ exports.games = (function() {
 					"title-en": "9 Men´s Morris Fly",
 					"summary": {
 						"en":"An old board game",
-						"fr": "Jeu de marelle volant(x9)"
+						"fr": "Jeu de marelle volante (x9)"
 					},
 					"rules": config_model_rules,
 					"maxLevel": 7,
@@ -312,7 +312,7 @@ exports.games = (function() {
 					"title-en": "12 Men´s Morris Fly",
 					"summary": {
 						"en":"An old board game",
-						"fr": "Jeu de marelle volant(x12)"
+						"fr": "Jeu de marelle volante (x12)"
 					},
 					"rules": config_model_rules,
 					"maxLevel": 7,
