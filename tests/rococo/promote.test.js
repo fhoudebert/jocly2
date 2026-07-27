@@ -19,7 +19,7 @@ function check(label, actual, expected) {
 	else { failed++; console.log("FAIL " + label + "\n  expected " + e + "\n  actual   " + a); }
 }
 
-const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/rococo-model.js"]);
+const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/baroque-core.js", "ultima/rococo-model.js"]);
 const game = h.newGame(sb);
 
 const moves = (pieces, sq, who) => h.movesFrom(h.setup(sb, game, pieces, who), game, sq);
@@ -125,7 +125,7 @@ check("promotion: black promotes on its own far rank (rank 1)",
 	check("decline: the piece is still a Cannon Pawn on g8",
 		game.cbVar.pieceTypes[b.pieces[b.board[h.posOf("g8")]].t].fenAbbrev, "P");
 	check("decline: the Withdrawer is still missing, so it is still promotable",
-		b.rocReserveTypes(1).map((t) => game.cbVar.pieceTypes[t].fenAbbrev), ["W"]);
+		b.baroqueReserveTypes(1).map((t) => game.cbVar.pieceTypes[t].fenAbbrev), ["W"]);
 }
 
 {

@@ -16,7 +16,7 @@ function check(label, actual, expected) {
 	else { failed++; console.log("FAIL " + label + "\n  expected " + e + "\n  actual   " + a); }
 }
 
-const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/rococo-model.js"]);
+const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/baroque-core.js", "ultima/rococo-model.js"]);
 const game = h.newGame(sb);
 
 // place some pieces by name and some by raw position, then list a piece's moves
@@ -136,7 +136,7 @@ function ringDestinations(b, from) {
 
 /* ------------------------------- rule 4: the ring move must be the only one */
 
-// rocFilterEdge is a pure function of the move list, so the tie can be shown
+// baroqueFilterEdge is a pure function of the move list, so the tie can be shown
 // directly: two moves from the same square, capturing the same piece, crossing
 // the same single edge square, at the same distance. Neither may be played.
 {
@@ -147,14 +147,14 @@ function ringDestinations(b, from) {
 		{ f: from, t: h.posRC(0, 1), c: 7, a: "L" },
 	];
 	check("rule 4: tied ring captures are both forbidden",
-		b.rocFilterEdge(twin()).length, 0);
+		b.baroqueFilterEdge(twin()).length, 0);
 
 	check("rule 4: the same capture stays legal when only one move makes it",
-		b.rocFilterEdge([twin()[0]]).map((m) => h.nameOf(m.t)), ["@0,0"]);
+		b.baroqueFilterEdge([twin()[0]]).map((m) => h.nameOf(m.t)), ["@0,0"]);
 
 	// differing in distance is not a tie: the shorter one is the legal move
 	check("rule 4: the shortest of two unequal ring moves is kept",
-		b.rocFilterEdge([
+		b.baroqueFilterEdge([
 			{ f: from, t: h.posRC(0, 0), c: 7, a: "L" },
 			{ f: h.posRC(1, 1), t: h.posRC(0, 1), c: 8, a: "L" },
 		]).length, 2);

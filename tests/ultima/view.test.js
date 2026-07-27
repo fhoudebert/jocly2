@@ -75,7 +75,7 @@ function pngSize(file) {
 	return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
 }
 
-const sb = loadView(["base-view.js", "grid-board-view.js", "ultima/ultima-view.js"]);
+const sb = loadView(["base-view.js", "grid-board-view.js", "ultima/baroque-view.js", "ultima/ultima-view.js"]);
 const view = sb.View.Game;
 view.mViewOptions = { fullPath: "" };
 const def = view.cbDefineView();

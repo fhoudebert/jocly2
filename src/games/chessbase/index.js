@@ -1498,14 +1498,30 @@ exports.games = (function () {
 	var modelScripts_rococo = [
 		"base-model.js",
 		"grid-geo-model.js",
+		"ultima/baroque-core.js",
 		"ultima/rococo-model.js"
 	]
 	var config_view_js_rococo = [
 		"base-view.js",
 		"grid-board-view.js",
+		"ultima/baroque-view.js",
 		"ultima/rococo-view.js",
-		"ultima/roc-choice-view.js",
-		"ultima/ultima-capture-view.js"
+		"ultima/baroque-choice-view.js",
+		"ultima/baroque-capture-view.js"
+	]
+	var modelScripts_rocaille = [
+		"base-model.js",
+		"grid-geo-model.js",
+		"ultima/baroque-core.js",
+		"ultima/rocaille-model.js"
+	]
+	var config_view_js_rocaille = [
+		"base-view.js",
+		"grid-board-view.js",
+		"ultima/baroque-view.js",
+		"ultima/rocaille-view.js",
+		"ultima/baroque-choice-view.js",
+		"ultima/baroque-capture-view.js"
 	]
 	var modelScripts_ultima = [
 		"base-model.js",
@@ -1515,9 +1531,10 @@ exports.games = (function () {
 	var config_view_js_ultima = [
 		"base-view.js",
 		"grid-board-view.js",
+		"ultima/baroque-view.js",
 		"ultima/ultima-view.js",
-		"ultima/roc-choice-view.js",
-		"ultima/ultima-capture-view.js"
+		"ultima/baroque-choice-view.js",
+		"ultima/baroque-capture-view.js"
 	]
 	var modelScripts_101 = [
 		"base-model.js",
@@ -2693,7 +2710,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Losing Chess",
-					"summary": "Also known as Antichess, Suicide Chess, Giveaway Chess, ...",
+					"summary": {
+						"en": "Also known as Antichess, Suicide Chess, Giveaway Chess, ...",
+						"fr": "Aussi appelé Antichess, Suicide Chess ou Giveaway Chess…"
+					},
 					"thumbnail": "res/rules/standard/knight-inv-thumbnail.png",
 					"module": "chessbase",
 					"plazza": "true",
@@ -2787,7 +2807,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Xiangqi",
-					"summary": "Chinese Chess",
+					"summary": {
+						"en": "Chinese Chess",
+						"fr": "Les Échecs chinois"
+					},
 					"rules": {
 						"en": "res/rules/xiangqi/xiangqi-rules.html",
                         "fr": "res/rules/xiangqi/xiangqi-rules-fr.html",
@@ -2921,7 +2944,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Gardner MiniChess",
-					"summary": "Gardner 5x5 minichess (1969)",
+					"summary": {
+						"en": "Gardner 5x5 minichess (1969)",
+						"fr": "Mini-échecs 5x5 de Gardner (1969)"
+					},
 					"rules": {
 						"en": "res/rules/mini/gardner-rules.html"
 					},
@@ -2972,7 +2998,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Mini Chess 4x4",
-					"summary": "4x4 mini chess variant",
+					"summary": {
+						"en": "4x4 mini chess variant",
+						"fr": "Variante d’échecs miniature en 4x4"
+					},
 					"rules": {
 						"en": "res/rules/mini/mini4x4-rules.html"
 					},
@@ -3023,7 +3052,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Mini Chess 4x5",
-					"summary": "4x5 mini chess variant",
+					"summary": {
+						"en": "4x5 mini chess variant",
+						"fr": "Variante d’échecs miniature en 4x5"
+					},
 					"rules": {
 						"en": "res/rules/mini/mini4x5-rules.html"
 					},
@@ -3074,7 +3106,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Micro Chess",
-					"summary": "4x5 chess variant by Glimne (1997)",
+					"summary": {
+						"en": "4x5 chess variant by Glimne (1997)",
+						"fr": "Variante d’échecs 4x5 de Glimne (1997)"
+					},
 					"rules": {
 						"en": "res/rules/mini/micro4x5-rules.html"
 					},
@@ -3125,7 +3160,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Baby Chess",
-					"summary": "5x5 Baby chess",
+					"summary": {
+						"en": "5x5 Baby chess",
+						"fr": "Baby chess en 5x5"
+					},
 					"rules": {
 						"en": "res/rules/mini/baby-rules.html"
 					},
@@ -3176,7 +3214,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Malett Chess",
-					"summary": "5x5 chess variant by Jeff Malett",
+					"summary": {
+						"en": "5x5 chess variant by Jeff Malett",
+						"fr": "Variante d’échecs 5x5 de Jeff Malett"
+					},
 					"rules": {
 						"en": "res/rules/mini/malett-rules.html"
 					},
@@ -3227,7 +3268,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Los Alamos Chess",
-					"summary": "6x6 chess variant",
+					"summary": {
+						"en": "6x6 chess variant",
+						"fr": "Variante d’échecs en 6x6"
+					},
 					"rules": {
 						"en": "res/rules/mini/los-alamos-rules.html"
 					},
@@ -3278,7 +3322,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Chess Attack",
-					"summary": "5x6 chess variant",
+					"summary": {
+						"en": "5x6 chess variant",
+						"fr": "Variante d’échecs en 5x6"
+					},
 					"rules": {
 						"en": "res/rules/mini/attack-rules.html"
 					},
@@ -3329,7 +3376,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Courier Chess",
-					"summary": "12x8 chess (12th century)",
+					"summary": {
+						"en": "12x8 chess (12th century)",
+						"fr": "Échecs en 12x8 (XIIe siècle)"
+					},
 					"rules": {
 						"en": "res/rules/historical/courier-rules.html",
                         "fr": "res/rules/historical/courier-rules_fr.html"
@@ -3435,7 +3485,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Makruk",
-					"summary": "Thai Chess",
+					"summary": {
+						"en": "Thai Chess",
+						"fr": "Les Échecs thaïlandais"
+					},
 					"rules": {
 						"en": "res/rules/makruk/mk-rules.html",
                         "fr": "res/rules/makruk/mk-rules_fr.html"
@@ -3529,7 +3582,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Shako",
-					"summary": "10x10 Chess",
+					"summary": {
+						"en": "10x10 Chess",
+						"fr": "Échecs en 10x10"
+					},
 					"rules": {
 						"en": "res/rules/shako/shako-rules.html",
 						"fr": "res/rules/shako/shako-rules-fr.html"
@@ -3596,7 +3652,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Shatranj",
-					"summary": "Ancient Chess",
+					"summary": {
+						"en": "Ancient Chess",
+						"fr": "Les Échecs anciens"
+					},
 					"rules": {
 						"en": "res/rules/shatranj/shatranj-rules.html",
                         "fr": "res/rules/shatranj/shatranj-rules_fr.html"
@@ -3692,7 +3751,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Basic Chess",
-					"summary": "Basic Chess without openings book",
+					"summary": {
+						"en": "Basic Chess without openings book",
+						"fr": "Échecs simples, sans bibliothèque d’ouvertures"
+					},
 					"rules": config_model_rules,
 					"module": "chessbase",
 					"plazza": "true",
@@ -3750,7 +3812,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "KnightMate",
-					"summary": "Checkmate the royal knight",
+					"summary": {
+						"en": "Checkmate the royal knight",
+						"fr": "Mater le cavalier royal"
+					},
 					"rules": config_model_rules,
 					"module": "chessbase",
 					"plazza": "true",
@@ -3920,7 +3985,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Glinski Chess",
-					"summary": "Hexagonal Chess",
+					"summary": {
+						"en": "Hexagonal Chess",
+						"fr": "Échecs hexagonaux"
+					},
 					"rules": {
 						"en": "res/rules/glinski/glinski-rules.html",
                         "fr": "res/rules/glinski/glinski-rules_fr.html"
@@ -3972,7 +4040,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Brusky Chess",
-					"summary": "Hexagonal Chess",
+					"summary": {
+						"en": "Hexagonal Chess",
+						"fr": "Échecs hexagonaux"
+					},
 					"rules": {
 						"en": "res/rules/brusky/brusky-rules.html"
 					},
@@ -4033,7 +4104,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "De Vasa Chess",
-					"summary": "Hexagonal Chess",
+					"summary": {
+						"en": "Hexagonal Chess",
+						"fr": "Échecs hexagonaux"
+					},
 					"rules": {
 						"en": "res/rules/devasa/devasa-rules.html"
 					},
@@ -4102,7 +4176,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "McCooey Chess",
-					"summary": "Hexagonal Chess",
+					"summary": {
+						"en": "Hexagonal Chess",
+						"fr": "Échecs hexagonaux"
+					},
 					"rules": {
 						"en": "res/rules/mccooey/mccooey-rules.html"
 					},
@@ -4153,7 +4230,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Shafran Chess",
-					"summary": "Hexagonal Chess",
+					"summary": {
+						"en": "Hexagonal Chess",
+						"fr": "Échecs hexagonaux"
+					},
 					"rules": {
 						"en": "res/rules/shafran/shafran-rules.html"
 					},
@@ -4214,7 +4294,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Modern Circular Chess",
-					"summary": "Chess on a ring",
+					"summary": {
+						"en": "Chess on a ring",
+						"fr": "Échecs sur un anneau"
+					},
 					"rules": {
 						"en": "res/rules/circular/circular-rules.html"
 					},
@@ -4372,7 +4455,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "3D Chess",
-					"summary": "Asymmetric 3D Chess (6x8x3)",
+					"summary": {
+						"en": "Asymmetric 3D Chess (6x8x3)",
+						"fr": "Échecs 3D asymétriques (6x8x3)"
+					},
 					"rules": {
 						"en": "res/rules/3dchess/3dchess-rules.html",
                         "fr": "res/rules/3dchess/3dchess-rules-fr.html"
@@ -4457,7 +4543,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Space Spartan",
-					"summary": "6x8x3 Chess",
+					"summary": {
+						"en": "6x8x3 Chess",
+						"fr": "Échecs en 6x8x3"
+					},
 					"rules": {
 						"en": "res/rules/3dchess/space-spartan-rules.html",
                         "fr": "res/rules/3dchess/space-spartan-rules-fr.html"
@@ -4542,7 +4631,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Cylinder Chess",
-					"summary": "Cylinder Chess",
+					"summary": {
+						"en": "Cylinder Chess",
+						"fr": "Échecs cylindriques"
+					},
 					"rules": {
 						"en": "res/rules/cylinder/cylinder-rules.html"
 					},
@@ -4626,13 +4718,17 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Cube chess",
-					"summary": "Frontier variant on a cube",
+					"summary": {
+						"en": "Frontier variant on a cube",
+						"fr": "Variante Frontier sur un cube"
+					},
 					"rules": {
-						"en": "cubic-rules.html"
+						"en": "res/rules/cube/cubic-rules.html",
+                        "fr": "res/rules/cube/cubic-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
-					"thumbnail": "cubic-chess-thumb.png",
+					"thumbnail": "res/rules/cube/cubic-chess-thumb.png",
 					"released": 1395590178,
 					"credits": config_model_credits,
 					"gameOptions": config_model_gameOptions,
@@ -4703,7 +4799,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Rollerball Chess",
-					"summary": "Chess variant on an unusual board",
+					"summary": {
+						"en": "Chess variant on an unusual board",
+						"fr": "Variante d’échecs sur un tablier inhabituel"
+					},
 					"rules": {
 						"en": "res/rules/rollerball/rollerball-rules.html"
 					},
@@ -4861,7 +4960,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Metamachy",
-					"summary": "Chess on 12x12 with fairy pieces",
+					"summary": {
+						"en": "Chess on 12x12 with fairy pieces",
+						"fr": "Échecs en 12x12 avec des pièces féeriques"
+					},
 					"rules": {
 						"en": "res/rules/metamachy/metamachy-rules.html"
 					},
@@ -4962,7 +5064,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "10x8 Chess variants",
-					"summary": "Capablanca, Janus, Carrera, Gothic …",
+					"summary": {
+						"en": "Capablanca, Janus, Carrera, Gothic …",
+						"fr": "Capablanca, Janus, Carrera, Gothic…"
+					},
 					"rules": {
 						"en": "res/rules/capa10x8/capablanca-rules.html"
 					},
@@ -5013,7 +5118,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Grand Chess",
-					"summary": "Chess on 10x10 (1984)",
+					"summary": {
+						"en": "Chess on 10x10 (1984)",
+						"fr": "Échecs en 10x10 (1984)"
+					},
 					"rules": {
 						"en": "res/rules/decimal/grand-rules.html"
 					},
@@ -5064,7 +5172,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Hectochess",
-					"summary": "Chess on 10x10 with champions and wizards",
+					"summary": {
+						"en": "Chess on 10x10 with champions and wizards",
+						"fr": "Échecs en 10x10 avec champions et sorciers"
+					},
 					"rules": {
 						"en": "res/rules/decimal/hectochess-rules.html",
                         "fr": "res/rules/decimal/hectochess-rules_fr.html"
@@ -5117,7 +5228,10 @@ exports.games = (function () {
 				"model": {
 
 					"title-en": "Heavy chess",
-					"summary": "Chess on 10x10 with many strong pieces",
+					"summary": {
+						"en": "Chess on 10x10 with many strong pieces",
+						"fr": "Échecs en 10x10 avec de nombreuses pièces puissantes"
+					},
 					"rules": {
 						"en": "res/rules/decimal/heavychess-rules.html",
                         "fr": "res/rules/decimal/heavychess-rules_fr.html"
@@ -5171,7 +5285,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Modern Chess",
-					"summary": "Chess on 9x9 (1968)",
+					"summary": {
+						"en": "Chess on 9x9 (1968)",
+						"fr": "Échecs en 9x9 (1968)"
+					},
 					"rules": {
 						"en": "res/rules/knighted/modern-rules.html"
 					},
@@ -5222,7 +5339,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Chancellor Chess",
-					"summary": "Chess on 9x9 (1887)",
+					"summary": {
+						"en": "Chess on 9x9 (1887)",
+						"fr": "Échecs en 9x9 (1887)"
+					},
 					"rules": {
 						"en": "res/rules/knighted/chancellor-rules.html"
 					},
@@ -5308,22 +5428,25 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Wildebeest Chess",
-					"summary": "Chess on 11x10 (1987)",
+					"summary": {
+						"en": "Chess on 11x10 (1987)",
+						"fr": "Échecs en 11x10 (1987)"
+					},
 					"rules": {
-						"en": "wildebeest-rules.html"
+						"en": "res/rules/wildebeest/wildebeest-rules.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
-					"thumbnail": "wildebeest-thumb.png",
+					"thumbnail": "res/rules/wildebeest/wildebeest-thumb.png",
 					"released": 1405001496,
 					"credits": {
-						"en": "wildebeest-credits.html"
+						"en": "res/rules/wildebeest/wildebeest-credits.html"
 					},
 					"gameOptions": config_model_gameOptions,
 					"obsolete": false,
 					"js": modelScripts_37,
 					"description": {
-						"en": "wildebeest-description.html"
+						"en": "res/rules/wildebeest/wildebeest-description.html"
 					},
 					"levels": config_model_levels_5_wildebeest_expert
 				},
@@ -5397,16 +5520,19 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Smess",
-					"summary": "The Ninny's Chess (1970)",
+					"summary": {
+						"en": "The Ninny's Chess (1970)",
+						"fr": "Smess, « The Ninny’s Chess » (1970)"
+					},
 					"rules": {
-						"en": "smess-rules.html"
+						"en": "res/rules/smess/smess-rules.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
-					"thumbnail": "smess-thumb.png",
+					"thumbnail": "res/rules/smess/smess-thumb.png",
 					"released": 1402671377,
 					"credits": {
-						"en": "smess-credits.html"
+						"en": "res/rules/smess/smess-credits.html"
 					},
 					"gameOptions": {
 						"preventRepeat": true,
@@ -5433,7 +5559,7 @@ exports.games = (function () {
 					"obsolete": false,
 					"js": modelScripts_38,
 					"description": {
-						"en": "smess-description.html"
+						"en": "res/rules/smess/smess-description.html"
 					},
 					"levels": config_model_levels_5
 				},
@@ -5504,7 +5630,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Demi-Chess",
-					"summary": "4x8 chess variant by Peter Krystufek (1986)",
+					"summary": {
+						"en": "4x8 chess variant by Peter Krystufek (1986)",
+						"fr": "Variante d’échecs 4x8 de Peter Krystufek (1986)"
+					},
 					"rules": {
 						"en": "res/rules/demi/demi-rules.html"
 					},
@@ -5555,7 +5684,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Romanchenko's Chess",
-					"summary": "Shifted 8x8 chess variant by V. Romanchenko",
+					"summary": {
+						"en": "Shifted 8x8 chess variant by V. Romanchenko",
+						"fr": "Variante d’échecs 8x8 décalés de V. Romanchenko"
+					},
 					"rules": {
 						"en": "res/rules/standard/romanchenko-rules.html"
 					},
@@ -5606,7 +5738,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Amazon Chess",
-					"summary": "18th century, Russia",
+					"summary": {
+						"en": "18th century, Russia",
+						"fr": "XVIIIe siècle, Russie"
+					},
 					"rules": {
 						"en": "res/rules/amazon/amazon-rules.html"
 					},
@@ -5689,22 +5824,25 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Duke of Rutland Chess",
-					"summary": "Chess on 14x10 (1747)",
+					"summary": {
+						"en": "Chess on 14x10 (1747)",
+						"fr": "Échecs en 14x10 (1747)"
+					},
 					"rules": {
-						"en": "dukerutland-rules.html"
+						"en": "res/rules/dukerutland/dukerutland-rules.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
-					"thumbnail": "dukerutland-thumb.png",
+					"thumbnail": "res/rules/dukerutland/dukerutland-thumb.png",
 					"released": 1405068608,
 					"credits": {
-						"en": "dukerutland-credits.html"
+						"en": "res/rules/dukerutland/dukerutland-credits.html"
 					},
 					"gameOptions": config_model_gameOptions,
 					"obsolete": false,
 					"js": modelScripts_42,
 					"description": {
-						"en": "dukerutland-description.html"
+						"en": "res/rules/dukerutland/dukerutland-description.html"
 					},
 					"levels": config_model_levels_5
 				},
@@ -5778,7 +5916,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Gustav III Chess",
-					"summary": "Gustav Johan Billberg, 1839",
+					"summary": {
+						"en": "Gustav Johan Billberg, 1839",
+						"fr": "Gustav Johan Billberg, 1839"
+					},
 					"rules": {
 						"en": "res/rules/amazon/gustav3-rules.html"
 					},
@@ -5864,7 +6005,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Hyderabad Decimal Chess",
-					"summary": "Shir Muhammad Khan Iman, 1797-1798",
+					"summary": {
+						"en": "Shir Muhammad Khan Iman, 1797-1798",
+						"fr": "Shir Muhammad Khan Iman, 1797-1798"
+					},
 					"rules": {
 						"en": "res/rules/decimal/hyderabad-rules.html"
 					},
@@ -5956,7 +6100,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Kaiserspiel",
-					"summary": "Tressau, 1840",
+					"summary": {
+						"en": "Tressau, 1840",
+						"fr": "Tressau, 1840"
+					},
 					"rules": {
 						"en": "res/rules/tressau/kaisergame-rules.html"
 					},
@@ -6045,7 +6192,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Sultanspiel",
-					"summary": "Tressau, 1840",
+					"summary": {
+						"en": "Tressau, 1840",
+						"fr": "Tressau, 1840"
+					},
 					"rules": {
 						"en": "res/rules/tressau/sultangame-rules.html"
 					},
@@ -6137,7 +6287,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Reformed Courierspiel",
-					"summary": "Clément Bégnis, 2011",
+					"summary": {
+						"en": "Clément Bégnis, 2011",
+						"fr": "Clément Bégnis, 2011"
+					},
 					"rules": {
 						"en": "res/rules/reformed-courier/reformed-courier-rules.html",
                         "fr": "res/rules/reformed-courier/reformed-courier-rules_fr.html"
@@ -6230,7 +6383,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Tutti-Frutti Chess",
-					"summary": "Ralph Betza et Philip Cohen, 1978-79",
+					"summary": {
+						"en": "Ralph Betza et Philip Cohen, 1978-79",
+						"fr": "Ralph Betza et Philip Cohen, 1978-1979"
+					},
 					"rules": {
 						"en": "res/rules/amazon/tutti-frutti-rules.html"
 					},
@@ -6322,7 +6478,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Sweet 16 Chess",
-					"summary": "A huge 16x16 Chess Variant",
+					"summary": {
+						"en": "A huge 16x16 Chess Variant",
+						"fr": "Une immense variante d’échecs en 16x16"
+					},
 					"rules": {
 						"en": "res/rules/standard/sweet16-rules.html"
 					},
@@ -6378,7 +6537,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Terachess",
-					"summary": "Chess on 16x16 with fairy pieces",
+					"summary": {
+						"en": "Chess on 16x16 with fairy pieces",
+						"fr": "Échecs en 16x16 avec des pièces féeriques"
+					},
 					"rules": {
 						"en": "res/rules/terachess/terachess-rules.html"
 					},
@@ -6515,7 +6677,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Gigachess",
-					"summary": "Chess on 14x14 with fairy pieces",
+					"summary": {
+						"en": "Chess on 14x14 with fairy pieces",
+						"fr": "Échecs en 14x14 avec des pièces féeriques"
+					},
 					"rules": {
 						"en": "res/rules/gigachess/gigachess-rules.html"
 					},
@@ -6640,7 +6805,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "LeyChessAlpha",
-					"summary": "Chess on 12x12 with fairy pieces",
+					"summary": {
+						"en": "Chess on 12x12 with fairy pieces",
+						"fr": "Échecs en 12x12 avec des pièces féeriques"
+					},
 					"rules": {
 						"en": "res/rules/duodecimal/leychessalpha-rules.html"
 					},
@@ -6762,7 +6930,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Fantastic XIII",
-					"summary": "Chess on 13x13 with fairy pieces",
+					"summary": {
+						"en": "Chess on 13x13 with fairy pieces",
+						"fr": "Échecs en 13x13 avec des pièces féeriques"
+					},
 					"rules": {
 						"en": "res/rules/fantasticXIII/fantasticXIII-rules.html",
 						"fr": "res/rules/fantasticXIII/fantasticXIII-rules-fr.html"
@@ -6861,7 +7032,10 @@ exports.games = (function () {
 				"model": {
 					"title-en": "Bigorra",
 
-					"summary": "FantasticXIII + Gigachess II - 16x16",
+					"summary": {
+						"en": "FantasticXIII + Gigachess II - 16x16",
+						"fr": "FantasticXIII + Gigachess II — 16x16"
+					},
 					"rules": {
 						"en": "res/rules/fantasticXIII/bigorra-rules.html",
                         			"fr": "res/rules/fantasticXIII/bigorra-rules-fr.html"
@@ -7012,7 +7186,10 @@ exports.games = (function () {
  				"status": true,
  				"model": {
  					"title-en": "Wild Tamerlane",
- 					"summary": "Chess on 11x11 with fairy pieces",
+ 					"summary": {
+ 						"en": "Chess on 11x11 with fairy pieces",
+ 						"fr": "Échecs en 11x11 avec des pièces féeriques"
+ 					},
  					"rules": {
  						"en": "res/rules/wildtamerlane/wild-tamerlane-rules.html"
  					},
@@ -7107,7 +7284,10 @@ exports.games = (function () {
  				"status": true,
  				"model": {
  					"title-en": "Pemba",
- 					"summary": "Extended Shako on 10x10 with fairy pieces",
+ 					"summary": {
+ 						"en": "Extended Shako on 10x10 with fairy pieces",
+ 						"fr": "Shako étendu en 10x10 avec des pièces féeriques"
+ 					},
  					"rules": {
  						"en": "res/rules/shako/pemba-rules.html",
 						"fr": "res/rules/shako/pemba-rules-fr.html"
@@ -7207,7 +7387,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Gigachess II",
-					"summary": "Chess on 14x14 with fairy pieces",
+					"summary": {
+						"en": "Chess on 14x14 with fairy pieces",
+						"fr": "Échecs en 14x14 avec des pièces féeriques"
+					},
 					"rules": {
 						"en": "res/rules/gigachess/gigachessII-rules.html",
                         			"fr": "res/rules/gigachess/gigachessII-rules_fr.html"
@@ -7338,7 +7521,10 @@ exports.games = (function () {
  				"model": {
  					"title-en": "Gross Chess",
 
- 					"summary": "Omega/Gothic/Cambaluc Chess on 12x12",
+ 					"summary": {
+ 						"en": "Omega/Gothic/Cambaluc Chess on 12x12",
+ 						"fr": "Échecs Omega/Gothic/Cambaluc en 12x12"
+ 					},
  					"rules": {
  						"en": "res/rules/duodecimal/gross-rules.html",
 						"fr": "res/rules/duodecimal/gross-rules_fr.html"
@@ -7453,7 +7639,10 @@ exports.games = (function () {
  				"model": {
  					"title-en": "Timurid",
 
- 					"summary": "Tamerlan II on 12x12 with fairy pieces",
+ 					"summary": {
+ 						"en": "Tamerlan II on 12x12 with fairy pieces",
+ 						"fr": "Tamerlan II en 12x12 avec des pièces féeriques"
+ 					},
  					"rules": {
  						"en": "res/rules/duodecimal/timurid-rules.html",
 						"fr": "res/rules/duodecimal/timurid-rules_fr.html"
@@ -7556,7 +7745,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Zanzibar S",
-					"summary": "Extended Metamachy - 12x12",
+					"summary": {
+						"en": "Extended Metamachy - 12x12",
+						"fr": "Metamachy étendu — 12x12"
+					},
 					"rules": {
 						"en": "res/rules/metamachy/zanzibar-s-rules.html",
 						"fr": "res/rules/metamachy/zanzibar-s-rules_fr.html"
@@ -7673,7 +7865,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Team-Mate Chess",
-					"summary": "8x8 variant with many different pieces",
+					"summary": {
+						"en": "8x8 variant with many different pieces",
+						"fr": "Variante 8x8 aux pièces très variées"
+					},
 					"rules": {
 						"en": "res/rules/team-mate/team-mate-rules.html"
 					},
@@ -7738,8 +7933,8 @@ exports.games = (function () {
 				"model": {
 					"title-en": "Ultima",
 					"summary": {
-						"en":"Chaque pièce capture d’une manière exotique",
-						"fr": "Un cousin de Ultima sur un tablier de 10x10 avec une bordure externe"
+						"en":"Each piece has its own exotic way of capturing.",
+						"fr":"Chaque pièce capture d’une manière exotique."
 					},
 					"rules": {
 						"en": "res/rules/ultima/ultima-rules.html",
@@ -7820,6 +8015,49 @@ exports.games = (function () {
 			"viewScripts": config_view_js_rococo
 		},
 		{
+			"name": "rocaille",
+			"modelScripts": modelScripts_rocaille,
+			"config": {
+				"status": true,
+				"preventRepeat": true,
+				"model": {
+					"title-en": "Rocaille",
+					"summary": {
+						"en": "a quieter Rococo: a 10x8 field inside an edge ring, and check binds",
+						"fr": "Un Rococo apaisé sur plateau de 10x8 avec une couronne"
+					},
+					"rules": {
+						"en": "res/rules/rocaille/rocaille-rules.html",
+						"fr": "res/rules/rocaille/rocaille-rules_fr.html"
+					},
+					"module": "chessbase",
+					"thumbnail": "res/rules/rocaille/rocaille-thumb.png",
+					"gameOptions": config_model_gameOptions,
+					"js": modelScripts_rocaille,
+					"levels": config_model_levels_15
+				},
+				"view": {
+					"title-en": "Chessbase view",
+					"xdView": true,
+					"css": config_view_css,
+					"preferredRatio": 1.2,
+					"useShowMoves": true,
+					"useNotation": true,
+					"module": "chessbase",
+					"defaultOptions": config_view_defaultOptions,
+					"skins": [
+						config_view_skins_2
+					],
+					"animateSelfMoves": false,
+					"switchable": true,
+					"sounds": config_view_sounds,
+					"js": config_view_js_rocaille,
+					"useAutoComplete": true
+				}
+			},
+			"viewScripts": config_view_js_rocaille
+		},
+		{
 			"name": "werewolf-chess",
 			"modelScripts": modelScripts_101,
 			"config": {
@@ -7894,7 +8132,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Elven Chess",
-					"summary": "10x10 variant with double-capturing super-piece",
+					"summary": {
+						"en": "10x10 variant with double-capturing super-piece",
+						"fr": "Variante 10x10 avec une super-pièce à double capture"
+					},
 					"rules": {
 						"en": "res/rules/elven/elven-rules.html",
 						"fr": "res/rules/elven/elven-rules_fr.html"
@@ -8027,7 +8268,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Scirocco",
-					"summary": "10x10 variant with weak but promoting pieces",
+					"summary": {
+						"en": "10x10 variant with weak but promoting pieces",
+						"fr": "Variante 10x10 avec des pièces faibles mais promouvables"
+					},
 					"rules": {
 						"en": "res/rules/decimal/scirocco-rules.html"
 					},
@@ -8091,7 +8335,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Shogi",
-					"summary": "Japanese Chess",
+					"summary": {
+						"en": "Japanese Chess",
+						"fr": "Les Échecs japonais"
+					},
 					"rules": {
 						"en": "res/rules/shogi/shogi-rules.html",
 						"fr": "res/rules/shogi/shogi-rules_fr.html"
@@ -8172,7 +8419,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Choshi Shogi",
-					"summary": "Shogi with squirrel",
+					"summary": {
+						"en": "Shogi with squirrel",
+						"fr": "Shogi avec écureuil"
+					},
 					"rules": {
 						"en": "res/rules/shogi/choshi-rules.html",
 						"fr": "res/rules/shogi/choshi-rules_fr.html"
@@ -8253,7 +8503,10 @@ exports.games = (function () {
 				"model": {
 
 					"title-en": "Seireigi",
-					"summary": "Shogi with more varied promotions",
+					"summary": {
+						"en": "Shogi with more varied promotions",
+						"fr": "Shogi aux promotions plus variées"
+					},
 					"rules": {
 						"en": "res/rules/shogi/seireigi-rules.html",
 						"fr": "res/rules/shogi/seireigi-rules_fr.html"
@@ -8329,7 +8582,10 @@ exports.games = (function () {
 				"model": {
 
 					"title-en": "Chu Seireigi",
-					"summary": "Spirit middle shogi variant",
+					"summary": {
+						"en": "Spirit middle shogi variant",
+						"fr": "Variante moyenne du Seireigi"
+					},
 					"rules": {
 						"en": "res/rules/shogi/chu-seireigi-shogi-rules.html"
 					},
@@ -8411,7 +8667,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Mini-Shogi",
-					"summary": "Shogi on 5x5 with 6 pieces",
+					"summary": {
+						"en": "Shogi on 5x5 with 6 pieces",
+						"fr": "Shogi en 5x5 avec 6 pièces"
+					},
 					"rules": {
 						"en": "res/rules/shogi/mini-shogi-rules.html",
 						"fr": "res/rules/shogi/mini-shogi-rules_fr.html"
@@ -8492,7 +8751,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Kyoto-Shogi",
-					"summary": "Shogi on 5x5 with 5 pieces",
+					"summary": {
+						"en": "Shogi on 5x5 with 5 pieces",
+						"fr": "Shogi en 5x5 avec 5 pièces"
+					},
 					"rules": {
 						"en": "res/rules/shogi/kyoto-shogi-rules.html",
 						"fr": "res/rules/shogi/kyoto-shogi-rules_fr.html"
@@ -8574,7 +8836,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Tori Shogi",
-					"summary": "7x7 Shogi Variant with bird pieces",
+					"summary": {
+						"en": "7x7 Shogi Variant with bird pieces",
+						"fr": "Variante de shogi en 7x7 avec des pièces-oiseaux"
+					},
 					"rules": {
 						"en": "res/rules/shogi/tori-shogi-rules.html"
 					},
@@ -8638,7 +8903,10 @@ exports.games = (function () {
 				"status": true,
 				"model": {
 					"title-en": "Chu Shogi",
-					"summary": "Historic 12x12 Shogi variant",
+					"summary": {
+						"en": "Historic 12x12 Shogi variant",
+						"fr": "Variante historique de shogi en 12x12"
+					},
 					"rules": {
 						"en": "res/rules/shogi/chu-shogi-rules.html"
 					},

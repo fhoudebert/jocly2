@@ -1,0 +1,192 @@
+
+<style>
+	table.k-pieces {
+		border-collapse: collapse;
+		margin: 12px 0;
+	}
+	table.k-pieces th, table.k-pieces td {
+		border-bottom: 1px solid #ccc;
+		padding: 6px 12px 6px 0;
+		text-align: left;
+		vertical-align: middle;
+	}
+	.k-icon {
+		display: inline-block;
+		width: 40px;
+		height: 40px;
+		vertical-align: middle;
+		background-image: url({GAME}/res/ultima/baroque-picto-sprites.png);
+		background-repeat: no-repeat;
+		/* The sheet holds --k-cols columns x 2 rows of square cells; show the
+		   white (top) row. Only --k-cols has to change when the sheet grows. */
+		--k-cols: 12;
+		background-size: calc(var(--k-cols) * 100%) 200%;
+		background-position-y: 0;
+		background-position-x: calc(var(--k-col) / (var(--k-cols) - 1) * 100%);
+	}
+	/* column index of each piece within the sprite sheet shared by the family */
+	.k-leaper      { --k-col: 2; }
+	.k-withdrawer  { --k-col: 3; }
+	.k-chameleon   { --k-col: 4; }
+	.k-immobilizer { --k-col: 5; }
+	.k-king        { --k-col: 6; }
+	.k-pawn        { --k-col: 7; }
+	.k-swapper     { --k-col: 8; }
+	.k-advancer    { --k-col: 9; }
+	.k-edge {
+		display: inline-block;
+		width: 14px;
+		height: 14px;
+		vertical-align: middle;
+		background: #6E5037;
+		border: 1px solid #888;
+	}
+	table.k-diff {
+		border-collapse: collapse;
+		margin: 12px 0;
+	}
+	table.k-diff th, table.k-diff td {
+		border-bottom: 1px solid #ccc;
+		padding: 6px 12px 6px 0;
+		text-align: left;
+		vertical-align: top;
+	}
+	table.k-diff th { font-weight: bold; }
+</style>
+
+<h1>Rocaille</h1>
+<p>Rocaille is a variant of <b>Rococo</b>, whose pieces and ways of capturing it keeps whole.
+Rococo is a sharp game: every piece moves like a Queen, the Long Leaper can sweep a whole line in one move,
+and the King falls without warning. Ultima, the elder of the family, has the opposite fault: defence is so strong
+that games trail. Rocaille aims at the point between the two - livelier than Ultima, less brutal than Rococo -
+and gets there by three changes.</p>
+<p>The first gives the King a warning: <b>check binds</b>, as in chess.
+The second <b>a King may not be swapped</b>.
+The third gives both armies room: the playing field grows to <b>10x8</b>, with two more pieces a side and an array
+arranged for defence. Rococo's edge ring is kept - it was dropped in a first version, which killed every sweeping
+capture and left the game duller than Ultima.</p>
+
+<h2>The pieces</h2>
+<table class="k-pieces">
+<tr><th>Piece</th><th>Move</th><th>Capture</th></tr>
+<tr><td><span class="k-icon k-pawn"></span> <b>Cannon Pawn</b></td><td>one square, or a hop</td><td>by hopping over a neighbour onto the enemy just beyond</td></tr>
+<tr><td><span class="k-icon k-advancer"></span> <b>Advancer</b></td><td>like a Queen</td><td>the enemy it stops right in front of</td></tr>
+<tr><td><span class="k-icon k-withdrawer"></span> <b>Withdrawer</b></td><td>like a Queen</td><td>the adjacent piece it moves directly away from</td></tr>
+<tr><td><span class="k-icon k-leaper"></span> <b>Long Leaper</b></td><td>like a Queen</td><td>by leaping over enemies, as many as the line allows</td></tr>
+<tr><td><span class="k-icon k-swapper"></span> <b>Swapper</b></td><td>like a Queen</td><td>trades places with any piece but a King, or destroys a neighbour and itself</td></tr>
+<tr><td><span class="k-icon k-chameleon"></span> <b>Chameleon</b></td><td>like a Queen</td><td>each enemy by that enemy's own method</td></tr>
+<tr><td><span class="k-icon k-immobilizer"></span> <b>Immobilizer</b></td><td>like a Queen</td><td>never captures - it paralyses instead</td></tr>
+<tr><td><span class="k-icon k-king"></span> <b>King</b></td><td>one square</td><td>by displacement, like a chess King</td></tr>
+</table>
+<p>Every piece except the Cannon Pawn and the King moves like a Queen: any distance along a rank, a file or a
+diagonal, over empty squares only, and never onto an occupied square. No piece may jump over another - the Long Leaper
+and the Cannon Pawn do, but only as part of their capture.</p>
+
+<h2>The board and the edge squares</h2>
+<p>The board is 12x10. The inner 10x8 is the playing area; the 40 squares of the outer ring, shown darker
+<span class="k-edge"></span> in the game, are <b>edge squares</b>. A piece may only pass over or stop on an edge square
+when doing so is needed to make a capture - and then it must cross as few edge squares as possible. A move that captures
+nothing may never touch the ring. This idea, taken from Rococo, stops pieces from sheltering along the rim.</p>
+<p>A Swapper's exchange counts as a capture here, so a Swapper may swap with a piece standing on the ring.</p>
+
+<h2>Initial setup</h2>
+<p>Each player has 10 Cannon Pawns on the second rank and, behind them:
+Swapper, Long Leaper, Advancer, Cannon Pawn, King, Cannon Pawn, Chameleon, Advancer, Long Leaper, Immobilizer.
+The two <b>Withdrawers</b> do not stand on the back rank but among the Pawns, in front of the King's own flanks,
+in exchange for the two Cannon Pawns that would stand there. Both armies are set up in the same order, facing each
+other. White moves first.</p>
+<p>The array is arranged for defence. The Chameleon stands one square from the King, being the only piece that
+can deal with an approaching Immobilizer. The Advancers are two squares out, with room to go and fetch one. The
+Immobilizer and the Swapper are exiled to opposite wings, both because they are offensive tools and because an enemy
+Chameleon should have no reason to come and camp beside the King.</p>
+<p>The Withdrawers are the surprise, and the obvious placement is the wrong one. A Withdrawer captures by
+moving <i>away</i> from its victim, so it needs an empty square behind it; on the back rank, facing the only direction
+attacks come from, that square is off the board and the piece is inert. Moved forward a rank it still does not recoil -
+but it becomes a springboard: the Cannon Pawns behind it hop over it onto the rank ahead.</p>
+
+<h2><span class="k-icon k-pawn"></span> Cannon Pawn</h2>
+<p>The Cannon Pawn moves without capturing in two ways: one step in any direction, or a hop over an adjacent
+piece of either colour, landing on the empty square just beyond. It captures the way it hops: over an adjacent piece -
+the mount, friend or enemy - and onto an enemy piece immediately beyond, taking its place.</p>
+<p>A Cannon Pawn that reaches the enemy King's own rank by a move of its own may promote to any friendly
+piece that has been captured and is currently off the board, except another Cannon Pawn. Promotion is optional.</p>
+
+<h2><span class="k-icon k-advancer"></span> Advancer</h2>
+<p>The Advancer moves like a Queen and captures by approach: if it stops directly in front of an enemy piece -
+that is, if the next square in its direction of travel is occupied by an enemy - that enemy is captured. The capture is
+part of the move and is not optional: an Advancer may not stop beside an enemy on its line of travel without taking it.</p>
+<p>It is the piece that makes check most disconcerting to a chess player: fleeing an Advancer <i>in a straight
+line</i> does not help, since it simply approaches again on the next square. You must leave its line, or block the
+approach by occupying the square it would stop on.</p>
+
+<h2><span class="k-icon k-withdrawer"></span> Withdrawer</h2>
+<p>The Withdrawer captures by withdrawal: standing next to an enemy piece, it moves directly away from it any
+distance and captures it. Only the piece it moves away from is taken, and only if it was already adjacent before the
+move. Like the Advancer's, this capture is compulsory.</p>
+
+<h2><span class="k-icon k-leaper"></span> Long Leaper</h2>
+<p>The Long Leaper moves like a Queen but may leap over an enemy piece and capture it, provided the square
+immediately beyond that piece is empty. It may then carry on in the same direction and take further enemies on the same
+terms, before ending on any empty square beyond. It may never leap over a friendly piece, nor over two adjacent enemies.</p>
+<p>It is the Leaper that gives the game its spectacular moves, and the edge ring is what makes them possible:
+by stopping pieces from fleeing to the rim it keeps them in the field, and so in line with one another - and a sweeping
+capture is exactly what needs several enemies on one line.</p>
+
+<h2><span class="k-icon k-swapper"></span> Swapper</h2>
+<p>The Swapper moves like a Queen without capturing, or it may <b>trade places</b> with any piece, friend or
+enemy, within an unobstructed Queen's reach - <b>except a King</b>, its own as much as the opponent's. It may also
+destroy an adjacent enemy piece and itself at once, by mutual destruction - a move it cannot make while immobilized.</p>
+<p>A King can therefore not be dragged out of its shelter from across the board, which no defensive array
+could withstand. In exchange, approaching an enemy Swapper is dangerous for the King: mutual destruction would take him
+along, so stepping next to one is stepping into check.</p>
+
+<h2><span class="k-icon k-chameleon"></span> Chameleon</h2>
+<p>The Chameleon moves like a Queen and captures each enemy by that enemy's own method: it approaches
+Advancers, withdraws from Withdrawers, leaps over Long Leapers, hops a mount to take Cannon Pawns, swaps with Swappers
+(or destroys itself together with them) and takes an adjacent enemy King by moving onto it. Several of these may be
+combined in a single move: leaping over a Long Leaper, it can in the same move take a Withdrawer left behind and an
+Advancer reached at the end. Trading places with a Swapper may end such a travel, so one move can withdraw, leap, swap
+and approach at once.</p>
+<p>The Chameleon freezes an enemy Immobilizer and is frozen by it in turn, but it can never capture one -
+and it cannot capture another Chameleon.</p>
+
+<h2><span class="k-icon k-immobilizer"></span> Immobilizer</h2>
+<p>The Immobilizer never captures. Any enemy piece on one of the eight squares around it is immobilized and
+cannot move. Two Immobilizers facing each other paralyse one another. An immobilized piece other than a King may still
+<b>remove itself from the board</b>, which counts as its move - usually to open a line. The Immobilizer may never enter
+an edge square by itself, though it can be put there by a swap.</p>
+
+<h2><span class="k-icon k-king"></span> King</h2>
+<p>The King moves one square in any direction and captures by displacement, like the King of ordinary chess.
+<b>Check binds</b>: a move that would leave one's own King capturable is illegal, and a King may not stand next to the
+enemy King. It may only enter an edge square in order to capture a piece there.</p>
+<p>Be warned: in this family almost every piece can take the King, each in its own way - the Advancer by
+approaching, the Withdrawer by moving away, the Long Leaper by leaping over him, the Cannon Pawn by hopping onto him,
+the Chameleon and the King by displacement. Only the Immobilizer cannot, since it never captures. A check may therefore
+come from an unexpected direction, and be met in ways ordinary chess does not teach.</p>
+
+<h2>Ending the game</h2>
+<p>The game is won by <b>checkmate</b>. A player who cannot make a legal move loses, as does one who brings
+about a threefold repetition.</p>
+
+<h2>Further rules</h2>
+<ul>
+    <li>A move onto the edge band must be the shortest move that makes the capture possible.</li>
+    <li>A Swapper may not swap straight back with an enemy Swapper or Chameleon on the following move.</li>
+    <li>A Cannon Pawn promotes to a piece from the list of captured pieces.</li>
+    <li>A frozen piece may remove itself from the board.</li>
+</ul>
+
+<h2>What differs from Rococo</h2>
+<p>For a player who already knows Rococo, here is the complete list of differences. Anything not listed is
+the same, the eight pieces and their ways of capturing included.</p>
+<table class="k-diff">
+<tr><th></th><th>Rococo</th><th>Rocaille</th></tr>
+<tr><td><b>Board</b></td><td>10x10, playing area 8x8, ring of 36 squares</td><td>12x10, playing area 10x8, ring of 40 squares</td></tr>
+<tr><td><b>Army</b></td><td>16 pieces: 8 Cannon Pawns, and 1 Advancer, 1 Withdrawer, 2 Long Leapers</td><td>20 pieces: 10 Cannon Pawns, and <b>2</b> Advancers, <b>2</b> Withdrawers, 2 Long Leapers</td></tr>
+<tr><td><b>Back rank</b></td><td>Immobilizer, Withdrawer, Long Leaper, King, Chameleon, Long Leaper, Advancer, Swapper</td><td>Swapper, Long Leaper, Advancer, Cannon Pawn, King, Cannon Pawn, Chameleon, Advancer, Long Leaper, Immobilizer - the Withdrawers moved forward a rank</td></tr>
+<tr><td><b>Ending</b></td><td>capture of the King; no check, no mate</td><td><b>checkmate</b>: a move that exposes one's King is illegal</td></tr>
+<tr><td><b>Kings in contact</b></td><td>allowed</td><td>forbidden, as in chess</td></tr>
+<tr><td><b>Swapper and King</b></td><td>may trade places with a King</td><td><b>never</b> trades with a King, its own or the opponent's</td></tr>
+<tr><td><b>Promotion</b></td><td>the enemy King's rank, or the edge rank beyond it</td><td>the enemy King's rank</td></tr>
+</table>

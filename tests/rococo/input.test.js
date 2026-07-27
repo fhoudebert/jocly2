@@ -8,7 +8,7 @@
  * piece again to cancel", which jocly binds last and therefore wins. The move
  * would be impossible to enter by hand.
  *
- * roc-choice-view.js moves the suicide onto the panel the view already uses for
+ * baroque-choice-view.js moves the suicide onto the panel the view already uses for
  * choosing a promotion. What is checked here is that the action no longer
  * competes with the cancel click, that it offers a way out, and that the panel
  * is put away again - a panel left open would block the board.
@@ -56,11 +56,11 @@ const sandbox = {
 sandbox.global = sandbox;
 sandbox.window = sandbox;
 vm.createContext(sandbox);
-["base-view.js", "grid-board-view.js", "ultima/rococo-view.js", "ultima/roc-choice-view.js"].forEach((script) => {
+["base-view.js", "grid-board-view.js", "ultima/baroque-view.js", "ultima/rococo-view.js", "ultima/baroque-choice-view.js"].forEach((script) => {
 	vm.runInContext(fs.readFileSync(path.join(CHESSBASE, script), "utf8"), sandbox, { filename: script });
 });
 
-const modelSb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/rococo-model.js"]);
+const modelSb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/baroque-core.js", "ultima/rococo-model.js"]);
 const game = h.newGame(modelSb);
 
 const types = Object.keys(game.cbVar.pieceTypes).map((t) => game.cbVar.pieceTypes[t]);
@@ -108,7 +108,7 @@ function stages(pieces, square, who) {
 
 	const leaper = s.board.pieces[s.board.board[h.posOf("d4")]];
 	check("the suicide is offered on the panel, not on the board square",
-		action.click, ["roc-choice-0"]);
+		action.click, ["baroque-choice-0"]);
 	check("and it carries exactly the one move", action.moves.length, 1);
 	check("so it no longer competes with the cancel click",
 		JSON.stringify(action.click) === JSON.stringify(s.pick.click), false);
@@ -118,14 +118,14 @@ function stages(pieces, square, who) {
 	action.pre.call(s.viewBoard);
 	check("selecting the piece raises the panel, the cancel button and its picture",
 		s.updates.filter((u) => u.visible === true).map((u) => u.name).sort(),
-		["promo-board", "promo-cancel", "roc-choice-0"].sort());
+		["promo-board", "promo-cancel", "baroque-choice-0"].sort());
 
 	s.reset();
 	action.post.call(s.viewBoard);
 	check("playing it puts the panel away",
 		s.updates.filter((u) => u.visible === true), []);
 	check("including every choice picture",
-		s.updates.filter((u) => u.name.indexOf("roc-choice") === 0 && u.visible === false).length > 0,
+		s.updates.filter((u) => u.name.indexOf("baroque-choice") === 0 && u.visible === false).length > 0,
 		true);
 
 	// going back to picking a piece must clear a panel left on screen
@@ -145,7 +145,7 @@ function stages(pieces, square, who) {
 	const s = stages({ a1: "wK", h8: "bK", d4: "wS", d5: "bS" }, "d4", 1);
 	const action = s.second[h.posOf("d5")];
 	check("clicking the neighbour is still an ordinary board click",
-		action !== undefined && !(action.click || []).some((g) => g.indexOf("roc-choice") === 0), true);
+		action !== undefined && !(action.click || []).some((g) => g.indexOf("baroque-choice") === 0), true);
 	check("and it carries both moves", action.moves.length, 2);
 
 	s.reset();

@@ -1,20 +1,22 @@
 
 /*
- * The choice panel of the Ultima family - shared by Ultima and Rococo.
+ * The choice panel of the baroque family - shared by Ultima, Rococo and
+ * Rocaille, and by any later variant with a Swapper or an Immobilizer.
  *
  * It exists because some moves cannot be told apart by the square they end on,
  * and because one of them ends on the square it started from:
  *
  *  - a Swapper trading places with a neighbour, or destroying itself together
- *    with that same neighbour: same piece, same target square (Rococo);
+ *    with that same neighbour: same piece, same target square;
  *  - an immobilized piece removing itself: the destination IS its own square,
  *    so the click lands on the same gadget as "click the piece again to
  *    cancel", which jocly binds last and would therefore always win.
  *
- * Both games route those through the panel the view already had for choosing a
+ * Each game routes those through the panel the view already had for choosing a
  * promotion. Nothing here knows about a particular board or piece set: the
- * pictures are read from the model's own aspects, so any variant of the family
- * gets the behaviour by listing this file after its own view.
+ * pictures are read from the model's own aspects, so a variant gets the
+ * behaviour by listing this file in viewScripts after its own view and before
+ * baroque-capture-view.js.
  */
 
 (function() {
@@ -35,8 +37,8 @@
 	 * its choices - exactly the case where the choice matters most. The panel
 	 * therefore gets its own pictures, which can show any piece.
 	 */
-	var CHOICES = ["roc-choice-0", "roc-choice-1", "roc-choice-2", "roc-choice-3",
-		"roc-choice-4", "roc-choice-5", "roc-choice-6", "roc-choice-7"];
+	var CHOICES = ["baroque-choice-0", "baroque-choice-1", "baroque-choice-2", "baroque-choice-3",
+		"baroque-choice-4", "baroque-choice-5", "baroque-choice-6", "baroque-choice-7"];
 
 	var OriginalCreatePromo = View.Game.cbCreatePromo;
 	View.Game.cbCreatePromo = function(xdv) {
@@ -67,7 +69,7 @@
 		return spec["2d"];
 	}
 
-	View.Board.rocHidePanel = function(xdv, aGame) {
+	View.Board.baroqueHidePanel = function(xdv, aGame) {
 		xdv.updateGadget("promo-board", { base: { visible: false } });
 		xdv.updateGadget("promo-cancel", { base: { visible: false } });
 		CHOICES.forEach(function(id) {
@@ -75,7 +77,7 @@
 		});
 	}
 
-	View.Board.rocShowPanel = function(xdv, aGame, pieces) {
+	View.Board.baroqueShowPanel = function(xdv, aGame, pieces) {
 		var size = aGame.cbPromoSize;
 		xdv.updateGadget("promo-board", { base: { visible: true, width: size * (pieces.length + 1) } });
 		xdv.updateGadget("promo-cancel", { base: { visible: true, x: pieces.length * size / 2 } });
@@ -129,7 +131,7 @@
 			// back to picking a piece: a panel still up is stale, which also
 			// covers the player cancelling out of it
 			if(currentInput.f == null) {
-				this.rocHidePanel(xdv, aGame);
+				this.baroqueHidePanel(xdv, aGame);
 				return actions;
 			}
 
@@ -147,7 +149,7 @@
 						view: [],
 						validate: {},
 						cancel: ["promo-cancel"],
-						post: function() { $board.rocHidePanel(xdv, aGame) },
+						post: function() { $board.baroqueHidePanel(xdv, aGame) },
 					};
 				});
 				return chosen;
@@ -163,11 +165,11 @@
 				if(needsChoice(action.moves)) {
 					action.execute = (function(pictures) {
 						return function(callback) {
-							$board.rocShowPanel(xdv, aGame, pictures);
+							$board.baroqueShowPanel(xdv, aGame, pictures);
 							callback();
 						}
 					})(pictures);
-					action.unexecute = function() { $board.rocHidePanel(xdv, aGame) };
+					action.unexecute = function() { $board.baroqueHidePanel(xdv, aGame) };
 					continue;
 				}
 
@@ -184,9 +186,9 @@
 						validate: { t: action.moves[0].t },
 						cancel: ["promo-cancel"],
 						pre: (function(pictures) {
-							return function() { $board.rocShowPanel(xdv, aGame, pictures) }
+							return function() { $board.baroqueShowPanel(xdv, aGame, pictures) }
 						})(pictures),
-						post: function() { $board.rocHidePanel(xdv, aGame) },
+						post: function() { $board.baroqueHidePanel(xdv, aGame) },
 					};
 				}
 			}
