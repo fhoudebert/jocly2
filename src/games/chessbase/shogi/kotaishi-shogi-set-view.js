@@ -112,9 +112,14 @@
 					clipx: 2400,
 				},
 			},
-			"sh-squirrel": {
+			"sh-elephant": {
 				"2d": {
 					clipx: 2500,
+				},
+			},
+			"sh-prince": {
+				"2d": {
+					clipx: 2600,
 				},
 			},
 
@@ -498,16 +503,37 @@
 				}
 			},
 		},
-		"sh-squirrel": {
+		"sh-elephant": {
 			mesh: {
-				jsFile:"/res/shogi/j-tile.js"
+				jsFile:"/res/shogi/g-tile.js"
 			},
 			materials: {
 				mat0: {
 					channels: {
 						diffuse: {
 							texturesImg: {
-								diffImg : "/res/shogi/chu-diffusemaps/lion-b.jpg",
+								diffImg : "/res/shogi/chu-diffusemaps/elephant-b.jpg",
+							}
+						},
+						normal: {
+							texturesImg: {
+								normalImg: "/res/shogi/tile-normalmap.jpg",
+							}
+						}
+					}
+				}
+			},
+		},
+		"sh-prince": {
+			mesh: {
+				jsFile:"/res/shogi/k-tile.js"
+			},
+			materials: {
+				mat0: {
+					channels: {
+						diffuse: {
+							texturesImg: {
+								diffImg : "/res/shogi/chu-diffusemaps/prince-r.jpg",
 							}
 						},
 						normal: {

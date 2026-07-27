@@ -273,22 +273,73 @@
 					abbrev: 'K',
 					initial: [{s:-1,p:110}],
 				},
+				// Drunk Elephant (Sho Shogi): one step in every direction but
+				// straight backward. Promotes to Crown Prince. Directional, so it
+				// is split white/black like the pawns and golds (this also gives
+				// each color the right `demoted` target when captured into hand).
 				24: {
-					name: 'squirrel',
-					aspect: 'sh-squirrel',
-					graph: this.cbDropGraph(geometry, [
-						[-2,0],[-2,-1],[-2,-2],[-1,-2],[0,-2],
-						[1,-2],[2,-2],[2,-1],[2,0],[2,1],
-						[2,2],[1,2],[0,2],[-1,2],[-2,2],[-2,1]],[]),
-					abbrev: 'I',
-                    fenAbbrev: 'I',
-                    initial: [{s:1,p:19},{s:-1,p:97}],
+					name: 'elephant-w',
+					aspect: 'sh-elephant',
+					graph: this.cbDropGraph(geometry, [[0,1],[1,0],[-1,0],[1,1],[-1,1],[1,-1],[-1,-1]],[],0,1),
+					value: 5,
+					abbrev: 'DE',
+					fenAbbrev: 'E',
+					initial: [{s:1,p:19}],
+					demoted: 25,
 					hand: 7,
+				},
+
+				25: {
+					name: 'elephant-b',
+					aspect: 'sh-elephant',
+					graph: this.cbDropGraph(geometry, [[0,-1],[1,0],[-1,0],[1,1],[-1,1],[1,-1],[-1,-1]],[],1,0),
+					value: 5,
+					abbrev: 'DE',
+					fenAbbrev: 'E',
+					initial: [{s:-1,p:97}],
+					demoted: 24,
+					hand: 7,
+				},
+
+				// Crown Prince (Kōtaishi, 太子): promoted Drunk Elephant, moves as a
+				// King. Kept NON-royal (no isKing) - same choice as this repo's Chu
+				// Shogi crown prince: the engine's check / mate machinery is built
+				// around a single royal piece per side (kings[mWho]), so a genuine
+				// "second king that must also be captured" would need reworking that
+				// machinery. Split white/black only so a captured Prince demotes to
+				// the capturer's Elephant in hand.
+				26: {
+					name: 'prince-w',
+					aspect: 'sh-prince',
+					graph: this.cbDropGraph(geometry, [[0,1],[1,0],[-1,0],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]],[]),
+					value: 7,
+					abbrev: '+DE',
+					fenAbbrev: '+E',
+					demoted: 25,
+				},
+
+				27: {
+					name: 'prince-b',
+					aspect: 'sh-prince',
+					graph: this.cbDropGraph(geometry, [[0,1],[1,0],[-1,0],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]],[]),
+					value: 7,
+					abbrev: '+DE',
+					fenAbbrev: '+E',
+					demoted: 24,
 				},
 				
 			},
 			
 			promote: function(aGame,piece,move) {
+				var c = geometry.C(move.f);
+				if(c < 2 || c > 10) return []; // drop: never promotes
+				// Drunk Elephant -> Crown Prince, optional, on entering /
+				// moving within / leaving the promotion zone (the 3 ranks
+				// furthest from the mover). [current,promoted] = optional.
+				if(piece.t == 24) // elephant-w
+					return (geometry.R(move.t) > 5 || geometry.R(move.f) > 5) ? [24,26] : [];
+				if(piece.t == 25) // elephant-b
+					return (geometry.R(move.t) < 3 || geometry.R(move.f) < 3) ? [25,27] : [];
 				if(piece.t >= 10)
 					return [];
 				var f = geometry.C(move.f);

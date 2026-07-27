@@ -1,0 +1,33 @@
+<style>
+    .piece-graph {
+        height: auto;
+        max-width: 300px;
+        margin: 0 auto;
+        display: inline-flex;
+    }
+</style>
+<h2>Kōtaishi Shogi</h2>
+<p>Kōtaishi Shogi is standard Shogi in which the extra piece is a
+<strong>Drunk Elephant</strong> (酔象), which can promote to a
+<strong>Crown Prince</strong> (太子, <em>kōtaishi</em>). Every other rule,
+including captures returning to hand and drops, is exactly as in Shogi.</p>
+
+<h2>Drunk Elephant</h2>
+<p>The Drunk Elephant moves one square in any direction except straight
+backward. It starts in front of the King.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/drunk-elephant.png"/></p>
+
+<h2>Crown Prince</h2>
+<p>On reaching, moving within, or leaving the promotion zone (the three
+ranks furthest from you), a Drunk Elephant may promote to a Crown Prince.
+The Crown Prince moves one square in any direction, like a King.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/shogi-prince.png"/></p>
+<p><em>Note:</em> in the historical Shō Shogi the Crown Prince is a second
+royal piece that must also be captured to win. This implementation keeps a
+single royal King (as in this collection's Chu Shogi): the Prince is a
+strong King-stepping piece but is not itself royal.</p>
+
+<h2>Drops</h2>
+<p>Unlike historical Shō Shogi, captured pieces go to your hand and may be
+dropped, exactly as in Shogi. A captured Crown Prince reverts to an
+unpromoted Drunk Elephant in hand.</p>

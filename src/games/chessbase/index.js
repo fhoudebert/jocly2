@@ -1617,11 +1617,11 @@ exports.games = (function () {
 		"drop-model.js",
 		"shogi/kyoto-shogi-model.js"
 	]
-	var modelScripts_choshi = [
+	var modelScripts_kotaishi = [
 		"base-model.js",
 		"grid-geo-model.js",
 		"drop-model.js",
-		"shogi/choshi-shogi-model.js"
+		"shogi/kotaishi-shogi-model.js"
 	]
 	var config_model_levels_11 = {
 		"name": "easy",
@@ -1679,19 +1679,21 @@ exports.games = (function () {
 	var config_model_levels_15_shako_expert = config_model_levels_15.concat([config_model_levels_shako_expert]);
 	var config_model_levels_15_shogi_expert = config_model_levels_15.concat([config_model_levels_shogi_expert]);
 
-	// Choshi Shogi (shogi + squirrel): needs its OWN expert level - it was
-	// previously sharing shogi's verbatim, which is silently corrupt:
-	// Fairy-Stockfish parsing choshi's FEN under variant "shogi" doesn't
-	// reject the unknown squirrel letter, it SKIPS it, shifting the rest of
-	// the rank (verified on the real engine: rank "1r2i2b1" parses as
-	// "1r4b2" - squirrels gone AND the bishop moved a file over), so the
-	// engine searched a wrong position every move. The custom variant below
-	// - the same definition used successfully in fairyground (there under
-	// the section name [mnemonic:shogi]; the name is free, so it is
-	// derived from the game's own name here) (customPiece1 i:NAD = knight+alfil+dabbaba compound; the
-	// engine normalizes the bare startFen to "...[] w - - 0 1" itself) -
-	// fixes that, validated move-by-move against the real engine including
-	// I@ drops from hand.
+	// Kotaishi Shogi (shogi + drunk elephant, promoting to crown prince):
+	// needs its OWN expert level - sharing shogi's verbatim is silently
+	// corrupt, because Fairy-Stockfish parsing this game's FEN under variant
+	// "shogi" would not reject the unknown elephant/prince letters, it would
+	// SKIP them, shifting the rest of the rank and making the engine search
+	// a wrong position every move. The custom variant below defines the
+	// pieces so parsing stays aligned.
+	//
+	// Drunk Elephant (e) = FfsW in Betza (one step in every direction but
+	// straight back); it promotes to the Crown Prince (p), a non-royal
+	// commoner (K = one step any direction), matching the jocly model.
+	// NB: unlike the previous squirrel definition, this .ini has NOT been
+	// validated move-by-move against a real Fairy-Stockfish binary yet -
+	// only the jocly-native levels (1-15) are exercised by the test suite.
+	// It should be checked against the engine before relying on Expert.
 	//
 	// Deliberately NO "evalFile" here: the shogi NNUE network CANNOT apply
 	// to this variant, under any name. Fairy-Stockfish's NNUE input
@@ -1708,23 +1710,27 @@ exports.games = (function () {
 	// misleading "NNUE network loaded" worker log for a net the engine
 	// then rejects; the only way to get NNUE for this variant is training
 	// a dedicated net for it with Fairy-Stockfish's variant NNUE pipeline.
-	var config_model_levels_choshi_expert_ini = [
-		"[choshishogi:shogi]",
-		"customPiece1 = i:NAD",
-		"startFen = lnsgkgsnl/1r2i2b1/ppppppppp/9/9/9/PPPPPPPPP/1B2I2R1/LNSGKGSNL",
+	var config_model_levels_kotaishi_expert_ini = [
+		"[kotaishishogi:shogi]",
+		"customPiece1 = e:FfsW",
+		"customPiece2 = p:K",
+		"promotedPieceType = e:p",
+		"promotionRegionWhite = *7 *8 *9",
+		"promotionRegionBlack = *1 *2 *3",
+		"startFen = lnsgkgsnl/1r2e2b1/ppppppppp/9/9/9/PPPPPPPPP/1B2E2R1/LNSGKGSNL",
 		""
 	].join("\n");
-	var config_model_levels_choshi_expert = {
+	var config_model_levels_kotaishi_expert = {
 		"name": "expert",
 		"label": "Expert",
 		"ai": "fairy-stockfish",
-		"variant": "choshishogi",
+		"variant": "kotaishishogi",
 		"skillLevel": 20,
 		"moveTimeMs": 1000,
 		"pocketGeometry": true,
-		"customVariantIni": config_model_levels_choshi_expert_ini
+		"customVariantIni": config_model_levels_kotaishi_expert_ini
 	}
-	var config_model_levels_15_choshi_expert = config_model_levels_15.concat([config_model_levels_choshi_expert]);
+	var config_model_levels_15_kotaishi_expert = config_model_levels_15.concat([config_model_levels_kotaishi_expert]);
 	var config_model_levels_15_minishogi_expert = config_model_levels_15.concat([config_model_levels_minishogi_expert]);
 	var config_model_levels_15_kyotoshogi_expert = config_model_levels_15.concat([config_model_levels_kyotoshogi_expert]);
 	var config_model_levels_15_torishogi_expert = config_model_levels_15.concat([config_model_levels_torishogi_expert]);
@@ -1783,10 +1789,10 @@ exports.games = (function () {
 		"drop-view.js",
 		"shogi/seireigi-shogi-view.js"
 	]
-		var config_view_js_choshi = [
+		var config_view_js_kotaishi = [
 		"base-view.js",
 		"grid-board-view.js",
-		"shogi/choshi-shogi-set-view.js",
+		"shogi/kotaishi-shogi-set-view.js",
 		"drop-view.js",
 		"shogi/shogi-view.js"
 	]
@@ -8413,33 +8419,33 @@ exports.games = (function () {
 			"viewScripts": config_view_js_105
 		},
 		{
-			"name": "choshi-shogi",
-			"modelScripts": modelScripts_choshi,
+			"name": "kotaishi-shogi",
+			"modelScripts": modelScripts_kotaishi,
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "Choshi Shogi",
+					"title-en": "Kōtaishi Shogi",
 					"summary": {
-						"en": "Shogi with squirrel",
-						"fr": "Shogi avec écureuil"
+						"en": "Shogi with a drunk elephant",
+						"fr": "Shogi avec un éléphant ivre"
 					},
 					"rules": {
-						"en": "res/rules/shogi/choshi-rules.html",
-						"fr": "res/rules/shogi/choshi-rules_fr.html"
+						"en": "res/rules/shogi/kotaishi-rules.html",
+						"fr": "res/rules/shogi/kotaishi-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
 					"thumbnail": "res/rules/shogi/shogi-thumb.png",
 					"released": 1396536978,
 					"credits": {
-						"en": "res/rules/shogi/choshi-credits.html"
+						"en": "res/rules/shogi/kotaishi-credits.html"
 					},
 					"gameOptions": config_model_gameOptions_2,
-					"js": modelScripts_choshi,
+					"js": modelScripts_kotaishi,
 					"description": {
 						"en": "res/rules/shogi/shogi-description.html"
 					},
-					"levels": config_model_levels_15_choshi_expert
+					"levels": config_model_levels_15_kotaishi_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -8493,7 +8499,7 @@ exports.games = (function () {
 					"useAutoComplete": true
 				}
 			},
-			"viewScripts": config_view_js_choshi
+			"viewScripts": config_view_js_kotaishi
 		},
 		{
 			"name": "seireigi",
