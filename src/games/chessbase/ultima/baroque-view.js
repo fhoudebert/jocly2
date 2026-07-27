@@ -23,7 +23,9 @@
  *   ring        true if the outer ring is edge ground, drawn apart
  *   colors      { light, dark, edge } - omit for the module's default board;
  *               edge is only needed when ring is on
- *   clicker     click layer size in pixels, default 1150
+ *   piece       piece size as a fraction of a square, default 0.99
+ *   clicker     click layer size as a fraction of a square, default 1.09
+ *   margin      board margin in squares, default 0.67 (the classic 2D margin)
  *
  * The panel that separates a swap from a mutual destruction is in
  * baroque-choice-view.js, and the capture animation in
@@ -34,6 +36,24 @@
 (function() {
 
 	var CELL = 100;								// sprite cell size, in pixels
+
+	// Piece size, in the virtual units the view lays the board out in. A cell
+	// is JOCLY_FIELD_SIZE / (longest side + 2 * margin) of those, so a piece
+	// sized once and for all overflows as soon as a variant uses a bigger
+	// board: 1050 is 82% of a cell on Ultima's 8x8, 99% on Rococo's 10x10 and
+	// 117% on Rocaille's 12x10, which is what made Rocaille's sprites spill
+	// over their squares. Deriving it from the board keeps every variant at
+	// the same proportion, whatever its size.
+	var FIELD = 12000;							// JOCLY_FIELD_SIZE, grid-board-view.js
+	var MARGIN = 0.67;							// cbGridBoardClassic2DMargin
+
+	function pieceSize(V, fraction) {
+		var margin = V.margin === undefined ? MARGIN : V.margin;
+		var cols = V.width + 2 * margin, rows = V.height + 2 * margin;
+		var ratio = cols / rows;
+		var cell = ratio < 1 ? (FIELD * ratio) / cols : (FIELD / ratio) / rows;
+		return Math.round(cell * fraction);
+	}
 
 	// A checkerboard, ringed with edge squares when the variant has them.
 	// Rows run from the top down, as boardLayout expects.
@@ -65,8 +85,8 @@
 						file: this.mViewOptions.fullPath + V.sheet,
 						clipwidth: CELL,
 						clipheight: CELL,
-						width: 1050,
-						height: 1050,
+						width: pieceSize(V, V.piece || 0.99),
+						height: pieceSize(V, V.piece || 0.99),
 					},
 				},
 			};
@@ -103,8 +123,8 @@
 				},
 				clicker: {
 					"2d": {
-						width: V.clicker || 1150,
-						height: V.clicker || 1150,
+						width: pieceSize(V, V.clicker || 1.09),
+						height: pieceSize(V, V.clicker || 1.09),
 					},
 				},
 				pieces: this.baroquePieceStyle(),

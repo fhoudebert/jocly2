@@ -2,6 +2,7 @@
 (function(){
 
 	var geometry, gameState;
+	var promotedTypes = {}; // type index -> true when its abbrev starts with '+'
 
 	Model.Game.cbDropGeometry = function(files, ranks, v) {
 		geometry = Model.Game.cbBoardGeometryGrid(files+4, ranks+2*v);
@@ -69,6 +70,9 @@
 			}
 			var n = parseInt(i);
 			if(n > maxType) maxType = n;
+			// remember which types are a promoted form, so the move
+			// notation can mark a promotion with a trailing '+'
+			promotedTypes[n] = /^\+/.test(pType.abbrev || '');
 		}
 
 		var holdings = []; // collect set of 'spare' holdings squares
@@ -193,6 +197,12 @@
 		} else {
 			var move = { f:this.f - 2 - v*w, t:this.t - 2 - v*w, c:this.c, a:this.a }; // offset coords
 			result = OriginalToString.apply(move, arguments);
+			// a promotion (pr resolves to a '+'-prefixed type) is marked with
+			// a trailing '+', shogi-style. The base ToString is bypassed for
+			// drop games and its remapped move drops `pr`, so it is added here.
+			// The "stay unpromoted" twin move keeps its base type (no '+').
+			if(this.pr!==undefined && promotedTypes[this.pr])
+				result += '+';
 		}
 		return result;
 	}

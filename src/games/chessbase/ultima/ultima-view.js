@@ -12,7 +12,7 @@
  */
 
 View.Game.baroqueDefineView({
-	sheet: "/res/ultima/ultima-picto-sprites.png",
+	sheet: "/res/ultima/baroque-picto-sprites.png",
 	columns: {
 		"ultima-pawn": 0,						// Pincer Pawn
 		"ultima-coordinator": 1,
@@ -25,5 +25,8 @@ View.Game.baroqueDefineView({
 	width: 8,
 	height: 8,
 	ring: false,
-	clicker: 1300,
+	// Ultima's own proportions, from before the view was shared: its pieces sit
+	// a little smaller in their squares than Rococo's do
+	piece: 0.93,
+	clicker: 1.01,
 });

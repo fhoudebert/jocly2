@@ -14,7 +14,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Yohoho!",
-					"summary": "Sea Battle over hexagons",
+                    "summary": {
+						"en":"Sea Battle over hexagons",
+						"fr": "Bataille navale sur hexagones"
+					},
 					"defaultLevel": 2,
 					"js": modelScripts,
 					"gameOptions": {

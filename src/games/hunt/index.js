@@ -15,7 +15,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "De cercar la liebre",
-					"summary": "Middle age hunt game",
+                    "summary": {
+						"en":"Middle age hunt game",
+						"fr": "Jeu de chasse médiéval",
+					},
 					"defaultLevel": 2,
 					"js": modelScripts,
 					"defaultHuman": 1,

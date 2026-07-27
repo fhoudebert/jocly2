@@ -1617,11 +1617,11 @@ exports.games = (function () {
 		"drop-model.js",
 		"shogi/kyoto-shogi-model.js"
 	]
-	var modelScripts_choshi = [
+	var modelScripts_kotaishi = [
 		"base-model.js",
 		"grid-geo-model.js",
 		"drop-model.js",
-		"shogi/choshi-shogi-model.js"
+		"shogi/kotaishi-shogi-model.js"
 	]
 	var config_model_levels_11 = {
 		"name": "easy",
@@ -1679,19 +1679,21 @@ exports.games = (function () {
 	var config_model_levels_15_shako_expert = config_model_levels_15.concat([config_model_levels_shako_expert]);
 	var config_model_levels_15_shogi_expert = config_model_levels_15.concat([config_model_levels_shogi_expert]);
 
-	// Choshi Shogi (shogi + squirrel): needs its OWN expert level - it was
-	// previously sharing shogi's verbatim, which is silently corrupt:
-	// Fairy-Stockfish parsing choshi's FEN under variant "shogi" doesn't
-	// reject the unknown squirrel letter, it SKIPS it, shifting the rest of
-	// the rank (verified on the real engine: rank "1r2i2b1" parses as
-	// "1r4b2" - squirrels gone AND the bishop moved a file over), so the
-	// engine searched a wrong position every move. The custom variant below
-	// - the same definition used successfully in fairyground (there under
-	// the section name [mnemonic:shogi]; the name is free, so it is
-	// derived from the game's own name here) (customPiece1 i:NAD = knight+alfil+dabbaba compound; the
-	// engine normalizes the bare startFen to "...[] w - - 0 1" itself) -
-	// fixes that, validated move-by-move against the real engine including
-	// I@ drops from hand.
+	// Kotaishi Shogi (shogi + drunk elephant, promoting to crown prince):
+	// needs its OWN expert level - sharing shogi's verbatim is silently
+	// corrupt, because Fairy-Stockfish parsing this game's FEN under variant
+	// "shogi" would not reject the unknown elephant/prince letters, it would
+	// SKIP them, shifting the rest of the rank and making the engine search
+	// a wrong position every move. The custom variant below defines the
+	// pieces so parsing stays aligned.
+	//
+	// Drunk Elephant (e) = FfsW in Betza (one step in every direction but
+	// straight back); it promotes to the Crown Prince (p), a non-royal
+	// commoner (K = one step any direction), matching the jocly model.
+	// NB: unlike the previous squirrel definition, this .ini has NOT been
+	// validated move-by-move against a real Fairy-Stockfish binary yet -
+	// only the jocly-native levels (1-15) are exercised by the test suite.
+	// It should be checked against the engine before relying on Expert.
 	//
 	// Deliberately NO "evalFile" here: the shogi NNUE network CANNOT apply
 	// to this variant, under any name. Fairy-Stockfish's NNUE input
@@ -1708,23 +1710,40 @@ exports.games = (function () {
 	// misleading "NNUE network loaded" worker log for a net the engine
 	// then rejects; the only way to get NNUE for this variant is training
 	// a dedicated net for it with Fairy-Stockfish's variant NNUE pipeline.
-	var config_model_levels_choshi_expert_ini = [
-		"[choshishogi:shogi]",
-		"customPiece1 = i:NAD",
-		"startFen = lnsgkgsnl/1r2i2b1/ppppppppp/9/9/9/PPPPPPPPP/1B2I2R1/LNSGKGSNL",
+	var config_model_levels_kotaishi_expert_ini = [
+		"[kotaishishogi:shogi]",
+		"customPiece1 = e:FfsW", // Drunk Elephant: steps in every direction but straight back
+		// Crown Prince (promoted Drunk Elephant, moves as a King). Internal
+		// letter 'c' - NOT 'p', which is already Shogi's pawn: reusing 'p' here
+		// would silently turn every pawn into a King-mover. In FEN the prince is
+		// still written "+E"/"+e" (Shogi-style promoted-elephant notation), which
+		// is exactly what Jocly exports, so no pieceMap is needed.
+		"customPiece2 = c:K",
+		"promotedPieceType = e:c",
+		"promotionRegionWhite = *7 *8 *9",
+		"promotionRegionBlack = *1 *2 *3",
+		// Prince is a SECOND ROYAL (Shō Shogi rule): the side is lost only when
+		// BOTH the king AND the prince are gone, and cannot be mated while it
+		// still holds both. Fairy-Stockfish expresses co-royalty with
+		// pseudo-royal extinction - the same mechanism its built-in chushogi and
+		// the "chak" variant use for a king plus a promoted royal piece.
+		"extinctionValue = loss",
+		"extinctionPieceTypes = kc",
+		"extinctionPseudoRoyal = true",
+		"startFen = lnsgkgsnl/1r2e2b1/ppppppppp/9/9/9/PPPPPPPPP/1B2E2R1/LNSGKGSNL",
 		""
 	].join("\n");
-	var config_model_levels_choshi_expert = {
+	var config_model_levels_kotaishi_expert = {
 		"name": "expert",
 		"label": "Expert",
 		"ai": "fairy-stockfish",
-		"variant": "choshishogi",
+		"variant": "kotaishishogi",
 		"skillLevel": 20,
 		"moveTimeMs": 1000,
 		"pocketGeometry": true,
-		"customVariantIni": config_model_levels_choshi_expert_ini
+		"customVariantIni": config_model_levels_kotaishi_expert_ini
 	}
-	var config_model_levels_15_choshi_expert = config_model_levels_15.concat([config_model_levels_choshi_expert]);
+	var config_model_levels_15_kotaishi_expert = config_model_levels_15.concat([config_model_levels_kotaishi_expert]);
 	var config_model_levels_15_minishogi_expert = config_model_levels_15.concat([config_model_levels_minishogi_expert]);
 	var config_model_levels_15_kyotoshogi_expert = config_model_levels_15.concat([config_model_levels_kyotoshogi_expert]);
 	var config_model_levels_15_torishogi_expert = config_model_levels_15.concat([config_model_levels_torishogi_expert]);
@@ -1783,10 +1802,10 @@ exports.games = (function () {
 		"drop-view.js",
 		"shogi/seireigi-shogi-view.js"
 	]
-		var config_view_js_choshi = [
+		var config_view_js_kotaishi = [
 		"base-view.js",
 		"grid-board-view.js",
-		"shogi/choshi-shogi-set-view.js",
+		"shogi/kotaishi-shogi-set-view.js",
 		"drop-view.js",
 		"shogi/shogi-view.js"
 	]
@@ -3814,7 +3833,7 @@ exports.games = (function () {
 					"title-en": "KnightMate",
 					"summary": {
 						"en": "Checkmate the royal knight",
-						"fr": "Mater le cavalier royal"
+						"fr": "Mate le cavalier royal"
 					},
 					"rules": config_model_rules,
 					"module": "chessbase",
@@ -5522,7 +5541,7 @@ exports.games = (function () {
 					"title-en": "Smess",
 					"summary": {
 						"en": "The Ninny's Chess (1970)",
-						"fr": "Smess, « The Ninny’s Chess » (1970)"
+						"fr": "Les échecs du nigaud (1970)"
 					},
 					"rules": {
 						"en": "res/rules/smess/smess-rules.html"
@@ -7977,7 +7996,7 @@ exports.games = (function () {
 					"title-en": "Rococo",
 					"summary": {
 						"en":"an Ultima cousin on a 10x10 board with an edge ring",
-						"fr": "Un cousin de Ultima sur un tablier de 10x10 avec une bordure externe"
+						"fr": "Un cousin de Ultima sur un tablier couronné de 10x10"
 					},
 					"rules": {
 						"en": "res/rules/rococo/rococo-rules.html",
@@ -8023,8 +8042,8 @@ exports.games = (function () {
 				"model": {
 					"title-en": "Rocaille",
 					"summary": {
-						"en": "a quieter Rococo: a 10x8 field inside an edge ring, and check binds",
-						"fr": "Un Rococo apaisé sur plateau de 10x8 avec une couronne"
+						"en": "a quieter Rococo: a 12x10 field inside an edge ring, and check binds",
+						"fr": "Un Rococo apaisé sur tablier couronné de 12x10"
 					},
 					"rules": {
 						"en": "res/rules/rocaille/rocaille-rules.html",
@@ -8413,33 +8432,33 @@ exports.games = (function () {
 			"viewScripts": config_view_js_105
 		},
 		{
-			"name": "choshi-shogi",
-			"modelScripts": modelScripts_choshi,
+			"name": "kotaishi-shogi",
+			"modelScripts": modelScripts_kotaishi,
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "Choshi Shogi",
+					"title-en": "Kōtaishi Shogi",
 					"summary": {
-						"en": "Shogi with squirrel",
-						"fr": "Shogi avec écureuil"
+						"en": "Shogi with a drunk elephant",
+						"fr": "Shogi avec un éléphant ivre"
 					},
 					"rules": {
-						"en": "res/rules/shogi/choshi-rules.html",
-						"fr": "res/rules/shogi/choshi-rules_fr.html"
+						"en": "res/rules/shogi/kotaishi-rules.html",
+						"fr": "res/rules/shogi/kotaishi-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
 					"thumbnail": "res/rules/shogi/shogi-thumb.png",
 					"released": 1396536978,
 					"credits": {
-						"en": "res/rules/shogi/choshi-credits.html"
+						"en": "res/rules/shogi/kotaishi-credits.html"
 					},
 					"gameOptions": config_model_gameOptions_2,
-					"js": modelScripts_choshi,
+					"js": modelScripts_kotaishi,
 					"description": {
 						"en": "res/rules/shogi/shogi-description.html"
 					},
-					"levels": config_model_levels_15_choshi_expert
+					"levels": config_model_levels_15_kotaishi_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -8493,7 +8512,7 @@ exports.games = (function () {
 					"useAutoComplete": true
 				}
 			},
-			"viewScripts": config_view_js_choshi
+			"viewScripts": config_view_js_kotaishi
 		},
 		{
 			"name": "seireigi",
@@ -8505,7 +8524,7 @@ exports.games = (function () {
 					"title-en": "Seireigi",
 					"summary": {
 						"en": "Shogi with more varied promotions",
-						"fr": "Shogi aux promotions plus variées"
+						"fr": "Shogi aux promotions variées"
 					},
 					"rules": {
 						"en": "res/rules/shogi/seireigi-rules.html",
@@ -8752,8 +8771,8 @@ exports.games = (function () {
 				"model": {
 					"title-en": "Kyoto-Shogi",
 					"summary": {
-						"en": "Shogi on 5x5 with 5 pieces",
-						"fr": "Shogi en 5x5 avec 5 pièces"
+						"en": "5×5 Shogi with Move Promotion",
+						"fr": "Shogi 5x5 avec promotion au déplacement"
 					},
 					"rules": {
 						"en": "res/rules/shogi/kyoto-shogi-rules.html",
@@ -8838,7 +8857,7 @@ exports.games = (function () {
 					"title-en": "Tori Shogi",
 					"summary": {
 						"en": "7x7 Shogi Variant with bird pieces",
-						"fr": "Variante de shogi en 7x7 avec des pièces-oiseaux"
+						"fr": "Variante de shogi en 7x7 avec des tuiles d'oiseaux"
 					},
 					"rules": {
 						"en": "res/rules/shogi/tori-shogi-rules.html"
@@ -9040,7 +9059,7 @@ exports.games = (function () {
 					"title-en": "Minjiku Shogi",
 					"summary": {
 						"en": "10x10 variant with flying pieces and Fire Dragon",
-						"fr": "10x10 avec des pièces volantes et un dragon de feu"
+						"fr": "10x10 avec pièces volantes et dragon de feu"
 					},
 					"rules": {
 						"en": "res/rules/minjiku-shogi/minjiku-shogi-rules.html",

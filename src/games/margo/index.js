@@ -217,7 +217,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Spline",
-					"summary": "Shibumi game",
+                    "summary": {
+						"en":"Shibumi game",
+						"fr": "Jeu d'alignement sur tablier Shibumi"
+					},
 					"js": modelScripts,
 					"levels": [
 						{
@@ -281,7 +284,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Spline+",
-					"summary": "Shibumi game",
+                    "summary": {
+						"en":"Shibumi game",
+						"fr": "Jeu d'alignement sur tablier Shibumi"
+					},
 					"js": modelScripts_2,
 					"levels": [
 						{
@@ -343,7 +349,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Spargo",
-					"summary": "Margo on the Shibumi platform",
+                    "summary": {
+						"en":"Margo on the Shibumi platform",
+						"fr": "Margo sur tablier Shibumi"
+					},
 					"js": modelScripts_3,
 					"levels": [
 						{
@@ -472,7 +481,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Margo 5",
-					"summary": "Margo game",
+                    "summary": {
+						"en":"Margo game",
+						"fr": "Jeu de Margo"
+					},
 					"js": modelScripts_3,
 					"levels": config_model_levels_9,
 					"thumbnail": "tn-margo5.png",
@@ -531,7 +543,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Margo 6",
-					"summary": "Margo game",
+                    "summary": {
+						"en":"Margo game",
+						"fr": "Jeu de Margo"
+					},
 					"js": modelScripts_3,
 					"levels": config_model_levels_9,
 					"thumbnail": "tn-margo6.png",
@@ -590,7 +605,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Margo 7",
-					"summary": "Margo game",
+                    "summary": {
+						"en":"Margo game",
+						"fr": "Jeu de Margo"
+					},
 					"js": modelScripts_3,
 					"levels": [
 						{
@@ -719,7 +737,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Margo 8",
-					"summary": "Margo game",
+                    "summary": {
+						"en":"Margo game",
+						"fr": "Jeu de Margo"
+					},
 					"js": modelScripts_3,
 					"levels": [
 						{

@@ -13,7 +13,7 @@
  */
 
 View.Game.baroqueDefineView({
-	sheet: "/res/ultima/ultima-picto-sprites.png",
+	sheet: "/res/ultima/baroque-picto-sprites.png",
 	columns: {
 		"rococo-pawn": 7,						// Cannon Pawn
 		"rococo-advancer": 9,
