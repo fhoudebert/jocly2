@@ -4723,11 +4723,12 @@ exports.games = (function () {
 						"fr": "Variante Frontier sur un cube"
 					},
 					"rules": {
-						"en": "cubic-rules.html"
+						"en": "res/rules/cube/cubic-rules.html",
+                        "fr": "res/rules/cube/cubic-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
-					"thumbnail": "cubic-chess-thumb.png",
+					"thumbnail": "res/rules/cube/cubic-chess-thumb.png",
 					"released": 1395590178,
 					"credits": config_model_credits,
 					"gameOptions": config_model_gameOptions,
@@ -5432,20 +5433,20 @@ exports.games = (function () {
 						"fr": "Échecs en 11x10 (1987)"
 					},
 					"rules": {
-						"en": "wildebeest-rules.html"
+						"en": "res/rules/wildebeest/wildebeest-rules.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
-					"thumbnail": "wildebeest-thumb.png",
+					"thumbnail": "res/rules/wildebeest/wildebeest-thumb.png",
 					"released": 1405001496,
 					"credits": {
-						"en": "wildebeest-credits.html"
+						"en": "res/rules/wildebeest/wildebeest-credits.html"
 					},
 					"gameOptions": config_model_gameOptions,
 					"obsolete": false,
 					"js": modelScripts_37,
 					"description": {
-						"en": "wildebeest-description.html"
+						"en": "res/rules/wildebeest/wildebeest-description.html"
 					},
 					"levels": config_model_levels_5_wildebeest_expert
 				},
@@ -5524,14 +5525,14 @@ exports.games = (function () {
 						"fr": "Smess, « The Ninny’s Chess » (1970)"
 					},
 					"rules": {
-						"en": "smess-rules.html"
+						"en": "res/rules/smess/smess-rules.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
-					"thumbnail": "smess-thumb.png",
+					"thumbnail": "res/rules/smess/smess-thumb.png",
 					"released": 1402671377,
 					"credits": {
-						"en": "smess-credits.html"
+						"en": "res/rules/smess/smess-credits.html"
 					},
 					"gameOptions": {
 						"preventRepeat": true,
@@ -5558,7 +5559,7 @@ exports.games = (function () {
 					"obsolete": false,
 					"js": modelScripts_38,
 					"description": {
-						"en": "smess-description.html"
+						"en": "res/rules/smess/smess-description.html"
 					},
 					"levels": config_model_levels_5
 				},
@@ -5828,20 +5829,20 @@ exports.games = (function () {
 						"fr": "Échecs en 14x10 (1747)"
 					},
 					"rules": {
-						"en": "dukerutland-rules.html"
+						"en": "res/rules/dukerutland/dukerutland-rules.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
-					"thumbnail": "dukerutland-thumb.png",
+					"thumbnail": "res/rules/dukerutland/dukerutland-thumb.png",
 					"released": 1405068608,
 					"credits": {
-						"en": "dukerutland-credits.html"
+						"en": "res/rules/dukerutland/dukerutland-credits.html"
 					},
 					"gameOptions": config_model_gameOptions,
 					"obsolete": false,
 					"js": modelScripts_42,
 					"description": {
-						"en": "dukerutland-description.html"
+						"en": "res/rules/dukerutland/dukerutland-description.html"
 					},
 					"levels": config_model_levels_5
 				},
