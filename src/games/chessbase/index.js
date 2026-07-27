@@ -3820,7 +3820,7 @@ exports.games = (function () {
 					"title-en": "KnightMate",
 					"summary": {
 						"en": "Checkmate the royal knight",
-						"fr": "Mater le cavalier royal"
+						"fr": "Mate le cavalier royal"
 					},
 					"rules": config_model_rules,
 					"module": "chessbase",
@@ -5528,7 +5528,7 @@ exports.games = (function () {
 					"title-en": "Smess",
 					"summary": {
 						"en": "The Ninny's Chess (1970)",
-						"fr": "Smess, « The Ninny’s Chess » (1970)"
+						"fr": "Les échecs du nigaud (1970)"
 					},
 					"rules": {
 						"en": "res/rules/smess/smess-rules.html"
@@ -7983,7 +7983,7 @@ exports.games = (function () {
 					"title-en": "Rococo",
 					"summary": {
 						"en":"an Ultima cousin on a 10x10 board with an edge ring",
-						"fr": "Un cousin de Ultima sur un tablier de 10x10 avec une bordure externe"
+						"fr": "Un cousin de Ultima sur un tablier couronné de 10x10"
 					},
 					"rules": {
 						"en": "res/rules/rococo/rococo-rules.html",
@@ -8029,8 +8029,8 @@ exports.games = (function () {
 				"model": {
 					"title-en": "Rocaille",
 					"summary": {
-						"en": "a quieter Rococo: a 10x8 field inside an edge ring, and check binds",
-						"fr": "Un Rococo apaisé sur plateau de 10x8 avec une couronne"
+						"en": "a quieter Rococo: a 12x10 field inside an edge ring, and check binds",
+						"fr": "Un Rococo apaisé sur tablier couronné de 12x10"
 					},
 					"rules": {
 						"en": "res/rules/rocaille/rocaille-rules.html",
@@ -8511,7 +8511,7 @@ exports.games = (function () {
 					"title-en": "Seireigi",
 					"summary": {
 						"en": "Shogi with more varied promotions",
-						"fr": "Shogi aux promotions plus variées"
+						"fr": "Shogi aux promotions variées"
 					},
 					"rules": {
 						"en": "res/rules/shogi/seireigi-rules.html",
@@ -8758,8 +8758,8 @@ exports.games = (function () {
 				"model": {
 					"title-en": "Kyoto-Shogi",
 					"summary": {
-						"en": "Shogi on 5x5 with 5 pieces",
-						"fr": "Shogi en 5x5 avec 5 pièces"
+						"en": "5×5 Shogi with Move Promotion",
+						"fr": "Shogi 5x5 avec promotion au déplacement"
 					},
 					"rules": {
 						"en": "res/rules/shogi/kyoto-shogi-rules.html",
@@ -8844,7 +8844,7 @@ exports.games = (function () {
 					"title-en": "Tori Shogi",
 					"summary": {
 						"en": "7x7 Shogi Variant with bird pieces",
-						"fr": "Variante de shogi en 7x7 avec des pièces-oiseaux"
+						"fr": "Variante de shogi en 7x7 avec des tuiles d'oiseaux"
 					},
 					"rules": {
 						"en": "res/rules/shogi/tori-shogi-rules.html"
@@ -9046,7 +9046,7 @@ exports.games = (function () {
 					"title-en": "Minjiku Shogi",
 					"summary": {
 						"en": "10x10 variant with flying pieces and Fire Dragon",
-						"fr": "10x10 avec des pièces volantes et un dragon de feu"
+						"fr": "10x10 avec pièces volantes et dragon de feu"
 					},
 					"rules": {
 						"en": "res/rules/minjiku-shogi/minjiku-shogi-rules.html",

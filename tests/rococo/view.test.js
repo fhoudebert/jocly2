@@ -182,5 +182,22 @@ check("the thumbnail declared in the manifest exists",
 check("no 3D board spec", def.board["3d"], undefined);
 check("no 3D coords", def.coords["3d"], undefined);
 
+/* ------------------------------------------- pieces fit inside a square */
+
+// A sprite is drawn to fill its gadget exactly, so a gadget wider than a square
+// spills over the neighbouring ones. Rococo's board is small enough that it never
+// did, but the size is shared with the rest of the family now, so it is checked
+// here too.
+{
+	const FIELD = 12000, MARGIN = 0.67;			// grid-board-view.js
+	const cols = 10 + 2 * MARGIN, rows = 10 + 2 * MARGIN;
+	const ratio = cols / rows;
+	const square = ratio < 1 ? (FIELD * ratio) / cols : (FIELD / ratio) / rows;
+
+	const piece = def.pieces["default"]["2d"];
+	check("a piece fits inside a board square", piece.width <= square, true);
+	check("while filling most of it", piece.width / square > 0.9, true);
+}
+
 console.log((failed ? "FAILED" : "OK") + " - " + passed + " passed, " + failed + " failed");
 process.exit(failed ? 1 : 0);

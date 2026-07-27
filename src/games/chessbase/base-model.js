@@ -360,11 +360,21 @@
 			nullGraph[pos]=[];
 
 		this.cbMaxRanking = 0;
-		
+		// Highest isKing "rank" in the variant. isKing:true counts as 1;
+		// a variant with a second royal piece (a crown prince) uses
+		// isKing:2, giving cbMaxRoyalRank 2 and turning on multi-royal
+		// check/win handling in GenerateMoves. Single-king variants keep 1
+		// and run the unchanged fast path.
+		this.cbMaxRoyalRank = 1;
+
 		for(var typeIndex in this.cbVar.pieceTypes) {
 			var pType = this.cbVar.pieceTypes[typeIndex];
 			var r = (pType.ranking ? pType.ranking : 0);
 			if(r > this.cbMaxRanking) this.cbMaxRanking = r;
+			if(pType.isKing) {
+				var krank = (pType.isKing===true ? 1 : pType.isKing);
+				if(krank > this.cbMaxRoyalRank) this.cbMaxRoyalRank = krank;
+			}
 			pTypes[typeIndex] = {
 				graph: pType.graph || nullGraph,
 				abbrev: pType.abbrev || '',
@@ -1152,18 +1162,48 @@
 		return attackers;
 	}
 
+	// Multi-royal check test (crown-prince variants). A side is only in a
+	// LOSING check when it has exactly one royal left and that royal is
+	// attacked; while it holds two royals (king + crown prince) it can
+	// afford to lose one, so it is never in check and may even leave a
+	// royal en prise. Royal slots are read from `this.kings` (indexed by
+	// s*isKing) but validated against the board, so a slot left stale by a
+	// captured royal is correctly ignored. Only reached when
+	// aGame.cbMaxRoyalRank>1; single-king variants keep the fast path below.
+	Model.Board.cbInLosingCheck = function(aGame, who) {
+		var maxRank=aGame.cbMaxRoyalRank, pT=aGame.g.pTypes;
+		var sole=-1, count=0, prev=-1;
+		for(var k=1;k<=maxRank;k++) {
+			var pos=this.kings[who*k];
+			if(pos===undefined || pos===prev) continue;
+			var idx=this.board[pos];
+			if(idx<0) continue;
+			var pc=this.pieces[idx];
+			if(pc.s!==who || !pT[pc.t].isKing) continue;
+			prev=pos; count++; sole=pos;
+		}
+		if(count===0) return true;      // no royal left: lost
+		if(count>=2) return false;      // two royals: cannot be checked
+		return this.cbGetAttackers(aGame,sole,who,100).length>0;
+	}
+
 	Model.Board.GenerateMoves = function(aGame) {
 		var moves=this.cbGeneratePseudoLegalMoves(aGame);
 		this.mMoves = [];
 		var kingOnly=true;
 		var selfKingPos=this.kings[this.mWho];
+		var multiRoyal=aGame.cbMaxRoyalRank>1;
 		var movesLength=moves.length;
 		for(var i=0;i<movesLength;i++) {
 			var move=moves[i];
 			var undo=this.cbQuickApply(aGame,move);
-			var inCheck=this.cbGetAttackers(aGame,this.kings[this.mWho],this.mWho,100).length>0;
+			var inCheck=multiRoyal
+				? this.cbInLosingCheck(aGame,this.mWho)
+				: this.cbGetAttackers(aGame,this.kings[this.mWho],this.mWho,100).length>0;
 			if(!inCheck) {
-				var oppInCheck=this.cbGetAttackers(aGame,this.kings[-this.mWho],-this.mWho,100).length>0;
+				var oppInCheck=multiRoyal
+					? this.cbInLosingCheck(aGame,-this.mWho)
+					: this.cbGetAttackers(aGame,this.kings[-this.mWho],-this.mWho,100).length>0;
 				move.ck = oppInCheck; 
 				this.mMoves.push(move);
 				if(move.f!=selfKingPos)
@@ -1409,21 +1449,42 @@
 			}
 			
 			var piecesMap={}
-			
+
+			// Which side a piece type "belongs" to, so the FEN case (UPPER =
+			// white, lower = black) maps to the RIGHT type when two types
+			// share a fenAbbrev - e.g. the white/black halves of a
+			// directional piece (pawn-w/pawn-b, elephant-w/elephant-b, the
+			// promoted +P pair, ...). Without this the last type scanned won
+			// both cases, so a white 'P'/'E' loaded as the black-moving type.
+			// Affinity is read from `initial` (the only side a type starts
+			// on); promoted types have no `initial`, so fall back to the
+			// "-w"/"-b" naming convention used throughout the shogi models.
+			function sideAffinity(pType) {
+				var init=pType.initial||[], s1=false, sm1=false;
+				for(var j=0;j<init.length;j++)
+					if(init[j].s>0) s1=true; else if(init[j].s<0) sm1=true;
+				if(s1 && !sm1) return 1;
+				if(sm1 && !s1) return -1;
+				if(/-w$/.test(pType.name||'')) return 1;
+				if(/-b$/.test(pType.name||'')) return -1;
+				return 0; // symmetric: claims both cases
+			}
+
 			for(var index in cbVar.pieceTypes) {
 				var pType=cbVar.pieceTypes[index];
 				var abbrev=pType.fenAbbrev || pType.abbrev || 'X';
 				// keys of an object are strings: a piece type must stay a number,
 				// or a model comparing types strictly (switch, ===) sees none of them
 				var pieceType=parseInt(index);
-				piecesMap[abbrev.toUpperCase()]={
-					s: 1,
-					t: pieceType,
-				}
-				piecesMap[abbrev.toLowerCase()]={
-					s: -1,
-					t: pieceType,
-				}
+				var aff=sideAffinity(pType);
+				var up=abbrev.toUpperCase(), lo=abbrev.toLowerCase();
+				// a side-specific type (aff!=0) claims its own case and
+				// overrides a symmetric type; a symmetric type fills a case
+				// only if still free, so it never steals a specific type's slot
+				if(aff>=0 && (aff>0 || piecesMap[up]===undefined))
+					piecesMap[up]={ s: 1, t: pieceType };
+				if(aff<=0 && (aff<0 || piecesMap[lo]===undefined))
+					piecesMap[lo]={ s: -1, t: pieceType };
 			}
 			
 			var FenRowPos = cbVar.geometry.FenRowPos || function(rowIndex,colIndex) {
@@ -1435,6 +1496,9 @@
 				var colIndex=0;
 				for(var i=0;i<row.length;i++) {
 					var ch=row.substr(i,1);
+					// promoted pieces are written "+P", "+e", ... - read the
+					// '+' together with the letter that follows it
+					if(ch=='+' && i+1<row.length) { ch=row.substr(i,2); i++; }
 					var pieceDescr=piecesMap[ch];
 					if(pieceDescr!==undefined) {
 						var pos=FenRowPos(rowIndex,colIndex);

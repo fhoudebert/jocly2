@@ -187,5 +187,29 @@ const pageErrors = [];
 });
 check("the rules pages and the view agree on every sprite column", pageErrors, []);
 
+/* ------------------------------------------- pieces fit inside a square */
+
+// The sprite is drawn to fill the gadget exactly (see GadgetSprite.drawImage in
+// jocly.xd-view.js), so a gadget wider than a square is a sprite spilling over
+// its neighbours - which is what a hard-coded piece size did here. A square is
+// JOCLY_FIELD_SIZE / (longest side + 2 * margin) virtual units, so the size has
+// to be derived from the board rather than fixed once for the whole family.
+{
+	const FIELD = 12000, MARGIN = 0.67;			// grid-board-view.js
+	const cols = 12 + 2 * MARGIN, rows = 10 + 2 * MARGIN;
+	const ratio = cols / rows;
+	const square = ratio < 1 ? (FIELD * ratio) / cols : (FIELD / ratio) / rows;
+
+	const piece = def.pieces["default"]["2d"];
+	check("a piece is square", piece.width, piece.height);
+	check("and fits inside a board square", piece.width <= square, true);
+	check("while filling most of it", piece.width / square > 0.9, true);
+
+	const clicker = def.clicker["2d"];
+	check("the click layer is square", clicker.width, clicker.height);
+	check("and is a little larger than a square, as elsewhere in the module",
+		clicker.width > square && clicker.width < square * 1.2, true);
+}
+
 console.log((failed ? "FAILED - " : "OK - ") + passed + " passed, " + failed + " failed");
 process.exit(failed ? 1 : 0);

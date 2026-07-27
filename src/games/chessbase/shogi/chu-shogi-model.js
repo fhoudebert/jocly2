@@ -484,7 +484,10 @@
 				46: {
 					name: 'crown-prince',
 					aspect: 'sh-prince',
-					//isKing: true,
+					isKing: 2, // royal second king: game is lost only when BOTH
+					           // the King and the Crown Prince are captured
+					           // (handled by base-model.js multi-royal path)
+					value: 100,
 					graph: this.cbKingGraph(geometry),
 					abbrev: '+DE',
 					fenAbbrev: '+E',

@@ -15,7 +15,7 @@ exports.games = (function() {
 					"title-en": "Penguin soccer",
                     "summary": {
 						"en":"Penguins playing soccer",
-						"fr": "Des manchots jouant au football",
+						"fr": "Des manchots jouant au foot",
 					},
 					"module": "pensoc",
 					"js": modelScripts,

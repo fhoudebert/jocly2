@@ -302,17 +302,20 @@
 				},
 
 				// Crown Prince (Kōtaishi, 太子): promoted Drunk Elephant, moves as a
-				// King. Kept NON-royal (no isKing) - same choice as this repo's Chu
-				// Shogi crown prince: the engine's check / mate machinery is built
-				// around a single royal piece per side (kings[mWho]), so a genuine
-				// "second king that must also be captured" would need reworking that
-				// machinery. Split white/black only so a captured Prince demotes to
-				// the capturer's Elephant in hand.
+				// King. ROYAL (isKing:2) - a genuine second king: while a side
+				// holds both king and prince it cannot be checkmated, and it is
+				// defeated only when BOTH royals are gone (Shō Shogi rule). The
+				// engine's multi-royal path (base-model.js cbInLosingCheck, keyed
+				// on isKing:2) handles this; the loss test already fires on "no
+				// royal left". Split white/black so a captured Prince demotes to
+				// the capturer's Elephant in hand. value:100 like a king, so the
+				// AI never trades it off as if it were an ordinary piece.
 				26: {
 					name: 'prince-w',
 					aspect: 'sh-prince',
+					isKing: 2,
 					graph: this.cbDropGraph(geometry, [[0,1],[1,0],[-1,0],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]],[]),
-					value: 7,
+					value: 100,
 					abbrev: '+DE',
 					fenAbbrev: '+E',
 					demoted: 25,
@@ -321,8 +324,9 @@
 				27: {
 					name: 'prince-b',
 					aspect: 'sh-prince',
+					isKing: 2,
 					graph: this.cbDropGraph(geometry, [[0,1],[1,0],[-1,0],[0,-1],[1,1],[-1,1],[1,-1],[-1,-1]],[]),
-					value: 7,
+					value: 100,
 					abbrev: '+DE',
 					fenAbbrev: '+E',
 					demoted: 24,
