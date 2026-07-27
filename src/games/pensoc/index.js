@@ -13,7 +13,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Penguin soccer",
-					"summary": "Penguins playing soccer",
+                    "summary": {
+						"en":"Penguins playing soccer",
+						"fr": "Des manchots jouant au football",
+					},
 					"module": "pensoc",
 					"js": modelScripts,
 					"gameOptions": {

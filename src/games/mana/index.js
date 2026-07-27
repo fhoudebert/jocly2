@@ -13,7 +13,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Mana",
-					"summary": "Capture the opponent's Damyo",
+                    "summary": {
+						"en":"Capture the opponent's Damyo",
+						"fr": "Capture le Damyo adverse"
+					},
 					"rules": {
 						"en": "rules.html",
 						"fr": "rules-fr.html"

@@ -48,6 +48,10 @@ exports.games = (function() {
 				"model": {
 					"title-en": "Scrum",
 					"summary": "A little rugby game",
+                    "summary": {
+						"en":"A little rugby game",
+						"fr": "Une petite partie de rugby"
+					},
 					"rules": {
 						"en": "rules.html",
 						"fr": "rules-fr.html"

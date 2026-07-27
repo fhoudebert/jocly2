@@ -186,7 +186,7 @@ exports.games = (function() {
 					"title-en": "9 Men´s Morris",
 					"summary": {
 						"en":"An old board game",
-						"fr": "Jeu de marelle"
+						"fr": "Jeu de marelle(x9)"
 					},
 					"rules": config_model_rules,
 					"maxLevel": 7,
@@ -231,7 +231,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "9 Men´s Morris Fly",
-					"summary": "An old board game",
+					"summary": {
+						"en":"An old board game",
+						"fr": "Jeu de marelle volant(x9)"
+					},
 					"rules": config_model_rules,
 					"maxLevel": 7,
 					"plazza": "true",
@@ -275,8 +278,11 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "12 Men´s Morris",
-					"summary": "An old board game",
-					"rules": "rules.html",
+					"summary": {
+						"en":"An old board game",
+						"fr": "Jeu de marelle (x12)"
+					},
+					"rules": config_model_rules,
 					"maxLevel": 7,
 					"plazza": "true",
 					"thumbnail": "mensmorris12-thumb3d.png",
@@ -304,7 +310,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "12 Men´s Morris Fly",
-					"summary": "An old board game",
+					"summary": {
+						"en":"An old board game",
+						"fr": "Jeu de marelle volant(x12)"
+					},
 					"rules": config_model_rules,
 					"maxLevel": 7,
 					"plazza": "true",
@@ -333,7 +342,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "6 Men´s Morris",
-					"summary": "An old board game",
+					"summary": {
+						"en":"An old board game",
+						"fr": "Jeu de marelle (x6)"
+					},
 					"rules": config_model_rules,
 					"maxLevel": 7,
 					"plazza": "true",
@@ -379,65 +391,16 @@ exports.games = (function() {
 			"viewScripts": config_view_js_3
 		},
 		{
-			"name": "3-men-morris",
-			"modelScripts": modelScripts_4,
-			"config": {
-				"status": true,
-				"model": {
-					"title-en": "6 Men´s Morris",
-					"summary": "An old board game",
-					"rules": config_model_rules,
-					"maxLevel": 7,
-					"plazza": "true",
-					"thumbnail": "mensmorris3-thumb3d.png",
-					"module": "mills",
-					"description": "description.html",
-					"credits": "credits.html",
-					"js": modelScripts_4,
-					"gameOptions": {
-						"preventRepeat": true,
-						"width": 3,
-						"height": 3,
-						"mencount": 3,
-						"poundInMill": false
-					},
-					"levels": config_model_levels_4
-				},
-				"view": {
-					"title-en": "3 Men´s Morris View",
-					"switchable": true,
-					"xdView": true,
-					"css": [
-						"mills.css",
-						"3-men-morris.css"
-					],
-					"js": config_view_js_4,
-					"module": "mills",
-					"preferredRatio": 1.6666666666667,
-					"visuals": {
-						"600x600": [
-							"res/visuals/threemen-600x600-3d.jpg",
-							"res/visuals/threemen-600x600-2d.jpg"
-						]
-					},
-					"animateSelfMoves": false,
-					"useNotation": true,
-					"useShowMoves": true,
-					"defaultOptions": config_view_defaultOptions,
-					"sounds": config_view_sounds,
-					"skins": config_view_skins_5
-				}
-			},
-			"viewScripts": config_view_js_4
-		},
-		{
 			"name": "7-men-morris",
 			"modelScripts": modelScripts_5,
 			"config": {
 				"status": true,
 				"model": {
 					"title-en": "7 Men´s Morris",
-					"summary": "An old board game",
+					"summary": {
+						"en":"An old board game",
+						"fr": "Jeu de marelle (x7)"
+					},
 					"rules": config_model_rules,
 					"maxLevel": 7,
 					"plazza": "true",
