@@ -136,7 +136,6 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Four In A Row",
-					"summary": "Four In A Row game",
 					"summary": {
 						"en":"Four In A Row game",
 						"fr": "Puissance 4",
@@ -188,7 +187,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Four In A Row 9x6",
-					"summary": "Four In A Row on a 9x6 board",
+					"summary": {
+						"en":"Four In A Row on a 9x6 board",
+						"fr": "Puissance 4 en 9x6",
+					},
 					"thumbnail": "fiar-thumb.png",
 					"js": modelScripts,
 					"plazza": "true",
@@ -236,7 +238,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Popout",
-					"summary": "Four In A Row with removals",
+					"summary": {
+						"en":"Four In A Row on a 9x6 board",
+						"fr": "Puissance 4 avec retrait",
+					},
 					"thumbnail": "fiar-thumb.png",
 					"js": modelScripts,
 					"plazza": "true",
@@ -287,7 +292,7 @@ exports.games = (function() {
 					"title-en": "Five In A Row",
 					"summary": {
 						"en":"Variant of Four In A Row",
-						"fr": "Variante de Puissance 4",
+						"fr": "Puissance 5",
 					},
 					"thumbnail": "fiar-thumb.png",
 					"js": modelScripts,
@@ -337,7 +342,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Torus 4",
-					"summary": "Four In A Row on a cylinder",
+					"summary": {
+						"en":"Four In A Row on a cylinder",
+						"fr": "Puissance 4 cylindrique",
+					},
 					"thumbnail": "fiar-torus-thumb.png",
 					"js": modelScripts,
 					"plazza": "true",
