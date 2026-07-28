@@ -5544,7 +5544,8 @@ exports.games = (function () {
 						"fr": "Les échecs du nigaud (1970)"
 					},
 					"rules": {
-						"en": "res/rules/smess/smess-rules.html"
+						"en": "res/rules/smess/smess-rules.html",
+						"fr": "res/rules/smess/smess-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -7766,7 +7767,7 @@ exports.games = (function () {
 					"title-en": "Zanzibar S",
 					"summary": {
 						"en": "Extended Metamachy - 12x12",
-						"fr": "Metamachy étendu — 12x12"
+						"fr": "Metamachie étendu — 12x12"
 					},
 					"rules": {
 						"en": "res/rules/metamachy/zanzibar-s-rules.html",
