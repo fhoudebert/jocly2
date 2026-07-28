@@ -1541,19 +1541,19 @@ exports.games = (function () {
 		"grid-geo-model.js",
 		"fairy-piece-model.js",
 		"locust-move-model.js",
-		"werewolf-model.js"
+		"locust/werewolf-model.js"
 	]
 	var modelScripts_102 = [
 		"base-model.js",
 		"grid-geo-model.js",
 		"fairy-piece-model.js",
 		"locust-move-model.js",
-		"decimal/elven-model.js"
+		"locust/elven-model.js"
 	]
 	var modelScripts_103 = [
 		"base-model.js",
 		"grid-geo-model.js",
-		"spartan-model.js"
+		"famous/spartan-model.js"
 	]
 	var modelScripts_104 = [
 		"base-model.js",
@@ -1602,14 +1602,14 @@ exports.games = (function () {
 		"grid-geo-model.js",
 		"fairy-piece-model.js",
 		"locust-move-model.js",
-		"makromachy-model.js"
+		"locust/makromachy-model.js"
 	]
 	var modelScripts_110 = [
 		"base-model.js",
 		"grid-geo-model.js",
 		"fairy-piece-model.js",
 		"locust-move-model.js",
-		"minjiku-shogi-model.js"
+		"locust/minjiku-shogi-model.js"
 	]
 	var modelScripts_kyoto = [
 		"base-model.js",
@@ -1766,20 +1766,20 @@ exports.games = (function () {
 		"grid-board-view.js",
 		"fairy-set-view.js",
 		"multi-leg-view.js",
-		"werewolf-view.js"
+		"locust/werewolf-view.js"
 	]
 	var config_view_js_102 = [
 		"base-view.js",
 		"grid-board-view.js",
 		"fairy-set-view.js",
 		"multi-leg-view.js",
-		"decimal/elven-view.js"
+		"locust/elven-view.js"
 	]
 	var config_view_js_103 = [
 		"base-view.js",
 		"grid-board-view.js",
 		"fairy-set-view.js",
-		"spartan-view.js"
+		"famous/spartan-view.js"
 	]
 	var config_view_js_104 = [
 		"base-view.js",
@@ -1842,14 +1842,14 @@ exports.games = (function () {
 		"grid-board-view.js",
 		"fairy-set-view.js",
 		"multi-leg-view.js",
-		"makromachy-view.js"
+		"locust/makromachy-view.js"
 	]
 	var config_view_js_110 = [
 		"base-view.js",
 		"grid-board-view.js",
 		"fairy-set-view.js",
 		"multi-leg-view.js",
-		"minjiku-shogi-view.js"
+		"locust/minjiku-shogi-view.js"
 	]
 	var modelScripts_14 = [
 		"base-model.js",
@@ -2153,13 +2153,13 @@ exports.games = (function () {
 	var modelScripts_26 = [
 		"base-model.js",
 		"cubic-geo-model.js",
-		"cubic-model.js"
+		"3d/cubic-model.js"
 	]
 	var config_view_js_26 = [
 		"base-view.js",
 		"cubic-board-view.js",
 		"staunton-set-view.js",
-		"cubic-view.js"
+		"3d/cubic-view.js"
 	]
 	var modelScripts_27 = [
 		"base-model.js",
@@ -2349,13 +2349,13 @@ exports.games = (function () {
 	var modelScripts_37 = [
 		"base-model.js",
 		"grid-geo-model.js",
-		"wildebeest-model.js"
+		"decimal/wildebeest-model.js"
 	]
 	var config_view_js_33 = [
 		"base-view.js",
 		"grid-board-view.js",
 		"fairy-set-view.js",
-		"wildebeest-view.js"
+		"decimal/wildebeest-view.js"
 	]
 	var modelScripts_38 = [
 		"base-model.js",
@@ -2404,13 +2404,13 @@ exports.games = (function () {
 	var modelScripts_42 = [
 		"base-model.js",
 		"grid-geo-model.js",
-		"dukerutland-model.js"
+		"historical/dukerutland-model.js"
 	]
 	var config_view_js_38 = [
 		"base-view.js",
 		"grid-board-view.js",
 		"fairy-set-view.js",
-		"dukerutland-view.js"
+		"historical/dukerutland-view.js"
 	]
 	var modelScripts_43 = [
 		"base-model.js",
@@ -2453,13 +2453,13 @@ exports.games = (function () {
 	var modelScripts_47 = [
 		"base-model.js",
 		"grid-geo-model.js",
-		"reformed-courier-model.js"
+		"duodecimal/reformed-courier-model.js"
 	]
 	var config_view_js_42 = [
 		"base-view.js",
 		"grid-board-view.js",
 		"fairy-set-view.js",
-		"reformed-courier-view.js"
+		"duodecimal/reformed-courier-view.js"
 	]
 	var modelScripts_48 = [
 		"base-model.js",
@@ -8458,7 +8458,9 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/shogi/shogi-description.html"
 					},
-					"levels": config_model_levels_15_kotaishi_expert
+					"levels": config_model_levels_15
+					// fairy stockfish ne gère le prince royal 
+                    //"levels": config_model_levels_15_kotaishi_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
