@@ -3764,67 +3764,6 @@ exports.games = (function () {
 			"viewScripts": config_view_js_14
 		},
 		{
-			"name": "basic-chess",
-			"modelScripts": modelScripts_15,
-			"config": {
-				"status": true,
-				"model": {
-					"title-en": "Basic Chess",
-					"summary": {
-						"en": "Basic Chess without openings book",
-						"fr": "Échecs simples, sans bibliothèque d’ouvertures"
-					},
-					"rules": config_model_rules,
-					"module": "chessbase",
-					"plazza": "true",
-					"thumbnail": "res/rules/famous/knight-thumbnail.png",
-					"released": 1389887778,
-					"rules": {
-						"en": "res/rules/famous/rules.html",
-						"fr": "res/rules/famous/rules-fr.html"
-					},
-					"credits": config_model_credits,
-					"gameOptions": config_model_gameOptions,
-					"obsolete": true,
-					"js": modelScripts_15,
-					"levels": config_model_levels_5_basic_expert
-				},
-				"view": {
-					"title-en": "Chessbase view",
-					"js": config_view_js_15,
-					"visuals": {
-						"600x600": [
-							"res/visuals/classic-chess-600x600-3d.jpg",
-							"res/visuals/classic-chess-600x600-2d.jpg"
-						]
-					},
-					"xdView": true,
-					"css": config_view_css,
-					"preferredRatio": 1,
-					"useShowMoves": true,
-					"useNotation": true,
-					"module": "chessbase",
-					"defaultOptions": config_view_defaultOptions,
-					"skins": [
-						{
-							"name": "skin3d",
-							"title": "3D Classic",
-							"3d": true,
-							"preload": config_view_skins_preload_4,
-							"world": config_view_skins_world,
-							"camera": config_view_skins_camera
-						},
-						config_view_skins_4
-					],
-					"animateSelfMoves": false,
-					"switchable": true,
-					"sounds": config_view_sounds,
-					"useAutoComplete": true
-				}
-			},
-			"viewScripts": config_view_js_15
-		},
-		{
 			"name": "knightmate-chess",
 			"modelScripts": modelScripts_knightmate,
 			"config": {
@@ -3845,7 +3784,7 @@ exports.games = (function () {
 					},
 					"credits": config_model_credits,
 					"gameOptions": config_model_gameOptions,
-					"obsolete": true,
+					"obsolete": false,
 					"js": modelScripts_knightmate,
 					"levels": config_model_levels_5_knightmate_expert
 				},
