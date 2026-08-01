@@ -712,7 +712,11 @@
 							resolve({
 								move: move,
 								finished: !!finished,
-								winner: finished
+								winner: finished,
+								// non-null when a fairy-stockfish ("Expert") level
+								// had to fall back to native AI: the host can warn
+								// the player they aren't facing the real engine
+								fairyFallback: result.fairyFallback || null
 							});
 						}
 						savedMachineMove = self.game.MachineMove;

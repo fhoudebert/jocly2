@@ -579,6 +579,17 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 			return;
 		}
 		console.warn("fairy-stockfish engine unavailable (" + ((err && err.message) || err) + ") - falling back to native AI level '" + (native.label || native.name) + "' for this move");
+		// A console warning is invisible to a player, who would otherwise keep
+		// believing the "Expert" level is still Fairy-Stockfish. Tag the game so
+		// the degradation rides back on the machine-move result (see
+		// JocGame.Done() and the proxy's MachineMove in jocly.core.js) and the
+		// host UI can warn once - typically the page is not cross-origin isolated,
+		// so SharedArrayBuffer (and thus the engine) is unavailable.
+		aGame.mFairyFallback = {
+			engine: "fairy-stockfish",
+			reason: (err && err.message) || String(err),
+			level: native.label || native.name
+		};
 		var options = {};
 		for (var k in aOptions)
 			if (aOptions.hasOwnProperty(k))
