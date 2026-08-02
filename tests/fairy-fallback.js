@@ -1,6 +1,8 @@
 // Repli fairy-stockfish -> IA native rendu visible via result.fairyFallback.
 // Sous Node (pas de Worker) le repli est systematique -> test deterministe.
+
 const Jocly = require("../dist/node/jocly.core.js");
+
 let PASS=0, FAIL=0;
 function ok(c,msg){ if(c){PASS++; console.log('  \u2713',msg);} else {FAIL++; console.log('  \u2717 ECHEC:',msg);} }
 const CANDIDATES = ['shako-chess','shogi','chess','xiangqi'];
