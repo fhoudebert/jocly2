@@ -6,7 +6,7 @@
 // L'import FEN sait désormais charger les deux couleurs et les pièces promues
 // (+e/+E), donc les positions sont montées directement. FEN 13 colonnes,
 // bordure de 2 incluse ('6k6' = file e) ; rangée du haut = rang 9 (côté noir).
-const Jocly = require('/home/claude/work');
+const Jocly = require("../dist/node/jocly.core.js");
 let PASS=0, FAIL=0;
 function ok(c,msg){ if(c){PASS++; console.log('  \u2713',msg);} else {FAIL++; console.log('  \u2717 ECHEC:',msg);} }
 async function strMoves(m){ const M=await m.getPossibleMoves(); const o=[]; for(const mv of M) o.push({mv,s:await m.getMoveString(mv)}); return o; }
