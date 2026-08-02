@@ -47,6 +47,9 @@
 						width: 850,
 						height: 850,						
 					},
+					// 2D Mnemonic skin: swap to the kanji mnemonic sheet (with
+					// per-viewer rotation) when active - see cbChuMnemonicPieceStyle.
+					"skin2dmnemonic": this.cbChuMnemonicPieceStyle()["default"]["2d"],
 					"3d": {
 						scale: [.46,.46,.46],
 					},

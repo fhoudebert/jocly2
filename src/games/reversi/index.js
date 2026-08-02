@@ -167,7 +167,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Annexation",
-					"summary": "Reversi / Othello",
+					"summary": {
+						"en": "Reversi / Othello",
+						"fr": "Reversi / Othello"
+					},
 					"thumbnail": "thumb-reversi.png",
 					"js": modelScripts,
 					"module": "reversi",
@@ -214,7 +217,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Annexation 6",
-					"summary": "Reversi/Othello rules on a 6x6 board",
+					"summary": {
+						"en": "Reversi/Othello rules on a 6x6 board",
+						"fr": "Règles du Reversi/Othello sur un plateau 6x6"
+					},
 					"thumbnail": "thumb-reversi6.png",
 					"js": modelScripts,
 					"module": "reversi",
@@ -270,7 +276,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Annexation 4",
-					"summary": "Reversi/Othello rules on a 4x4 board",
+					"summary": {
+						"en": "Reversi/Othello rules on a 4x4 board",
+						"fr": "Règles du Reversi/Othello sur un plateau 4x4"
+					},
 					"thumbnail": "thumb-reversi4.png",
 					"js": modelScripts,
 					"module": "reversi",
@@ -326,7 +335,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Annexation 10",
-					"summary": "Reversi/Othello rules on a 10x10 board",
+					"summary": {
+						"en": "Reversi/Othello rules on a 10x10 board",
+						"fr": "Règles du Reversi/Othello sur un plateau 10x10"
+					},
 					"thumbnail": "thumb-reversi10.png",
 					"js": modelScripts,
 					"module": "reversi",
@@ -373,7 +385,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Annexation Cross",
-					"summary": "Reversi/Othello rules on a cross-shaped board",
+					"summary": {
+						"en": "Reversi/Othello rules on a cross-shaped board",
+						"fr": "Règles du Reversi/Othello sur un plateau en forme de croix"
+					},
 					"thumbnail": "thumb-cross.png",
 					"js": modelScripts,
 					"module": "reversi",
@@ -438,7 +453,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Annexation Cross 10",
-					"summary": "Reversi/Othello rules on a 10x10 cross-shaped board",
+					"summary": {
+						"en": "Reversi/Othello rules on a 10x10 cross-shaped board",
+						"fr": "Règles du Reversi/Othello sur un plateau 10x10 en forme de croix"
+					},
 					"thumbnail": "thumb-cross10.png",
 					"js": modelScripts,
 					"module": "reversi",
@@ -523,7 +541,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Annexation Turn-Over",
-					"summary": "Reversi/Othello rules on a 10x10 octogonal-shaped board",
+					"summary": {
+						"en": "Reversi/Othello rules on a 10x10 octogonal-shaped board",
+						"fr": "Règles du Reversi/Othello sur un plateau 10x10 octogonal"
+					},
 					"thumbnail": "thumb-turnover.png",
 					"js": modelScripts,
 					"module": "reversi",

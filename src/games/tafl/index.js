@@ -200,7 +200,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Tablut",
-					"summary": "9x9 board (from Laponia)",
+					"summary": {
+						"en": "9x9 board (from Laponia)",
+						"fr": "Tablier de 9x9 (Laponie)"
+					},
 					"rules": {
 						"en": "rules-tafl-tablut.html",
 						"fr": "rules-tafl-tablut-fr.html"
@@ -288,7 +291,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Ardri",
-					"summary": "7x7 board (from Scotland)",
+					"summary": {
+						"en": "7x7 board (from Scotland)",
+						"fr": "Tablier de 7x7 (Écosse)"
+					},
 					"rules": {
 						"en": "rules-tafl-ardri.html",
 						"fr": "rules-tafl-ardri-fr.html"
@@ -375,7 +381,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Hnefatafl",
-					"summary": "11x11 board (from Scandinavia)",
+					"summary": {
+						"en": "11x11 board (from Scandinavia)",
+						"fr": "Tablier de 11x11 (Scandinavie)"
+					},
 					"rules": {
 						"en": "rules-tafl-hnefatafl.html",
 						"fr": "rules-tafl-hnefatafl-fr.html"
@@ -458,7 +467,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Tawlbwrdd",
-					"summary": "11x11 board (from Wales)",
+					"summary": {
+						"en": "11x11 board (from Wales)",
+						"fr": "Tablier de 11x11 (Pays de Galles)"
+					},
 					"rules": {
 						"en": "rules-tawlbwrdd.html",
 						"fr": "rules-tawlbwrdd-fr.html"
@@ -541,7 +553,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Brandubh",
-					"summary": "7x7 board (from Ireland)",
+					"summary": {
+						"en": "7x7 board (from Ireland)",
+						"fr": "Tablier de 7x7 (Irlande)"
+					},
 					"rules": {
 						"en": "rules-tafl-brandubh.html",
 						"fr": "rules-tafl-brandubh-fr.html"

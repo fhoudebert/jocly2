@@ -8913,6 +8913,14 @@ exports.games = (function () {
 							"world": config_view_skins_world,
 							"camera": config_view_skins_camera
 						},
+						{
+							"name": "skin2dmnemonic",
+							"title": "2D Mnemonic",
+							"3d": false,
+							"preload": [
+								"image|/res/shogi/tenjiku-shogi-mnemonic-sprites.png"
+							]
+						},
 						config_view_skins_2
 					],
 					"animateSelfMoves": false,
