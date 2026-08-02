@@ -3,7 +3,7 @@
 // + coups joués (applyMove). Les tests par FEN utilisent l'éléphant NOIR, seul
 // correctement désambiguïsé par l'import FEN partagé (limite préexistante du
 // dépôt, sans effet sur le jeu réel ni le save/load PJN).
-const Jocly = require('/home/claude/work');
+const Jocly = require("../dist/node/jocly.core.js");
 let PASS=0, FAIL=0;
 function ok(c,msg){ if(c){PASS++; console.log('  \u2713',msg);} else {FAIL++; console.log('  \u2717 ECHEC:',msg);} }
 async function strMoves(m){ const M=await m.getPossibleMoves(); const o=[]; for(const mv of M) o.push({mv,s:await m.getMoveString(mv)}); return o; }
