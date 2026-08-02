@@ -1729,4 +1729,29 @@
 
 	});
 
+	// 2D Mnemonic skin for the large Shogi variants (Chu, Tenjiku, ...) that
+	// share this set-view. The mnemonic sheet has the SAME cell layout as the
+	// picto sheet (both 7500x200), so we only swap the sprite file and keep the
+	// per-piece clipx from cbChuPieceStyle. We also rotate 180 when viewing as
+	// player B: the mnemonic sheet encodes ownership through ABSOLUTE orientation
+	// (top row points up-screen, bottom row down-screen) plus coloring, so the
+	// two rows must never be swapped per viewer; since the 2D view-switch only
+	// remaps cell positions (unlike the 3D camera move), every sprite is rotated
+	// so "own pieces point away from the viewer" holds for both sides. This sits
+	// here rather than in cbChuPieceStyle's shared "2d" spec (where it would leak
+	// into every 2D skin): chu-shogi-view.js wires it under the piece spec's
+	// "skin2dmnemonic" key, and the gadget layer merges options[currentSkin.name]
+	// last, so it applies exactly when this skin is active and never otherwise.
+	// Mirrors shogi-set-view.js's cbShogiMnemonicPieceStyle.
+	View.Game.cbChuMnemonicPieceStyle = function(modifier) {
+		return $.extend(true,this.cbChuPieceStyle(),{
+			"default": {
+				"2d": {
+					file: this.mViewOptions.fullPath + "/res/shogi/tenjiku-shogi-mnemonic-sprites.png",
+					rotate: this.mViewAs === -1 ? 180 : 0,
+				},
+			},
+		},modifier);
+	};
+
 })();

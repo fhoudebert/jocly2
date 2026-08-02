@@ -18,16 +18,20 @@ Simple human vs computer: [Classic chess](https://fhoudebert.github.io/jocly/exa
 [Chinese chess](https://fhoudebert.github.io/jocly/examples/browser/simple.html?game=xiangqi),
 [Middle-age chess](https://fhoudebert.github.io/jocly/examples/browser/simple.html?game=courier-chess),
 [Shogi](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=shogi),
+[Chu Shogi](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=chu-shogi),
 [Draughts](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=draughts),
 [Kyoto Shogi](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=kyoto-shogi),
 [Metamachy](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=metamachy-chess),
 [Spartan chess](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=spartan-chess),
 [Minjiku Shogi](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=minjiku-shogi),
-[Ultima](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=ultima)
+[Ultima](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=ultima),
+[Rococo](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=rococo)
 
 Or see and try [all available games](https://fhoudebert.github.io/jocly/examples/browser/multiple.html)
 
-Or use joclymatch [to play againt a human](https://www.biscandine.fr/variantes/)
+Use joclymatch [to play remotly againt a human from a desktop](https://www.biscandine.fr/variantes/)
+
+Use mogichex [to play remotly againt a human from a mobile device](https://www.biscandine.fr/variantes/mogichex)
 
 Install
 -------

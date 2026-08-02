@@ -748,6 +748,11 @@ JocGame.prototype.Done = function() {
 		this.mVisitedBoards=this.mSavedVisitedBoards;
 	if (this.mDoneCallback) {
 		this.mPickedMoveIndex = this.Random(this.mBestMoves.length);
+		// A fairy-stockfish level that had to degrade to native AI tagged the
+		// game (see JoclyFairy's FallbackToNativeAI); report it once with this
+		// move, then clear it so the next move isn't wrongly flagged.
+		var fairyFallback = this.mFairyFallback || null;
+		delete this.mFairyFallback;
 		try {
 			if(this.mProgressCallback) {
 				this.mProgressCallback(100);
@@ -758,7 +763,8 @@ JocGame.prototype.Done = function() {
 				moveIndex : this.mPickedMoveIndex,
 				explored : this.mExploredCount,
 				duration : this.mDuration,
-				evaluation : this.mBoard.mEvaluation
+				evaluation : this.mBoard.mEvaluation,
+				fairyFallback : fairyFallback
 			});
 		} catch (e) {
 			JocLog("!!! Done:" + e,e.stack?e.stack:"");

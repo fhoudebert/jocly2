@@ -531,7 +531,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Roman Alquerque",
-					"summary": "Alquerque as played in France and England.",
+					"summary": {
+						"en": "Alquerque as played in France and England.",
+						"fr": "L'alquerque tel qu'on y jouait en France et en Angleterre."
+					},
                     "rules": {
 						"en": "rules-alquerque-roman.html",
                         "fr": "rules-alquerque-roman-fr.html",
@@ -617,7 +620,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Arabic Alquerque",
-					"summary": "Alquerque as played in Middle-East and Spain.",
+					"summary": {
+						"en": "Alquerque as played in Middle-East and Spain.",
+						"fr": "L'alquerque tel qu'on y jouait au Moyen-Orient et en Espagne."
+					},
                     "rules": {
 						"en": "rules-alquerque-arabic.html",
                         "fr": "rules-alquerque-arabic-fr.html",
@@ -859,7 +865,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "English Draughts",
-					"summary": "A popular version of checkers on a 8x8 board.",
+					"summary": {
+						"en": "A popular version of checkers on a 8x8 board.",
+						"fr": "Une version populaire des dames en 8x8."
+					},
 					"rules": "rules-brit-checkers.html",
 					"maxLevel": 20,
 					"plazza": "true",
@@ -920,7 +929,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Suicide checkers",
-					"summary": "A.k.a Giveaway checkers or Anti-checkers",
+					"summary": {
+						"en": "A.k.a Giveaway checkers or Anti-checkers",
+						"fr": "Aussi appelé qui-perd-gagne ou anti-dames."
+					},
                     "rules": {
 						"en": "rules-suicide-checkers.html",
                         "fr": "rules-suicide-checkers_fr.html",
@@ -986,7 +998,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Brazilian Draughts",
-					"summary": "Same as international checkers on a 8x8 board.",
+					"summary": {
+						"en": "Same as international checkers on a 8x8 board.",
+						"fr": "Comme les dames internationales en 8x8."
+					},
 					"rules": "rules-brazilian-draughts.html",
 					"maxLevel": 20,
 					"plazza": "true",
@@ -1009,7 +1024,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Spanish Draughts",
-					"summary": "Same as international checkers on a 8x8 board, no backward capture.",
+					"summary": {
+						"en": "Same as international checkers on a 8x8 board, no backward capture.",
+						"fr": "Comme les dames internationales en 8x8, sans prise en arrière."
+					},
 					"rules": "rules-spanish-draughts.html",
 					"maxLevel": 20,
 					"plazza": "true",
@@ -1045,7 +1063,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "German Draughts",
-					"summary": "Checkers according to German Draughts rules.",
+					"summary": {
+						"en": "Checkers according to German Draughts rules.",
+						"fr": "Les dames selon les règles allemandes."
+					},
 					"rules": "rules-german-draughts.html",
 					"maxLevel": 20,
 					"plazza": "true",
@@ -1103,7 +1124,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Thai Draughts",
-					"summary": "Checkers according to Thai rules.",
+					"summary": {
+						"en": "Checkers according to Thai rules.",
+						"fr": "Les dames selon les règles thaïlandaises."
+					},
 					"rules": "rules-thai-draughts.html",
 					"maxLevel": 20,
 					"plazza": "true",
@@ -1184,7 +1208,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Kids Draughts",
-					"summary": "A version for kids of checkers on a 6x6 board.",
+					"summary": {
+						"en": "A version for kids of checkers on a 6x6 board.",
+						"fr": "Une version des dames pour enfants sur un plateau 6x6."
+					},
 					"rules": "rules-kids-draughts.html",
 					"maxLevel": 20,
 					"plazza": "true",

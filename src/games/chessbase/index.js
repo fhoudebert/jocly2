@@ -1541,19 +1541,19 @@ exports.games = (function () {
 		"grid-geo-model.js",
 		"fairy-piece-model.js",
 		"locust-move-model.js",
-		"werewolf-model.js"
+		"locust/werewolf-model.js"
 	]
 	var modelScripts_102 = [
 		"base-model.js",
 		"grid-geo-model.js",
 		"fairy-piece-model.js",
 		"locust-move-model.js",
-		"decimal/elven-model.js"
+		"locust/elven-model.js"
 	]
 	var modelScripts_103 = [
 		"base-model.js",
 		"grid-geo-model.js",
-		"spartan-model.js"
+		"famous/spartan-model.js"
 	]
 	var modelScripts_104 = [
 		"base-model.js",
@@ -1602,14 +1602,14 @@ exports.games = (function () {
 		"grid-geo-model.js",
 		"fairy-piece-model.js",
 		"locust-move-model.js",
-		"makromachy-model.js"
+		"locust/makromachy-model.js"
 	]
 	var modelScripts_110 = [
 		"base-model.js",
 		"grid-geo-model.js",
 		"fairy-piece-model.js",
 		"locust-move-model.js",
-		"minjiku-shogi-model.js"
+		"locust/minjiku-shogi-model.js"
 	]
 	var modelScripts_kyoto = [
 		"base-model.js",
@@ -1766,20 +1766,20 @@ exports.games = (function () {
 		"grid-board-view.js",
 		"fairy-set-view.js",
 		"multi-leg-view.js",
-		"werewolf-view.js"
+		"locust/werewolf-view.js"
 	]
 	var config_view_js_102 = [
 		"base-view.js",
 		"grid-board-view.js",
 		"fairy-set-view.js",
 		"multi-leg-view.js",
-		"decimal/elven-view.js"
+		"locust/elven-view.js"
 	]
 	var config_view_js_103 = [
 		"base-view.js",
 		"grid-board-view.js",
 		"fairy-set-view.js",
-		"spartan-view.js"
+		"famous/spartan-view.js"
 	]
 	var config_view_js_104 = [
 		"base-view.js",
@@ -1842,14 +1842,14 @@ exports.games = (function () {
 		"grid-board-view.js",
 		"fairy-set-view.js",
 		"multi-leg-view.js",
-		"makromachy-view.js"
+		"locust/makromachy-view.js"
 	]
 	var config_view_js_110 = [
 		"base-view.js",
 		"grid-board-view.js",
 		"fairy-set-view.js",
 		"multi-leg-view.js",
-		"minjiku-shogi-view.js"
+		"locust/minjiku-shogi-view.js"
 	]
 	var modelScripts_14 = [
 		"base-model.js",
@@ -2153,13 +2153,13 @@ exports.games = (function () {
 	var modelScripts_26 = [
 		"base-model.js",
 		"cubic-geo-model.js",
-		"cubic-model.js"
+		"3d/cubic-model.js"
 	]
 	var config_view_js_26 = [
 		"base-view.js",
 		"cubic-board-view.js",
 		"staunton-set-view.js",
-		"cubic-view.js"
+		"3d/cubic-view.js"
 	]
 	var modelScripts_27 = [
 		"base-model.js",
@@ -2349,13 +2349,13 @@ exports.games = (function () {
 	var modelScripts_37 = [
 		"base-model.js",
 		"grid-geo-model.js",
-		"wildebeest-model.js"
+		"decimal/wildebeest-model.js"
 	]
 	var config_view_js_33 = [
 		"base-view.js",
 		"grid-board-view.js",
 		"fairy-set-view.js",
-		"wildebeest-view.js"
+		"decimal/wildebeest-view.js"
 	]
 	var modelScripts_38 = [
 		"base-model.js",
@@ -2404,13 +2404,13 @@ exports.games = (function () {
 	var modelScripts_42 = [
 		"base-model.js",
 		"grid-geo-model.js",
-		"dukerutland-model.js"
+		"historical/dukerutland-model.js"
 	]
 	var config_view_js_38 = [
 		"base-view.js",
 		"grid-board-view.js",
 		"fairy-set-view.js",
-		"dukerutland-view.js"
+		"historical/dukerutland-view.js"
 	]
 	var modelScripts_43 = [
 		"base-model.js",
@@ -2453,13 +2453,13 @@ exports.games = (function () {
 	var modelScripts_47 = [
 		"base-model.js",
 		"grid-geo-model.js",
-		"reformed-courier-model.js"
+		"duodecimal/reformed-courier-model.js"
 	]
 	var config_view_js_42 = [
 		"base-view.js",
 		"grid-board-view.js",
 		"fairy-set-view.js",
-		"reformed-courier-view.js"
+		"duodecimal/reformed-courier-view.js"
 	]
 	var modelScripts_48 = [
 		"base-model.js",
@@ -3764,67 +3764,6 @@ exports.games = (function () {
 			"viewScripts": config_view_js_14
 		},
 		{
-			"name": "basic-chess",
-			"modelScripts": modelScripts_15,
-			"config": {
-				"status": true,
-				"model": {
-					"title-en": "Basic Chess",
-					"summary": {
-						"en": "Basic Chess without openings book",
-						"fr": "Échecs simples, sans bibliothèque d’ouvertures"
-					},
-					"rules": config_model_rules,
-					"module": "chessbase",
-					"plazza": "true",
-					"thumbnail": "res/rules/famous/knight-thumbnail.png",
-					"released": 1389887778,
-					"rules": {
-						"en": "res/rules/famous/rules.html",
-						"fr": "res/rules/famous/rules-fr.html"
-					},
-					"credits": config_model_credits,
-					"gameOptions": config_model_gameOptions,
-					"obsolete": true,
-					"js": modelScripts_15,
-					"levels": config_model_levels_5_basic_expert
-				},
-				"view": {
-					"title-en": "Chessbase view",
-					"js": config_view_js_15,
-					"visuals": {
-						"600x600": [
-							"res/visuals/classic-chess-600x600-3d.jpg",
-							"res/visuals/classic-chess-600x600-2d.jpg"
-						]
-					},
-					"xdView": true,
-					"css": config_view_css,
-					"preferredRatio": 1,
-					"useShowMoves": true,
-					"useNotation": true,
-					"module": "chessbase",
-					"defaultOptions": config_view_defaultOptions,
-					"skins": [
-						{
-							"name": "skin3d",
-							"title": "3D Classic",
-							"3d": true,
-							"preload": config_view_skins_preload_4,
-							"world": config_view_skins_world,
-							"camera": config_view_skins_camera
-						},
-						config_view_skins_4
-					],
-					"animateSelfMoves": false,
-					"switchable": true,
-					"sounds": config_view_sounds,
-					"useAutoComplete": true
-				}
-			},
-			"viewScripts": config_view_js_15
-		},
-		{
 			"name": "knightmate-chess",
 			"modelScripts": modelScripts_knightmate,
 			"config": {
@@ -3845,7 +3784,7 @@ exports.games = (function () {
 					},
 					"credits": config_model_credits,
 					"gameOptions": config_model_gameOptions,
-					"obsolete": true,
+					"obsolete": false,
 					"js": modelScripts_knightmate,
 					"levels": config_model_levels_5_knightmate_expert
 				},
@@ -4984,7 +4923,8 @@ exports.games = (function () {
 						"fr": "Échecs en 12x12 avec des pièces féeriques"
 					},
 					"rules": {
-						"en": "res/rules/metamachy/metamachy-rules.html"
+						"en": "res/rules/metamachy/metamachy-rules.html",
+                        "fr": "res/rules/metamachy/metamachy-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -5544,7 +5484,8 @@ exports.games = (function () {
 						"fr": "Les échecs du nigaud (1970)"
 					},
 					"rules": {
-						"en": "res/rules/smess/smess-rules.html"
+						"en": "res/rules/smess/smess-rules.html",
+						"fr": "res/rules/smess/smess-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -7766,7 +7707,7 @@ exports.games = (function () {
 					"title-en": "Zanzibar S",
 					"summary": {
 						"en": "Extended Metamachy - 12x12",
-						"fr": "Metamachy étendu — 12x12"
+						"fr": "Metamachie étendu — 12x12"
 					},
 					"rules": {
 						"en": "res/rules/metamachy/zanzibar-s-rules.html",
@@ -7889,7 +7830,8 @@ exports.games = (function () {
 						"fr": "Variante 8x8 aux pièces très variées"
 					},
 					"rules": {
-						"en": "res/rules/team-mate/team-mate-rules.html"
+						"en": "res/rules/team-mate/team-mate-rules.html",
+						"fr": "res/rules/metamachy/team-mate-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -8292,7 +8234,8 @@ exports.games = (function () {
 						"fr": "Variante 10x10 avec des pièces faibles mais promouvables"
 					},
 					"rules": {
-						"en": "res/rules/decimal/scirocco-rules.html"
+						"en": "res/rules/decimal/scirocco-rules.html",
+                        "fr": "res/rules/decimal/scirocco-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -8458,7 +8401,9 @@ exports.games = (function () {
 					"description": {
 						"en": "res/rules/shogi/shogi-description.html"
 					},
-					"levels": config_model_levels_15_kotaishi_expert
+					"levels": config_model_levels_15
+					// fairy stockfish ne gère le prince royal 
+                    //"levels": config_model_levels_15_kotaishi_expert
 				},
 				"view": {
 					"title-en": "Chessbase view",
@@ -8970,6 +8915,14 @@ exports.games = (function () {
 							],
 							"world": config_view_skins_world,
 							"camera": config_view_skins_camera
+						},
+						{
+							"name": "skin2dmnemonic",
+							"title": "2D Mnemonic",
+							"3d": false,
+							"preload": [
+								"image|/res/shogi/tenjiku-shogi-mnemonic-sprites.png"
+							]
 						},
 						config_view_skins_2
 					],

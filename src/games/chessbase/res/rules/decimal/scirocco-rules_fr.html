@@ -1,0 +1,514 @@
+<h1>Règles générales</h1>
+
+<p>Scirocco est une variante des échecs jouée sur un échiquier de 10×10 cases.
+Au début de la partie, chaque joueur dispose de 27 pièces réparties en 18 types différents.
+Chacune de ces pièces (y compris le roi) possède une forme promue distincte,
+dont le mode de déplacement diffère de celui de la pièce d'origine.
+La promotion est toujours facultative
+et peut être effectuée à la fin de tout déplacement d'une pièce
+dont le coup commence ou se termine dans la zone de promotion,
+constituée des trois rangées les plus éloignées de l'échiquier.
+Une fois promue, une pièce ne peut plus revenir à sa forme initiale ni être promue une seconde fois.
+</p>
+
+<p>
+La partie est remportée en mettant le roi adverse échec et mat,
+en le patant,
+ou en capturant toutes les pièces non royales de l'adversaire (« dénuder » le roi).
+Dans ce dernier cas, la partie s'achève immédiatement,
+de sorte qu'il est permis de laisser son propre roi dans une position
+qui serait normalement un échec après le coup de dénudement.
+Le dénudement est ainsi comparable à la capture du roi,
+la dernière pièce non royale restante devenant alors, de fait, une pièce royale.
+</p>
+
+<p>
+La répétition d'une position déjà rencontrée met également fin à la partie.
+Le joueur qui vient d'effectuer le coup provoquant cette répétition perd la partie,
+à moins qu'aucun des coups joués depuis la précédente occurrence de cette position
+par l'un ou l'autre des joueurs n'ait constitué une attaque.
+Dans ce cas, la partie est déclarée nulle.
+Il n'existe aucune limite au nombre de coups réversibles ;
+la seule autre manière d'obtenir la nulle est par accord mutuel des deux joueurs.
+</p>
+
+<p>Les autres règles sont celles des échecs orthodoxes. Les Blancs jouent le premier coup.</p>
+
+<h2>Particularités</h2>
+
+<p>
+Outre les règles de promotion (qui rapprochent davantage Scirocco d'une variante du shogi que d'une variante des échecs),
+le jeu présente plusieurs caractéristiques originales.
+Certaines pièces capturent comme aux dames, en sautant par-dessus une pièce adjacente pour atterrir sur la case vide située immédiatement derrière elle.
+Une autre pièce peut capturer une pièce ennemie adjacente sans se déplacer (« capture au fusil ») ;
+le coup consiste uniquement à retirer cette pièce ennemie de l'échiquier.
+Certaines pièces, au lieu de capturer, confèrent également de nouveaux déplacements aux pièces alliées.
+Toute pièce amie située dans la zone d'influence d'une telle pièce voit alors ses possibilités de déplacement étendues.
+Enfin, de nombreuses pièces sont <i>divergentes</i>, c'est-à-dire qu'elles capturent différemment de la manière dont elles se déplacent vers une case vide.
+Aux échecs orthodoxes, seul le pion possède cette propriété.
+</p>
+<h1>Position initiale</h1>
+
+<p>Le plateau est constitué de 10 × 10 cases en damier, avec une case blanche à l'extrémité droite de chaque joueur.</p>
+
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/scirocco/scirocco-start-setup.png'>
+</p>
+
+<p>Chaque camp dispose de 27 pièces :
+<ul>
+    <li>1 Chariot, 1 Alfil, 1 Cigogne, 1 Cavalier, 1 Chameau, 1 Derviche,</li>
+    <li>1 Chèvre, 1 Dabbaba, 1 Wagon sur la première rangée,</li>
+    <li>1 Marquis, 2 Sciroccos, 1 Roi, 1 Wazir, 1 Ferz, 1 Commun, 1 Prêtre sur la deuxième rangée,</li>
+    <li>8 Pions et 2 Gardes sur la troisième rangée.</li>
+</ul>
+</p>
+
+<h1>Pièces</h1>
+
+<h2>Pions</h2>
+
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/pawn.png'>
+</p>
+
+<p class='piece-details'>
+Se déplacent et capturent comme aux échecs orthodoxes,
+mais sans double avancée initiale, et donc sans prise en passant.
+Se promeuvent en Têtard.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Garde</h2>
+
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/corporal.png'>
+</p>
+
+<p class='piece-details'>
+Se déplace d'une case orthogonalement,
+capture d'une case en diagonale.
+Se promeut en Zèbre.
+</p>
+<div style='clear:both'></div>
+<h2>Wazir</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/wazir.png'>
+</p>
+<p class='piece-details'>
+Se déplace et capture d'une case orthogonalement.
+Se promeut en Zig.
+</p>
+
+<div style='clear:both'></div>
+<h2>Firzan</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/ferz.png'>
+</p>
+<p class='piece-details'>
+Se déplace et capture d'une case en diagonale.
+Se promeut en Zag.
+</p>
+
+<div style='clear:both'></div>
+<h2>Alfil</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/elephant.png'>
+</p>
+<p class='piece-details'>
+Se déplace et capture de deux cases en diagonale
+(en pouvant éventuellement sauter par-dessus une case occupée).
+Se promeut en Fou.
+</p>
+
+<div style='clear:both'></div>
+<h2>Dabbaba</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/machine.png'>
+</p>
+<p class='piece-details'>
+Se déplace et capture de deux cases orthogonalement
+(en pouvant éventuellement sauter par-dessus une case occupée).
+Se promeut en Génie.
+</p>
+
+<div style='clear:both'></div>
+<h2>Cigogne</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/stork.png'>
+</p>
+<p class='piece-details'>
+Se déplace et capture de deux cases en diagonale
+(en pouvant éventuellement sauter), ou capture d'une case orthogonalement.
+Se promeut en Dame.
+</p>
+<h2>Chèvre</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/goat.png'>
+</p>
+<p class='piece-details'>
+Se déplace et capture de deux cases orthogonalement
+(en pouvant éventuellement sauter), ou se déplace sans capturer d'une case en diagonale.
+Se promeut en Lionne.
+</p>
+
+<div style='clear:both'></div>
+<div style='clear:both'></div>
+
+<h2>Commun</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/man.png'>
+</p>
+<p class='piece-details'>
+Se déplace et capture comme un Roi des échecs orthodoxes,
+mais n'est pas une pièce royale.
+Se promeut en Gnou.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Cavalier</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/knight.png'>
+</p>
+<p class='piece-details'>
+Se déplace et capture comme un Cavalier aux échecs classiques.
+Se promeut en Tour.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Chameau</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/camel.png'>
+</p>
+<p class='piece-details'>
+Se déplace et capture directement vers des cases situées
+à trois cases dans une dimension orthogonale et une case dans l'autre
+(comme un Cavalier, mais en atterrissant une case plus loin).
+Se promeut en Écureuil.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Marquis</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/wazir-knight.png'>
+</p>
+<p class='piece-details'>
+Se déplace et capture comme un Cavalier,
+ou d'une case orthogonalement.
+Se promeut en Abbé.
+</p>
+
+<div style='clear':both'></div>
+
+<h2>Prêtre</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/ferz-knight.png'>
+</p>
+<p class='piece-details'>
+Se déplace et capture comme un Cavalier,
+ou d'une case en diagonale.
+Se promeut en Duc.
+</p>
+
+<div style='clear:both'></div>
+<h2>Wagon</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/gate.png'>
+</p>
+<p class='piece-details'>
+Se déplace et capture comme une Tour orthodoxe,
+mais ne peut pas terminer son déplacement sur une case adjacente.
+(Il peut toutefois être bloqué sur une telle case !)
+Se promeut en Araignée.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Chariot</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/small-rook.png'>
+</p>
+<p class='piece-details'>
+Se déplace et capture comme une Tour orthodoxe,
+mais pas à plus de quatre cases de distance.
+Se promeut en Pieuvre.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Derviche</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/star.png'>
+</p>
+<p class='piece-details'>
+Se déplace de deux cases orthogonalement ou en diagonale,
+en pouvant éventuellement sauter par-dessus une case occupée.
+Il ne peut pas capturer, mais peut provoquer de nouveaux déplacements
+pour les pièces alliées adjacentes :
+celles-ci peuvent alors sauter par-dessus lui jusqu'à la case opposée,
+ou avancer d'une case en diagonale à condition d'arriver à côté du Derviche.
+Ces déplacements induits peuvent permettre un déplacement ou une capture,
+mais ne peuvent jamais donner lieu à une promotion.
+Se promeut en Harpie.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Scirocco</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/saint.png'>
+</p>
+<p class='piece-details'>
+Se déplace et capture comme un Fou orthodoxe,
+ou d'une case orthogonalement.
+Se promeut en Vautour.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Roi</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/king.png'>
+</p>
+<p class='piece-details'>
+Se déplace et capture comme un Roi orthodoxe.
+Les déplacements qui exposeraient le Roi à une capture sont illégaux.
+Se promeut en Empereur.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Têtard</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/bow.png'>
+</p>
+<p class='piece-details'>
+Pion promu.
+Se déplace et capture d'une case en diagonale ou de trois cases orthogonalement
+(en pouvant sauter par-dessus les deux cases intermédiaires, quelles qu'elles soient).
+Il peut également capturer d'une case orthogonalement.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Zèbre</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/zebra.png'>
+</p>
+<p class='piece-details'>
+Garde promu.
+Se déplace et capture directement vers des cases situées
+à trois cases dans une dimension orthogonale et deux cases dans l'autre.
+(Comme un Cavalier, mais avec une case supplémentaire dans la direction diagonale.)
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Zig</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/small-bishop.png'>
+</p>
+<p class='piece-details'>
+Wazir promu.
+Se déplace et capture d'une ou deux cases en diagonale
+(en pouvant éventuellement sauter par-dessus une case occupée).
+Il peut également capturer une pièce ennemie adjacente
+en sautant par-dessus celle-ci (deux cases) orthogonalement jusqu'à une case vide.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Zag</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/lighthouse.png'>
+</p>
+<p class='piece-details'>
+Ferz promu.
+Se déplace et capture d'une ou deux cases orthogonalement
+(en pouvant éventuellement sauter par-dessus une case occupée).
+Il peut également capturer une pièce ennemie adjacente
+en sautant par-dessus celle-ci (deux cases) en diagonale jusqu'à une case vide
+(comme un Roi aux Dames).
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Fou</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/bishop.png'>
+</p>
+<p class='piece-details'>
+Alfil promu.
+Se déplace et capture comme un Fou orthodoxe.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Génie</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/cannon.png'>
+</p>
+<p class='piece-details'>
+Dabbaba promu.
+Se déplace et capture comme une Dame orthodoxe,
+mais pas à plus de trois cases de distance.
+Il peut également capturer une pièce ennemie adjacente sans se déplacer
+(capture par tir).
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Dame</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/queen.png'>
+</p>
+<p class='piece-details'>
+Cigogne promue.
+Se déplace et capture comme une Dame orthodoxe.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Lionne</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/lion.png'>
+</p>
+<p class='piece-details'>
+Chèvre promue.
+Se déplace et capture directement vers n'importe quelle case
+dans une zone de 5×5 autour d'elle.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Gnou</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/buffalo.png'>
+</p>
+<p class='piece-details'>
+Commun promu.
+Se déplace et capture comme un Cavalier ou un Chameau.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Tour</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/rook.png'>
+</p>
+<p class='piece-details'>
+Cavalier promu.
+Se déplace et capture comme une Tour orthodoxe.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Écureuil</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/squirrel.png'>
+</p>
+<p class='piece-details'>
+Chameau promu.
+Se déplace et capture directement de deux cases orthogonalement ou en diagonale
+(en pouvant éventuellement sauter par-dessus une case occupée),
+ou comme un Cavalier orthodoxe.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Abbé</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/archbishop.png'>
+</p>
+<p class='piece-details'>
+Marquis promu.
+Se déplace et capture comme un Cavalier ou comme un Fou,
+mais pas à plus de quatre cases de distance.
+</p>
+
+<div style='clear:both'></div>
+<h2>Duc</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/chancellor.png'>
+</p>
+<p class='piece-details'>
+Prêtre promu.
+Se déplace et capture comme un Cavalier ou comme une Tour,
+mais pas à plus de quatre cases de distance.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Araignée</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/griffon.png'>
+</p>
+<p class='piece-details'>
+Wagon promu.
+Se déplace vers une case vide adjacente orthogonalement,
+et peut éventuellement continuer depuis cette case comme un Fou
+dans l'une des deux directions vers l'extérieur,
+pour se déplacer ou capturer vers des destinations plus éloignées.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Pieuvre</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/rhino2.png'>
+</p>
+<p class='piece-details'>
+Chariot promu.
+Se déplace vers une case vide adjacente en diagonale,
+et peut éventuellement continuer depuis cette case comme une Tour
+dans l'une des deux directions vers l'extérieur,
+pour se déplacer ou capturer vers des destinations plus éloignées.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Harpie</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/amazon.png'>
+</p>
+<p class='piece-details'>
+Derviche promu.
+Se déplace comme une Dame, mais pas à plus de trois cases de distance.
+La Harpie ne peut pas capturer,
+mais elle induit des déplacements supplémentaires de Cavalier pour toute pièce alliée
+située sur une case qu'elle aurait pu atteindre avec ce déplacement de Dame de trois cases
+si cette case avait été vide.
+Les déplacements induits peuvent permettre un déplacement ou une capture,
+mais ne peuvent jamais donner lieu à une promotion.
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Vautour</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/proper-crowned-rook.png'>
+</p>
+<p class='piece-details'>
+Scirocco promu.
+Se déplace comme un Roi ou un Fou, et capture comme un Roi ou une Tour.
+(Ainsi, sur les cases adjacentes, il peut à la fois se déplacer et capturer.)
+</p>
+
+<div style='clear:both'></div>
+
+<h2>Empereur</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/rules/fairy/champion.png'>
+</p>
+<p class='piece-details'>
+Roi promu.
+Se déplace et capture d'une case orthogonalement,
+ou de deux cases dans les huit directions (en pouvant éventuellement sauter par-dessus une case occupée).
+Les déplacements qui exposeraient l'Empereur à une capture sont illégaux.
+</p>
+
+<div style='clear:both'></div>
