@@ -867,7 +867,7 @@ exports.games = (function() {
 					"title-en": "English Draughts",
 					"summary": {
 						"en": "A popular version of checkers on a 8x8 board.",
-						"fr": "Une version populaire des dames sur un plateau 8x8."
+						"fr": "Une version populaire des dames en 8x8."
 					},
 					"rules": "rules-brit-checkers.html",
 					"maxLevel": 20,
@@ -1000,7 +1000,7 @@ exports.games = (function() {
 					"title-en": "Brazilian Draughts",
 					"summary": {
 						"en": "Same as international checkers on a 8x8 board.",
-						"fr": "Comme les dames internationales, sur un plateau 8x8."
+						"fr": "Comme les dames internationales en 8x8."
 					},
 					"rules": "rules-brazilian-draughts.html",
 					"maxLevel": 20,
@@ -1026,7 +1026,7 @@ exports.games = (function() {
 					"title-en": "Spanish Draughts",
 					"summary": {
 						"en": "Same as international checkers on a 8x8 board, no backward capture.",
-						"fr": "Comme les dames internationales sur un plateau 8x8, sans prise en arrière."
+						"fr": "Comme les dames internationales en 8x8, sans prise en arrière."
 					},
 					"rules": "rules-spanish-draughts.html",
 					"maxLevel": 20,

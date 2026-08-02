@@ -4923,7 +4923,8 @@ exports.games = (function () {
 						"fr": "Échecs en 12x12 avec des pièces féeriques"
 					},
 					"rules": {
-						"en": "res/rules/metamachy/metamachy-rules.html"
+						"en": "res/rules/metamachy/metamachy-rules.html",
+                        "fr": "res/rules/metamachy/metamachy-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -7829,7 +7830,8 @@ exports.games = (function () {
 						"fr": "Variante 8x8 aux pièces très variées"
 					},
 					"rules": {
-						"en": "res/rules/team-mate/team-mate-rules.html"
+						"en": "res/rules/team-mate/team-mate-rules.html",
+						"fr": "res/rules/metamachy/team-mate-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -8232,7 +8234,8 @@ exports.games = (function () {
 						"fr": "Variante 10x10 avec des pièces faibles mais promouvables"
 					},
 					"rules": {
-						"en": "res/rules/decimal/scirocco-rules.html"
+						"en": "res/rules/decimal/scirocco-rules.html",
+                        "fr": "res/rules/decimal/scirocco-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",

@@ -1,0 +1,132 @@
+<style>
+	.meta-icon{
+		width:4rem;
+		height:4rem;
+		float:left;
+		margin:5px;
+		background-size:contain;
+	}
+	.mi-pawn
+	{
+		background-image:url({GAME}/res/fairy/icons/w-pawn.png);
+	}
+	.mi-king
+	{
+		background-image:url({GAME}/res/fairy/icons/w-king.png);
+	}
+	.mi-queen
+	{
+		background-image:url({GAME}/res/fairy/icons/w-queen.png);
+	}
+	.mi-eagle
+	{
+		background-image:url({GAME}/res/fairy/icons/w-griffon.png);
+	}
+	.mi-lion
+	{
+		background-image:url({GAME}/res/fairy/icons/w-lion.png);
+	}
+	.mi-elephant
+	{
+		background-image:url({GAME}/res/fairy/icons/w-elephant.png);
+	}
+	.mi-camel
+	{
+		background-image:url({GAME}/res/fairy/icons/w-camel.png);
+	}
+	.mi-cannon
+	{
+		background-image:url({GAME}/res/fairy/icons/w-cannon.png);
+	}
+	.mi-knight
+	{
+		background-image:url({GAME}/res/fairy/icons/w-knight.png);
+	}
+	.mi-rook
+	{
+		background-image:url({GAME}/res/fairy/icons/w-rook.png);
+	}
+	.mi-bishop
+	{
+		background-image:url({GAME}/res/fairy/icons/w-bishop.png);
+	}
+	.mi-prince
+	{
+		background-image:url({GAME}/res/fairy/icons/w-admiral.png);
+	}
+</style>
+<h1>Présentation</h1>
+
+<p>Il s'agit d'un jeu de plateau pour 2 joueurs utilisant un échiquier de 12×12 cases.</p>
+
+<p>Chaque joueur dispose de 60 pièces (5×12) réparties en 12 types différents : Roi, Dame, Griffon, Lion, Prince, Fou, Cavalier, Chameau, Tour, Canon, Éléphant et 12 Pions.</p>
+
+<p>Il existe 12 positions initiales différentes. Les Noirs choisissent la position de départ et les Blancs jouent le premier coup.</p>
+
+<p>Le but du jeu est de mater le roi adverse.</p>
+
+
+<h1>Déplacements</h1>
+
+<p><div class="meta-icon mi-king"></div><strong>Roi</strong> : se déplace d'une case dans les huit directions vers une case non attaquée. Le roi est en échec lorsqu'il est attaqué par une ou plusieurs pièces adverses. Il est interdit de jouer un coup laissant son roi en échec. Lors de son premier déplacement, le roi peut effectuer un saut de deux cases, horizontalement, verticalement, en diagonale ou comme un cavalier, à condition qu'il ne soit pas en échec et que ni la case franchie ni la case d'arrivée ne soient attaquées. La case franchie peut être libre ou occupée.</p>
+<br clear="all">
+
+<p><div class="meta-icon mi-queen"></div><strong>Dame</strong> : glisse sur n'importe quelle case de sa colonne, de sa rangée ou de ses diagonales.</p>
+<br clear="all">
+
+<p><div class="meta-icon mi-eagle"></div><strong>Griffon</strong> : se déplace d'abord d'une case en diagonale, puis glisse d'un nombre quelconque de cases horizontalement ou verticalement. Il ne peut effectuer qu'un seul pas diagonal. Il ne saute pas, et le trajet libre doit commencer par ce déplacement diagonal.</p>
+<br clear="all">
+
+<p><div class="meta-icon mi-lion"></div><strong>Lion</strong> : se déplace comme un roi (une case dans n'importe quelle direction), ou peut sauter vers une case située à deux cases de distance, dans une direction orthogonale, diagonale ou selon un mouvement de cavalier.</p>
+<br clear="all">
+
+<p><div class="meta-icon mi-prince"></div><strong>Prince</strong> : roi non royal qui se déplace et capture d'une case dans n'importe quelle direction, sans être soumis à la règle de l'échec. Comme le pion, il peut également avancer de deux cases tout droit sans capturer. Lorsqu'il atteint la dernière rangée, il est promu en l'une des trois pièces majeures : Dame, Lion ou Griffon.</p>
+<br clear="all">
+
+<p><div class="meta-icon mi-bishop"></div><strong>Fou</strong> : glisse sur n'importe quelle case d'une diagonale. Il reste toujours sur des cases de même couleur.</p>
+<br clear="all">
+
+<p><div class="meta-icon mi-knight"></div><strong>Cavalier</strong> : saute vers le sommet opposé d'un rectangle de 2×3 cases, quels que soient les occupants des cases intermédiaires. Il change de couleur de case à chaque déplacement.</p>
+<br clear="all">
+
+<p><div class="meta-icon mi-camel"></div><strong>Chameau</strong> : saute vers le sommet opposé d'un rectangle de 2×4 cases, comme un cavalier allongé. Les cases intermédiaires sont ignorées. Il reste toujours sur des cases de même couleur.</p>
+<br clear="all">
+
+<p><div class="meta-icon mi-rook"></div><strong>Tour</strong> : se déplace sur n'importe quelle case de sa colonne ou de sa rangée.</p>
+<br clear="all">
+
+<p><div class="meta-icon mi-cannon"></div><strong>Canon</strong> : se déplace sans capturer comme une tour. Pour capturer, il se déplace horizontalement ou verticalement en sautant exactement une pièce. Lors d'une capture, il doit y avoir une et une seule pièce entre sa case de départ et sa case d'arrivée, quelle que soit la couleur de cette pièce.</p>
+<br clear="all">
+
+<p><div class="meta-icon mi-elephant"></div><strong>Éléphant</strong> : se déplace d'une ou deux cases en diagonale. Lorsqu'il avance de deux cases, il saute par-dessus la case intermédiaire, quel que soit son contenu. Il reste toujours sur des cases de même couleur.</p>
+<br clear="all">
+
+<p><div class="meta-icon mi-pawn"></div><strong>Pion</strong> : peut avancer d'une ou de deux cases tout droit depuis n'importe quelle position de l'échiquier, sans capturer. Il capture une case en diagonale vers l'avant. Par conséquent, la prise en passant est possible chaque fois qu'un pion ou un prince adverse avance de deux cases. Lorsqu'il atteint la dernière rangée, il est promu en l'une des trois pièces majeures : Dame, Lion ou Griffon.</p>
+<br clear="all">
+
+<h1>Règles de mise en place</h1>
+
+<p>Au début de la partie, toutes les pièces sont placées, à l'exception des rois, des dames, des griffons et des lions.</p>
+
+<p style="text-align:center"><img style='max-width:100%' src="{GAME}/res/rules/metamachy/setup-1.png"/></p>
+
+<p>Les Noirs choisissent ensuite librement où placer leur roi, leur dame, leur griffon et leur lion parmi les cases f1, g1, f2 et g2.</p>
+
+<p>Les Blancs placent ensuite les mêmes pièces par symétrie miroir (si le roi noir est en f1, le roi blanc est placé en f12), puis jouent le premier coup.</p>
+
+<p>Ce mécanisme équilibre l'avantage du premier coup des Blancs en donnant aux Noirs le choix de la position initiale.</p>
+
+<p>Comme les pièces sont placées en parfaite symétrie miroir, les positions où le roi est sur une case « f » sont exactement équivalentes à celles où il est sur une case « g ». On peut ainsi démontrer qu'il existe exactement 12 positions de départ différentes :</p>
+
+<p>
+<ul>
+<li>Le roi peut être placé en f1 ou en f2 : 2 possibilités.</li>
+<li>La dame dispose ensuite de 3 positions possibles : à côté du roi, en dessous du roi ou en diagonale du roi.</li>
+<li>Le griffon occupe ensuite l'une des 2 cases restantes.</li>
+<li>La dernière case revient au lion. Soit 2 × 3 × 2 = 12 positions.</li>
+</ul>
+</p>
+
+<p style="text-align:center"><img style='max-width:100%' src="{GAME}/res/rules/metamachy/setup-2.png"/>
+<br>Une des 12 positions initiales possibles
+</p>
