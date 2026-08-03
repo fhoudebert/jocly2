@@ -32,7 +32,7 @@
 </style>
 <h1>Spartan Chess on a 3D battlefield</h1>
 <h2>Inital setup</h2>
-<p>Played on 3 6x8 boards, each player starts with 18 Pawns, 2 Rooks, 4 Bishops, 4 Knights, 1 Queen and 1 King.</p>
+<p>Played on 3 stacked 6x8 boards. The two armies are not the same. The Persians line up the FIDE pieces: 18 Pawns, 4 Knights, 4 Bishops, 2 Rooks, 1 Queen and 1 King. The Spartans field 18 Hoplits, 4 Captains, 4 Lieutenants, 1 Cardinal, 1 Crowned rook and <b>2 Kings</b>. Thirty men each.</p>
 <p style='text-align:center'><img style="max-width:100%;" src="{GAME}/res/rules/3dchess/space-spartan2-setup.png"/></p>
 <h2>FIDE Pieces</h2>
 <h3>Pawn</h3>
@@ -54,13 +54,13 @@
 <p style='text-align:center'><img style="max-width:100%;" src="{GAME}/res/rules/3dchess/graph/king.png"/></p>
 <h2>Spartan Pieces</h2>
 <h3>Hoplit</h3>
-<p>Moves 1 step diagonally forward, and captures one step straight ahead (also above and below). In its initial location it can also jump 2 steps diagonally forward to an empty square.</p>
+<p>The Hoplit is the mirror image of the Pawn: it moves where the Pawn captures, and captures where the Pawn moves. It steps 1 square diagonally forward on its plane, and captures 1 square straight ahead on its plane, or 1 square diagonally forward on the plane above or below. From its initial square it may also jump 2 squares diagonally forward to an empty square.</p>
 <p style='text-align:center'><img style="max-width:100%;" src="{GAME}/res/rules/3dchess/graph/hoplit.png"/></p>
 <h3>Captain</h3>
 <p>Moves and captures 1 or 2 steps (jumping) orthogonally or on the column.</p>
 <p style='text-align:center'><img style="max-width:100%;" src="{GAME}/res/rules/3dchess/graph/captain.png"/></p>
 <h3>Lieutenant</h3>
-<p>Moves and captures 1 or 2 steps (jumping) orthogonally or diagonally by the upper or lower corners to change level and square color at the same time.</p>
+<p>Moves 1 step sideways on its plane without capturing. Moves and captures 1 or 2 steps (jumping) diagonally on its plane, or by the upper or lower corners, changing level and square color at the same time.</p>
 <p style='text-align:center'><img style="max-width:100%;" src="{GAME}/res/rules/3dchess/graph/lieutenant.png"/></p>
 <h3>Cardinal</h3>
 <p>Combines the move of the bishop and the knight.</p>
@@ -68,11 +68,14 @@
 <h3>Crowned rook</h3>
 <p>Combines the move and capture of the rook and the king.</p>
 <p style='text-align:center'><img style="max-width:100%;" src="{GAME}/res/rules/3dchess/graph/crowned-rook.png"/></p>
-<h3>King</h3>
-<p>The King moves like orthodox King on its current plane, but can go to another plane for captures only (see figure).</p>
+<h3>Kings</h3>
+<p>Sparta is a diarchy, and its two Kings are both royal. Each moves like the FIDE King: orthodox King on its own plane, another plane for captures only.</p>
+<p>A check on a single King is not binding. The Spartans may ignore it, and may leave that King to be captured: the game goes on. Only a <b>duple check</b>, both Kings attacked at the same time, has to be answered, and the Spartans may never move into one. Once a single King is left, check and checkmate are ordinary again, and the Spartans lose when that last King is checkmated.</p>
 <p style='text-align:center'><img style="max-width:100%;" src="{GAME}/res/rules/3dchess/graph/king.png"/></p>
+<h2>Promotion</h2>
+<p>A Pawn reaching the far rank promotes to Knight, Bishop, Rook or Queen. A Hoplit reaching the far rank promotes to Captain, Lieutenant, Cardinal or Crowned rook - and, if one of the two Spartan Kings has been captured, it may be promoted to King instead. The Spartans never have three Kings.</p>
 <h2>Features</h2>
-<p>Double move for Pawns (start): yes.</p>
-<p>Castling: yes.</p>
+<p>Double move for Pawns and Hoplits (start): yes.</p>
+<p>Castling: Persians only, no Spartan piece castles.</p>
 <p>"En passant" capture: yes.</p>
 

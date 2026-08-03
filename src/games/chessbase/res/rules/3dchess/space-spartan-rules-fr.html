@@ -32,7 +32,7 @@
 </style>
 <h1>Les échecs spartiates sur un champ de bataille en 3D</h1>
 <h2>Position initiale</h2>
-<p>La partie se joue sur 3 plateaux de 6×8 cases. Chaque joueur commence avec 18 Pions, 2 Tours, 4 Fous, 4 Cavaliers, 1 Dame et 1 Roi.</p>
+<p>La partie se joue sur 3 plateaux de 6×8 cases superposés. Les deux armées ne sont pas les mêmes. Les Perses alignent les pièces FIDE : 18 Pions, 4 Cavaliers, 4 Fous, 2 Tours, 1 Dame et 1 Roi. Les Spartiates alignent 18 Hoplites, 4 Capitaines, 4 Lieutenants, 1 Cardinal, 1 Tour couronnée et <b>2 Rois</b>. Trente hommes de chaque côté.</p>
 <p style='text-align:center'><img style="max-width:100%;" src="{GAME}/res/rules/3dchess/space-spartan2-setup.png"/></p>
 
 <h2>Pièces FIDE</h2>
@@ -63,7 +63,7 @@
 <h2>Pièces spartiates</h2>
 
 <h3>Hoplite</h3>
-<p>Se déplace d'une case en diagonale vers l'avant et capture d'une case tout droit devant lui (également au-dessus ou au-dessous). Depuis sa position initiale, il peut également sauter de deux cases en diagonale vers l'avant si la case d'arrivée est libre.</p>
+<p>L'Hoplite est l'image inversée du Pion : il se déplace là où le Pion capture, et capture là où le Pion se déplace. Il avance d'une case en diagonale sur son niveau, et capture d'une case tout droit devant lui sur son niveau, ou d'une case en diagonale vers l'avant sur le niveau au-dessus ou au-dessous. Depuis sa position initiale, il peut également sauter de deux cases en diagonale vers l'avant si la case d'arrivée est libre.</p>
 <p style='text-align:center'><img style="max-width:100%;" src="{GAME}/res/rules/3dchess/graph/hoplit.png"/></p>
 
 <h3>Capitaine</h3>
@@ -71,7 +71,7 @@
 <p style='text-align:center'><img style="max-width:100%;" src="{GAME}/res/rules/3dchess/graph/captain.png"/></p>
 
 <h3>Lieutenant</h3>
-<p>Se déplace et capture d'une ou deux cases (en sautant) orthogonalement, ou en diagonale par les coins supérieurs ou inférieurs, ce qui lui permet de changer simultanément de niveau et de couleur de case.</p>
+<p>Se déplace d'une case latéralement sur son niveau, sans capturer. Se déplace et capture d'une ou deux cases (en sautant) en diagonale sur son niveau, ou par les coins supérieurs ou inférieurs, ce qui lui permet de changer simultanément de niveau et de couleur de case.</p>
 <p style='text-align:center'><img style="max-width:100%;" src="{GAME}/res/rules/3dchess/graph/lieutenant.png"/></p>
 
 <h3>Cardinal</h3>
@@ -82,11 +82,14 @@
 <p>Combine les déplacements et les prises de la Tour et du Roi.</p>
 <p style='text-align:center'><img style="max-width:100%;" src="{GAME}/res/rules/3dchess/graph/crowned-rook.png"/></p>
 
-<h3>Roi</h3>
-<p>Le Roi se déplace comme le roi orthodoxe sur son niveau actuel, mais ne peut changer de niveau que pour effectuer une prise (voir la figure).</p>
+<h3>Rois</h3>
+<p>Sparte est une diarchie : les Spartiates ont deux Rois, et les deux sont royaux. Chacun se déplace comme le Roi FIDE : comme un roi orthodoxe sur son niveau, et il ne change de niveau que pour capturer.</p>
+<p>Un échec sur un seul Roi n'est pas contraignant : les Spartiates peuvent l'ignorer et laisser ce Roi se faire prendre, la partie continue. Seul l'<b>échec double</b>, les deux Rois attaqués en même temps, doit être paré, et les Spartiates n'ont jamais le droit de s'y mettre. Dès qu'il ne reste qu'un Roi, l'échec et le mat redeviennent ordinaires, et les Spartiates perdent quand ce dernier Roi est maté.</p>
 <p style='text-align:center'><img style="max-width:100%;" src="{GAME}/res/rules/3dchess/graph/king.png"/></p>
 
+<h2>Promotion</h2>
+<p>Un Pion qui atteint la dernière rangée se promeut en Cavalier, Fou, Tour ou Dame. Un Hoplite qui atteint la dernière rangée se promeut en Capitaine, Lieutenant, Cardinal ou Tour couronnée — et, si l'un des deux Rois spartiates a été capturé, il peut aussi se promouvoir en Roi. Les Spartiates n'ont jamais trois Rois.</p>
 <h2>Caractéristiques</h2>
-<p>Double déplacement initial des Pions : oui.</p>
-<p>Roque : oui.</p>
+<p>Double déplacement initial des Pions et des Hoplites : oui.</p>
+<p>Roque : les Perses seulement, aucune pièce spartiate ne roque.</p>
 <p>Prise « en passant » : oui.</p>
