@@ -82,3 +82,13 @@ API Documentation
 Jocly offers two distinct APIs:
 - the [Application API](https://github.com/aclap-dev/jocly/wiki/Application-API) to make Web applications
 - the [Game API](https://github.com/aclap-dev/jocly/wiki/Game-API) to create games to run with Jocly features
+
+## Credits
+
+**Jocly**, was created by M. Gutierrez / J. Choain, with contribution of HG Muller.
+The original project is no longer maintained; it lives on as **[jocly2](https://github.com/fhoudebert/jocly2)**.
+
+The Expert level uses [Fairy-Stockfish](https://github.com/fairy-stockfish/Fairy-Stockfish) by Fabian Fichter, derived from Stockfish. 
+The Champion level for draughts use [Scan](https://hjetten.home.xs4all.nl/scan/scan.html) maintained by Fabien Letouzey
+
+Game artwork under `chessbase/res` is **CC BY-SA 3.0**.
