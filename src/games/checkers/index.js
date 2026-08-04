@@ -201,6 +201,33 @@ exports.games = (function() {
 		config_model_levels_5,
 		config_model_levels_6
 	]
+	// Niveau "Expert" adosse au moteur Scan (src/core/jocly.scan.js,
+	// third-party/scan). La tuyauterie existait deja mais AUCUN jeu ne
+	// declarait de niveau "ai": "scan" : JoclyScan.startMachine n'etait donc
+	// jamais appele et le moteur ne se chargeait pas.
+	//
+	// Scan attend la notation et le FEN de checkersbase-model.js, et ses
+	// regles "normal" sont celles des dames INTERNATIONALES (10x10). Ce
+	// niveau est donc reserve a `draughts` et n'est PAS ajoute au tableau
+	// partage config_model_levels_7, que onze jeux se partagent (alquerque,
+	// dames anglaises, bresiliennes, espagnoles, allemandes, thai...) dont
+	// les regles ne correspondent pas.
+	var config_model_levels_scan = {
+		"label": "Champion",
+		"ai": "scan",
+		"moveTimeMs": 1000,
+		"depth": 0,
+		"bookEnabled": true
+	}
+	var config_model_levels_draughts = [
+		config_model_levels,
+		config_model_levels_2,
+		config_model_levels_3,
+		config_model_levels_4,
+		config_model_levels_5,
+		config_model_levels_6,
+		config_model_levels_scan
+	]
 	var config_view_css = [
 		"checkersbase.css",
 		"alquerque.css"
@@ -819,7 +846,7 @@ exports.games = (function() {
 						},
 						"uctTransposition": "state"
 					},
-					"levels": config_model_levels_7
+					"levels": config_model_levels_draughts
 				},
 				"view": {
 					"title-en": "Draughts View",
