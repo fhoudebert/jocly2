@@ -4,4 +4,6 @@ update-gh-pages.sh
 tmp/
 npm-debug.log
 private/
+tabulon
+
 package-lock.json

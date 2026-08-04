@@ -2,6 +2,12 @@
 (function() {
 	
 	var geometry = Model.Game.cbBoardGeometryMultiplan(6,8,3);
+
+	// The 50-move counter is reset by Pawn moves. base-model works out which
+	// types are Pawns by assuming they are declared first, and here the King
+	// opens the list - so it was the KING that reset the counter and Pawn
+	// moves that did not. Declared explicitly: pawn-w, pawn-b, ipawn-w, ipawn-b.
+	Model.Game.cbPawnTypes = [6,7,8,9];
 	
 	Model.Game.cbDefine = function() {
 		
