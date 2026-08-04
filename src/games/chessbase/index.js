@@ -7831,7 +7831,7 @@ exports.games = (function () {
 					},
 					"rules": {
 						"en": "res/rules/team-mate/team-mate-rules.html",
-						"fr": "res/rules/metamachy/team-mate-rules_fr.html"
+						"fr": "res/rules/team-mate/team-mate-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
