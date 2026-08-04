@@ -279,6 +279,17 @@
 			}
 			this.cbPawnTypes=k;
 		}
+		// cbPawnTypes may also be given as an explicit list of types, for the
+		// games where the Pawns are NOT declared first and the guess above
+		// lands on whatever piece opens the list. Either form is normalised
+		// here into a lookup used by the 50-move counter.
+		this.cbPawnTypeSet = {};
+		if(Array.isArray(this.cbPawnTypes))
+			for(var pt=0;pt<this.cbPawnTypes.length;pt++)
+				this.cbPawnTypeSet[this.cbPawnTypes[pt]]=true;
+		else
+			for(var pt=0;pt<this.cbPawnTypes;pt++)
+				this.cbPawnTypeSet[pt]=true;
 		this.g.castleablePiecesCount = { '1': 0, '-1': 0 };
 		for(var i in cbVar.pieceTypes) {
 			var pType=cbVar.pieceTypes[i];
@@ -708,7 +719,7 @@
 				piece1.p=-1;
 				piece1.m=true;
 				this.noCaptCount=0;
-			} else if(piece.t < aGame.cbPawnTypes)
+			} else if(aGame.cbPawnTypeSet[piece.t])
 				this.noCaptCount = 0;
 			else
 				this.noCaptCount++;

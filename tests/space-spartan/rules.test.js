@@ -135,6 +135,17 @@ console.log("\n-- evaluation sees both armies --");
 	const twoKings = pos({ "Aa1": "wK", "Cf8": "bK", "Ba8": "bE", "Bc4": "wN" }, 1);
 	t.check("with one Spartan king, material is the knight alone", evaluate(oneKing).pieceValue, 2.9);
 	t.check("with two, the spare king is worth something", evaluate(twoKings).pieceValue, 2.9 - 4.5);
+	// the castling term is recentred: only the Persians can castle, so the raw
+	// value from base-model was a standing bonus for White
+	const fresh = h.newBoard(sb, game);
+	const seeded = { pieceValue: 0, pieceValueRatio: 0, castle: 2 / 3 };
+	game.cbVar.evaluate.call(fresh, game, seeded, materialOf(fresh), null, { "1": 0, "-1": 0 });
+	t.check("castling is worth nothing at the start", Math.abs(seeded.castle) < 1e-9, true);
+
+	const castled = { pieceValue: 0, pieceValueRatio: 0, castle: 1 };
+	game.cbVar.evaluate.call(fresh, game, castled, materialOf(fresh), null, { "1": 0, "-1": 0 });
+	t.check("and something once White has castled", castled.castle > 0, true);
+
 	// equal material used to divide 0 by 0 here
 	const equal = pos({ "Aa1": "wK", "Cf8": "bK", "Ba8": "bE" }, 1);
 	t.ok("equal material stays a number", !isNaN(evaluate(equal).pieceValueRatio));

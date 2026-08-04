@@ -49,11 +49,12 @@ fight over the letter `k` when a position is read back.
 
 ## Known and deliberate
 
-  - The 50-move counter is reset here by the real pawn types (6..9). The
-    generic detection in `base-model.js` assumes pawns are declared first and
-    stops at the first differing abbrev; in this family type 0 is the king, so
-    it was the KING that reset the counter and pawn moves that did not.
-    `3dchess` has the same issue and is left as it is.
+  - The 50-move counter is reset by the real pawn types, declared explicitly as
+    `Model.Game.cbPawnTypes = [6,7,8,9]`. The generic detection in
+    `base-model.js` assumes pawns are declared first and stops at the first
+    differing abbrev; in this family type 0 is the king, so it was the KING
+    that reset the counter and pawn moves that did not. Same fix in `3dchess`
+    and `raumschach`, and `tests/3dchess/fifty.test.js` covers all three.
   - The castle table lost its two Spartan entries: no Spartan piece is
     `castle:true`, so they could never fire, and one of them would have put a
     king on the other king's square.
@@ -61,10 +62,27 @@ fight over the letter `k` when a position is read back.
     evaluation gives the second king. A piece with `isKing` is excluded from
     `pieceValue`, so without it the AI gives its spare king away for nothing.
     It is the first knob to turn when tuning the balance.
-  - Piece values are the ones inherited from the 2D game and have NOT been
-    recalibrated for three planes. Measured geometric mobility, averaged over
-    the 144 squares: queen 32.8, rook 14.0, bishop 13.5, knight 10.9 against
-    hippagretai 24.4 (valued 7), polemarchoi 20.3 (7), skiritai 11.8 (4),
-    homoioi 8.3 (3.1). The homoioi is valued above the knight while moving
-    less, and every Spartan piece is a leaper, which is worth more than the
-    table says on a crowded board.
+  - Piece values. Mobility measured over played positions (60 random games,
+    sampled every 3 plies, `homoioi / skiritai / polemarchoi / hippagretai`
+    against `knight / bishop / rook / queen`) does NOT reproduce the FIDE
+    values on this board - the rook measures 3.6 in the opening and 6.3 in the
+    middlegame while being worth 5 - so fitting a line through mobility and
+    reading the Spartan pieces off it is worth about +/-1.5 and was not done.
+    What the measurement does support is two like-for-like comparisons, and
+    only those two values were changed:
+
+      - hippagretai 7 -> 8. It measures 100% of the queen's mobility in the
+        opening and 90% in the middlegame, and the 2D Warlord is worth 8.75
+        against a 9.5 queen. 7 against a 9-point queen was the transposition
+        losing a point on the way.
+      - homoioi 3.1 -> 2.5. It measures about 70% of the knight's mobility in
+        both phases. The 2D Captain matches the 2D Knight because both are
+        8-target leapers; three planes give the Captain 4 more targets and the
+        Knight 16.
+
+    polemarchoi (7, twice the rook's mobility, as in 2D) and skiritai (4,
+    above bishop and knight as in 2D) were left alone.
+  - The castling term is recentred in `evaluate()`. base-model weighs one
+    side's castling asset against the other's, and only the Persians have one,
+    so the raw term was a standing bonus for White that Black could never
+    answer.

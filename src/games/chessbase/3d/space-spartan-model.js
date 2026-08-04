@@ -4,6 +4,13 @@
 	var geometry = Model.Game.cbBoardGeometryMultiplan(6,8,3);
 	var CT = Model.Game.cbConstants;
 
+	// The 50-move counter is reset by Pawn moves. base-model works out which
+	// types are Pawns by assuming they are declared first, and here the King
+	// opens the list - so it was the KING that reset the counter and Pawn
+	// moves that did not. Declared explicitly: the pawns and the hoplites,
+	// each in its initial and its ordinary type.
+	Model.Game.cbPawnTypes = [6,7,8,9];
+
 	// Sparta is a DIARCHY: the Spartans have two kings, and that is what pays
 	// for their lighter army. So they need TWO distinct types, isKing:1 and
 	// isKing:2 - the engine files royals under kings[side*isKing], so two kings
@@ -165,11 +172,16 @@
 					          {s:-1,p:143},{s:-1,p:136},{s:-1,p:135},{s:-1,p:134},{s:-1,p:133},{s:-1,p:138}],
 					epTarget: true,
 				},
+				// value: in 2D Spartan Chess the Captain matches the Knight,
+				// both being 8-target leapers. Three planes give the Captain
+				// 4 more targets but the Knight 16, and measured over played
+				// positions the homoioi keeps only about 70% of the Knight's
+				// mobility - so it sits below it here, not above.
 				10: {
 					name: 'homoioi',//Spartiate
 					aspect: 'fr-machine',
 					graph: this.cbRSMachineGraph(geometry),
-					value: 3.1,
+					value: 2.5,
 					abbrev: 'M',
 					initial: [{s:-1,p:45},{s:-1,p:44},{s:-1,p:141},{s:-1,p:140}],
 				},
@@ -189,11 +201,15 @@
 					abbrev: 'O',
 					initial: [{s:-1,p:94}],
 				},
+				// value: the 2D Warlord is worth 8.75 against a 9.5 Queen, and
+				// on three planes the hippagretai measures 90 to 100% of the
+				// Queen's mobility - the 7 inherited from the transposition
+				// put it at 78% of a 9-point Queen for no reason.
 				13: {
 					name: 'hippagretai',
 					aspect: 'fr-proper-cardinal',
 					graph: this.cbRSCardinalGraph(geometry),
-					value: 7,
+					value: 8,
 					abbrev: 'C',
 					initial: [{s:-1,p:91}],
 				},
@@ -288,6 +304,17 @@
 					evalValues['minorPiecesMoved']=minorPiecesMoved;
 				}
 
+				// castling. base-model weighs each side's castling asset against
+				// the other's, but only the Persians have one: the Spartan half
+				// of the term is 0 for ever, so the raw value is a standing
+				// bonus for White that Black can never answer. Recentred on the
+				// starting position - 0 at the start, positive once White has
+				// castled, negative once it has thrown the right away.
+				if(evalValues["castle"] !== undefined) {
+					var castleable = aGame.g.castleablePiecesCount[1];
+					evalValues["castle"] -= castleable/(castleable+1);
+				}
+
 				// the spare king, invisible to pieceValue: count it by hand as
 				// long as the Spartans still have two. Start from the raw sums
 				// (5th argument) rather than from the ratio already computed:
@@ -317,21 +344,6 @@
 			if(this.cbGetAttackers(aGame,royals[i],who,100).length===0)
 				return false;								// a king in peace: no check
 		return true;
-	}
-
-	// 50-move counter. base-model works out the "pawn" types assuming pawns are
-	// declared FIRST (it stops at the first differing abbrev); in this family
-	// type 0 is the king, so cbPawnTypes is 1 and it is the KING that resets
-	// the counter, not the pawns. Recomputed here for the real pawn types.
-	var PAWN_TYPES = { 6:true, 7:true, 8:true, 9:true };
-	var OriginalApplyMove = Model.Board.ApplyMove;
-	Model.Board.ApplyMove = function(aGame,move) {
-		var index = this.board[move.f];
-		var movedType = index>=0 ? this.pieces[index].t : -1;
-		var before = this.noCaptCount;
-		OriginalApplyMove.apply(this,arguments);
-		if(move.c==null && move.cg===undefined)
-			this.noCaptCount = PAWN_TYPES[movedType] ? 0 : before+1;
 	}
 
 })();

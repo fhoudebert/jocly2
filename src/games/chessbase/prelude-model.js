@@ -77,7 +77,7 @@
 					var pieceIndex=$this.board[pos];
 					if(pieceIndex>=0) {
 						var p=$this.pieces[pieceIndex];
-						if(p.s==who && !aGame.cbVar.pieceTypes[p.t].isKing && p.t>=aGame.cbPawnTypes)
+						if(p.s==who && !aGame.cbVar.pieceTypes[p.t].isKing && !aGame.cbPawnTypeSet[p.t])
 							present[p.t]=1;
 					}
 				}
