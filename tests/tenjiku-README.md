@@ -127,3 +127,29 @@ whether the checking side then has a mate in one. That is a small quiescence
 over checks; the cost is one move generation per checking child (~13 ms here),
 so it needs a depth cap and probably a limit on the number of checking children
 extended per node.
+
+### Forced-line extension (measured)
+
+`1. j5-j6 SEl13-n11 2. BGk4-i6` is the case the plain search kept losing: the
+refutation starts with `3. BGi6xn11+`, a capture the static evaluation scores
+negative (a Bishop General, 12, for a Soaring Eagle, 9), so UCT never looked at
+it - and the mate lands two plies later.
+
+`mateSearch` (a level option, off unless asked for) follows a checking child
+while its replies stay forced: generate the replies, and for each of them look
+for a new check by the same side, down to mate. `maxReplies` gives up when the
+check is not really forcing, `maxDepth` keeps it near the top of the tree.
+
+| | without | with |
+|---|---|---|
+| 20000 nodes (time) | 10.0 s | 14.4 s |
+| answer to `2. BGk4-i6`, 20000 nodes | `SEe13-g11`, loses | `HFm13-m11`, holds |
+| answer to `2. BGk4-i6`, 60000 nodes | `SEe13-g11`, loses | `SEn11-n10`, holds |
+| answer to `1. j5-j6`, 5000 nodes | `o12-o11`, holds | `o12-o11`, holds |
+
+So it costs about 44% more time per node and it settles the whole family of
+"check that removes the defender, forced recapture, mate" combinations. It is
+enabled on every Tenjiku level except *Easy*. Two things had to be fixed for it
+to work at all: the level option was not being copied into the search
+parameters, and a child created as already settled during an expansion never
+propagated that fact to its parent.

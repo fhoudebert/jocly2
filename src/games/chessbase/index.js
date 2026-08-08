@@ -1619,6 +1619,15 @@ exports.games = (function () {
 		"uctIgnoreLoop": false,
 		"levelOptions": config_model_gameOptions_levelOptions_tenjiku
 	}
+	// Follow a check a couple of moves further when its replies are forced: the
+	// combinations that decide a game of Tenjiku start with a capture the static
+	// evaluation calls bad (a general for a lesser piece), so the plain search
+	// never looks at them, and the mate lands two plies later.
+	var config_model_levels_mateSearch_tenjiku = {
+		"depth": 2,
+		"maxReplies": 4,
+		"maxDepth": 6
+	}
 	var config_model_levels_tenjiku = [
 		{
 			"name": "easy",
@@ -1640,6 +1649,7 @@ exports.games = (function () {
 			"c": 0.6,
 			"ignoreLeaf": false,
 			"uncertaintyFactor": 3,
+			"mateSearch": config_model_levels_mateSearch_tenjiku,
 			"maxDuration": 5,
 			"isDefault": true
 		},
@@ -1652,6 +1662,7 @@ exports.games = (function () {
 			"c": 0.6,
 			"ignoreLeaf": false,
 			"uncertaintyFactor": 3,
+			"mateSearch": config_model_levels_mateSearch_tenjiku,
 			"maxNodes": 60000,
 			"maxDuration": 40
 		},
@@ -1664,6 +1675,7 @@ exports.games = (function () {
 			"c": 0.6,
 			"ignoreLeaf": false,
 			"uncertaintyFactor": 3,
+			"mateSearch": config_model_levels_mateSearch_tenjiku,
 			"maxNodes": 200000,
 			"maxDuration": 120
 		},
@@ -1676,6 +1688,7 @@ exports.games = (function () {
 			"c": 0.6,
 			"ignoreLeaf": false,
 			"uncertaintyFactor": 3,
+			"mateSearch": config_model_levels_mateSearch_tenjiku,
 			"maxNodes": 1000000,
 			"maxDuration": 600
 		},
@@ -1688,6 +1701,7 @@ exports.games = (function () {
 			"c": 0.6,
 			"ignoreLeaf": false,
 			"uncertaintyFactor": 3,
+			"mateSearch": config_model_levels_mateSearch_tenjiku,
 			"maxNodes": 2000000,
 			"maxDuration": 1200
 		}
