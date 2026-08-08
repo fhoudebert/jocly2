@@ -14,7 +14,10 @@
 	c.FLAG_CHECKER = CHECKER_BIT | FAIRY_BIT | c.FLAG_SPECIAL;
 	c.FLAG_BURN = BURN_BIT | HITRUN_BIT | FAIRY_BIT;
 
-	Model.Game.extraInit = function(geometry) { // called from InitGame
+	var geometry; // kept for Move.ToString below, which gets no game reference
+
+	Model.Game.extraInit = function(geo) { // called from InitGame
+		geometry = geo;
 		if(!this.neighbors) this.neighbors = this.cbSymmetricGraph(geometry,[RIFLE_BIT|c.FLAG_MOVE|c.FLAG_CAPTURE,10,11]);
 		if(!this.burnZone)  this.burnZone  = this.cbSymmetricGraph(geometry,[10,11]);
 	}

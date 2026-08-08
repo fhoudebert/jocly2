@@ -1,0 +1,83 @@
+```html
+<style>
+    .piece-graph {
+        height: auto;
+        max-width: 300px;
+        margin: 0 auto;
+        display: inline-flex;
+    }
+</style>
+
+<h2>Tenjiku shogi</h2>
+<p>Le Tenjiku shogi (天竺将棋 tenjiku shōgi, « échecs indiens ») est une variante du shogi (échecs japonais) se jouant sur un très grand plateau. Le jeu remonte aux XVe ou XVIe siècles et est basé sur le Chu Shogi, plus ancien.</p>
+
+<h2>Plateau</h2>
+
+<p>Le plateau est de 16 × 16 cases.</p>
+
+<h2>Position initiale</h2>
+<p style="text-align:center"><img style='max-width:100%' src="{GAME}/res/visuals/tenjiku-600x600-2d.jpg"/></p>
+
+<h2>Mouvements et propriétés des pièces</h2>
+<p>Cette description complète les règles du Chu Shogi :</p>
+
+<p><b>Vice-général</b> : se déplace comme un Fou. Lorsqu'il capture, il peut sauter par-dessus un nombre arbitrairement grand d'autres pièces (à l'exception du Grand Général). Le Vice-général peut également effectuer jusqu'à trois pas de Roi au cours d'un même déplacement.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/vice-general.png"/></p>
+
+<p><b>Démon de feu</b> : brûle tous les ennemis présents sur l'une des huit cases adjacentes à celle qu'il occupe (et non celles qu'il traverse). Cet effet s'applique activement après chacun de ses déplacements, mais aussi passivement lorsqu'une pièce adverse termine son mouvement sur une case adjacente.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/fireDemon.png"/></p>
+
+<p><b>Buffle d'eau</b> : se promeut en Démon de feu.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/waterBuffalo.png"/></p>
+
+<p><b>Tétrarque céleste</b> : pièce glissante qui saute systématiquement la première case dans n'importe quelle direction, sans tenir compte de son contenu. Horizontalement, il peut terminer son déplacement au maximum à trois cases de son point de départ. Dans les six autres directions, il peut glisser sur une distance illimitée. Il peut également anéantir une pièce adverse adjacente sans se déplacer.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/heavenlyTetrach.png"/></p>
+
+<p><b>Soldat de char</b> : se promeut en Tétrarque céleste.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/chariotSoldier.png"/></p>
+
+<p><b>Faucon-lion</b> : peut :</p>
+<ul>
+    <li>sauter directement sur n'importe quelle case de la zone de 5 × 5 qui l'entoure ;</li>
+    <li>anéantir une pièce adverse adjacente puis poursuivre son déplacement vers une case vide adjacente à celle-ci ;</li>
+    <li>rester sur place sans effectuer de capture.</li>
+</ul>
+
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/lionHawk.png"/></p>
+
+<p><b>Soldat vertical</b> : se promeut en Soldat de char.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/verticalSoldier.png"/></p>
+
+<p><b>Soldat horizontal</b> : se promeut en Buffle d'eau.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/horizontalSoldier.png"/></p>
+
+<p><b>Chien</b> : se promeut en Général multiple.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/dog.png"/></p>
+
+<p><b>Général multiple</b></p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/multiGeneral.png"/></p>
+
+<p><b>Général de fer</b> : se promeut en Soldat vertical.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/ironGeneral.png"/></p>
+
+<p><b>Aigle libre</b> : se déplace comme une Dame, mais possède également les mouvements diagonaux du Lion :</p>
+<ul>
+    <li>sauter directement vers n'importe quelle case située à exactement deux cases de distance dans une direction quelconque ;</li>
+    <li>anéantir une pièce adverse située en diagonale adjacente sans se déplacer (formellement un pas en avant puis un pas en arrière, appelé « capture en rafale ») ;</li>
+    <li>anéantir une pièce adverse située en diagonale adjacente puis poursuivre son déplacement vers une case vide située immédiatement au-delà (« frapper et fuir ») ;</li>
+    <li>anéantir une pièce adverse située en diagonale adjacente puis capturer normalement une seconde pièce située sur la diagonale suivante (« double capture ») ;</li>
+    <li>rester sur place sans capturer si au moins une case diagonale adjacente est libre (ce qui revient à passer son tour).</li>
+</ul>
+
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/freeEagle.png"/></p>
+
+<p><b>Grand Général</b> : se déplace comme une Dame. Lorsqu'il capture, il peut sauter par-dessus un nombre arbitrairement grand de pièces, sauf le Roi ou le Prince.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/greatGeneral.png"/></p>
+
+<p><b>Général de tour</b> : se déplace comme une Tour. Lorsqu'il capture, il peut sauter par-dessus un nombre arbitrairement grand de pièces, sauf les sauteuses de rang supérieur ou le Roi/Prince.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/rookGeneral.png"/></p>
+
+<p><b>Général de fou</b> : se déplace comme un Fou. Lorsqu'il capture, il peut sauter par-dessus un nombre arbitrairement grand de pièces, sauf les sauteuses de rang supérieur ou le Roi/Prince.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/bishopGeneral.png"/></p>
+```
+

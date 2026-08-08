@@ -425,6 +425,12 @@
 			this.board[pos]=-1;
 		this.pieces.forEach(function(piece,index) {
 			piece.i=index;
+			var pType0=aGame.g.pTypes[piece.t];
+			// jumping power of the piece (see FLAG_SCREEN_CAPTURE below). Set
+			// here rather than only where the initial setup is built, so that a
+			// position loaded from FEN/PJN - whose pieces come from Import(),
+			// which knows nothing about ranking - gets it too.
+			piece.r=pType0.ranking;
 			if(piece.p<0) return;
 			$this.board[piece.p]=index;
 			var pType=aGame.g.pTypes[piece.t];
@@ -662,8 +668,16 @@
 			ty: piece.t,
 		});
 		piece.p=move.t;
-		if(move.pr!==undefined)
+		if(move.pr!==undefined) {
 			piece.t=move.pr;
+			// a piece promoting into (or out of) a jumping slider changes its
+			// jumping power, so piece.r has to follow piece.t
+			var rank1=aGame.g.pTypes[piece.t].ranking;
+			if(rank1!==piece.r) {
+				undo[0].ra=piece.r;
+				piece.r=rank1;
+			}
+		}
 		var royal = aGame.g.pTypes[piece.t].isKing;
 		if(royal) {
 			royal *= piece.s;
@@ -695,6 +709,8 @@
 				this.kings[u.who]=u.kp;
 			if(u.ty!=undefined)
 				piece.t=u.ty;
+			if(u.ra!==undefined)
+				piece.r=u.ra;
 			if(u.cg!=undefined)
 				this.castled[piece.s]=u.cg;
 		}
@@ -710,6 +726,7 @@
 			if(move.pr!==undefined) {
 				this.zSign^=aGame.tKey(piece);
 				piece.t=move.pr;
+				piece.r=aGame.g.pTypes[piece.t].ranking; // jumping power follows the type
 				this.zSign^=aGame.tKey(piece);
 			}
 			if(move.c!=null) {
@@ -839,8 +856,14 @@
 		}
 		
 		if(this.lastMove.c!==null) {
-			var piece=this.pieces[this.board[this.lastMove.t]];
-			pieceValue[-piece.s]+=this.cbStaticExchangeEval(aGame,piece.p,piece.s,{piece:piece})
+			// the destination can be empty even after a capture: a variant may
+			// remove the piece that just moved (Tenjiku Shogi burns whatever
+			// steps next to a Fire Demon)
+			var index0=this.board[this.lastMove.t];
+			if(index0>=0) {
+				var piece=this.pieces[index0];
+				pieceValue[-piece.s]+=this.cbStaticExchangeEval(aGame,piece.p,piece.s,{piece:piece})
+			}
 		}
 		var kingFreedom={ '1': 0, '-1': 0 };
 		var endingDistKing={ '1': 0, '-1': 0 };
@@ -1507,9 +1530,19 @@
 				var colIndex=0;
 				for(var i=0;i<row.length;i++) {
 					var ch=row.substr(i,1);
+					// a few large variants need more piece letters than the
+					// alphabet has (Tenjiku Shogi has 66 piece kinds), so a type
+					// may declare a multi-character fenAbbrev ("B!", "+C!"):
+					// take the longest declared code that matches here
+					for(var len=3;len>1;len--)
+						if(i+len<=row.length && piecesMap[row.substr(i,len)]!==undefined) {
+							ch=row.substr(i,len);
+							i+=len-1;
+							break;
+						}
 					// promoted pieces are written "+P", "+e", ... - read the
 					// '+' together with the letter that follows it
-					if(ch=='+' && i+1<row.length) { ch=row.substr(i,2); i++; }
+					if(ch.length==1 && ch=='+' && i+1<row.length) { ch=row.substr(i,2); i++; }
 					var pieceDescr=piecesMap[ch];
 					if(pieceDescr!==undefined) {
 						var pos=FenRowPos(rowIndex,colIndex);

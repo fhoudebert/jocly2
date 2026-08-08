@@ -1597,6 +1597,12 @@ exports.games = (function () {
 		"locust-move-model.js",
 		"shogi/chu-shogi-model.js"
 	]
+	var modelScripts_tenjiku = [
+		"base-model.js",
+		"grid-geo-model.js",
+		"locust-move-model.js",
+		"shogi/tenjiku-shogi-model.js"
+	]
 	var modelScripts_109 = [
 		"base-model.js",
 		"grid-geo-model.js",
@@ -1836,6 +1842,13 @@ exports.games = (function () {
 		"shogi/tenjiku-set-view.js",
 		"multi-leg-view.js",
 		"shogi/chu-shogi-view.js"
+	]
+	var config_view_js_tenjiku = [
+		"base-view.js",
+		"grid-board-view.js",
+		"shogi/tenjiku-set-view.js",
+		"multi-leg-view.js",
+		"shogi/tenjiku-shogi-view.js"
 	]
 	var config_view_js_109 = [
 		"base-view.js",
@@ -8934,6 +8947,78 @@ exports.games = (function () {
 				}
 			},
 			"viewScripts": config_view_js_108
+		},
+		{
+			"name": "tenjiku-shogi",
+			"modelScripts": modelScripts_tenjiku,
+			"config": {
+				"status": true,
+				"model": {
+					"title-en": "Tenjiku Shogi",
+					"summary": {
+						"en": "Historic 16x16 Shogi variant with Fire Demons",
+						"fr": "Variante historique de shogi en 16x16 avec démons de feu"
+					},
+					"rules": {
+						"en": "res/rules/shogi/tenjiku-rules.html"
+					},
+					"module": "chessbase",
+					"plazza": "true",
+					"thumbnail": "res/rules/shogi/chu-shogi-thumb.png",
+					"released": 1396536978,
+					"credits": {
+						"en": "res/rules/shogi/shogi-credits.html"
+					},
+					"gameOptions": config_model_gameOptions_2,
+					"js": modelScripts_tenjiku,
+					"levels": config_model_levels_15
+				},
+				"view": {
+					"title-en": "Chessbase view",
+					"visuals": {
+						"600x600": [
+							"res/visuals/tenjiku-600x600-2d.png"
+						]
+					},
+					"xdView": true,
+					"css": config_view_css,
+					"preferredRatio": 1,
+					"useShowMoves": true,
+					"useNotation": true,
+					"module": "chessbase",
+					"defaultOptions": config_view_defaultOptions,
+					"skins": [
+						{
+							"name": "skin2d",
+							"title": "2D Classic",
+							"3d": false,
+							"preload": [
+								"image|/res/images/cancel.png",
+								"image|/res/images/whitebg.png",
+								"image|/res/images/wikipedia.png",
+								"image|/res/shogi/tenjiku-shogi-picto-sprites.png"
+							]
+						},
+						{
+							"name": "skin2dmnemonic",
+							"title": "2D Mnemonic",
+							"3d": false,
+							"preload": [
+								"image|/res/images/cancel.png",
+								"image|/res/images/whitebg.png",
+								"image|/res/images/wikipedia.png",
+								"image|/res/shogi/tenjiku-shogi-mnemonic-sprites.png"
+							]
+						}
+					],
+					"animateSelfMoves": false,
+					"switchable": true,
+					"sounds": config_view_sounds,
+					"js": config_view_js_tenjiku,
+					"useAutoComplete": true
+				}
+			},
+			"viewScripts": config_view_js_tenjiku
 		},
 		{
 			"name": "makromachy",
