@@ -1272,6 +1272,38 @@
 		return this.cbGetAttackers(aGame,sole,who,100).length>0;
 	}
 
+	// Is there at least one legal move? Same test as GenerateMoves below, but it
+	// stops at the first move that holds, and it tries the moves of the royal
+	// pieces first - stepping out of the way answers most checks - so the usual
+	// answer costs one legality test instead of the whole move list. Only a real
+	// mate pays for the full scan. The UCT search uses it to recognize a mate as
+	// soon as the mating move is generated, instead of waiting until that node
+	// is expanded in its turn.
+	Model.Board.HasLegalMove = function(aGame) {
+		var moves=this.cbGeneratePseudoLegalMoves(aGame);
+		var multiRoyal=aGame.cbMaxRoyalRank>1;
+		var royal=[], other=[];
+		for(var i=0;i<moves.length;i++) {
+			var index=this.board[moves[i].f];
+			if(index>=0 && aGame.g.pTypes[this.pieces[index].t].isKing)
+				royal.push(moves[i]);
+			else
+				other.push(moves[i]);
+		}
+		moves=royal.concat(other);
+		for(var i=0;i<moves.length;i++) {
+			var move=moves[i];
+			var undo=this.cbQuickApply(aGame,move);
+			var inCheck=multiRoyal
+				? this.cbInLosingCheck(aGame,this.mWho)
+				: this.cbGetAttackers(aGame,this.kings[this.mWho],this.mWho,100).length>0;
+			this.cbQuickUnapply(aGame,undo);
+			if(!inCheck)
+				return true;
+		}
+		return false;
+	}
+
 	Model.Board.GenerateMoves = function(aGame) {
 		var moves=this.cbGeneratePseudoLegalMoves(aGame);
 		this.mMoves = [];

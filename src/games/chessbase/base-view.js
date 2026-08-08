@@ -627,12 +627,15 @@
 												// here: when a 3D skin is active the default 2D sprites are
 												// kept, and a 3D override (meshes, scales, ...) is never poured
 												// into the 2D spec.
-												var skinSpec = aspectSpec[xdv.game.mSkin], skin2d = false;
+												// aGame is the game object the view runs on, and jocly.game.js keeps the
+												// selected skin there (mSkin): read it from aGame, not from xdv.
+												var skinName = aGame.mSkin || (xdv.game && xdv.game.mSkin);
+												var skinSpec = skinName && aspectSpec[skinName], skin3d = false;
 												(aGame.mViewOptions && aGame.mViewOptions.skins || []).forEach(function(skin) {
-													if(skin.name == xdv.game.mSkin && !skin["3d"])
-														skin2d = true;
+													if(skin.name == skinName && skin["3d"])
+														skin3d = true;
 												});
-												if(skinSpec !== undefined && skin2d)
+												if(skinSpec && !skin3d)
 													aspectSpec["2d"] = $.extend(true,{},aspectSpec["2d"],skinSpec);
 												xdv.updateGadget("promo#"+move.pr, {
 													base: $.extend(aspectSpec["2d"], { 

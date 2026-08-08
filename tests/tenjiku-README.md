@@ -97,3 +97,14 @@ The two remaining candidates, both in `base-model.js` and both shared by every
 game, are `Model.Board.Evaluate` (~100 µs, and it allocates a dozen objects,
 two typed arrays and one array per piece type present on every call, most of
 which no game reads) and the `for(var pos1 in graph)` walk of the threat tree.
+
+### Seeing mate one ply earlier
+
+The UCT search only learned that a move was mate when the mating node was
+expanded in its turn, which in a game with 70+ legal moves per position costs a
+few thousand nodes per candidate. `Model.Board.HasLegalMove` (early-exit
+legality test, royal moves tried first) lets the search settle that as soon as
+the mating move is generated - and only for the moves that give check, whose
+`ck` flag the model already computes. Answering `1. j5-j6` correctly used to
+need 200000 nodes, then 60000 once checks were weighted; it now takes 5000
+(3 s), for about 15% more time per node.

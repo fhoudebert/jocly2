@@ -555,6 +555,14 @@ if(typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 								uctNodes[sign1]=node1;
 								node1.sign=sign1;
 							}
+							// A move that gives check may well be mate. Finding it out
+							// here, rather than when this node gets expanded in its
+							// turn, is what makes the search see a mate in one as a
+							// settled loss right away - it costs one cheap legality
+							// scan, and only on the moves that do give check.
+							if(move.ck && typeof board1.HasLegalMove == "function" &&
+							   !board1.HasLegalMove(aGame))
+								board1.GenerateMoves(aGame); // sets mFinished/mWinner
 							board1.Evaluate(aGame);
 							if(board1.mFinished) {
 								node1.known=true;

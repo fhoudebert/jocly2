@@ -9051,8 +9051,8 @@ exports.games = (function () {
 				"model": {
 					"title-en": "Tenjiku Shogi",
 					"summary": {
-						"en": "Historic 16x16 Shogi variant with Fire Demons",
-						"fr": "Variante historique de shogi en 16x16 avec démons de feu"
+						"en": "The 'exotic' shogi derived from Chu Shogi is the most extravagant and original of all historical variants.",
+						"fr": "Le shogi 'exotique' issu du chu shogi est la plus originale et extravagante des variantes historiques."
 					},
 					"rules": {
 						"en": "res/rules/shogi/tenjiku-rules.html",
