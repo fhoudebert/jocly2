@@ -105,6 +105,10 @@ if(typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 				//   maxReplies: give up when the check is not really forcing,
 				//   maxDepth: only near the top of the tree }
 				mateSearch: aOptions.level.mateSearch===undefined?null:aOptions.level.mateSearch,
+				// null-move mate-threat detection, off unless the level asks:
+				// { weight: how far the value is pulled toward the threatening
+				//   side, maxDepth: only near the top of the tree }
+				mateThreat: aOptions.level.mateThreat===undefined?null:aOptions.level.mateThreat,
 		};
 		var uctNodes={};
 		var signatures; // the array of visited board signatures
@@ -362,6 +366,55 @@ if(typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 			return true;
 		}
 
+		/*
+		 * Null-move mate threat. If the side to move could pass and be mated
+		 * right away, its position is in serious danger - and, unlike a check,
+		 * nothing in the static evaluation says so. This is what the search kept
+		 * missing in Tenjiku Shogi: a jumping general takes aim with a QUIET move
+		 * (VGi4-n9), and mate follows two plies later on a line nothing can
+		 * block, so no amount of check extension sees it coming.
+		 * One move generation per expanded node, and only near the top of the
+		 * tree. It is a heuristic, not a proof: a mate threat can often be
+		 * parried, hence a weight rather than a settled value.
+		 */
+		function MateThreat(board) {
+			if(board.check || typeof board.HasLegalMove != "function")
+				return 0; // in check, passing is not a meaningful question
+			var BoardClass=aGame.GetBoardClass();
+			var board1=new BoardClass(aGame);
+			board1.CopyFrom(board);
+			board1.mWho=-board1.mWho; // the null move
+			board1.epTarget=null;
+			board1.mMoves=[];
+			board1.GenerateMoves(aGame);
+			if(board1.mFinished)
+				return 0;
+			for(var i=0;i<board1.mMoves.length;i++) {
+				var move=board1.mMoves[i];
+				if(!move.ck)
+					continue; // a mate in one is a check
+				var board2=new BoardClass(aGame);
+				board2.CopyFrom(board1);
+				board2.ApplyMove(aGame,move);
+				board2.mWho=-board2.mWho;
+				board2.mMoves=[];
+				if(!board2.HasLegalMove(aGame))
+					return -board.mWho; // the side that does not move here wins
+			}
+			return 0;
+		}
+
+		// The threat only biases the value the node gets when it is created, the
+		// moment where nothing but the static evaluation is known. As soon as the
+		// subtree grows, the search recomputes the node from its children and the
+		// bias is gone - a threat is a suspicion, not a verdict.
+		function ApplyThreat(node,evaluation) {
+			if(!node.threat)
+				return evaluation;
+			var w=uctParams.mateThreat.weight;
+			return evaluation*(1-w)+node.threat*w;
+		}
+
 		function PropagateKnownParent(node,visited) {
 			if(aGame.mOptions.uctTransposition && !aGame.mOptions.uctIgnoreLoop && (node.sign in visited))
 				return;
@@ -578,6 +631,9 @@ if(typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 			if(node==rootNode || node.visits>=uctParams.minVisitsExpand) {
 				if(!board.mMoves || board.mMoves.length==0)
 					board.GenerateMoves(aGame);
+				if(uctParams.mateThreat && !board.mFinished &&
+				   depth<=uctParams.mateThreat.maxDepth)
+					node.threat=MateThreat(board);
 				if(board.mFinished) { // in some game implementations, ending is detected while generating the moves
 					node.known=true;
 					node.evaluation=winnerMap[board.mWinner];
@@ -669,7 +725,7 @@ if(typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 						for(var j=0;j<signatures1.length;j++)
 							aGame.RemoveVisit(null,signatures1[j]);
 					}
-					node.evaluation=bestEval;
+					node.evaluation=ApplyThreat(node,bestEval);
 					PropagateEval(node,uctParams.propagateMultiVisits?board.mMoves.length:1);
 					if(uctParams.directVisits)
 						for(var i=0;i<nodePath.length;i++)
@@ -954,7 +1010,7 @@ if(typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 					}
 				}
 
-				JocUtil.schedule(aGame, "Done", {});
+					JocUtil.schedule(aGame, "Done", {});
 			}
 		}
 		Run();

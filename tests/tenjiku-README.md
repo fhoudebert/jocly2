@@ -153,3 +153,30 @@ enabled on every Tenjiku level except *Easy*. Two things had to be fixed for it
 to work at all: the level option was not being copied into the search
 parameters, and a child created as already settled during an expansion never
 propagated that fact to its parent.
+
+## Null-move mate threat: measured, and it does not pay
+
+`mateThreat` (a level option, null unless asked for) passes the move at an expanded node and
+asks whether the opponent then mates in one. The idea was to catch the pattern the check
+extension cannot see: a jumping general takes aim with a *quiet* move (`1... o12-o11
+2. VGi4-n9`), and mate follows two plies later on a line nothing can block.
+
+The mechanism works - it fires on 5% of expanded nodes, so it is a sharp signal, not noise -
+and it costs about 20% more time per node. But it does not improve the move played, at any
+weight tried (0.3, 0.5, 0.6) and with the bias applied either to the static value only or to
+every recomputation. Measured on `1. j5-j6`, where the move that holds is `SEl13-n11` (six
+plies of normal play afterwards) and `o12-o11` loses (mated within six plies):
+
+| | move played |
+|---|---|
+| without `mateThreat` | `o12-o11` at 5000, 20000, 60000 and 200000 nodes |
+| `mateThreat` 0.3 / 0.5 / 0.6 | `GGi13xa5`, `BGk13xc5`, `g12-g11` - a different move each run |
+
+The reason is in the third measurement: a search of 20000 nodes **expands only 242 positions**
+in this game, and 200000 nodes expands about 1700. With 117 legal moves per position that is
+barely two plies, and only about a dozen expansions per root move. No leaf heuristic can
+decide anything on that: the move played is essentially whatever the static evaluation
+happens to favour, which is why three runs give three different moves.
+
+So the option is left in place and off, and the honest conclusion is that what tenjiku needs
+is expansions per second - the search does eight of them per second, at about 120 ms each.
