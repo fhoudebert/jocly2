@@ -845,17 +845,26 @@
 		var who=this.mWho;
 		var g=aGame.g;
 		var material;
-		if(USE_TYPED_ARRAYS)
+		if(USE_TYPED_ARRAYS) {
+			// the two counters are the same size on every call: keep them on the
+			// game and blank them, rather than allocating a pair per evaluation
+			var counts=aGame.cbEvalCounts;
+			if(counts===undefined || counts[0].length!=g.pTypes.length)
+				counts=aGame.cbEvalCounts=[new Uint8Array(g.pTypes.length),
+							  new Uint8Array(g.pTypes.length)];
+			counts[0].fill(0);
+			counts[1].fill(0);
 			material={ 
 				'1': {
-					count: new Uint8Array(g.pTypes.length),
+					count: counts[0],
 					byType: {},
 				},
 				'-1': {
-					count: new Uint8Array(g.pTypes.length), 
+					count: counts[1], 
 					byType: {},
 				}
 			}
+		}
 		else {
 			material={ 
 				'1': {
@@ -893,31 +902,48 @@
 		var castlePiecesCount={ '1': 0, '-1': 0 };
 		var kingMoved={ '1': 0, '-1': 0 }; // kludge: should become false or true
 		
+		// One accumulator per side, with plain numeric fields. The loop below runs
+		// over every piece on every evaluation, and the {'1':..,'-1':..} objects
+		// it used to fill turned each `x[s]` into a number-to-string conversion
+		// and a dictionary lookup - about a thousand of them per call.
+		var accW={ value:0, castle:0, count:0, dist:0, pos:0, moved:0,
+			   mat:material['1'], distGraph:distKingGraph['1'] };
+		var accB={ value:0, castle:0, count:0, dist:0, pos:0, moved:0,
+			   mat:material['-1'], distGraph:distKingGraph['-1'] };
+		var distEdge=cbVar.geometry.distEdge;
+		var pTypes=g.pTypes;
 		var pieces=this.pieces;
 		var piecesLength=pieces.length;
 		for(var i=0;i<piecesLength;i++) {
 			var piece=pieces[i];
-			if(piece.p>=0) {
-				var s=piece.s;
-				var pType=g.pTypes[piece.t];
+			var pos=piece.p;
+			if(pos>=0) {
+				var pType=pTypes[piece.t];
+				var acc=piece.s>0?accW:accB;
 				if(!pType.isKing)
-					pieceValue[s]+=pType.value;
+					acc.value+=pType.value;
 				else
-					kingMoved[s]=piece.m;
+					acc.moved=piece.m;
 				if(pType.castle && !piece.m)
-					castlePiecesCount[s]++;
-				pieceCount[s]++;
-				distKing[s]+=distKingGraph[s][piece.p];
-				posValue[s]+=cbVar.geometry.distEdge[piece.p];
-				var mat=material[s];
+					acc.castle++;
+				acc.count++;
+				acc.dist+=acc.distGraph[pos];
+				acc.pos+=distEdge[pos];
+				var mat=acc.mat;
 				mat.count[piece.t]++;
 				var byType=mat.byType;
 				if(byType[piece.t]===undefined)
 					byType[piece.t]=[piece];
 				else
-					byType[piece.t].push(piece);					
+					byType[piece.t].push(piece);
 			}
 		}
+		pieceValue['1']=accW.value;         pieceValue['-1']=accB.value;
+		castlePiecesCount['1']=accW.castle; castlePiecesCount['-1']=accB.castle;
+		pieceCount['1']=accW.count;         pieceCount['-1']=accB.count;
+		distKing['1']=accW.dist;            distKing['-1']=accB.dist;
+		posValue['1']=accW.pos;             posValue['-1']=accB.pos;
+		kingMoved['1']=accW.moved;          kingMoved['-1']=accB.moved;
 
 		if(kingMoved[who]===0 && this.kings[who]!==undefined) { // no King found, but had one before
 			this.mWinner=-who; this.mFinished=true; // opponent wins
@@ -977,9 +1003,18 @@
 			cbVar.evaluate.call(this,aGame,evalValues,material,pieceCount,pieceValue);
 
 		var evParams=aGame.mOptions.levelOptions;
+		// the "<name>Factor" lookups are the same on every call: build the
+		// name -> factor map once per set of level options
+		var factors=aGame.cbEvalFactors;
+		if(factors===undefined || aGame.cbEvalFactorsFor!==evParams) {
+			factors=aGame.cbEvalFactors={};
+			aGame.cbEvalFactorsFor=evParams;
+		}
 		for(var name in evalValues) {
 			var value=evalValues[name];
-			var factor=evParams[name+'Factor'] || 0;
+			var factor=factors[name];
+			if(factor===undefined)
+				factor=factors[name]=evParams[name+'Factor'] || 0;
 			var weighted=value*factor;
 			if(debug)
 				console.log(name,"=",value,"*",factor,"=>",weighted);

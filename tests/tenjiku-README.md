@@ -207,3 +207,24 @@ search now answers `SEn11-n10` at 60000 nodes where it needed a bigger budget be
 not change the first move, where `o12-o11` is still preferred to `SEl13-n11` at every budget
 up to 500000 nodes (147 s) - that one needs the search to see a quiet general manoeuvre four
 plies away, and one ply is not enough.
+
+## Evaluate
+
+`Model.Board.Evaluate` runs on every child of every expanded node - about 117 times per
+expansion here - and it was spending its time on things that have nothing to do with chess:
+the `{'1':..,'-1':..}` accumulators turned each `x[s]` into a number-to-string conversion plus
+a dictionary lookup, roughly a thousand of them per call; the two `Uint8Array` counters were
+allocated per call; and the weighting loop rebuilt the `"<name>Factor"` strings every time.
+
+Now: one plain accumulator object per side inside the piece loop (the `{'1':..,'-1':..}`
+objects are filled once after it, so nothing downstream changes), the counters live on the
+game and are blanked, and the name-to-factor map is built once per set of level options.
+
+| | before | after |
+|---|---|---|
+| `Evaluate` | 101 µs | **45.8 µs** |
+| 20000 UCT nodes (Tenjiku) | 4.9 s | **2.7 s** |
+
+Together with the flattened threat graph, a Tenjiku search is **4.8x** faster than it was
+(13.1 s for the same 20000 nodes at the start), and `Strong` now really runs its 500000 nodes
+inside the two-minute limit instead of being cut short by it.
