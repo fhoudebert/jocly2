@@ -31,6 +31,9 @@
     }
     .tj-picto { background-image: url({GAME}/res/shogi/tenjiku-shogi-picto-sprites.png); }
     .tj-mnemo { background-image: url({GAME}/res/shogi/tenjiku-shogi-mnemonic-sprites.png); }
+    .tj-promo td { padding: 2px 8px; vertical-align: middle; }
+    .tj-arrow { font-size: 1.4em; }
+    .tj-name { padding-left: .4em; }
 </style>
 <h2>Chu Shogi</h2>
 <p>Le Chu Shogi (« Shogi moyen ») a été la forme dominante des échecs au Japon pendant plusieurs siècles, jusqu'à l'invention des prises et remises en jeu de pièces, qui a conduit à son remplacement par le Shogi moderne.</p>
@@ -128,47 +131,27 @@
 <p>Un Lion ne peut pas capturer un Lion si cela l'expose à une recapture au tour suivant, comme s'il était devenu une pièce royale absolue pendant un tour (« protégé »).</p>
 <p>Un non-Lion ne peut pas capturer un Lion si, au tour précédent, un Lion a été capturé par un non-Lion sur une autre case (« contre-attaque »).</p>
 <h2>Promotion</h2>
+<p>Une pièce peut se promouvoir quand elle entre dans les quatre dernières rangées, et quand elle s’y déplace ou en sort en capturant. La promotion est facultative, sauf pour un pion atteignant la dernière rangée. Chaque ligne donne la pièce puis ce qu’elle devient, avec le glyphe de la skin « 2D Classic » à gauche et celui de « 2D Mnemonic » à côté. Le lion, le roi libre, le faucon cornu, l’aigle planant, le roi et toutes les pièces déjà promues ne se promeuvent pas.</p>
 <div id="promo">
-<table>
-<tr><td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-pawn.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-gold-general.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-machine.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-crowned-rook.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-eagle.png'></td>
-</tr>
-<tr>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-leopard.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-bishop.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-crowned-bishop.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-hawk.png'></td>
-</tr>
-<tr><td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-copper-general.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-side-mover.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-free-boar.png'></td>
-</tr>
-<tr><td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-silver-general.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-vertical-mover.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-flying-ox.png'></td>
-</tr>
-<tr><td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-go-between.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-elephant.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-prince.png'></td>
-</tr>
-<tr><td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-lance.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-nightrider.png'></td>
-</tr>
-<tr><td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-machine.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/rules/shogi/w-whale.png'></td>
-</tr>
-<tr><td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-giraffe.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-lion.png'></td>
-</tr>
-<tr><td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-phoenix.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-queen.png'></td>
-</tr>
-<tr><td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-tiger.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-antelope.png'></td>
-</tr>
+<table class='tj-promo'>
+<tr><td><span class='tj-piece tj-picto' style='background-position:0px 0'></span><span class='tj-piece tj-mnemo' style='background-position:0px 0'></span><span class='tj-name'>Pion</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1540px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1540px 0'></span><span class='tj-name'>Général d’or (tokin)</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1188px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1188px 0'></span><span class='tj-name'>Intermédiaire</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1936px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1936px 0'></span><span class='tj-name'>Éléphant ivre</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2596px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2596px 0'></span><span class='tj-name'>Général de cuivre</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-704px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-704px 0'></span><span class='tj-name'>Marcheur latéral</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2552px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2552px 0'></span><span class='tj-name'>Général d’argent</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1056px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1056px 0'></span><span class='tj-name'>Marcheur vertical</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2508px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2508px 0'></span><span class='tj-name'>Général d’or</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1452px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1452px 0'></span><span class='tj-name'>Tour</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2024px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2024px 0'></span><span class='tj-name'>Léopard féroce</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1584px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1584px 0'></span><span class='tj-name'>Fou</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1012px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1012px 0'></span><span class='tj-name'>Tigre aveugle</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1100px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1100px 0'></span><span class='tj-name'>Cerf volant</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-308px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-308px 0'></span><span class='tj-name'>Éléphant ivre</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-924px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-924px 0'></span><span class='tj-name'>Prince héritier</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-3124px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-3124px 0'></span><span class='tj-name'>Lancier</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1364px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1364px 0'></span><span class='tj-name'>Cheval blanc</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1232px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1232px 0'></span><span class='tj-name'>Char renversé</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-968px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-968px 0'></span><span class='tj-name'>Baleine</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1496px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1496px 0'></span><span class='tj-name'>Marcheur latéral</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1320px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1320px 0'></span><span class='tj-name'>Sanglier libre</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-3168px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-3168px 0'></span><span class='tj-name'>Marcheur vertical</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1276px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1276px 0'></span><span class='tj-name'>Bœuf volant</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1760px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1760px 0'></span><span class='tj-name'>Kirin</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-572px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-572px 0'></span><span class='tj-name'>Lion</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2376px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2376px 0'></span><span class='tj-name'>Phénix</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2200px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2200px 0'></span><span class='tj-name'>Roi libre</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-88px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-88px 0'></span><span class='tj-name'>Fou</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1980px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1980px 0'></span><span class='tj-name'>Cheval dragon</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-132px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-132px 0'></span><span class='tj-name'>Tour</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1892px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1892px 0'></span><span class='tj-name'>Roi dragon</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1408px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1408px 0'></span><span class='tj-name'>Cheval dragon</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2244px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2244px 0'></span><span class='tj-name'>Faucon cornu</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-660px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-660px 0'></span><span class='tj-name'>Roi dragon</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-484px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-484px 0'></span><span class='tj-name'>Aigle planant</span></td></tr>
 </table>
 </div>
 
