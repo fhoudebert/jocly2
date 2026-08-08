@@ -143,12 +143,10 @@
 											});
 											promoMoves.forEach(function(move,index) {
 												var aspect=aGame.cbVar.pieceTypes[move.pr].aspect || aGame.cbVar.pieceTypes[move.pr].name;
-												var aspectSpec = $.extend(true,{},aGame.cbView.pieces["default"],aGame.cbView.pieces[aspect]);
-												if(aGame.cbView.pieces[this.mWho])
-													aspectSpec = $.extend(true,aspectSpec,
-															aGame.cbView.pieces[this.mWho]["default"],aGame.cbView.pieces[this.mWho][aspect]);
-												xdv.updateGadget("promo#"+move.pr, {
-													base: $.extend(aspectSpec["2d"], { 
+									// same sprite spec as the board, selected skin included
+									var promoSpec=aGame.cbPromoSpec(aGame,xdv,aspect,this.mWho);
+									xdv.updateGadget("promo#"+move.pr, {
+													base: $.extend({},promoSpec, { 
 														x: (index-promoMoves.length/2)*aGame.cbPromoSize 
 													}),
 												});
