@@ -21,6 +21,16 @@
         width: 200px;
         margin: 0 auto;
     }
+    .tj-piece {
+        display: inline-block;
+        width: 44px;
+        height: 44px;
+        background-repeat: no-repeat;
+        background-size: 3300px 88px;
+        vertical-align: middle;
+    }
+    .tj-picto { background-image: url({GAME}/res/shogi/tenjiku-shogi-picto-sprites.png); }
+    .tj-mnemo { background-image: url({GAME}/res/shogi/tenjiku-shogi-mnemonic-sprites.png); }
 </style>
 <h2>Chu Shogi</h2>
 <p>Le Chu Shogi (« Shogi moyen ») a été la forme dominante des échecs au Japon pendant plusieurs siècles, jusqu'à l'invention des prises et remises en jeu de pièces, qui a conduit à son remplacement par le Shogi moderne.</p>
@@ -35,77 +45,77 @@
 
 <h2>Guide de référence</h2>
 
-<p><img style="max-width:100%;"  src="{GAME}/res/rules/shogi/gold.png"/><b>Général d'or</b> : se déplace et capture sur les cases adjacentes dans n'importe quelle direction orthogonale ou en diagonale vers l'avant.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-2508px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2508px 0'></span> <b>Général d'or</b> : se déplace et capture sur les cases adjacentes dans n'importe quelle direction orthogonale ou en diagonale vers l'avant.</p>
 <p><img class='piece-graph' src="{GAME}/res/rules/graphs/gold.png"/></p>
-<p><img style="max-width:100%;"  src="{GAME}/res/rules/shogi/silver.png"/><b>Général d'argent</b> : se déplace et capture sur les cases adjacentes dans n'importe quelle direction diagonale ou directement vers l'avant.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-2552px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2552px 0'></span> <b>Général d'argent</b> : se déplace et capture sur les cases adjacentes dans n'importe quelle direction diagonale ou directement vers l'avant.</p>
 <p><img class='piece-graph' src="{GAME}/res/rules/graphs/silver.png"/></p>
-<p><img style="max-width:100%;"  src="{GAME}/res/rules/shogi/pawn.png"/><b>Pion</b> : se déplace <strong>et</strong> capture sur la case directement devant lui.</p>
-<p><img style="max-width:100%;" src="{GAME}/res/rules/shogi/rook.png"/><b>Tour</b> : comme aux échecs.</p>
-<p><img style="max-width:100%;"  src="{GAME}/res/rules/shogi/bishop.png"/><b>Fou</b> : comme aux échecs.</p>
-<p><img style="max-width:100%;" src="{GAME}/res/rules/shogi/king.png"/><b>Roi</b> : comme aux échecs.</p>
+<p><span class='tj-piece tj-picto' style='background-position:0px 0'></span><span class='tj-piece tj-mnemo' style='background-position:0px 0'></span> <b>Pion</b> : se déplace <strong>et</strong> capture sur la case directement devant lui.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-132px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-132px 0'></span> <b>Tour</b> : comme aux échecs.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-88px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-88px 0'></span> <b>Fou</b> : comme aux échecs.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-220px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-220px 0'></span> <b>Roi</b> : comme aux échecs.</p>
 
-<p><img style="max-width:100%;"  src="{GAME}/res/rules/shogi/lance.png"/><b>Lancier</b> : le lancier se déplace comme une Tour, mais uniquement vers l'avant sur la même colonne, jamais latéralement ni vers l'arrière.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-3124px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-3124px 0'></span> <b>Lancier</b> : le lancier se déplace comme une Tour, mais uniquement vers l'avant sur la même colonne, jamais latéralement ni vers l'arrière.</p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/shogi-lance.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-copper-general.png"/><b>Général de cuivre</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-2596px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2596px 0'></span> <b>Général de cuivre</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/copper.png"/></p>
 
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-side-mover.png"/><b>Marcheur latéral</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-1496px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1496px 0'></span> <b>Marcheur latéral</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/side-mover.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-vertical-mover.png"/><b>Marcheur vertical</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-3168px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-3168px 0'></span> <b>Marcheur vertical</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/vertical-mover.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-machine.png"/><b>Char renversé</b></p>
+<p><<span class='tj-piece tj-picto' style='background-position:-1232px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1232px 0'></span> <b>Char renversé</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/chariot.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-flying-ox.png"/><b>Bœuf volant</b></p>
+<p><<span class='tj-piece tj-picto' style='background-position:-1276px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1276px 0'></span> <b>Bœuf volant</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/flying-ox.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-free-boar.png"/><b>Sanglier libre</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-1320px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1320px 0'></span> <b>Sanglier libre</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/boar.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-nightrider.png"/><b>Cheval blanc</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-1364px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1364px 0'></span> <b>Cheval blanc</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/white-horse.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/rules/shogi/w-whale.png"/><b>Baleine</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-968px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-968px 0'></span> <b>Baleine</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/whale.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-elephant.png"/><b>Éléphant ivre</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-308px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-308px 0'></span> <b>Éléphant ivre</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/drunk-elephant.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-leopard.png"/><b>Léopard féroce</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-2024px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2024px 0'></span> <b>Léopard féroce</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/leopard.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-tiger.png"/><b>Tigre aveugle</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-1012px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1012px 0'></span> <b>Tigre aveugle</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/tiger.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-go-between.png"/><b>Intermédiaire</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-1188px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1188px 0'></span> <b>Intermédiaire</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/go-between.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-giraffe.png"/><b>Kirin</b> : se déplace et capture sur les cases adjacentes en diagonale, ou en sautant jusqu'à la deuxième case dans une direction orthogonale.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-1760px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1760px 0'></span> <b>Kirin</b> : se déplace et capture sur les cases adjacentes en diagonale, ou en sautant jusqu'à la deuxième case dans une direction orthogonale.</p>
 <p><img class='piece-graph' src="{GAME}/res/rules/graphs/kirin.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-phoenix.png"/><b>Phénix</b> : se déplace et capture sur les cases adjacentes orthogonalement, ou en sautant jusqu'à la deuxième case en diagonale.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-2376px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2376px 0'></span> <b>Phénix</b> : se déplace et capture sur les cases adjacentes orthogonalement, ou en sautant jusqu'à la deuxième case en diagonale.</p>
 <p><img class='piece-graph' src="{GAME}/res/rules/graphs/phoenix.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-antelope.png"/><b>Cerf volant</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-1100px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1100px 0'></span> <b>Cerf volant</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/flying-stag.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-prince.png"/><b>Prince héritier</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-924px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-924px 0'></span> <b>Prince héritier</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/shogi-prince.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-queen.png"/><b>Dame</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-176px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-176px 0'></span> <b>Dame</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/graphs/queen.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-hawk.png"/><b>Faucon Cornu</b> : se déplace comme une Dame, sauf dans la direction verticale vers l'avant, où il dispose d'une forme de pouvoir du Lion. Il peut effectuer jusqu'à deux déplacements, en continuant après une capture, mais uniquement le long de la même ligne. Ainsi, pour le deuxième déplacement (facultatif), il peut seulement choisir de continuer dans la même direction ou de revenir sur sa case de départ.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-2244px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2244px 0'></span> <b>Faucon Cornu</b> : se déplace comme une Dame, sauf dans la direction verticale vers l'avant, où il dispose d'une forme de pouvoir du Lion. Il peut effectuer jusqu'à deux déplacements, en continuant après une capture, mais uniquement le long de la même ligne. Ainsi, pour le deuxième déplacement (facultatif), il peut seulement choisir de continuer dans la même direction ou de revenir sur sa case de départ.</p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/falcon.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-eagle.png"/><b>Aigle Planant</b> : se déplace comme une Dame, sauf dans la direction diagonale vers l'avant, où il dispose d'une forme de pouvoir du Lion. Il peut effectuer jusqu'à deux déplacements, en continuant après une capture, mais uniquement le long de la même diagonale. Ainsi, pour le deuxième déplacement (facultatif), il peut seulement choisir de continuer dans la même direction ou de revenir sur sa case de départ.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-484px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-484px 0'></span> <b>Aigle Planant</b> : se déplace comme une Dame, sauf dans la direction diagonale vers l'avant, où il dispose d'une forme de pouvoir du Lion. Il peut effectuer jusqu'à deux déplacements, en continuant après une capture, mais uniquement le long de la même diagonale. Ainsi, pour le deuxième déplacement (facultatif), il peut seulement choisir de continuer dans la même direction ou de revenir sur sa case de départ.</p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/eagle.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-lion.png"/><b>Lion</b> : le Lion se déplace comme un Roi, mais peut se déplacer jusqu'à deux fois par tour, dans des directions indépendantes, même si le premier déplacement de Roi capture une pièce. La possibilité de continuer à se déplacer après une capture est appelée « pouvoir du Lion ». La combinaison de deux déplacements peut également être effectuée sous forme de saut, c'est-à-dire par-dessus une case occupée sans la modifier, à condition de ne pas revenir sur la case de départ. Le Lion peut donc :</p>
+<p><span class='tj-piece tj-picto' style='background-position:-528px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-528px 0'></span> <b>Lion</b> : le Lion se déplace comme un Roi, mais peut se déplacer jusqu'à deux fois par tour, dans des directions indépendantes, même si le premier déplacement de Roi capture une pièce. La possibilité de continuer à se déplacer après une capture est appelée « pouvoir du Lion ». La combinaison de deux déplacements peut également être effectuée sous forme de saut, c'est-à-dire par-dessus une case occupée sans la modifier, à condition de ne pas revenir sur la case de départ. Le Lion peut donc :</p>
 <ul>
     <li>se déplacer ou capturer en sautant vers n'importe quelle case de la zone de 5x5 cases qui l'entoure ;</li>
     <li>capturer une pièce adjacente, puis continuer à se déplacer ou capturer une fois supplémentaire comme un Roi ;</li>
