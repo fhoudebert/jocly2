@@ -315,13 +315,23 @@ if(typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		function PropagateKnownParent(node,visited) {
 			if(aGame.mOptions.uctTransposition && !aGame.mOptions.uctIgnoreLoop && (node.sign in visited))
 				return;
+			// A node is settled when every child is settled - but also, and much
+			// sooner, as soon as ONE child is a settled win for the player who
+			// moves here: whatever the other moves are worth, that player plays
+			// this one. Without it, a refuted move stayed a candidate and the
+			// search kept spending nodes on it instead of looking for a defence
+			// elsewhere (node.who is the player that moved into the node, so
+			// evaluation*who==1 means "that player wins").
 			var known=true;
 			for(var i=0;i<node.children.length;i++) {
 				var node1=node.children[i].n;
-				if(node1.known==false) {
+				if(node1.known) {
+					if(node1.evaluation*node1.who>0.9) { // winning move: nothing else matters
+						known=true;
+						break;
+					}
+				} else
 					known=false;
-					break;
-				}
 			}
 			if(known==true) {
 				node.known=true;
@@ -521,6 +531,7 @@ if(typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 				if(board.mFinished) { // in some game implementations, ending is detected while generating the moves
 					node.known=true;
 					node.evaluation=winnerMap[board.mWinner];
+					PropagateEval(node,1); // the leaf value just changed: tell the parents
 					PropagateKnown(node);
 				} else {
 					node.children=[];

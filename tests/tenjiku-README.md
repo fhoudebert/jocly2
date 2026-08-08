@@ -108,3 +108,22 @@ the mating move is generated - and only for the moves that give check, whose
 `ck` flag the model already computes. Answering `1. j5-j6` correctly used to
 need 200000 nodes, then 60000 once checks were weighted; it now takes 5000
 (3 s), for about 15% more time per node.
+
+### What still escapes the search
+
+`1. j5-j6 SEl13-n11 2. BGk4-i6` is not answered correctly yet. The refutation of
+a wrong reply is only three plies long - `3. BGi6xn11+` (the defender of o10
+disappears), the recapture is forced (1 or 2 legal moves), then `4. VGi4-o10#` -
+and the mate itself is now recognized the moment `VGi4-o10` is generated. What
+the search does not do is *look* at `BGi6xn11`: statically it is a losing
+capture (a Bishop General, 12, for a Soaring Eagle, 9) and the static exchange
+evaluation duly scores it negative, so UCT almost never visits it. Raising
+`checkFactor` does not fix it (tried at 15 and 30: same move, and the opening
+defence gets worse).
+
+What this pattern needs is a forcing-line extension: when a child gives check,
+expand it right away - a check leaves 1 to 4 legal replies here - and test
+whether the checking side then has a mate in one. That is a small quiescence
+over checks; the cost is one move generation per checking child (~13 ms here),
+so it needs a depth cap and probably a limit on the number of checking children
+extended per node.

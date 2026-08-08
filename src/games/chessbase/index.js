@@ -8659,7 +8659,8 @@ exports.games = (function () {
 						"fr": "Variante moyenne du Seireigi"
 					},
 					"rules": {
-						"en": "res/rules/shogi/chu-seireigi-shogi-rules.html"
+						"en": "res/rules/shogi/chu-seireigi-shogi-rules.html",
+                        "fr": "res/rules/shogi/chu-seireigi-shogi-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -8680,7 +8681,7 @@ exports.games = (function () {
 					"title-en": "Chessbase view",
 					"visuals": {
 						"600x600": [
-							"res/visuals/chu-seireigi-600x600-2d.png",
+							"res/visuals/chu-seireigi-600x600-2d.jpg",
                             "res/visuals/chu-seireigi-600x600-3d.jpg"
 						]
 					},
@@ -8766,7 +8767,7 @@ exports.games = (function () {
 					"visuals": {
 						"600x600": [
 							"res/visuals/mini-shogi-600x600-3d.jpg",
-							"res/visuals/mini-shogi-600x600-2d.png"
+							"res/visuals/mini-shogi-600x600-2d.jpg"
 						]
 					},
 					"xdView": true,
@@ -8850,7 +8851,7 @@ exports.games = (function () {
 					"visuals": {
 						"600x600": [
 							"res/visuals/kyoto-shogi-600x600-3d.jpg",
-							"res/visuals/kyoto-shogi-600x600-2d.png"
+							"res/visuals/kyoto-shogi-600x600-2d.jpg"
 						]
 					},
 					"xdView": true,
@@ -8913,7 +8914,8 @@ exports.games = (function () {
 						"fr": "Variante de shogi en 7x7 avec des tuiles d'oiseaux"
 					},
 					"rules": {
-						"en": "res/rules/shogi/tori-shogi-rules.html"
+						"en": "res/rules/shogi/tori-shogi-rules.html",
+                        "fr": "res/rules/shogi/tori-shogi-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -8934,7 +8936,7 @@ exports.games = (function () {
 					"visuals": {
 						"600x600": [
 							"res/visuals/tori-600x600-3d.jpg",
-							"res/visuals/tori-600x600-2d.png"
+							"res/visuals/tori-600x600-2d.jpg"
 						]
 					},
 					"xdView": true,
@@ -8980,7 +8982,8 @@ exports.games = (function () {
 						"fr": "Variante historique de shogi en 12x12"
 					},
 					"rules": {
-						"en": "res/rules/shogi/chu-shogi-rules.html"
+						"en": "res/rules/shogi/chu-shogi-rules.html",
+						"fr": "res/rules/shogi/chu-shogi-rules_fr.html",
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -9287,7 +9290,7 @@ exports.games = (function () {
 					"visuals": {
 						"600x600": [
 							"res/visuals/grant-acedrex-600x600-3d.jpg",
-							"res/visuals/grant-acedrex-600x600-2d.png"
+							"res/visuals/grant-acedrex-600x600-2d.jpg"
 						]
 					},
 					"xdView": true,
