@@ -641,13 +641,18 @@ if(typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 					PropagateKnown(node);
 				} else {
 					node.children=[];
+					var scratchBoard=null;
 					var bestEval=undefined;
 					var known=true;
 					var solved=false; // a child that already settles this node
 					for(var i=0;i<board.mMoves.length;i++) {
 						var move=board.mMoves[i];
 						var signatures1=[];
-						var board1=new (aGame.GetBoardClass())(aGame);
+						// the boards built here are thrown away once evaluated, so
+						// one is enough for the whole expansion: CopyFrom refills it
+						var board1=scratchBoard;
+						if(board1===null)
+							board1=scratchBoard=new (aGame.GetBoardClass())(aGame);
 						board1.CopyFrom(board);
 						board1.ApplyMove(aGame,move);
 						aGame.AddVisit(board1);

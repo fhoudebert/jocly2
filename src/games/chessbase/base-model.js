@@ -608,44 +608,58 @@
 		}
 	}
 
+	// The search copies a board for every child of every expanded node - a few
+	// hundred times a second on a large board - and those copies were most of the
+	// garbage it produced. Nothing keeps a copy alive after it has been evaluated,
+	// so the arrays and the piece objects of the destination are reused whenever
+	// they already have the right shape; a fresh board still allocates as before.
 	Model.Board.CopyFrom = function(aBoard) {
+		var board0=aBoard.board;
+		var boardLength=board0.length;
 		if(USE_TYPED_ARRAYS) {
-			this.board=new Int16Array(aBoard.board.length);
-			this.board.set(aBoard.board);
+			if(this.board===undefined || this.board.length!==boardLength)
+				this.board=new Int16Array(boardLength);
+			this.board.set(board0);
 		} else {
-			this.board=[];
-			var board0=aBoard.board;
-			var boardLength=board0.length;
+			var board=this.board;
+			if(board===undefined || board.length!==boardLength)
+				board=this.board=new Array(boardLength);
 			for(var i=0;i<boardLength;i++)
-				this.board.push(board0[i]);
+				board[i]=board0[i];
 		}
-		this.pieces=[];
-		var piecesLength=aBoard.pieces.length;
+		var pieces0=aBoard.pieces;
+		var piecesLength=pieces0.length;
+		var pieces=this.pieces;
+		if(pieces===undefined || pieces.length!==piecesLength) {
+			pieces=this.pieces=new Array(piecesLength);
+			for(var i=0;i<piecesLength;i++)
+				pieces[i]={ s:0, p:-1, t:0, i:i, m:false, r:0 };
+		}
 		for(var i=0;i<piecesLength;i++) {
-			var piece=aBoard.pieces[i];
-			this.pieces.push({
-				s: piece.s,
-				p: piece.p,
-				t: piece.t,
-				i: piece.i,
-				m: piece.m,
-				r: piece.r,
-			});
+			var piece=pieces[i], piece0=pieces0[i];
+			piece.s=piece0.s;
+			piece.p=piece0.p;
+			piece.t=piece0.t;
+			piece.i=piece0.i;
+			piece.m=piece0.m;
+			piece.r=piece0.r;
 		}
 		this.kings={};
 		for(var i in aBoard.kings)
 			this.kings[i] = aBoard.kings[i];
 		this.check=aBoard.check;
 		this.oppoCheck=aBoard.oppoCheck;
-		this.lastMove={
-			f: aBoard.lastMove.f,
-			t: aBoard.lastMove.t,
-			c: aBoard.lastMove.c,
-		}
-		this.ending={
-			'1': aBoard.ending[1],
-			'-1': aBoard.ending[-1],
-		}
+		var lastMove=this.lastMove;
+		if(lastMove===undefined)
+			lastMove=this.lastMove={};
+		lastMove.f=aBoard.lastMove.f;
+		lastMove.t=aBoard.lastMove.t;
+		lastMove.c=aBoard.lastMove.c;
+		var ending=this.ending;
+		if(ending===undefined)
+			ending=this.ending={};
+		ending['1']=aBoard.ending[1];
+		ending['-1']=aBoard.ending[-1];
 		if(aBoard.castled!==undefined) {
 			this.castled= {
 				'1': aBoard.castled[1],

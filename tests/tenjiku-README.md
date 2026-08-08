@@ -228,3 +228,22 @@ game and are blanked, and the name-to-factor map is built once per set of level 
 Together with the flattened threat graph, a Tenjiku search is **4.8x** faster than it was
 (13.1 s for the same 20000 nodes at the start), and `Strong` now really runs its 500000 nodes
 inside the two-minute limit instead of being cut short by it.
+
+## Board copies
+
+Every child of an expanded node was getting a fresh board: a new `Int16Array` and 156 new
+piece objects, a hundred and seventeen times per expansion, all of it thrown away as soon as
+the child was evaluated. Nothing keeps those boards alive, so `CopyFrom` now reuses the arrays
+and the piece objects of the destination whenever they already have the right shape (a fresh
+board still allocates as before), and the UCT expansion loop keeps one scratch board for the
+whole expansion instead of allocating per child.
+
+| 20000 UCT nodes (Tenjiku) | |
+|---|---|
+| at the start of this work | 13.1 s |
+| flattened threat graph | 4.9 s |
+| cheaper `Evaluate` | 2.7 s |
+| reused board copies | **1.9 s** |
+
+That is **6.9x** overall. Checked afterwards: the Tenjiku, Kotaishi, Ultima, Rococo and
+Rocaille suites, the eight-game move/AI regression, and a 24-ply self-play game.
