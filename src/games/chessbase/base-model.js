@@ -279,6 +279,27 @@
 				return any;
 			}
 			MarkScreens(tree);
+
+			// Walking this tree is what the legality test spends its time in, and
+			// `for(var pos1 in graph)` over an object is by far the slowest way to
+			// do it. Flatten every level, once, into a plain array of
+			// [square, branch, square, branch, ...]: `l` holds every child, `h`
+			// only the ones that can lead to a screen capture, which is all the
+			// walk needs once it is behind a piece.
+			function Flatten(branches) {
+				var all=[], screens=[];
+				for(var pos1 in branches) {
+					var branch=branches[pos1];
+					Flatten(branch.e);
+					all.push(pos1|0,branch);
+					if(branch.hs)
+						screens.push(pos1|0,branch);
+				}
+				branches.l=all;
+				branches.h=screens;
+				return all;
+			}
+			Flatten(tree);
 			
 			threatGraph[1][pos]=tree;
 			threatGraph[-1][pos]=tree;
@@ -1188,12 +1209,12 @@
 		return smallestAttacker;
 	}
 
-	Model.Board.cbCollectAttackers=function(who,graph,attackers,isKing) {
-		for(var pos1 in graph) {
-			var branch=graph[pos1];
+	Model.Board.cbCollectAttackers=function(who,list,attackers,isKing) {
+		for(var i=0;i<list.length;i+=2) {
+			var pos1=list[i], branch=list[i+1];
 			var index1=this.board[pos1];
 			if(index1<0)
-				this.cbCollectAttackers(who,branch.e,attackers,isKing);
+				this.cbCollectAttackers(who,branch.e.l,attackers,isKing);
 			else {
 				var piece1=this.pieces[index1];
 				if(piece1.s==-who && (
@@ -1206,14 +1227,15 @@
 
 	var mr;
 
-	Model.Board.cbCollectAttackersScreen=function(who,graph,attackers,isKing,screen) {
-		for(var pos1 in graph) {
-			var branch=graph[pos1];
-			if(screen && !branch.hs)
-				continue; // nothing that captures through a screen down there
+	Model.Board.cbCollectAttackersScreen=function(who,list,attackers,isKing,screen) {
+		// `list` holds every branch of this level when we are still in front of
+		// the first piece, and only the branches that can hold a screen capture
+		// once we are behind one - see Flatten() in cbGetThreatGraph
+		for(var i=0;i<list.length;i+=2) {
+			var pos1=list[i], branch=list[i+1];
 			var index1=this.board[pos1];
 			if(index1<0)
-				this.cbCollectAttackersScreen(who,branch.e,attackers,isKing,screen);
+				this.cbCollectAttackersScreen(who,screen?branch.e.h:branch.e.l,attackers,isKing,screen);
 			else {
 				var piece1=this.pieces[index1];
 				if(!screen) {
@@ -1222,7 +1244,7 @@
 						(isKing && branch.tk && (piece1.t in branch.tk))))
 						attackers.push(piece1); // direct attacker
 					if(branch.hs)
-				 		this.cbCollectAttackersScreen(who,branch.e,attackers,isKing,piece1.r|1024); // 1024 bit: must jump 1 screen
+				 		this.cbCollectAttackersScreen(who,branch.e.h,attackers,isKing,piece1.r|1024); // 1024 bit: must jump 1 screen
 				} else {
 					if(piece1.s==-who && branch.ts && (piece1.t in branch.ts) &&
 					   (piece1.r ? (piece1.r|1) > (screen&1023) : screen&1024)) // normal hopper: 1 screen, ranked must top highest screen
@@ -1231,7 +1253,7 @@
 					var s=screen&1023; // we now have multiple screens
 					if(piece1.r > s) s=piece1.r; // this target screens better
 					if(s < (mr|1)) // but not maximally
-					 	this.cbCollectAttackersScreen(who,branch.e,attackers,isKing,s|2048);
+					 	this.cbCollectAttackersScreen(who,branch.e.h,attackers,isKing,s|2048);
 				}
 			}
 		}
@@ -1241,9 +1263,9 @@
 		var attackers=[];
 		mr = aGame.cbMaxScreenRanking;
 		if(aGame.cbUseScreenCapture)
-			this.cbCollectAttackersScreen(who,aGame.g.threatGraph[who][pos],attackers,isKing,0);
+			this.cbCollectAttackersScreen(who,aGame.g.threatGraph[who][pos].l,attackers,isKing,0);
 		else
-			this.cbCollectAttackers(who,aGame.g.threatGraph[who][pos],attackers,isKing);
+			this.cbCollectAttackers(who,aGame.g.threatGraph[who][pos].l,attackers,isKing);
 		return attackers;
 	}
 

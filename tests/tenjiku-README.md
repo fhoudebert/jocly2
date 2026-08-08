@@ -180,3 +180,30 @@ happens to favour, which is why three runs give three different moves.
 
 So the option is left in place and off, and the honest conclusion is that what tenjiku needs
 is expansions per second - the search does eight of them per second, at about 120 ms each.
+
+## Expansions per second
+
+The search was spending its time walking the threat graph with
+`for(var pos1 in graph)` - an object traversal, per level, per attacker query, and the
+legality test does two queries per legal move. `cbGetThreatGraph` now flattens every level
+once into a plain array of `[square, branch, ...]`: `l` for every child, `h` for the children
+that can lead to a screen capture, which is all the walk needs once it is behind a piece.
+
+| | before | after |
+|---|---|---|
+| `cbGetAttackers` on a royal square (Tenjiku) | 65 µs | **7.5 µs** |
+| `GenerateMoves`, 74 legal moves (Tenjiku) | 16.3 ms | **4.2 ms** |
+| 20000 UCT nodes (Tenjiku) | 10.0 s | **4.9 s** |
+| `GenerateMoves` (Chu Shogi) | 1.03 ms | 0.40 ms |
+| `GenerateMoves` (Minjiku Shogi) | 4.14 ms | 0.35 ms |
+| `GenerateMoves` (classic chess) | 0.37 ms | 0.16 ms |
+
+Every game gains, the ones with ranked jumpers most of all. The node budgets of the Tenjiku
+levels were raised accordingly (Strong goes from 200000 to 500000 nodes), so that the time
+limit is what stops the search rather than the node count.
+
+It buys about one ply, and it shows in play: in the `1. j5-j6 SEl13-n11 2. BGk4-i6` line the
+search now answers `SEn11-n10` at 60000 nodes where it needed a bigger budget before. It does
+not change the first move, where `o12-o11` is still preferred to `SEl13-n11` at every budget
+up to 500000 nodes (147 s) - that one needs the search to see a quiet general manoeuvre four
+plies away, and one ply is not enough.

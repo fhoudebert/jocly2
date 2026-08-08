@@ -1638,7 +1638,7 @@ exports.games = (function () {
 			"c": 0.6,
 			"ignoreLeaf": false,
 			"uncertaintyFactor": 3,
-			"maxNodes": 8000
+			"maxNodes": 20000
 		},
 		{
 			"name": "fast",
@@ -1663,7 +1663,7 @@ exports.games = (function () {
 			"ignoreLeaf": false,
 			"uncertaintyFactor": 3,
 			"mateSearch": config_model_levels_mateSearch_tenjiku,
-			"maxNodes": 60000,
+			"maxNodes": 150000,
 			"maxDuration": 40
 		},
 		{
@@ -1676,7 +1676,7 @@ exports.games = (function () {
 			"ignoreLeaf": false,
 			"uncertaintyFactor": 3,
 			"mateSearch": config_model_levels_mateSearch_tenjiku,
-			"maxNodes": 200000,
+			"maxNodes": 500000,
 			"maxDuration": 120
 		},
 		{
@@ -1689,7 +1689,7 @@ exports.games = (function () {
 			"ignoreLeaf": false,
 			"uncertaintyFactor": 3,
 			"mateSearch": config_model_levels_mateSearch_tenjiku,
-			"maxNodes": 1000000,
+			"maxNodes": 2500000,
 			"maxDuration": 600
 		},
 		{
@@ -1702,7 +1702,7 @@ exports.games = (function () {
 			"ignoreLeaf": false,
 			"uncertaintyFactor": 3,
 			"mateSearch": config_model_levels_mateSearch_tenjiku,
-			"maxNodes": 2000000,
+			"maxNodes": 5000000,
 			"maxDuration": 1200
 		}
 	]
