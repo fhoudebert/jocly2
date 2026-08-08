@@ -925,6 +925,7 @@
 		var accB={ value:0, castle:0, count:0, dist:0, pos:0, moved:0,
 			   mat:material['-1'], distGraph:distKingGraph['-1'] };
 		var distEdge=cbVar.geometry.distEdge;
+		var skipByType=aGame.cbSkipMaterialByType;
 		var pTypes=g.pTypes;
 		var pieces=this.pieces;
 		var piecesLength=pieces.length;
@@ -945,11 +946,16 @@
 				acc.pos+=distEdge[pos];
 				var mat=acc.mat;
 				mat.count[piece.t]++;
-				var byType=mat.byType;
-				if(byType[piece.t]===undefined)
-					byType[piece.t]=[piece];
-				else
-					byType[piece.t].push(piece);
+				// byType allocates one array per piece type present, on every
+				// evaluation. A game whose evaluate() does not read it can say so
+				// and save that: piece counts and values stay available.
+				if(!skipByType) {
+					var byType=mat.byType;
+					if(byType[piece.t]===undefined)
+						byType[piece.t]=[piece];
+					else
+						byType[piece.t].push(piece);
+				}
 			}
 		}
 		pieceValue['1']=accW.value;         pieceValue['-1']=accB.value;

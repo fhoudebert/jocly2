@@ -48,6 +48,11 @@
 
 	Model.Game.cbOnStaleMate = -1; // stalemated side loses
 
+	// evaluate() below only looks at the move counter, so the per-type piece
+	// lists the generic evaluation builds are pure cost here - 88 piece types on
+	// a board carrying 156 pieces, on every evaluated position.
+	Model.Game.cbSkipMaterialByType = true;
+
 	// ---- piece type indices -------------------------------------------------
 	// Directional pieces come in -w/-b pairs (the FEN importer reads the side
 	// from `initial`, or from the -w/-b suffix for promoted types).

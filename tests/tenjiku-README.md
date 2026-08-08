@@ -247,3 +247,23 @@ whole expansion instead of allocating per child.
 
 That is **6.9x** overall. Checked afterwards: the Tenjiku, Kotaishi, Ultima, Rococo and
 Rocaille suites, the eight-game move/AI regression, and a 24-ply self-play game.
+
+## Two things that did not work, and one small one that did
+
+**Make/unmake instead of copying** was measured before being written: with the copies now
+allocation-free, `CopyFrom` costs about 10 µs of the ~61 µs a child costs, so applying and
+undoing the move on a single board would buy roughly 11% - for a change that requires
+`cbQuickApply` to also maintain `zSign`, `lastMove`, `check`, `ending` and `noCaptCount`,
+every one of which the evaluation reads. Not worth that risk for that number.
+
+**Reusing the `byType` arrays** across evaluations made things *worse*: 37 µs to 41 µs, and
+1.9 s to 2.3 s on 20000 nodes. Pushing freshly-read piece references into long-lived arrays
+costs a generational write barrier on every push, which is more than the allocation it saves.
+The same reuse works on the board copies because there we only write numbers into existing
+objects - no pointers, no barrier.
+
+What did work: a game whose `evaluate()` never reads `material.byType` can now say so with
+`cbSkipMaterialByType`, and Tenjiku does - it only looks at the move counter. `Evaluate` drops
+from 37 µs to **27 µs**. End to end it is inside the measurement noise (1.8-1.9 s for 20000
+nodes), which is itself the useful conclusion: the expansion cost is now spread thin enough
+that no single line dominates it any more.
