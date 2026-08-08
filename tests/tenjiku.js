@@ -96,6 +96,10 @@ function occupancy(match) {
 	});
 }
 
+// the standard opening position, so that a test can go back to it whatever
+// position the previous test loaded
+var START="ljficsgekgscifjl/a1c!c!1txqn!ot1c!c!1a/yzbhdwf!q!l!f!wdhbzy/mvrh!d!b!r!v!g!r!b!d!h!rvm/pppppppppppppppp/4u6u4/16/16/16/16/4U6U4/PPPPPPPPPPPPPPPP/MVRH!D!B!R!G!V!R!B!D!H!RVM/YZBHDWF!L!Q!F!WDHBZY/A1C!C!1TON!QXT1C!C!1A/LJFICSGKEGSCIFJL w - - 0 1";
+
 var tests=[];
 function test(name,fn) { tests.push({name:name,fn:fn}); }
 function testInitial(name,fn) { tests.push({name:name,fn:fn,initial:true}); }
@@ -427,6 +431,75 @@ test("Lion, Lion Hawk and Free Eagle",function(match) {
 	});
 });
 
+// ------------------------------------------------- checks through screens ----
+test("a jumping general gives check through any number of screens",function(match) {
+	var position={ a1:"K", h8:"v!", p16:"k", p1:"r" };
+	var screens=["b2","c3","d4","e5","f6"];
+	var chain=Promise.resolve(), results=[];
+	[0,1,2,3,4,5].forEach(function(count) {
+		chain=chain.then(function() {
+			var pieces={};
+			for(var sqr in position) pieces[sqr]=position[sqr];
+			for(var i=0;i<count;i++) pieces[screens[i]]="P";
+			return load(match,pieces,"b").then(function() {
+				return match.getPossibleMoves();
+			}).then(function(moves) {
+				var wait=moveTo(moves,"p1","p2");
+				results.push(wait && wait.ck);
+			});
+		});
+	});
+	return chain.then(function() {
+		eq("check reported with 0 to 5 screens on the line",
+			JSON.stringify(results),"[true,true,true,true,true,true]");
+	});
+});
+
+testInitial("the opening threat of the Vice General",function(match) {
+	// 1. j5-j6 a12-a11 2. VGi4-o10 and the Vice General mates through
+	// m12/l13/k14/j15 - Black has to defend with the Soaring Eagle first
+	return load(match,START).then(function() {
+		return match.getPossibleMoves();
+	}).then(function(moves) {
+		return match.applyMove(moveTo(moves,"j5","j6"));
+	}).then(function() {
+		return match.getPossibleMoves();
+	}).then(function(moves) {
+		return match.applyMove(moveTo(moves,"a12","a11"));
+	}).then(function() {
+		return match.getPossibleMoves();
+	}).then(function(moves) {
+		var move=moveTo(moves,"i4","o10");
+		check("the Vice General reaches o10",!!move);
+		check("and it is check",move && move.ck);
+		return match.applyMove(move);
+	}).then(function(result) {
+		check("Black is mated: nothing blocks a jumping general",result.finished,
+			JSON.stringify(result));
+		// same line, but Black defends the landing square with the Soaring Eagle
+		return load(match,START);
+	}).then(function() {
+		return match.getPossibleMoves();
+	}).then(function(moves) {
+		return match.applyMove(moveTo(moves,"j5","j6"));
+	}).then(function() {
+		return match.getPossibleMoves();
+	}).then(function(moves) {
+		var move=moveTo(moves,"l13","n11");
+		check("Black defends with SEl13-n11",!!move);
+		return match.applyMove(move);
+	}).then(function() {
+		return match.getPossibleMoves();
+	}).then(function(moves) {
+		return match.applyMove(moveTo(moves,"i4","o10"));
+	}).then(function(result) {
+		check("the check is no longer mate",!result.finished);
+		return match.getPossibleMoves();
+	}).then(function(moves) {
+		check("the Soaring Eagle takes the Vice General",has(moves,"n11","o10"));
+	});
+});
+
 // ------------------------------------------------------------------ run ----
 Jocly.createMatch("tenjiku-shogi").then(function(match) {
 	var chain=Promise.resolve();
@@ -434,7 +507,7 @@ Jocly.createMatch("tenjiku-shogi").then(function(match) {
 		chain=chain.then(function() {
 			console.log("\n"+t.name);
 			return (t.initial
-				? match.load({ game:"tenjiku-shogi", playedMoves:[] })
+				? load(match,START)
 				: load(match,{ h1:"K", a16:"k" })).then(function() {
 				return t.fn(match);
 			});

@@ -1597,6 +1597,101 @@ exports.games = (function () {
 		"locust-move-model.js",
 		"shogi/chu-shogi-model.js"
 	]
+	// Tenjiku Shogi needs its own evaluation weights and search budgets: the
+	// board is 16x16 with 78 pieces a side, positions have 70+ legal moves, and
+	// above all a check by a jumping general cannot be answered by interposing
+	// anything - it is very often mate. With the shared weight (checkFactor
+	// 0.2) the search treated "my opponent can check me next move" as noise and
+	// walked into 1. j5-j6 <any> 2. VGi4-o10#.
+	var config_model_gameOptions_levelOptions_tenjiku = {
+		"pieceValueFactor": 1,
+		"pieceValueRatioFactor": 1,
+		"posValueFactor": 0.1,
+		"averageDistKingFactor": -0.01,
+		"checkFactor": 5,
+		"endingKingFreedomFactor": 0.01,
+		"endingDistKingFactor": 0.05,
+		"distKingCornerFactor": 0.1
+	}
+	var config_model_gameOptions_tenjiku = {
+		"preventRepeat": true,
+		"uctTransposition": "state",
+		"uctIgnoreLoop": false,
+		"levelOptions": config_model_gameOptions_levelOptions_tenjiku
+	}
+	var config_model_levels_tenjiku = [
+		{
+			"name": "easy",
+			"label": "Easy",
+			"ai": "uct",
+			"playoutDepth": 0,
+			"minVisitsExpand": 1,
+			"c": 0.6,
+			"ignoreLeaf": false,
+			"uncertaintyFactor": 3,
+			"maxNodes": 8000
+		},
+		{
+			"name": "fast",
+			"label": "Fast [5sec]",
+			"ai": "uct",
+			"playoutDepth": 0,
+			"minVisitsExpand": 1,
+			"c": 0.6,
+			"ignoreLeaf": false,
+			"uncertaintyFactor": 3,
+			"maxDuration": 5,
+			"isDefault": true
+		},
+		{
+			"name": "medium",
+			"label": "Medium",
+			"ai": "uct",
+			"playoutDepth": 0,
+			"minVisitsExpand": 1,
+			"c": 0.6,
+			"ignoreLeaf": false,
+			"uncertaintyFactor": 3,
+			"maxNodes": 60000,
+			"maxDuration": 40
+		},
+		{
+			"name": "strong",
+			"label": "Strong",
+			"ai": "uct",
+			"playoutDepth": 0,
+			"minVisitsExpand": 1,
+			"c": 0.6,
+			"ignoreLeaf": false,
+			"uncertaintyFactor": 3,
+			"maxNodes": 200000,
+			"maxDuration": 120
+		},
+		{
+			"name": "hyper",
+			"label": "10 min",
+			"ai": "uct",
+			"playoutDepth": 0,
+			"minVisitsExpand": 1,
+			"c": 0.6,
+			"ignoreLeaf": false,
+			"uncertaintyFactor": 3,
+			"maxNodes": 1000000,
+			"maxDuration": 600
+		},
+		{
+			"name": "correspondence",
+			"label": "20 min",
+			"ai": "uct",
+			"playoutDepth": 0,
+			"minVisitsExpand": 1,
+			"c": 0.6,
+			"ignoreLeaf": false,
+			"uncertaintyFactor": 3,
+			"maxNodes": 2000000,
+			"maxDuration": 1200
+		}
+	]
 	var modelScripts_tenjiku = [
 		"base-model.js",
 		"grid-geo-model.js",
@@ -8960,24 +9055,25 @@ exports.games = (function () {
 						"fr": "Variante historique de shogi en 16x16 avec démons de feu"
 					},
 					"rules": {
-						"en": "res/rules/shogi/tenjiku-rules.html"
+						"en": "res/rules/shogi/tenjiku-rules.html",
+						"fr": "res/rules/shogi/tenjiku-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
-					"thumbnail": "res/rules/shogi/chu-shogi-thumb.png",
+					"thumbnail": "res/rules/shogi/tenjiku-thumb.png",
 					"released": 1396536978,
 					"credits": {
 						"en": "res/rules/shogi/shogi-credits.html"
 					},
-					"gameOptions": config_model_gameOptions_2,
+					"gameOptions": config_model_gameOptions_tenjiku,
 					"js": modelScripts_tenjiku,
-					"levels": config_model_levels_15
+					"levels": config_model_levels_tenjiku
 				},
 				"view": {
 					"title-en": "Chessbase view",
 					"visuals": {
 						"600x600": [
-							"res/visuals/tenjiku-600x600-2d.png"
+							"res/visuals/tenjiku-600x600-2d.jpg"
 						]
 					},
 					"xdView": true,

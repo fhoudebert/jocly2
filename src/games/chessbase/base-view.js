@@ -618,10 +618,22 @@
 												if(aGame.cbView.pieces[this.mWho])
 													aspectSpec = $.extend(true,aspectSpec,
 															aGame.cbView.pieces[this.mWho]["default"],aGame.cbView.pieces[this.mWho][aspect]);
-												                                                   // use alternative skin sprites for promotion in shogi when specified
-												if( typeof aspectSpec[xdv.game.mSkin] !== "undefined"){														
-													aspectSpec["2d"].file = aspectSpec[xdv.game.mSkin].file;
-												}
+												// Show the promotion choices with the skin the player selected
+												// (2D Mnemonic in the shogi variants, ...): the whole skin
+												// override is merged, exactly like the board does for the
+												// pieces, so sprite file, clipping and rotation cannot diverge
+												// between the board and the promotion popup. The popup is made
+												// of 2D sprites in every case, so only a 2D skin can be merged
+												// here: when a 3D skin is active the default 2D sprites are
+												// kept, and a 3D override (meshes, scales, ...) is never poured
+												// into the 2D spec.
+												var skinSpec = aspectSpec[xdv.game.mSkin], skin2d = false;
+												(aGame.mViewOptions && aGame.mViewOptions.skins || []).forEach(function(skin) {
+													if(skin.name == xdv.game.mSkin && !skin["3d"])
+														skin2d = true;
+												});
+												if(skinSpec !== undefined && skin2d)
+													aspectSpec["2d"] = $.extend(true,{},aspectSpec["2d"],skinSpec);
 												xdv.updateGadget("promo#"+move.pr, {
 													base: $.extend(aspectSpec["2d"], { 
 														visible: true,

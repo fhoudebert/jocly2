@@ -564,9 +564,44 @@
 
 	// ---- Fire Demon burning -------------------------------------------------
 
+	// Fire Demons and Vice Generals are the only pieces the hooks below have to
+	// look for, and there are at most a handful of them. Scanning the 156 pieces
+	// on every single attacker query was by far the most expensive thing in the
+	// search, so the indices are kept in a list: rebuilt once per move
+	// generation (and after a board copy, which does not carry it over),
+	// completed on the spot when a promotion creates a new Fire Demon, and
+	// re-validated on use so that captured or burned pieces simply drop out.
+	function Burners(board) {
+		var list=board.cbBurners;
+		if(list===undefined) {
+			list=board.cbBurners=[];
+			var pieces=board.pieces;
+			for(var i=0;i<pieces.length;i++)
+				if(pieces[i].p>=0 && (IS_DEMON[pieces[i].t] || AREA_STEPS[pieces[i].t]))
+					list.push(i);
+		}
+		return list;
+	}
+
+	function TrackBurner(board,index) { // a promotion may create one
+		var list=board.cbBurners;
+		if(list!==undefined && list.indexOf(index)<0)
+			list.push(index);
+	}
+
 	// Is there an enemy Fire Demon next to `pos`? `ignore` is the square of a
 	// locust victim that this very move removes (it cannot burn any more).
 	function BurnedOnArrival(board,aGame,pos,who,ignore) {
+		var burners=Burners(board), demons=false;
+		for(var i=0;i<burners.length;i++) {
+			var piece0=board.pieces[burners[i]];
+			if(piece0.p>=0 && piece0.s!=who && IS_DEMON[piece0.t]) {
+				demons=true;
+				break;
+			}
+		}
+		if(!demons)
+			return false;
 		var bz=aGame.burnZone[pos];
 		for(var i=0;i<bz.length;i++) {
 			var sqr=bz[i][0] & 0xffff;
@@ -605,6 +640,8 @@
 		var undo=burned && move.kill===-1
 			? OriginalQuickApply.call(this,aGame,SuppressOwnBurn(move))
 			: OriginalQuickApply.apply(this,arguments);
+		if(move.pr!==undefined && (IS_DEMON[move.pr] || AREA_STEPS[move.pr]))
+			TrackBurner(this,index);
 		if(burned) {
 			this.board[move.t]=-1;
 			piece.p=-1;
@@ -624,6 +661,8 @@
 			OriginalApplyMove.call(this,aGame,SuppressOwnBurn(move));
 		else
 			OriginalApplyMove.apply(this,arguments);
+		if(move.pr!==undefined && (IS_DEMON[move.pr] || AREA_STEPS[move.pr]))
+			TrackBurner(this,index);
 		if(burned) {
 			this.zSign^=aGame.bKey(piece);
 			this.board[piece.p]=-1;
@@ -636,19 +675,37 @@
 	// ---- move list post-processing -----------------------------------------
 	var OriginalMoveGen = Model.Board.cbGeneratePseudoLegalMoves;
 	Model.Board.cbGeneratePseudoLegalMoves = function(aGame) {
+		delete this.cbBurners; // rebuilt below, from the position as it is now
+		Burners(this);
 		var moves=OriginalMoveGen.apply(this,arguments);
-		var unique={}, result=[];
+		var seen={}, result=[];
 		for(var i=0;i<moves.length;i++) {
 			var move=moves[i];
 			// a Water Buffalo promoting to Fire Demon burns immediately
 			if(move.pr!==undefined && IS_DEMON[move.pr] && move.kill===undefined)
 				move.kill=-1;
-			// the same destination can be reached by a slide AND by an area move,
-			// or by a slide AND by a 5x5 Lion/Free Eagle jump: keep one of them
-			var key=move.f+':'+move.t+':'+move.pr+':'+move.c+':'+move.via+':'+move.kill;
-			if(unique[key])
-				continue;
-			unique[key]=true;
+			// The same destination can be reached by a slide AND by an area move,
+			// or by a slide AND by a 5x5 Lion/Free Eagle jump: keep one of them.
+			// Almost every move is already unique on (from,to), so that cheap
+			// integer key is tried first and the full comparison only happens for
+			// the few moves that really share a destination.
+			var key=move.f*256+move.t, same=seen[key];
+			if(same===undefined)
+				seen[key]=[move];
+			else {
+				var duplicate=false;
+				for(var j=0;j<same.length;j++) {
+					var move1=same[j];
+					if(move1.pr===move.pr && move1.c===move.c &&
+					   move1.via===move.via && move1.kill===move.kill) {
+						duplicate=true;
+						break;
+					}
+				}
+				if(duplicate)
+					continue;
+				same.push(move);
+			}
 			result.push(move);
 		}
 		return result;
@@ -691,13 +748,36 @@
 		return targets;
 	}
 
-	function DemonThreatens(board,aGame,demon,pos,who) {
-		// the Demon burns `pos` if it can move to pos or to any square next to it
+	// The Demon burns `pos` if it can move to pos or to any square next to it,
+	// either by walking (its area move) or by sliding.
+	function DemonWalksTo(board,aGame,demon,pos) {
 		var targets=AreaTargets(board,aGame,demon.p,demon.s,3);
 		for(var i=0;i<targets.length;i++)
 			if(Chebyshev(targets[i],pos)<=1)
 				return true;
+		return false;
+	}
+
+	// Can a slide from `from` in direction `delta` end up within one square of
+	// `pos`? Cheap test on the projection of pos onto the line, so that only the
+	// one or two useful directions out of six are actually walked.
+	function RayComesNear(from,pos,delta) {
+		var dc=geometry.C(pos)-geometry.C(from), dr=geometry.R(pos)-geometry.R(from);
+		var k=Math.round((dc*delta[0]+dr*delta[1])/(delta[0]*delta[0]+delta[1]*delta[1]));
+		for(var i=-1;i<=1;i++) {
+			var k1=k+i;
+			if(k1<0)
+				continue;
+			if(Math.abs(dc-k1*delta[0])<=1 && Math.abs(dr-k1*delta[1])<=1)
+				return true;
+		}
+		return false;
+	}
+
+	function DemonSlidesTo(board,aGame,demon,pos) {
 		for(var d=0;d<DEMON_SLIDE.length;d++) {
+			if(!RayComesNear(demon.p,pos,DEMON_SLIDE[d]))
+				continue;
 			var pos1=geometry.Graph(demon.p,DEMON_SLIDE[d]);
 			while(pos1!=null) {
 				var index=board.board[pos1];
@@ -718,15 +798,18 @@
 		var attackers=OriginalGetAttackers.apply(this,arguments);
 		if(!isKing)
 			return attackers;
-		var pieces=this.pieces;
-		for(var i=0;i<pieces.length;i++) {
-			var piece=pieces[i];
+		var burners=Burners(this), dist=aGame.g.distGraph[pos];
+		for(var i=0;i<burners.length;i++) {
+			var piece=this.pieces[burners[i]];
 			if(piece.p<0 || piece.s==who)
 				continue;
 			if(IS_DEMON[piece.t]) {
-				if(DemonThreatens(this,aGame,piece,pos,who))
+				// walking 3 King steps and burning one square further: past that
+				// distance only a slide can bring the Demon into burning range
+				if((dist[piece.p]<=4 && DemonWalksTo(this,aGame,piece,pos)) ||
+				   DemonSlidesTo(this,aGame,piece,pos))
 					attackers.push(piece);
-			} else if(AREA_STEPS[piece.t]) {
+			} else if(dist[piece.p]<=AREA_STEPS[piece.t]) {
 				var targets=AreaTargets(this,aGame,piece.p,piece.s,AREA_STEPS[piece.t]);
 				for(var j=0;j<targets.length;j++)
 					if(targets[j]==pos) {

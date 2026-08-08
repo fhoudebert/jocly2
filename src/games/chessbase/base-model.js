@@ -147,20 +147,42 @@
 					var line=[];
 					for(var i=0;i<line1.length;i++) {
 						var tg1=line1[i];
+						// ONE item per square of the line, even when the square is
+						// both a normal capture and a screen capture (which is the
+						// case for the jumping generals of Tenjiku Shogi and the
+						// jumpers of Minjiku Shogi, whose flags are
+						// FLAG_CAPTURE|FLAG_SCREEN_CAPTURE). Emitting two items
+						// used to put the square twice in the path, and to make the
+						// screen-capture path start on the attacked square itself -
+						// so the attacked piece counted as the first screen. For a
+						// King with a ranking (Tenjiku gives royalty the highest
+						// rank so that nothing jumps over it) that hid every
+						// screen-capture check: a Vice General could capture a King
+						// over any number of pieces without the King ever being
+						// reported as attacked.
+						var item={d:tg1 & MASK,a:pos}, threat=false;
 						if(tg1 & FLAG_CAPTURE_KING) {
 							$this.cbUseCaptureKing=true;
-							line.unshift({d:tg1 & MASK,a:pos,tk:typeName});
+							item.tk=typeName;
+							threat=true;
 						} else if(tg1 & FLAG_CAPTURE_NO_KING) {
 							$this.cbUseCaptureNoKing=true;
-							line.unshift({d:tg1 & MASK,a:pos,tnk:typeName});
-						} else if(tg1 & (FLAG_CAPTURE | FLAG_THREAT))
-							line.unshift({d:tg1 & MASK,a:pos,t:typeName});
-						else if(tg1 & FLAG_STOP)
-							line.unshift({d:tg1 & MASK,a:pos});
+							item.tnk=typeName;
+							threat=true;
+						} else if(tg1 & (FLAG_CAPTURE | FLAG_THREAT)) {
+							item.t=typeName;
+							threat=true;
+						} else if(tg1 & FLAG_STOP)
+							threat=true;
 						if(tg1 & FLAG_SCREEN_CAPTURE) {
 							$this.cbUseScreenCapture=true;
-							line.unshift({d:tg1 & MASK,a:pos,ts:typeName});
+							if(pType.ranking > $this.cbMaxScreenRanking)
+								$this.cbMaxScreenRanking = pType.ranking;
+							item.ts=typeName;
+							threat=true;
 						}
+						if(threat)
+							line.unshift(item);
 					}
 					if(line.length>0)
 						lines.push(line);
@@ -192,11 +214,12 @@
 					}
 					attackers[key]=att0;
 				}
+				// an item can now carry both a capture and a screen capture
 				if(lineItem.t!==undefined)
 					att0.t[lineItem.t]=true;
-				else if(lineItem.tk!==undefined)
+				if(lineItem.tk!==undefined)
 					att0.tk[lineItem.tk]=true;
-				else if(lineItem.ts!==undefined)
+				if(lineItem.ts!==undefined)
 					att0.ts[lineItem.ts]=true;
 			});
 		});
@@ -237,6 +260,25 @@
 			}
 			var tree={};
 			Compact(tree,[]);
+
+			// Flag the branches that hold a screen capture, or lead to one.
+			// Walking past an occupied square is only ever useful to find a
+			// piece that captures through a screen, and those are a handful of
+			// types: without this flag the collector walked the whole tree of
+			// every piece type behind every piece, which on a large board with
+			// ranked jumpers (Tenjiku Shogi) was by far the most expensive
+			// thing in the search.
+			function MarkScreens(branches) {
+				var any=false;
+				for(var pos1 in branches) {
+					var branch=branches[pos1];
+					branch.hs=MarkScreens(branch.e) || branch.ts!==undefined;
+					if(branch.hs)
+						any=true;
+				}
+				return any;
+			}
+			MarkScreens(tree);
 			
 			threatGraph[1][pos]=tree;
 			threatGraph[-1][pos]=tree;
@@ -371,6 +413,12 @@
 			nullGraph[pos]=[];
 
 		this.cbMaxRanking = 0;
+		// highest ranking among the pieces that can capture through a screen:
+		// once the screens on a line beat that, no attacker can pass them, so
+		// the (expensive) multi-screen walk can stop there. Royalty usually
+		// carries the highest ranking of all - to forbid jumping over it - but
+		// it never attacks through a screen, hence a separate maximum.
+		this.cbMaxScreenRanking = 0;
 		// Highest isKing "rank" in the variant. isKing:true counts as 1;
 		// a variant with a second royal piece (a crown prince) uses
 		// isKing:2, giving cbMaxRoyalRank 2 and turning on multi-royal
@@ -1161,6 +1209,8 @@
 	Model.Board.cbCollectAttackersScreen=function(who,graph,attackers,isKing,screen) {
 		for(var pos1 in graph) {
 			var branch=graph[pos1];
+			if(screen && !branch.hs)
+				continue; // nothing that captures through a screen down there
 			var index1=this.board[pos1];
 			if(index1<0)
 				this.cbCollectAttackersScreen(who,branch.e,attackers,isKing,screen);
@@ -1171,7 +1221,8 @@
 						(branch.t && (piece1.t in branch.t)) ||
 						(isKing && branch.tk && (piece1.t in branch.tk))))
 						attackers.push(piece1); // direct attacker
-				 	this.cbCollectAttackersScreen(who,branch.e,attackers,isKing,piece1.r|1024); // 1024 bit: must jump 1 screen
+					if(branch.hs)
+				 		this.cbCollectAttackersScreen(who,branch.e,attackers,isKing,piece1.r|1024); // 1024 bit: must jump 1 screen
 				} else {
 					if(piece1.s==-who && branch.ts && (piece1.t in branch.ts) &&
 					   (piece1.r ? (piece1.r|1) > (screen&1023) : screen&1024)) // normal hopper: 1 screen, ranked must top highest screen
@@ -1188,7 +1239,7 @@
 
 	Model.Board.cbGetAttackers = function(aGame,pos,who,isKing) {
 		var attackers=[];
-		mr = aGame.cbMaxRanking;
+		mr = aGame.cbMaxScreenRanking;
 		if(aGame.cbUseScreenCapture)
 			this.cbCollectAttackersScreen(who,aGame.g.threatGraph[who][pos],attackers,isKing,0);
 		else
