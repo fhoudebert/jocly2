@@ -9060,7 +9060,7 @@ exports.games = (function () {
 			},
 			"viewScripts": config_view_js_108
 		},
-		{
+	/*	{
 			"name": "tenjiku-shogi",
 			"modelScripts": modelScripts_tenjiku,
 			"config": {
@@ -9132,7 +9132,7 @@ exports.games = (function () {
 				}
 			},
 			"viewScripts": config_view_js_tenjiku
-		},
+		},*/
 		{
 			"name": "makromachy",
 			"modelScripts": modelScripts_109,
