@@ -2008,19 +2008,19 @@
 		},
 		"fr-duchess": {
 			mesh: {
-				jsFile:"/res/fairy/lighthouse/lighthouse.js"
+				jsFile:"/res/fairy/duchess/duchess.js"
 			},
 			materials: {
 				mat0: {
 					channels: {
 						diffuse: {
 							texturesImg: {
-								diffImg : "/res/fairy/lighthouse/lighthouse-diffusemap.jpg",
+								diffImg : "/res/fairy/duchess/duchess-diffusemap.jpg",
 							}
 						},
 						normal: {
 							texturesImg: {
-								normalImg: "/res/fairy/lighthouse/lighthouse-normalmap.jpg",
+								normalImg: "/res/fairy/duchess/duchess-normalmap.jpg",
 							}
 						}
 					}
