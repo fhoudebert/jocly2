@@ -1961,17 +1961,22 @@
 		},
 		"fr-griffon": {
 			mesh: {
-				jsFile:"/res/fairy/griffon/griffon.js"
+				jsFile:"/res/fairy/griffon/griffon.js",
+				// the mesh is unwrapped as an atlas of islands and ships its own
+				// normals: recomputing them would seam every island border
+				keepNormals: true,
 			},
 			materials: {
 				mat0: {
 					channels: {
 						diffuse: {
+							repeat: true,
 							texturesImg: {
 								diffImg : "/res/fairy/griffon/griffon-diffusemap.jpg",
 							}
 						},
 						normal: {
+							repeat: true,
 							texturesImg: {
 								normalImg: "/res/fairy/griffon/griffon-normalmap.jpg",
 							}

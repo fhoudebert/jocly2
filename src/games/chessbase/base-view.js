@@ -1193,6 +1193,13 @@
 		    		spec.paintTexture.call(this,spec,ctx,material,chan,resources);
 		    		var texture =  new THREE.Texture(canvas);
 		    		if (chan === "diffuse") texture.colorSpace = THREE.SRGBColorSpace;
+		    		// THREE.Texture defaults to ClampToEdge: a model whose UVs go
+		    		// outside [0,1] (cylindrical unwrap, tiled material) smears the
+		    		// border column instead of tiling. Opt in with channel.repeat.
+		    		if (channel.repeat) {
+		    			texture.wrapS = THREE.RepeatWrapping;
+		    			texture.wrapT = THREE.RepeatWrapping;
+		    		}
 		    		texture.needsUpdate = true;
 		    		resources.textures[material][chan]=texture;
 	    		}
@@ -1287,7 +1294,13 @@
 				resources.material=pieceMat;
 				
 				resources.geometry = THREE.BufferGeometryUtils.mergeVertices(resources.geometry);
-				resources.geometry.computeVertexNormals(); // needed in normals not exported in js file!
+				// needed if normals are not exported in the mesh file. On a model
+				// unwrapped as an atlas of islands, recomputing them splits the
+				// normals along every island border (the seam vertices only see
+				// their own side's faces) and draws visible shading seams: a mesh
+				// that ships normals can ask to keep them with mesh.keepNormals.
+				if(!(spec.mesh && spec.mesh.keepNormals && resources.geometry.getAttribute('normal')))
+					resources.geometry.computeVertexNormals();
 
 			},
 
