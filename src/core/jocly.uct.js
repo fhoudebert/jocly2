@@ -100,6 +100,15 @@ if(typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 				distributeEval: aOptions.level.distributeEval===undefined?true:aOptions.level.distributeEval,
 				pickMove: aOptions.level.pickMove===undefined?"besteval":aOptions.level.pickMove, // or maxvisits
 				debugRawEval: aOptions.level.debugRawEval===undefined?false:aOptions.level.debugRawEval,
+				// forced-line extension, off unless the level asks for it:
+				// { depth: how many further checks to follow,
+				//   maxReplies: give up when the check is not really forcing,
+				//   maxDepth: only near the top of the tree }
+				mateSearch: aOptions.level.mateSearch===undefined?null:aOptions.level.mateSearch,
+				// null-move mate-threat detection, off unless the level asks:
+				// { weight: how far the value is pulled toward the threatening
+				//   side, maxDepth: only near the top of the tree }
+				mateThreat: aOptions.level.mateThreat===undefined?null:aOptions.level.mateThreat,
 		};
 		var uctNodes={};
 		var signatures; // the array of visited board signatures
@@ -312,16 +321,120 @@ if(typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		/*
 		 * Propagates known boolean up 
 		 */
+		/*
+		 * Forced-line extension. `board` is a position where the side to move is
+		 * in check. A check leaves very few legal replies, so following the line
+		 * a bit further is cheap compared to what it buys: the combinations that
+		 * win in these games are exactly "check that removes the defender, forced
+		 * recapture, mate", and their first move is often a sacrifice that the
+		 * static evaluation rejects - so the plain search never looks at it.
+		 * Returns true when every reply loses to a new check, down to mate.
+		 * Bounded by mateSearch.maxReplies (give up on a position that is not
+		 * really forced) and by the remaining depth.
+		 */
+		function ForcedMate(board,depth) {
+			var params=uctParams.mateSearch;
+			board.mMoves=[];
+			board.GenerateMoves(aGame);
+			if(board.mFinished) // no reply at all: mate (or stalemate, which is not a win)
+				return winnerMap[board.mWinner]==-board.mWho;
+			if(depth<=0 || board.mMoves.length>params.maxReplies)
+				return false;
+			var BoardClass=aGame.GetBoardClass();
+			for(var r=0;r<board.mMoves.length;r++) {
+				var board1=new BoardClass(aGame);
+				board1.CopyFrom(board);
+				board1.ApplyMove(aGame,board.mMoves[r]);
+				board1.mWho=-board1.mWho; // the checking side is to move again
+				board1.mMoves=[];
+				board1.GenerateMoves(aGame);
+				var wins=false;
+				for(var i=0;i<board1.mMoves.length && !wins;i++) {
+					var move1=board1.mMoves[i];
+					if(!move1.ck)
+						continue; // only forcing moves are followed
+					var board2=new BoardClass(aGame);
+					board2.CopyFrom(board1);
+					board2.ApplyMove(aGame,move1);
+					board2.mWho=-board2.mWho;
+					board2.mMoves=[];
+					wins=!board2.HasLegalMove(aGame) || ForcedMate(board2,depth-1);
+				}
+				if(!wins)
+					return false; // this reply holds
+			}
+			return true;
+		}
+
+		/*
+		 * Null-move mate threat. If the side to move could pass and be mated
+		 * right away, its position is in serious danger - and, unlike a check,
+		 * nothing in the static evaluation says so. This is what the search kept
+		 * missing in Tenjiku Shogi: a jumping general takes aim with a QUIET move
+		 * (VGi4-n9), and mate follows two plies later on a line nothing can
+		 * block, so no amount of check extension sees it coming.
+		 * One move generation per expanded node, and only near the top of the
+		 * tree. It is a heuristic, not a proof: a mate threat can often be
+		 * parried, hence a weight rather than a settled value.
+		 */
+		function MateThreat(board) {
+			if(board.check || typeof board.HasLegalMove != "function")
+				return 0; // in check, passing is not a meaningful question
+			var BoardClass=aGame.GetBoardClass();
+			var board1=new BoardClass(aGame);
+			board1.CopyFrom(board);
+			board1.mWho=-board1.mWho; // the null move
+			board1.epTarget=null;
+			board1.mMoves=[];
+			board1.GenerateMoves(aGame);
+			if(board1.mFinished)
+				return 0;
+			for(var i=0;i<board1.mMoves.length;i++) {
+				var move=board1.mMoves[i];
+				if(!move.ck)
+					continue; // a mate in one is a check
+				var board2=new BoardClass(aGame);
+				board2.CopyFrom(board1);
+				board2.ApplyMove(aGame,move);
+				board2.mWho=-board2.mWho;
+				board2.mMoves=[];
+				if(!board2.HasLegalMove(aGame))
+					return -board.mWho; // the side that does not move here wins
+			}
+			return 0;
+		}
+
+		// The threat only biases the value the node gets when it is created, the
+		// moment where nothing but the static evaluation is known. As soon as the
+		// subtree grows, the search recomputes the node from its children and the
+		// bias is gone - a threat is a suspicion, not a verdict.
+		function ApplyThreat(node,evaluation) {
+			if(!node.threat)
+				return evaluation;
+			var w=uctParams.mateThreat.weight;
+			return evaluation*(1-w)+node.threat*w;
+		}
+
 		function PropagateKnownParent(node,visited) {
 			if(aGame.mOptions.uctTransposition && !aGame.mOptions.uctIgnoreLoop && (node.sign in visited))
 				return;
+			// A node is settled when every child is settled - but also, and much
+			// sooner, as soon as ONE child is a settled win for the player who
+			// moves here: whatever the other moves are worth, that player plays
+			// this one. Without it, a refuted move stayed a candidate and the
+			// search kept spending nodes on it instead of looking for a defence
+			// elsewhere (node.who is the player that moved into the node, so
+			// evaluation*who==1 means "that player wins").
 			var known=true;
 			for(var i=0;i<node.children.length;i++) {
 				var node1=node.children[i].n;
-				if(node1.known==false) {
+				if(node1.known) {
+					if(node1.evaluation*node1.who>0.9) { // winning move: nothing else matters
+						known=true;
+						break;
+					}
+				} else
 					known=false;
-					break;
-				}
 			}
 			if(known==true) {
 				node.known=true;
@@ -518,18 +631,28 @@ if(typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 			if(node==rootNode || node.visits>=uctParams.minVisitsExpand) {
 				if(!board.mMoves || board.mMoves.length==0)
 					board.GenerateMoves(aGame);
+				if(uctParams.mateThreat && !board.mFinished &&
+				   depth<=uctParams.mateThreat.maxDepth)
+					node.threat=MateThreat(board);
 				if(board.mFinished) { // in some game implementations, ending is detected while generating the moves
 					node.known=true;
 					node.evaluation=winnerMap[board.mWinner];
+					PropagateEval(node,1); // the leaf value just changed: tell the parents
 					PropagateKnown(node);
 				} else {
 					node.children=[];
+					var scratchBoard=null;
 					var bestEval=undefined;
 					var known=true;
+					var solved=false; // a child that already settles this node
 					for(var i=0;i<board.mMoves.length;i++) {
 						var move=board.mMoves[i];
 						var signatures1=[];
-						var board1=new (aGame.GetBoardClass())(aGame);
+						// the boards built here are thrown away once evaluated, so
+						// one is enough for the whole expansion: CopyFrom refills it
+						var board1=scratchBoard;
+						if(board1===null)
+							board1=scratchBoard=new (aGame.GetBoardClass())(aGame);
 						board1.CopyFrom(board);
 						board1.ApplyMove(aGame,move);
 						aGame.AddVisit(board1);
@@ -555,8 +678,26 @@ if(typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 								uctNodes[sign1]=node1;
 								node1.sign=sign1;
 							}
+							// A move that gives check may well be mate. Finding it out
+							// here, rather than when this node gets expanded in its
+							// turn, is what makes the search see a mate in one as a
+							// settled loss right away - it costs one cheap legality
+							// scan, and only on the moves that do give check.
+							var forcedMate=false;
+							if(move.ck && typeof board1.HasLegalMove == "function") {
+								if(!board1.HasLegalMove(aGame))
+									board1.GenerateMoves(aGame); // sets mFinished/mWinner
+								else if(uctParams.mateSearch && depth<=uctParams.mateSearch.maxDepth)
+									// the check is not mate yet, but the replies to a
+									// check are few: follow the forced line a little
+									// further and see whether it ends in mate anyway
+									forcedMate=ForcedMate(board1,uctParams.mateSearch.depth);
+							}
 							board1.Evaluate(aGame);
-							if(board1.mFinished) {
+							if(forcedMate && !board1.mFinished) {
+								node1.known=true;
+								node1.evaluation=-board1.mWho; // the checking side wins
+							} else if(board1.mFinished) {
 								node1.known=true;
 								node1.evaluation=winnerMap[board1.mWinner]; // 1, -1 or 0
 							} else {
@@ -572,6 +713,10 @@ if(typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 						}
 						if(node1.known==false)
 							known=false;
+						else if(node1.evaluation*node1.who>0.9)
+							// a settled winning move for the player moving here:
+							// nothing else this node offers can matter
+							solved=true;
 						var nodeChain={
 							n: node1,
 							m: (new (aGame.GetMoveClass())(move)).Strip(), // Save memory by stripping the stored move
@@ -585,13 +730,13 @@ if(typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 						for(var j=0;j<signatures1.length;j++)
 							aGame.RemoveVisit(null,signatures1[j]);
 					}
-					node.evaluation=bestEval;
+					node.evaluation=ApplyThreat(node,bestEval);
 					PropagateEval(node,uctParams.propagateMultiVisits?board.mMoves.length:1);
 					if(uctParams.directVisits)
 						for(var i=0;i<nodePath.length;i++)
 							nodePath[i].visits+=uctParams.propagateMultiVisits?board.mMoves.length:1;
 					
-					if(known) {
+					if(known || solved) {
 						node.known=true;
 						PropagateKnown(node);
 					}
@@ -870,7 +1015,7 @@ if(typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 					}
 				}
 
-				JocUtil.schedule(aGame, "Done", {});
+					JocUtil.schedule(aGame, "Done", {});
 			}
 		}
 		Run();

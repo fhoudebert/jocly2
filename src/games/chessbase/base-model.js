@@ -147,20 +147,42 @@
 					var line=[];
 					for(var i=0;i<line1.length;i++) {
 						var tg1=line1[i];
+						// ONE item per square of the line, even when the square is
+						// both a normal capture and a screen capture (which is the
+						// case for the jumping generals of Tenjiku Shogi and the
+						// jumpers of Minjiku Shogi, whose flags are
+						// FLAG_CAPTURE|FLAG_SCREEN_CAPTURE). Emitting two items
+						// used to put the square twice in the path, and to make the
+						// screen-capture path start on the attacked square itself -
+						// so the attacked piece counted as the first screen. For a
+						// King with a ranking (Tenjiku gives royalty the highest
+						// rank so that nothing jumps over it) that hid every
+						// screen-capture check: a Vice General could capture a King
+						// over any number of pieces without the King ever being
+						// reported as attacked.
+						var item={d:tg1 & MASK,a:pos}, threat=false;
 						if(tg1 & FLAG_CAPTURE_KING) {
 							$this.cbUseCaptureKing=true;
-							line.unshift({d:tg1 & MASK,a:pos,tk:typeName});
+							item.tk=typeName;
+							threat=true;
 						} else if(tg1 & FLAG_CAPTURE_NO_KING) {
 							$this.cbUseCaptureNoKing=true;
-							line.unshift({d:tg1 & MASK,a:pos,tnk:typeName});
-						} else if(tg1 & (FLAG_CAPTURE | FLAG_THREAT))
-							line.unshift({d:tg1 & MASK,a:pos,t:typeName});
-						else if(tg1 & FLAG_STOP)
-							line.unshift({d:tg1 & MASK,a:pos});
+							item.tnk=typeName;
+							threat=true;
+						} else if(tg1 & (FLAG_CAPTURE | FLAG_THREAT)) {
+							item.t=typeName;
+							threat=true;
+						} else if(tg1 & FLAG_STOP)
+							threat=true;
 						if(tg1 & FLAG_SCREEN_CAPTURE) {
 							$this.cbUseScreenCapture=true;
-							line.unshift({d:tg1 & MASK,a:pos,ts:typeName});
+							if(pType.ranking > $this.cbMaxScreenRanking)
+								$this.cbMaxScreenRanking = pType.ranking;
+							item.ts=typeName;
+							threat=true;
 						}
+						if(threat)
+							line.unshift(item);
 					}
 					if(line.length>0)
 						lines.push(line);
@@ -192,11 +214,12 @@
 					}
 					attackers[key]=att0;
 				}
+				// an item can now carry both a capture and a screen capture
 				if(lineItem.t!==undefined)
 					att0.t[lineItem.t]=true;
-				else if(lineItem.tk!==undefined)
+				if(lineItem.tk!==undefined)
 					att0.tk[lineItem.tk]=true;
-				else if(lineItem.ts!==undefined)
+				if(lineItem.ts!==undefined)
 					att0.ts[lineItem.ts]=true;
 			});
 		});
@@ -237,6 +260,46 @@
 			}
 			var tree={};
 			Compact(tree,[]);
+
+			// Flag the branches that hold a screen capture, or lead to one.
+			// Walking past an occupied square is only ever useful to find a
+			// piece that captures through a screen, and those are a handful of
+			// types: without this flag the collector walked the whole tree of
+			// every piece type behind every piece, which on a large board with
+			// ranked jumpers (Tenjiku Shogi) was by far the most expensive
+			// thing in the search.
+			function MarkScreens(branches) {
+				var any=false;
+				for(var pos1 in branches) {
+					var branch=branches[pos1];
+					branch.hs=MarkScreens(branch.e) || branch.ts!==undefined;
+					if(branch.hs)
+						any=true;
+				}
+				return any;
+			}
+			MarkScreens(tree);
+
+			// Walking this tree is what the legality test spends its time in, and
+			// `for(var pos1 in graph)` over an object is by far the slowest way to
+			// do it. Flatten every level, once, into a plain array of
+			// [square, branch, square, branch, ...]: `l` holds every child, `h`
+			// only the ones that can lead to a screen capture, which is all the
+			// walk needs once it is behind a piece.
+			function Flatten(branches) {
+				var all=[], screens=[];
+				for(var pos1 in branches) {
+					var branch=branches[pos1];
+					Flatten(branch.e);
+					all.push(pos1|0,branch);
+					if(branch.hs)
+						screens.push(pos1|0,branch);
+				}
+				branches.l=all;
+				branches.h=screens;
+				return all;
+			}
+			Flatten(tree);
 			
 			threatGraph[1][pos]=tree;
 			threatGraph[-1][pos]=tree;
@@ -371,6 +434,12 @@
 			nullGraph[pos]=[];
 
 		this.cbMaxRanking = 0;
+		// highest ranking among the pieces that can capture through a screen:
+		// once the screens on a line beat that, no attacker can pass them, so
+		// the (expensive) multi-screen walk can stop there. Royalty usually
+		// carries the highest ranking of all - to forbid jumping over it - but
+		// it never attacks through a screen, hence a separate maximum.
+		this.cbMaxScreenRanking = 0;
 		// Highest isKing "rank" in the variant. isKing:true counts as 1;
 		// a variant with a second royal piece (a crown prince) uses
 		// isKing:2, giving cbMaxRoyalRank 2 and turning on multi-royal
@@ -425,6 +494,12 @@
 			this.board[pos]=-1;
 		this.pieces.forEach(function(piece,index) {
 			piece.i=index;
+			var pType0=aGame.g.pTypes[piece.t];
+			// jumping power of the piece (see FLAG_SCREEN_CAPTURE below). Set
+			// here rather than only where the initial setup is built, so that a
+			// position loaded from FEN/PJN - whose pieces come from Import(),
+			// which knows nothing about ranking - gets it too.
+			piece.r=pType0.ranking;
 			if(piece.p<0) return;
 			$this.board[piece.p]=index;
 			var pType=aGame.g.pTypes[piece.t];
@@ -533,44 +608,58 @@
 		}
 	}
 
+	// The search copies a board for every child of every expanded node - a few
+	// hundred times a second on a large board - and those copies were most of the
+	// garbage it produced. Nothing keeps a copy alive after it has been evaluated,
+	// so the arrays and the piece objects of the destination are reused whenever
+	// they already have the right shape; a fresh board still allocates as before.
 	Model.Board.CopyFrom = function(aBoard) {
+		var board0=aBoard.board;
+		var boardLength=board0.length;
 		if(USE_TYPED_ARRAYS) {
-			this.board=new Int16Array(aBoard.board.length);
-			this.board.set(aBoard.board);
+			if(this.board===undefined || this.board.length!==boardLength)
+				this.board=new Int16Array(boardLength);
+			this.board.set(board0);
 		} else {
-			this.board=[];
-			var board0=aBoard.board;
-			var boardLength=board0.length;
+			var board=this.board;
+			if(board===undefined || board.length!==boardLength)
+				board=this.board=new Array(boardLength);
 			for(var i=0;i<boardLength;i++)
-				this.board.push(board0[i]);
+				board[i]=board0[i];
 		}
-		this.pieces=[];
-		var piecesLength=aBoard.pieces.length;
+		var pieces0=aBoard.pieces;
+		var piecesLength=pieces0.length;
+		var pieces=this.pieces;
+		if(pieces===undefined || pieces.length!==piecesLength) {
+			pieces=this.pieces=new Array(piecesLength);
+			for(var i=0;i<piecesLength;i++)
+				pieces[i]={ s:0, p:-1, t:0, i:i, m:false, r:0 };
+		}
 		for(var i=0;i<piecesLength;i++) {
-			var piece=aBoard.pieces[i];
-			this.pieces.push({
-				s: piece.s,
-				p: piece.p,
-				t: piece.t,
-				i: piece.i,
-				m: piece.m,
-				r: piece.r,
-			});
+			var piece=pieces[i], piece0=pieces0[i];
+			piece.s=piece0.s;
+			piece.p=piece0.p;
+			piece.t=piece0.t;
+			piece.i=piece0.i;
+			piece.m=piece0.m;
+			piece.r=piece0.r;
 		}
 		this.kings={};
 		for(var i in aBoard.kings)
 			this.kings[i] = aBoard.kings[i];
 		this.check=aBoard.check;
 		this.oppoCheck=aBoard.oppoCheck;
-		this.lastMove={
-			f: aBoard.lastMove.f,
-			t: aBoard.lastMove.t,
-			c: aBoard.lastMove.c,
-		}
-		this.ending={
-			'1': aBoard.ending[1],
-			'-1': aBoard.ending[-1],
-		}
+		var lastMove=this.lastMove;
+		if(lastMove===undefined)
+			lastMove=this.lastMove={};
+		lastMove.f=aBoard.lastMove.f;
+		lastMove.t=aBoard.lastMove.t;
+		lastMove.c=aBoard.lastMove.c;
+		var ending=this.ending;
+		if(ending===undefined)
+			ending=this.ending={};
+		ending['1']=aBoard.ending[1];
+		ending['-1']=aBoard.ending[-1];
 		if(aBoard.castled!==undefined) {
 			this.castled= {
 				'1': aBoard.castled[1],
@@ -662,8 +751,16 @@
 			ty: piece.t,
 		});
 		piece.p=move.t;
-		if(move.pr!==undefined)
+		if(move.pr!==undefined) {
 			piece.t=move.pr;
+			// a piece promoting into (or out of) a jumping slider changes its
+			// jumping power, so piece.r has to follow piece.t
+			var rank1=aGame.g.pTypes[piece.t].ranking;
+			if(rank1!==piece.r) {
+				undo[0].ra=piece.r;
+				piece.r=rank1;
+			}
+		}
 		var royal = aGame.g.pTypes[piece.t].isKing;
 		if(royal) {
 			royal *= piece.s;
@@ -695,6 +792,8 @@
 				this.kings[u.who]=u.kp;
 			if(u.ty!=undefined)
 				piece.t=u.ty;
+			if(u.ra!==undefined)
+				piece.r=u.ra;
 			if(u.cg!=undefined)
 				this.castled[piece.s]=u.cg;
 		}
@@ -710,6 +809,7 @@
 			if(move.pr!==undefined) {
 				this.zSign^=aGame.tKey(piece);
 				piece.t=move.pr;
+				piece.r=aGame.g.pTypes[piece.t].ranking; // jumping power follows the type
 				this.zSign^=aGame.tKey(piece);
 			}
 			if(move.c!=null) {
@@ -759,17 +859,26 @@
 		var who=this.mWho;
 		var g=aGame.g;
 		var material;
-		if(USE_TYPED_ARRAYS)
+		if(USE_TYPED_ARRAYS) {
+			// the two counters are the same size on every call: keep them on the
+			// game and blank them, rather than allocating a pair per evaluation
+			var counts=aGame.cbEvalCounts;
+			if(counts===undefined || counts[0].length!=g.pTypes.length)
+				counts=aGame.cbEvalCounts=[new Uint8Array(g.pTypes.length),
+							  new Uint8Array(g.pTypes.length)];
+			counts[0].fill(0);
+			counts[1].fill(0);
 			material={ 
 				'1': {
-					count: new Uint8Array(g.pTypes.length),
+					count: counts[0],
 					byType: {},
 				},
 				'-1': {
-					count: new Uint8Array(g.pTypes.length), 
+					count: counts[1], 
 					byType: {},
 				}
 			}
+		}
 		else {
 			material={ 
 				'1': {
@@ -807,31 +916,54 @@
 		var castlePiecesCount={ '1': 0, '-1': 0 };
 		var kingMoved={ '1': 0, '-1': 0 }; // kludge: should become false or true
 		
+		// One accumulator per side, with plain numeric fields. The loop below runs
+		// over every piece on every evaluation, and the {'1':..,'-1':..} objects
+		// it used to fill turned each `x[s]` into a number-to-string conversion
+		// and a dictionary lookup - about a thousand of them per call.
+		var accW={ value:0, castle:0, count:0, dist:0, pos:0, moved:0,
+			   mat:material['1'], distGraph:distKingGraph['1'] };
+		var accB={ value:0, castle:0, count:0, dist:0, pos:0, moved:0,
+			   mat:material['-1'], distGraph:distKingGraph['-1'] };
+		var distEdge=cbVar.geometry.distEdge;
+		var skipByType=aGame.cbSkipMaterialByType;
+		var pTypes=g.pTypes;
 		var pieces=this.pieces;
 		var piecesLength=pieces.length;
 		for(var i=0;i<piecesLength;i++) {
 			var piece=pieces[i];
-			if(piece.p>=0) {
-				var s=piece.s;
-				var pType=g.pTypes[piece.t];
+			var pos=piece.p;
+			if(pos>=0) {
+				var pType=pTypes[piece.t];
+				var acc=piece.s>0?accW:accB;
 				if(!pType.isKing)
-					pieceValue[s]+=pType.value;
+					acc.value+=pType.value;
 				else
-					kingMoved[s]=piece.m;
+					acc.moved=piece.m;
 				if(pType.castle && !piece.m)
-					castlePiecesCount[s]++;
-				pieceCount[s]++;
-				distKing[s]+=distKingGraph[s][piece.p];
-				posValue[s]+=cbVar.geometry.distEdge[piece.p];
-				var mat=material[s];
+					acc.castle++;
+				acc.count++;
+				acc.dist+=acc.distGraph[pos];
+				acc.pos+=distEdge[pos];
+				var mat=acc.mat;
 				mat.count[piece.t]++;
-				var byType=mat.byType;
-				if(byType[piece.t]===undefined)
-					byType[piece.t]=[piece];
-				else
-					byType[piece.t].push(piece);					
+				// byType allocates one array per piece type present, on every
+				// evaluation. A game whose evaluate() does not read it can say so
+				// and save that: piece counts and values stay available.
+				if(!skipByType) {
+					var byType=mat.byType;
+					if(byType[piece.t]===undefined)
+						byType[piece.t]=[piece];
+					else
+						byType[piece.t].push(piece);
+				}
 			}
 		}
+		pieceValue['1']=accW.value;         pieceValue['-1']=accB.value;
+		castlePiecesCount['1']=accW.castle; castlePiecesCount['-1']=accB.castle;
+		pieceCount['1']=accW.count;         pieceCount['-1']=accB.count;
+		distKing['1']=accW.dist;            distKing['-1']=accB.dist;
+		posValue['1']=accW.pos;             posValue['-1']=accB.pos;
+		kingMoved['1']=accW.moved;          kingMoved['-1']=accB.moved;
 
 		if(kingMoved[who]===0 && this.kings[who]!==undefined) { // no King found, but had one before
 			this.mWinner=-who; this.mFinished=true; // opponent wins
@@ -839,8 +971,14 @@
 		}
 		
 		if(this.lastMove.c!==null) {
-			var piece=this.pieces[this.board[this.lastMove.t]];
-			pieceValue[-piece.s]+=this.cbStaticExchangeEval(aGame,piece.p,piece.s,{piece:piece})
+			// the destination can be empty even after a capture: a variant may
+			// remove the piece that just moved (Tenjiku Shogi burns whatever
+			// steps next to a Fire Demon)
+			var index0=this.board[this.lastMove.t];
+			if(index0>=0) {
+				var piece=this.pieces[index0];
+				pieceValue[-piece.s]+=this.cbStaticExchangeEval(aGame,piece.p,piece.s,{piece:piece})
+			}
 		}
 		var kingFreedom={ '1': 0, '-1': 0 };
 		var endingDistKing={ '1': 0, '-1': 0 };
@@ -885,9 +1023,18 @@
 			cbVar.evaluate.call(this,aGame,evalValues,material,pieceCount,pieceValue);
 
 		var evParams=aGame.mOptions.levelOptions;
+		// the "<name>Factor" lookups are the same on every call: build the
+		// name -> factor map once per set of level options
+		var factors=aGame.cbEvalFactors;
+		if(factors===undefined || aGame.cbEvalFactorsFor!==evParams) {
+			factors=aGame.cbEvalFactors={};
+			aGame.cbEvalFactorsFor=evParams;
+		}
 		for(var name in evalValues) {
 			var value=evalValues[name];
-			var factor=evParams[name+'Factor'] || 0;
+			var factor=factors[name];
+			if(factor===undefined)
+				factor=factors[name]=evParams[name+'Factor'] || 0;
 			var weighted=value*factor;
 			if(debug)
 				console.log(name,"=",value,"*",factor,"=>",weighted);
@@ -1117,12 +1264,12 @@
 		return smallestAttacker;
 	}
 
-	Model.Board.cbCollectAttackers=function(who,graph,attackers,isKing) {
-		for(var pos1 in graph) {
-			var branch=graph[pos1];
+	Model.Board.cbCollectAttackers=function(who,list,attackers,isKing) {
+		for(var i=0;i<list.length;i+=2) {
+			var pos1=list[i], branch=list[i+1];
 			var index1=this.board[pos1];
 			if(index1<0)
-				this.cbCollectAttackers(who,branch.e,attackers,isKing);
+				this.cbCollectAttackers(who,branch.e.l,attackers,isKing);
 			else {
 				var piece1=this.pieces[index1];
 				if(piece1.s==-who && (
@@ -1135,12 +1282,15 @@
 
 	var mr;
 
-	Model.Board.cbCollectAttackersScreen=function(who,graph,attackers,isKing,screen) {
-		for(var pos1 in graph) {
-			var branch=graph[pos1];
+	Model.Board.cbCollectAttackersScreen=function(who,list,attackers,isKing,screen) {
+		// `list` holds every branch of this level when we are still in front of
+		// the first piece, and only the branches that can hold a screen capture
+		// once we are behind one - see Flatten() in cbGetThreatGraph
+		for(var i=0;i<list.length;i+=2) {
+			var pos1=list[i], branch=list[i+1];
 			var index1=this.board[pos1];
 			if(index1<0)
-				this.cbCollectAttackersScreen(who,branch.e,attackers,isKing,screen);
+				this.cbCollectAttackersScreen(who,screen?branch.e.h:branch.e.l,attackers,isKing,screen);
 			else {
 				var piece1=this.pieces[index1];
 				if(!screen) {
@@ -1148,7 +1298,8 @@
 						(branch.t && (piece1.t in branch.t)) ||
 						(isKing && branch.tk && (piece1.t in branch.tk))))
 						attackers.push(piece1); // direct attacker
-				 	this.cbCollectAttackersScreen(who,branch.e,attackers,isKing,piece1.r|1024); // 1024 bit: must jump 1 screen
+					if(branch.hs)
+				 		this.cbCollectAttackersScreen(who,branch.e.h,attackers,isKing,piece1.r|1024); // 1024 bit: must jump 1 screen
 				} else {
 					if(piece1.s==-who && branch.ts && (piece1.t in branch.ts) &&
 					   (piece1.r ? (piece1.r|1) > (screen&1023) : screen&1024)) // normal hopper: 1 screen, ranked must top highest screen
@@ -1157,7 +1308,7 @@
 					var s=screen&1023; // we now have multiple screens
 					if(piece1.r > s) s=piece1.r; // this target screens better
 					if(s < (mr|1)) // but not maximally
-					 	this.cbCollectAttackersScreen(who,branch.e,attackers,isKing,s|2048);
+					 	this.cbCollectAttackersScreen(who,branch.e.h,attackers,isKing,s|2048);
 				}
 			}
 		}
@@ -1165,11 +1316,11 @@
 
 	Model.Board.cbGetAttackers = function(aGame,pos,who,isKing) {
 		var attackers=[];
-		mr = aGame.cbMaxRanking;
+		mr = aGame.cbMaxScreenRanking;
 		if(aGame.cbUseScreenCapture)
-			this.cbCollectAttackersScreen(who,aGame.g.threatGraph[who][pos],attackers,isKing,0);
+			this.cbCollectAttackersScreen(who,aGame.g.threatGraph[who][pos].l,attackers,isKing,0);
 		else
-			this.cbCollectAttackers(who,aGame.g.threatGraph[who][pos],attackers,isKing);
+			this.cbCollectAttackers(who,aGame.g.threatGraph[who][pos].l,attackers,isKing);
 		return attackers;
 	}
 
@@ -1196,6 +1347,38 @@
 		if(count===0) return true;      // no royal left: lost
 		if(count>=2) return false;      // two royals: cannot be checked
 		return this.cbGetAttackers(aGame,sole,who,100).length>0;
+	}
+
+	// Is there at least one legal move? Same test as GenerateMoves below, but it
+	// stops at the first move that holds, and it tries the moves of the royal
+	// pieces first - stepping out of the way answers most checks - so the usual
+	// answer costs one legality test instead of the whole move list. Only a real
+	// mate pays for the full scan. The UCT search uses it to recognize a mate as
+	// soon as the mating move is generated, instead of waiting until that node
+	// is expanded in its turn.
+	Model.Board.HasLegalMove = function(aGame) {
+		var moves=this.cbGeneratePseudoLegalMoves(aGame);
+		var multiRoyal=aGame.cbMaxRoyalRank>1;
+		var royal=[], other=[];
+		for(var i=0;i<moves.length;i++) {
+			var index=this.board[moves[i].f];
+			if(index>=0 && aGame.g.pTypes[this.pieces[index].t].isKing)
+				royal.push(moves[i]);
+			else
+				other.push(moves[i]);
+		}
+		moves=royal.concat(other);
+		for(var i=0;i<moves.length;i++) {
+			var move=moves[i];
+			var undo=this.cbQuickApply(aGame,move);
+			var inCheck=multiRoyal
+				? this.cbInLosingCheck(aGame,this.mWho)
+				: this.cbGetAttackers(aGame,this.kings[this.mWho],this.mWho,100).length>0;
+			this.cbQuickUnapply(aGame,undo);
+			if(!inCheck)
+				return true;
+		}
+		return false;
 	}
 
 	Model.Board.GenerateMoves = function(aGame) {
@@ -1507,9 +1690,19 @@
 				var colIndex=0;
 				for(var i=0;i<row.length;i++) {
 					var ch=row.substr(i,1);
+					// a few large variants need more piece letters than the
+					// alphabet has (Tenjiku Shogi has 66 piece kinds), so a type
+					// may declare a multi-character fenAbbrev ("B!", "+C!"):
+					// take the longest declared code that matches here
+					for(var len=3;len>1;len--)
+						if(i+len<=row.length && piecesMap[row.substr(i,len)]!==undefined) {
+							ch=row.substr(i,len);
+							i+=len-1;
+							break;
+						}
 					// promoted pieces are written "+P", "+e", ... - read the
 					// '+' together with the letter that follows it
-					if(ch=='+' && i+1<row.length) { ch=row.substr(i,2); i++; }
+					if(ch.length==1 && ch=='+' && i+1<row.length) { ch=row.substr(i,2); i++; }
 					var pieceDescr=piecesMap[ch];
 					if(pieceDescr!==undefined) {
 						var pos=FenRowPos(rowIndex,colIndex);

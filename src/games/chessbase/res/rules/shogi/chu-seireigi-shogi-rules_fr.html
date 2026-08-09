@@ -1,0 +1,99 @@
+<style>
+    .piece-graph {
+        height: auto;
+        max-width: 300px;
+        margin: 0 auto;
+        display: inline-flex;
+    }
+</style><h2>Chu Seireigi</h2>
+<p>Le Chu Seireigi combine des éléments du Chu Shogi avec les règles du Shogi moderne. Il présente également l'avantage de ne nécessiter aucune règle spéciale d'échange ni aucun déplacement de type « criquet ».</p>
+
+<h2>Plateau</h2>
+
+<p>Le plateau est composé de 12x12 cases.</p>
+
+<h2>Position initiale</h2>
+
+<p style="text-align:center"><img style='max-width:100%' src="{GAME}/res/visuals/chu-seireigi-600x600-2d.jpg"/></p>
+
+<h2>Déplacements et propriétés des pièces</h2>
+
+<p><img style="max-width:100%;" src="{GAME}/res/rules/shogi/gold.png"/><b>Général d'or</b> : se déplace et capture sur les cases adjacentes dans n'importe quelle direction orthogonale ou en diagonale vers l'avant.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/graphs/gold.png"/></p>
+<p><img style="max-width:100%;" src="{GAME}/res/rules/shogi/silver.png"/><b>Général d'argent</b> : se déplace et capture sur les cases adjacentes dans n'importe quelle direction diagonale ou directement vers l'avant.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/graphs/silver.png"/></p>
+<p><img style="max-width:100%;" src="{GAME}/res/rules/shogi/pawn.png"/><b>Pion</b> : se déplace <strong>et</strong> capture sur la case directement devant lui.</p>
+<p><img style="max-width:100%;" src="{GAME}/res/rules/shogi/rook.png"/><b>Tour</b> : comme aux échecs.</p>
+<p><img style="max-width:100%;" src="{GAME}/res/rules/shogi/bishop.png"/><b>Fou</b> : comme aux échecs.</p>
+<p><img style="max-width:100%;" src="{GAME}/res/rules/shogi/king.png"/><b>Roi</b> : comme aux échecs.</p>
+<p><img style="max-width:100%;" src="{GAME}/res/rules/shogi/horse.png"/><b>Cavalier</b> : le Cavalier possède les deux mouvements les plus avancés du Cavalier des échecs.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/shogi-horse.png"/></p>
+<p><img style="max-width:100%;" src="{GAME}/res/rules/shogi/lance.png"/><b>Lancier</b> : le Lancier se déplace comme une Tour, mais uniquement vers l'avant sur la même colonne, jamais latéralement ni vers l'arrière.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/shogi-lance.png"/></p>
+<p><b>Lièvre courant</b></p><p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/rabbit.png"/></p>
+<p><img style="max-width:100%;" src="{GAME}/res/rules/shogi/flying-swallow.png"/><b>Hirondelle volante</b></p><p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/swallow.png"/></p>
+<p><b>Général de cuivre</b></p><p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/copper.png"/></p>
+<p><b>Ours puissant</b></p><p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/bear.png"/></p>
+<p><img style="max-width:100%;" src="{GAME}/res/rules/shogi/great-elephant.png"/><b>Grand éléphant</b></p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/great-elephant.png"/></p>
+<p><img style="max-width:100%;" src="{GAME}/res/rules/shogi/running-wolf.png"/><b>Loup courant</b></p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/running-wolf.png"/></p>
+<p><img style="max-width:100%;" src="{GAME}/res/fairy/icons/w-leopard.png"/><b>Grand léopard</b></p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/great-leopard.png"/></p>
+<p><b>Faucon-lion</b></p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/seireigi-lion-hawk.png"/></p>
+
+<p><b>Soldat à tête de bélier</b> : se déplace comme un Fou, mais uniquement vers l'avant, jamais vers l'arrière.</p>
+<p><b>Kirin</b> : comme au Chu Shogi.</p>
+<p><b>Phénix</b> : comme au Chu Shogi.</p>
+<p><b>Dame</b> : comme aux échecs.</p>
+
+<h2>Pièces disponibles uniquement après promotion</h2>
+<p><img style="max-width:100%;" src="{GAME}/res/rules/shogi/heavenly-horse.png"/><b>Cheval céleste</b> : promotion du Cavalier.</p> 
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/heavenly-horse.png"/></p>
+<p><img style="max-width:100%;" src="{GAME}/res/rules/shogi/free-tiger.png"/><b>Tigre libre</b> : promotion du Lancier.</p> 
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/free-tiger.png"/></p>
+
+<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-flying-ox.png"/><b>Bœuf volant</b> : promotion du Grand léopard.</p>
+<p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/flying-ox.png"/></p>
+
+<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-free-boar.png"/><b>Sanglier libre</b> : promotion du Loup courant.</p>
+<p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/boar.png"/></p>
+
+<p><img class='piece-icon' src="{GAME}/res/rules/shogi/w-trident.png"/><b>Baleine</b> : promotion de l'Ours puissant.</p>
+<p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/seireigi-whale.png"/></p>
+<p><b>Cerf bondissant</b> : promotion du Lièvre courant.</p> 
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/seireigi-prancing-stag.png"/></p>
+<p><b>Roi enseignant</b> : promotion du Grand éléphant.</p> <p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/teacher.png"/></p>
+<p><b>Renard perfide</b> : promotion du Soldat à tête de bélier.</p> <p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/fox.png"/></p>
+<p><b>Oiseau doré</b> : promotion de l'Hirondelle volante.</p> <p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/bird.png"/></p>
+<p><b>Pion</b> devient <b>Tokin</b> après promotion et se déplace comme un <b>Général d'or</b>.</p>
+<p>La <b>Tour</b> et le <b>Fou</b> acquièrent le déplacement du Roi après leur promotion en <b>Dragon roi</b> et <b>Dragon cheval</b>, respectivement.</p>
+
+<h2>Promotions</h2>
+<p>Pion -> Tokin = Général d'or -> Grand éléphant -> Roi enseignant</p>
+<p>Général de cuivre -> Grand léopard -> Bœuf volant</p>
+<p>Général d'argent -> Loup courant -> Sanglier libre</p>
+<p>Kirin -> Fou -> Dragon cheval</p>
+<p>Phénix -> Tour -> Dragon roi</p>
+<p>Ours puissant -> Baleine</p>
+<p>Lancier -> Tigre libre</p>
+<p>Soldat à tête de bélier -> Renard perfide</p>
+<p>Lièvre courant -> Cerf bondissant</p>
+<p>Cavalier -> Cheval céleste</p>
+<p>Hirondelle volante -> Oiseau doré</p>
+<p>La zone de promotion correspond aux quatre rangées les plus éloignées du plateau. Une pièce peut être promue si une partie de son déplacement touche cette zone. La promotion est facultative, sauf si aucun déplacement ultérieur n'est possible sans elle. Ainsi, un Pion, un Lancier, un Soldat à tête de bélier ou un Lièvre courant doit être promu sur la dernière rangée, tandis qu'un Cavalier ou une Hirondelle volante doit être promu sur l'une des deux dernières rangées.</p>
+<p>Le Roi, la Dame et le Faucon-lion ne peuvent pas être promus, pas plus que les pièces déjà promues ne peuvent subir une nouvelle promotion.</p>
+
+<h2>Prises et remises en jeu</h2>
+<p>Les pièces capturées deviennent des prisonnières et perdent leur promotion. Elles sont conservées à votre droite. Vous pouvez utiliser votre tour pour les remettre en jeu. Un joueur peut soit déplacer l'une de ses pièces, soit remettre une prisonnière en jeu à son compte.</p>
+
+<p>Un Pion ne peut pas être remis en jeu sur une colonne où se trouve déjà un Pion non promu de la même couleur.</p>
+
+<p>Un Pion ne peut pas provoquer immédiatement un échec et mat lorsqu'il est remis en jeu. Cela est autorisé pour les autres pièces.</p>
+
+<p>Une pièce ne peut pas être remise en jeu sur une case depuis laquelle aucun déplacement ultérieur n'est possible. Ainsi, un Pion, un Lancier, un Soldat à tête de bélier ou un Lièvre courant ne peut pas être remis en jeu sur la dernière rangée, et un Cavalier ou une Hirondelle volante ne peut pas être remis en jeu sur les deux dernières rangées.</p>
+
+<h2>Thèmes disponibles</h2>
+<p>Des thèmes 2D sont disponibles pour tous. Les thèmes 3D nécessitent WebGL ; veuillez donc utiliser Chrome ou Firefox.</p>
+

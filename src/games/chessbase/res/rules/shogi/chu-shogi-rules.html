@@ -3,24 +3,21 @@
         height: auto;
         max-width: 300px;
         margin: 0 auto;
-        display: block;
+        display: inline-flex;
     }
-
-    .piece-icon {
-        width: 70px;
-        height: auto;
-        float: left;
-        margin-right: 10px;
+    .tj-piece {
+        display: inline-block;
+        width: 44px;
+        height: 44px;
+        background-repeat: no-repeat;
+        background-size: 3300px 88px;
+        vertical-align: middle;
     }
-    .piece-icon-promo {
-        width: 50px;
-        height: 50px;
-    }
-
-    #promo {
-        width: 200px;
-        margin: 0 auto;
-    }
+    .tj-picto { background-image: url({GAME}/res/shogi/tenjiku-shogi-picto-sprites.png); }
+    .tj-mnemo { background-image: url({GAME}/res/shogi/tenjiku-shogi-mnemonic-sprites.png); }
+    .tj-promo td { padding: 2px 8px; vertical-align: middle; }
+    .tj-arrow { font-size: 1.4em; }
+    .tj-name { padding-left: .4em; }
 </style>
 
 <h2>Chu Shogi</h2>
@@ -37,79 +34,77 @@
 <h2>Reference Guide</h2>
 
 
-<p><img style="max-width:100%;"  src="{GAME}/res/rules/shogi/gold.png"/><b>Gold general</b>: moves and captures to adjacent squares in any orthogonal or the forward diagonal direction.</p>
+<p><img style="max-width:100%;"  src="{GAME}/res/rules/shogi/gold.png"/><span class='tj-piece tj-picto' style='background-position:-2508px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2508px 0'></span> <b>Gold general</b>: moves and captures to adjacent squares in any orthogonal or the forward diagonal direction.</p>
 <p><img class='piece-graph' src="{GAME}/res/rules/graphs/gold.png"/></p>
-<p><img style="max-width:100%;"  src="{GAME}/res/rules/shogi/silver.png"/><b>Silver general</b>: moves and captures to adjacent squares in any diagonal or the forward orthogonal direction.</p>
+<p><img style="max-width:100%;"  src="{GAME}/res/rules/shogi/silver.png"/><span class='tj-piece tj-picto' style='background-position:-2552px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2552px 0'></span> <b>Silver general</b>: moves and captures to adjacent squares in any diagonal or the forward orthogonal direction.</p>
 <p><img class='piece-graph' src="{GAME}/res/rules/graphs/silver.png"/></p>
-<p><img style="max-width:100%;"  src="{GAME}/res/rules/shogi/pawn.png"/><b>Pawn</b> : The Pawn: moves <strong>and</strong> captures to the square directly in front of it.</p>
-<p><img style="max-width:100%;" src="{GAME}/res/rules/shogi/rook.png"/><b>Rook</b> : as in chess.</p>
-<p><img style="max-width:100%;"  src="{GAME}/res/rules/shogi/bishop.png"/><b>Bishop</b> : as in chess.</p>
-<p><img style="max-width:100%;" src="{GAME}/res/rules/shogi/king.png"/><b>King</b> : as in chess.</p>
-<p><img style="max-width:100%;"  src="{GAME}/res/rules/shogi/horse.png"/><b>Horse</b> : The Knight has the two forward-most moves of the Chess knight.</p>
-<p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/shogi-horse.png"/></p>
-<p><img style="max-width:100%;"  src="{GAME}/res/rules/shogi/lance.png"/><b>Lance</b> : The Lance moves as a Rook but only forward in the same file, never sideways or backward.</p>
+<p><img style="max-width:100%;"  src="{GAME}/res/rules/shogi/pawn.png"/><span class='tj-piece tj-picto' style='background-position:0px 0'></span><span class='tj-piece tj-mnemo' style='background-position:0px 0'></span> <b>Pawn</b> : The Pawn: moves <strong>and</strong> captures to the square directly in front of it.</p>
+<p><img style="max-width:100%;" src="{GAME}/res/rules/shogi/rook.png"/><span class='tj-piece tj-picto' style='background-position:-132px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-132px 0'></span> <b>Rook</b> : as in chess.</p>
+<p><img style="max-width:100%;"  src="{GAME}/res/rules/shogi/bishop.png"/><span class='tj-piece tj-picto' style='background-position:-88px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-88px 0'></span> <b>Bishop</b> : as in chess.</p>
+<p><img style="max-width:100%;" src="{GAME}/res/rules/shogi/king.png"/><span class='tj-piece tj-picto' style='background-position:-220px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-220px 0'></span> <b>King</b> : as in chess.</p>
+<p><img style="max-width:100%;"  src="{GAME}/res/rules/shogi/lance.png"/><span class='tj-piece tj-picto' style='background-position:-3124px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-3124px 0'></span> <b>Lance</b> : The Lance moves as a Rook but only forward in the same file, never sideways or backward.</p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/shogi-lance.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-copper-general.png"/><b>Copper general</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-2596px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2596px 0'></span> <b>Copper general</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/copper.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-side-mover.png"/><b>Side mover</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-1496px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1496px 0'></span> <b>Side mover</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/side-mover.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-vertical-mover.png"/><b>Vertical Mover</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-3168px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-3168px 0'></span> <b>Vertical Mover</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/vertical-mover.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-machine.png"/><b>Reverse Chariot</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-1232px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1232px 0'></span> <b>Reverse Chariot</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/chariot.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-flying-ox.png"/><b>Flying Ox</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-1276px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1276px 0'></span> <b>Flying Ox</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/flying-ox.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-free-boar.png"/><b>Free Boar</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-1320px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1320px 0'></span> <b>Free Boar</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/boar.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-nightrider.png"/><b>White Horse</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-1364px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1364px 0'></span> <b>White Horse</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/white-horse.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/rules/shogi/w-whale.png"/><b>Whale</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-968px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-968px 0'></span> <b>Whale</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/whale.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-elephant.png"/><b>Drunk Elephant</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-308px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-308px 0'></span> <b>Drunk Elephant</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/drunk-elephant.png"/></p>
 
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-leopard.png"/><b>Leopard</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-2024px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2024px 0'></span> <b>Leopard</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/leopard.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-tiger.png"/><b>Tiger</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-1012px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1012px 0'></span> <b>Tiger</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/tiger.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-go-between.png"/><b>Go between</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-1188px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1188px 0'></span> <b>Go between</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/go-between.png"/></p>
 
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-giraffe.png"/><b>Kirin</b>: moves and captures to diagonally adjacent squares, or by jumping to the second square orthogonally.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-1760px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1760px 0'></span> <b>Kirin</b>: moves and captures to diagonally adjacent squares, or by jumping to the second square orthogonally.</p>
 <p><img class='piece-graph' src="{GAME}/res/rules/graphs/kirin.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-phoenix.png"/><b>Phoenix</b>: moves and captures to orthogonally adjacent squares, or by jumping to the second square diagonally.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-2376px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2376px 0'></span> <b>Phoenix</b>: moves and captures to orthogonally adjacent squares, or by jumping to the second square diagonally.</p>
 <p><img class='piece-graph' src="{GAME}/res/rules/graphs/phoenix.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-antelope.png"/><b>Stag</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-1100px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1100px 0'></span> <b>Stag</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/flying-stag.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-prince.png"/><b>Prince</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-924px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-924px 0'></span> <b>Prince</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/shogi-prince.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-queen.png"/><b>Queen</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-176px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-176px 0'></span> <b>Queen</b></p>
 <p><img class='piece-graph' src="{GAME}/res/rules/graphs/queen.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-hawk.png"/><b>Falcon</b>: Move like a queen except vertically forward where it has a form of Lion Power. It can make up to two steps, continuing after a capture, but only along the same ray. So for the (optional) second step they can only decide if they want to continue in the same direction, or move back to their starting square</p>
+<p><span class='tj-piece tj-picto' style='background-position:-2244px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2244px 0'></span> <b>Falcon</b>: Move like a queen except vertically forward where it has a form of Lion Power. It can make up to two steps, continuing after a capture, but only along the same ray. So for the (optional) second step they can only decide if they want to continue in the same direction, or move back to their starting square</p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/falcon.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-eagle.png"/><b>Eagle</b>: Move like a queen except diagonnaly forward where it has a form of Lion Power. It can make up to two steps, continuing after a capture, but only along the same ray. So for the (optional) second step they can only decide if they want to continue in the same direction, or move back to their starting square</p>
+<p><span class='tj-piece tj-picto' style='background-position:-484px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-484px 0'></span> <b>Eagle</b>: Move like a queen except diagonnaly forward where it has a form of Lion Power. It can make up to two steps, continuing after a capture, but only along the same ray. So for the (optional) second step they can only decide if they want to continue in the same direction, or move back to their starting square</p>
 <p><img class='piece-graph' src="{GAME}/res/rules/shogi/graphs/eagle.png"/></p>
 
-<p><img class='piece-icon' src="{GAME}/res/fairy/icons/w-lion.png"/><b>Lion</b>: A Lion moves as King, but up to twice per turn, in independent directions, also if the first King move captures something. The ability to move on after a capture is called 'Lion power'. The combination of two steps can also be taken as a hop, i.e. over an occupied square without disturbing it, when it does not return to the starting square. So the Lion can:
+<p><span class='tj-piece tj-picto' style='background-position:-528px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-528px 0'></span> <b>Lion</b>: A Lion moves as King, but up to twice per turn, in independent directions, also if the first King move captures something. The ability to move on after a capture is called 'Lion power'. The combination of two steps can also be taken as a hop, i.e. over an occupied square without disturbing it, when it does not return to the starting square. So the Lion can:
 <ul>
     <li>move or capture by leaping to any square in the 5x5 area surrounding it,</li>
     <li>capture an adjacent piece, and then go on moving or capturing once more as a King,</li>
@@ -124,47 +119,27 @@
 <p>     A Lion cannot capture a Lion if that would expose it to recapture in the next turn, as if it had become an absolute royal for one turn. ('protected')</p>
 <p>    A non-Lion cannot capture a Lion when on the previous turn a Lion was captured by a non-Lion on another square. ('counter-strike') </p>
 <h2>Promotion</h2>
+<p>A piece may promote when it enters the last four ranks, and when it moves inside or out of them while capturing. Promotion is optional, except for a Pawn reaching the last rank. Each row shows the piece and what it becomes, with the 2D Classic glyph on the left and the 2D Mnemonic one next to it. The Lion, the Free King, the Horned Falcon, the Soaring Eagle, the King and every already promoted piece never promote.</p>
 <div id="promo">
-<table>
-<tr><td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-pawn.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-gold-general.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-machine.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-crowned-rook.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-eagle.png'></td>
-</tr>
-<tr>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-leopard.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-bishop.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-crowned-bishop.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-hawk.png'></td>
-</tr>
-<tr><td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-copper-general.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-side-mover.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-free-boar.png'></td>
-</tr>
-<tr><td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-silver-general.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-vertical-mover.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-flying-ox.png'></td>
-</tr>
-<tr><td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-go-between.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-elephant.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-prince.png'></td>
-</tr>
-<tr><td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-lance.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-nightrider.png'></td>
-</tr>
-<tr><td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-machine.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/rules/shogi/w-whale.png'></td>
-</tr>
-<tr><td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-giraffe.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-lion.png'></td>
-</tr>
-<tr><td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-phoenix.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-queen.png'></td>
-</tr>
-<tr><td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-tiger.png'></td>
-	<td>><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-antelope.png'></td>
-</tr>
+<table class='tj-promo'>
+<tr><td><span class='tj-piece tj-picto' style='background-position:0px 0'></span><span class='tj-piece tj-mnemo' style='background-position:0px 0'></span><span class='tj-name'>Pawn</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1540px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1540px 0'></span><span class='tj-name'>Gold General (tokin)</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1188px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1188px 0'></span><span class='tj-name'>Go Between</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1936px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1936px 0'></span><span class='tj-name'>Drunk Elephant</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2596px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2596px 0'></span><span class='tj-name'>Copper General</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-704px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-704px 0'></span><span class='tj-name'>Side Mover</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2552px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2552px 0'></span><span class='tj-name'>Silver General</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1056px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1056px 0'></span><span class='tj-name'>Vertical Mover</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2508px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2508px 0'></span><span class='tj-name'>Gold General</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1452px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1452px 0'></span><span class='tj-name'>Rook</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2024px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2024px 0'></span><span class='tj-name'>Ferocious Leopard</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1584px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1584px 0'></span><span class='tj-name'>Bishop</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1012px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1012px 0'></span><span class='tj-name'>Blind Tiger</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1100px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1100px 0'></span><span class='tj-name'>Flying Stag</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-308px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-308px 0'></span><span class='tj-name'>Drunk Elephant</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-924px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-924px 0'></span><span class='tj-name'>Crown Prince</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-3124px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-3124px 0'></span><span class='tj-name'>Lance</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1364px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1364px 0'></span><span class='tj-name'>White Horse</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1232px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1232px 0'></span><span class='tj-name'>Reverse Chariot</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-968px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-968px 0'></span><span class='tj-name'>Whale</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1496px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1496px 0'></span><span class='tj-name'>Side Mover</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1320px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1320px 0'></span><span class='tj-name'>Free Boar</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-3168px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-3168px 0'></span><span class='tj-name'>Vertical Mover</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1276px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1276px 0'></span><span class='tj-name'>Flying Ox</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1760px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1760px 0'></span><span class='tj-name'>Kirin</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-572px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-572px 0'></span><span class='tj-name'>Lion</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2376px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2376px 0'></span><span class='tj-name'>Phoenix</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2200px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2200px 0'></span><span class='tj-name'>Free King</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-88px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-88px 0'></span><span class='tj-name'>Bishop</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1980px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1980px 0'></span><span class='tj-name'>Dragon Horse</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-132px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-132px 0'></span><span class='tj-name'>Rook</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1892px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1892px 0'></span><span class='tj-name'>Dragon King</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1408px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1408px 0'></span><span class='tj-name'>Dragon Horse</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2244px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2244px 0'></span><span class='tj-name'>Horned Falcon</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-660px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-660px 0'></span><span class='tj-name'>Dragon King</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-484px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-484px 0'></span><span class='tj-name'>Soaring Eagle</span></td></tr>
 </table>
 </div>
 

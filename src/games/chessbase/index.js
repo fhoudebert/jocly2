@@ -1597,6 +1597,121 @@ exports.games = (function () {
 		"locust-move-model.js",
 		"shogi/chu-shogi-model.js"
 	]
+	// Tenjiku Shogi needs its own evaluation weights and search budgets: the
+	// board is 16x16 with 78 pieces a side, positions have 70+ legal moves, and
+	// above all a check by a jumping general cannot be answered by interposing
+	// anything - it is very often mate. With the shared weight (checkFactor
+	// 0.2) the search treated "my opponent can check me next move" as noise and
+	// walked into 1. j5-j6 <any> 2. VGi4-o10#.
+	var config_model_gameOptions_levelOptions_tenjiku = {
+		"pieceValueFactor": 1,
+		"pieceValueRatioFactor": 1,
+		"posValueFactor": 0.1,
+		"averageDistKingFactor": -0.01,
+		"checkFactor": 5,
+		"endingKingFreedomFactor": 0.01,
+		"endingDistKingFactor": 0.05,
+		"distKingCornerFactor": 0.1
+	}
+	var config_model_gameOptions_tenjiku = {
+		"preventRepeat": true,
+		"uctTransposition": "state",
+		"uctIgnoreLoop": false,
+		"levelOptions": config_model_gameOptions_levelOptions_tenjiku
+	}
+	// Follow a check a couple of moves further when its replies are forced: the
+	// combinations that decide a game of Tenjiku start with a capture the static
+	// evaluation calls bad (a general for a lesser piece), so the plain search
+	// never looks at them, and the mate lands two plies later.
+	var config_model_levels_mateSearch_tenjiku = {
+		"depth": 2,
+		"maxReplies": 4,
+		"maxDepth": 6
+	}
+	var config_model_levels_tenjiku = [
+		{
+			"name": "easy",
+			"label": "Easy",
+			"ai": "uct",
+			"playoutDepth": 0,
+			"minVisitsExpand": 1,
+			"c": 0.6,
+			"ignoreLeaf": false,
+			"uncertaintyFactor": 3,
+			"maxNodes": 20000
+		},
+		{
+			"name": "fast",
+			"label": "Fast [5sec]",
+			"ai": "uct",
+			"playoutDepth": 0,
+			"minVisitsExpand": 1,
+			"c": 0.6,
+			"ignoreLeaf": false,
+			"uncertaintyFactor": 3,
+			"mateSearch": config_model_levels_mateSearch_tenjiku,
+			"maxDuration": 5,
+			"isDefault": true
+		},
+		{
+			"name": "medium",
+			"label": "Medium",
+			"ai": "uct",
+			"playoutDepth": 0,
+			"minVisitsExpand": 1,
+			"c": 0.6,
+			"ignoreLeaf": false,
+			"uncertaintyFactor": 3,
+			"mateSearch": config_model_levels_mateSearch_tenjiku,
+			"maxNodes": 150000,
+			"maxDuration": 40
+		},
+		{
+			"name": "strong",
+			"label": "Strong",
+			"ai": "uct",
+			"playoutDepth": 0,
+			"minVisitsExpand": 1,
+			"c": 0.6,
+			"ignoreLeaf": false,
+			"uncertaintyFactor": 3,
+			"mateSearch": config_model_levels_mateSearch_tenjiku,
+			"maxNodes": 500000,
+			"maxDuration": 120
+		},
+		{
+			"name": "hyper",
+			"label": "10 min",
+			"ai": "uct",
+			"playoutDepth": 0,
+			"minVisitsExpand": 1,
+			"c": 0.6,
+			"ignoreLeaf": false,
+			"uncertaintyFactor": 3,
+			"mateSearch": config_model_levels_mateSearch_tenjiku,
+			"maxNodes": 2500000,
+			"maxDuration": 600
+		},
+		{
+			"name": "correspondence",
+			"label": "20 min",
+			"ai": "uct",
+			"playoutDepth": 0,
+			"minVisitsExpand": 1,
+			"c": 0.6,
+			"ignoreLeaf": false,
+			"uncertaintyFactor": 3,
+			"mateSearch": config_model_levels_mateSearch_tenjiku,
+			"maxNodes": 5000000,
+			"maxDuration": 1200
+		}
+	]
+	var modelScripts_tenjiku = [
+		"base-model.js",
+		"grid-geo-model.js",
+		"locust-move-model.js",
+		"shogi/tenjiku-shogi-model.js"
+	]
 	var modelScripts_109 = [
 		"base-model.js",
 		"grid-geo-model.js",
@@ -1836,6 +1951,13 @@ exports.games = (function () {
 		"shogi/tenjiku-set-view.js",
 		"multi-leg-view.js",
 		"shogi/chu-shogi-view.js"
+	]
+	var config_view_js_tenjiku = [
+		"base-view.js",
+		"grid-board-view.js",
+		"shogi/tenjiku-set-view.js",
+		"multi-leg-view.js",
+		"shogi/tenjiku-shogi-view.js"
 	]
 	var config_view_js_109 = [
 		"base-view.js",
@@ -8551,7 +8673,8 @@ exports.games = (function () {
 						"fr": "Variante moyenne du Seireigi"
 					},
 					"rules": {
-						"en": "res/rules/shogi/chu-seireigi-shogi-rules.html"
+						"en": "res/rules/shogi/chu-seireigi-shogi-rules.html",
+                        "fr": "res/rules/shogi/chu-seireigi-shogi-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -8572,7 +8695,7 @@ exports.games = (function () {
 					"title-en": "Chessbase view",
 					"visuals": {
 						"600x600": [
-							"res/visuals/chu-seireigi-600x600-2d.png",
+							"res/visuals/chu-seireigi-600x600-2d.jpg",
                             "res/visuals/chu-seireigi-600x600-3d.jpg"
 						]
 					},
@@ -8658,7 +8781,7 @@ exports.games = (function () {
 					"visuals": {
 						"600x600": [
 							"res/visuals/mini-shogi-600x600-3d.jpg",
-							"res/visuals/mini-shogi-600x600-2d.png"
+							"res/visuals/mini-shogi-600x600-2d.jpg"
 						]
 					},
 					"xdView": true,
@@ -8742,7 +8865,7 @@ exports.games = (function () {
 					"visuals": {
 						"600x600": [
 							"res/visuals/kyoto-shogi-600x600-3d.jpg",
-							"res/visuals/kyoto-shogi-600x600-2d.png"
+							"res/visuals/kyoto-shogi-600x600-2d.jpg"
 						]
 					},
 					"xdView": true,
@@ -8805,7 +8928,8 @@ exports.games = (function () {
 						"fr": "Variante de shogi en 7x7 avec des tuiles d'oiseaux"
 					},
 					"rules": {
-						"en": "res/rules/shogi/tori-shogi-rules.html"
+						"en": "res/rules/shogi/tori-shogi-rules.html",
+                        "fr": "res/rules/shogi/tori-shogi-rules_fr.html"
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -8826,7 +8950,7 @@ exports.games = (function () {
 					"visuals": {
 						"600x600": [
 							"res/visuals/tori-600x600-3d.jpg",
-							"res/visuals/tori-600x600-2d.png"
+							"res/visuals/tori-600x600-2d.jpg"
 						]
 					},
 					"xdView": true,
@@ -8872,7 +8996,8 @@ exports.games = (function () {
 						"fr": "Variante historique de shogi en 12x12"
 					},
 					"rules": {
-						"en": "res/rules/shogi/chu-shogi-rules.html"
+						"en": "res/rules/shogi/chu-shogi-rules.html",
+						"fr": "res/rules/shogi/chu-shogi-rules_fr.html",
 					},
 					"module": "chessbase",
 					"plazza": "true",
@@ -8935,6 +9060,79 @@ exports.games = (function () {
 			},
 			"viewScripts": config_view_js_108
 		},
+	/*	{
+			"name": "tenjiku-shogi",
+			"modelScripts": modelScripts_tenjiku,
+			"config": {
+				"status": true,
+				"model": {
+					"title-en": "Tenjiku Shogi",
+					"summary": {
+						"en": "The 'exotic' shogi derived from Chu Shogi is the most extravagant and original of all historical variants.",
+						"fr": "Le shogi 'exotique' issu du chu shogi est la plus originale et extravagante des variantes historiques."
+					},
+					"rules": {
+						"en": "res/rules/shogi/tenjiku-rules.html",
+						"fr": "res/rules/shogi/tenjiku-rules_fr.html"
+					},
+					"module": "chessbase",
+					"plazza": "true",
+					"thumbnail": "res/rules/shogi/tenjiku-thumb.png",
+					"released": 1396536978,
+					"credits": {
+						"en": "res/rules/shogi/shogi-credits.html"
+					},
+					"gameOptions": config_model_gameOptions_tenjiku,
+					"js": modelScripts_tenjiku,
+					"levels": config_model_levels_tenjiku
+				},
+				"view": {
+					"title-en": "Chessbase view",
+					"visuals": {
+						"600x600": [
+							"res/visuals/tenjiku-600x600-2d.jpg"
+						]
+					},
+					"xdView": true,
+					"css": config_view_css,
+					"preferredRatio": 1,
+					"useShowMoves": true,
+					"useNotation": true,
+					"module": "chessbase",
+					"defaultOptions": config_view_defaultOptions,
+					"skins": [
+						{
+							"name": "skin2d",
+							"title": "2D Classic",
+							"3d": false,
+							"preload": [
+								"image|/res/images/cancel.png",
+								"image|/res/images/whitebg.png",
+								"image|/res/images/wikipedia.png",
+								"image|/res/shogi/tenjiku-shogi-picto-sprites.png"
+							]
+						},
+						{
+							"name": "skin2dmnemonic",
+							"title": "2D Mnemonic",
+							"3d": false,
+							"preload": [
+								"image|/res/images/cancel.png",
+								"image|/res/images/whitebg.png",
+								"image|/res/images/wikipedia.png",
+								"image|/res/shogi/tenjiku-shogi-mnemonic-sprites.png"
+							]
+						}
+					],
+					"animateSelfMoves": false,
+					"switchable": true,
+					"sounds": config_view_sounds,
+					"js": config_view_js_tenjiku,
+					"useAutoComplete": true
+				}
+			},
+			"viewScripts": config_view_js_tenjiku
+		},*/
 		{
 			"name": "makromachy",
 			"modelScripts": modelScripts_109,
@@ -9106,7 +9304,7 @@ exports.games = (function () {
 					"visuals": {
 						"600x600": [
 							"res/visuals/grant-acedrex-600x600-3d.jpg",
-							"res/visuals/grant-acedrex-600x600-2d.png"
+							"res/visuals/grant-acedrex-600x600-2d.jpg"
 						]
 					},
 					"xdView": true,

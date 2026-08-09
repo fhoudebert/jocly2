@@ -5,6 +5,19 @@
         margin: 0 auto;
         display: inline-flex;
     }
+    .tj-piece {
+        display: inline-block;
+        width: 44px;
+        height: 44px;
+        background-repeat: no-repeat;
+        background-size: 3300px 88px;
+        vertical-align: middle;
+    }
+    .tj-picto { background-image: url({GAME}/res/shogi/tenjiku-shogi-picto-sprites.png); }
+    .tj-mnemo { background-image: url({GAME}/res/shogi/tenjiku-shogi-mnemonic-sprites.png); }
+    .tj-promo td { padding: 2px 8px; vertical-align: middle; }
+    .tj-arrow { font-size: 1.4em; }
+    .tj-name { padding-left: .4em; }
 </style>
 <h2>Tenjiku shogi</h2>
 <p>Tenjiku shogi (天竺将棋 tenjiku shōgi, "Indian chess") is a large-board variant of shogi (Japanese chess). The game dates back to the 15th or 16th century and was based on the earlier chu shogi.</p>
@@ -20,47 +33,47 @@
 <h2>Pieces actions and properties</h2>
 <p>This description extends the rules of chu Shogi:</p>
 
-<p><b>Vice General</b>: moves like a Bishop, when capturing, he can jump over an arbitrarily large number of other pieces (except great general).The Vice General can also make upto 3 King steps.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-2904px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2904px 0'></span> <b>Vice General</b>: moves like a Bishop, when capturing, he can jump over an arbitrarily large number of other pieces (except great general).The Vice General can also make upto 3 King steps.</p>
 <p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/vice-general.png"/></p>
 
-<p><b>Fire Demon</b>: burns all enemies standing on any of the eight squares next to the one it stands on (as opposed to: moves through). It does this both actively, after it moved, and passively, when an opponent's move lands next to it.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-396px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-396px 0'></span> <b>Fire Demon</b>: burns all enemies standing on any of the eight squares next to the one it stands on (as opposed to: moves through). It does this both actively, after it moved, and passively, when an opponent's move lands next to it.</p>
 <p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/fireDemon.png"/></p>
 
-<p><b>Water Buffalo</b>: promotes to Fire Demon.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-880px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-880px 0'></span> <b>Water Buffalo</b>: promotes to Fire Demon.</p>
 <p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/waterBuffalo.png"/></p>
 
-<p><b>Heavenly Tetrach</b>: The Tetrarchs is a sliding piece that skips the first square in any direction, totally ignoring (and not affecting) what is on it. It can end maximally 3 squares away from its starting square sideway, but can slide arbtrarily far in all other 6 directions. Alternatively the Tetrarchs can annihilate any opponent next to it, without moving.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-3080px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-3080px 0'></span> <b>Heavenly Tetrach</b>: The Tetrarchs is a sliding piece that skips the first square in any direction, totally ignoring (and not affecting) what is on it. It can end maximally 3 squares away from its starting square sideway, but can slide arbtrarily far in all other 6 directions. Alternatively the Tetrarchs can annihilate any opponent next to it, without moving.</p>
 <p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/heavenlyTetrach.png"/></p>
 
 
-<p><b>Chariot Soldier</b>: promotes to Heavenly Tetrach.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-264px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-264px 0'></span> <b>Chariot Soldier</b>: promotes to Heavenly Tetrach.</p>
 <p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/chariotSoldier.png"/></p>
 
 
-<p><b>Lion Hawk</b>: Can : Jump directly to any square in the 5x5 area surrounding it 
+<p><span class='tj-piece tj-picto' style='background-position:-2112px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2112px 0'></span> <b>Lion Hawk</b>: Can : Jump directly to any square in the 5x5 area surrounding it 
 or annihilate any opponent standing next to it and moving on to an empty square next to that
 or Stay in place without capturing anything.</p>
 
 <p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/lionHawk.png"/></p>
 
-<p><b>Vertical Soldier</b>: promotes to Chariot Soldier.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-2420px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2420px 0'></span> <b>Vertical Soldier</b>: promotes to Chariot Soldier.</p>
 <p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/verticalSoldier.png"/></p>
 
-<p><b>Horizontal Soldier</b>: promotes to Water Buffalo.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-2948px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2948px 0'></span> <b>Horizontal Soldier</b>: promotes to Water Buffalo.</p>
 <p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/horizontalSoldier.png"/></p>
 
 
-<p><b>Dog</b>: promotes to multi general.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-1804px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1804px 0'></span> <b>Dog</b>: promotes to multi general.</p>
 <p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/dog.png"/></p>
 
-<p><b>Multi general</b></p>
+<p><span class='tj-piece tj-picto' style='background-position:-1716px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1716px 0'></span> <b>Multi general</b></p>
 <p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/multiGeneral.png"/></p>
 
 
-<p><b>Iron General </b>: promotes to Vertical Soldier.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-2640px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2640px 0'></span> <b>Iron General </b>: promotes to Vertical Soldier.</p>
 <p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/ironGeneral.png"/></p>
 
-<p><b>Free Eagle</b>: moves as a Queen with the diagonal move of a lion</p>
+<p><span class='tj-piece tj-picto' style='background-position:-1144px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1144px 0'></span> <b>Free Eagle</b>: moves as a Queen with the diagonal move of a lion</p>
 <p>Jump directly to any square in the second square in any direction</p>
 <p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/freeEagle.png"/></p>
 <p>The diagonal move allows to :</p>
@@ -74,12 +87,49 @@ or Stay in place without capturing anything.</p>
 
 
 
-<p><b>Great general</b>: moves as a Queen, when capturing, he can jump over an arbitrarily large number of other pieces except over king/prince.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-2772px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2772px 0'></span> <b>Great general</b>: moves as a Queen, when capturing, he can jump over an arbitrarily large number of other pieces except over king/prince.</p>
 <p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/greatGeneral.png"/></p>
 
-<p><b>Rook General</b>: moves as a Rook, when capturing, he can jump over an arbitrarily large number of other pieces except over higher-ranked jumpers or king/prince.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-2816px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2816px 0'></span> <b>Rook General</b>: moves as a Rook, when capturing, he can jump over an arbitrarily large number of other pieces except over higher-ranked jumpers or king/prince.</p>
 <p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/rookGeneral.png"/></p>
 
-<p><b>Bishop General</b>: moves as a Bishop, when capturing, he can jump over an arbitrarily large number of other pieces except over higher-ranked jumpers or king/prince.</p>
+<p><span class='tj-piece tj-picto' style='background-position:-2860px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2860px 0'></span> <b>Bishop General</b>: moves as a Bishop, when capturing, he can jump over an arbitrarily large number of other pieces except over higher-ranked jumpers or king/prince.</p>
 <p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/bishopGeneral.png"/></p>
 
+<h2>Promotion</h2>
+<p>A piece may promote when it enters the last five ranks, and when it moves inside or out of them while capturing. Promotion is optional, except for a piece that could not move any more. Each row shows the piece and what it becomes, with the 2D Classic glyph on the left and the 2D Mnemonic one next to it.</p>
+<div id="promo">
+<table class='tj-promo'>
+<tr><td><span class='tj-piece tj-picto' style='background-position:0px 0'></span><span class='tj-piece tj-mnemo' style='background-position:0px 0'></span><span class='tj-name'>Pawn</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1540px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1540px 0'></span><span class='tj-name'>Gold General (tokin)</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1804px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1804px 0'></span><span class='tj-name'>Dog</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1716px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1716px 0'></span><span class='tj-name'>Multi General</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2640px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2640px 0'></span><span class='tj-name'>Iron General</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2464px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2464px 0'></span><span class='tj-name'>Vertical Soldier</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2596px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2596px 0'></span><span class='tj-name'>Copper General</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-704px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-704px 0'></span><span class='tj-name'>Side Mover</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2552px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2552px 0'></span><span class='tj-name'>Silver General</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1056px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1056px 0'></span><span class='tj-name'>Vertical Mover</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2508px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2508px 0'></span><span class='tj-name'>Gold General</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1452px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1452px 0'></span><span class='tj-name'>Rook</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2024px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2024px 0'></span><span class='tj-name'>Ferocious Leopard</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1584px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1584px 0'></span><span class='tj-name'>Bishop</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1012px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1012px 0'></span><span class='tj-name'>Blind Tiger</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1100px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1100px 0'></span><span class='tj-name'>Flying Stag</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-308px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-308px 0'></span><span class='tj-name'>Drunk Elephant</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-924px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-924px 0'></span><span class='tj-name'>Crown Prince (royal)</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-44px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-44px 0'></span><span class='tj-name'>Knight</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2992px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2992px 0'></span><span class='tj-name'>Side Soldier</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1760px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1760px 0'></span><span class='tj-name'>Kirin</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-572px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-572px 0'></span><span class='tj-name'>Lion</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2376px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2376px 0'></span><span class='tj-name'>Phoenix</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2200px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2200px 0'></span><span class='tj-name'>Free King</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-3124px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-3124px 0'></span><span class='tj-name'>Lance</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1364px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1364px 0'></span><span class='tj-name'>White Horse</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1232px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1232px 0'></span><span class='tj-name'>Reverse Chariot</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-968px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-968px 0'></span><span class='tj-name'>Whale</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1496px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1496px 0'></span><span class='tj-name'>Side Mover</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1320px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1320px 0'></span><span class='tj-name'>Free Boar</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-3168px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-3168px 0'></span><span class='tj-name'>Vertical Mover</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1276px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1276px 0'></span><span class='tj-name'>Flying Ox</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2948px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2948px 0'></span><span class='tj-name'>Side Soldier</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-836px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-836px 0'></span><span class='tj-name'>Water Buffalo</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2420px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2420px 0'></span><span class='tj-name'>Vertical Soldier</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-352px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-352px 0'></span><span class='tj-name'>Chariot Soldier</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-88px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-88px 0'></span><span class='tj-name'>Bishop</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1980px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1980px 0'></span><span class='tj-name'>Dragon Horse</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-132px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-132px 0'></span><span class='tj-name'>Rook</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1892px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1892px 0'></span><span class='tj-name'>Dragon King</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1408px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1408px 0'></span><span class='tj-name'>Dragon Horse</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2244px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2244px 0'></span><span class='tj-name'>Horned Falcon</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-660px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-660px 0'></span><span class='tj-name'>Dragon King</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-484px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-484px 0'></span><span class='tj-name'>Soaring Eagle</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2244px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2244px 0'></span><span class='tj-name'>Horned Falcon</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2728px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2728px 0'></span><span class='tj-name'>Bishop General</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-484px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-484px 0'></span><span class='tj-name'>Soaring Eagle</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2684px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2684px 0'></span><span class='tj-name'>Rook General</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-528px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-528px 0'></span><span class='tj-name'>Lion</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2112px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2112px 0'></span><span class='tj-name'>Lion Hawk</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-176px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-176px 0'></span><span class='tj-name'>Free King</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1144px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1144px 0'></span><span class='tj-name'>Free Eagle</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-264px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-264px 0'></span><span class='tj-name'>Chariot Soldier</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-3080px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-3080px 0'></span><span class='tj-name'>Heavenly Tetrarch</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-880px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-880px 0'></span><span class='tj-name'>Water Buffalo</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-396px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-396px 0'></span><span class='tj-name'>Fire Demon</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2860px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2860px 0'></span><span class='tj-name'>Bishop General</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2904px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2904px 0'></span><span class='tj-name'>Vice General</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2816px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2816px 0'></span><span class='tj-name'>Rook General</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2772px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2772px 0'></span><span class='tj-name'>Great General</span></td></tr>
+</table>
+</div>
+<p>The Vice General, the Great General, the Free Eagle, the Lion Hawk, the Fire Demon, the King and every already promoted piece never promote.</p>

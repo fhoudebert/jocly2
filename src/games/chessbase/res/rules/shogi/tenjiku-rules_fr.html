@@ -1,0 +1,133 @@
+<style>
+    .piece-graph {
+        height: auto;
+        max-width: 300px;
+        margin: 0 auto;
+        display: inline-flex;
+    }
+    .tj-piece {
+        display: inline-block;
+        width: 44px;
+        height: 44px;
+        background-repeat: no-repeat;
+        background-size: 3300px 88px;
+        vertical-align: middle;
+    }
+    .tj-picto { background-image: url({GAME}/res/shogi/tenjiku-shogi-picto-sprites.png); }
+    .tj-mnemo { background-image: url({GAME}/res/shogi/tenjiku-shogi-mnemonic-sprites.png); }
+    .tj-promo td { padding: 2px 8px; vertical-align: middle; }
+    .tj-arrow { font-size: 1.4em; }
+    .tj-name { padding-left: .4em; }
+</style>
+
+<h2>Tenjiku shogi</h2>
+<p>Le Tenjiku shogi (天竺将棋 tenjiku shōgi, « échecs indiens ») est une variante du shogi (échecs japonais) se jouant sur un très grand plateau. Le jeu remonte aux XVe ou XVIe siècles et est basé sur le Chu Shogi, plus ancien.</p>
+
+<h2>Plateau</h2>
+
+<p>Le plateau est de 16 × 16 cases.</p>
+
+<h2>Position initiale</h2>
+<p style="text-align:center"><img style='max-width:100%' src="{GAME}/res/visuals/tenjiku-600x600-2d.jpg"/></p>
+
+<h2>Mouvements et propriétés des pièces</h2>
+<p>Cette description complète les règles du Chu Shogi :</p>
+
+<p><span class='tj-piece tj-picto' style='background-position:-2904px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2904px 0'></span> <b>Vice-général</b> : se déplace comme un Fou. Lorsqu'il capture, il peut sauter par-dessus un nombre arbitrairement grand d'autres pièces (à l'exception du Grand Général). Le Vice-général peut également effectuer jusqu'à trois pas de Roi au cours d'un même déplacement.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/vice-general.png"/></p>
+
+<p><span class='tj-piece tj-picto' style='background-position:-396px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-396px 0'></span> <b>Démon de feu</b> : brûle tous les ennemis présents sur l'une des huit cases adjacentes à celle qu'il occupe (et non celles qu'il traverse). Cet effet s'applique activement après chacun de ses déplacements, mais aussi passivement lorsqu'une pièce adverse termine son mouvement sur une case adjacente.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/fireDemon.png"/></p>
+
+<p><span class='tj-piece tj-picto' style='background-position:-880px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-880px 0'></span> <b>Buffle d'eau</b> : se promeut en Démon de feu.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/waterBuffalo.png"/></p>
+
+<p><span class='tj-piece tj-picto' style='background-position:-3080px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-3080px 0'></span> <b>Tétrarque céleste</b> : pièce glissante qui saute systématiquement la première case dans n'importe quelle direction, sans tenir compte de son contenu. Horizontalement, il peut terminer son déplacement au maximum à trois cases de son point de départ. Dans les six autres directions, il peut glisser sur une distance illimitée. Il peut également anéantir une pièce adverse adjacente sans se déplacer.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/heavenlyTetrach.png"/></p>
+
+<p><span class='tj-piece tj-picto' style='background-position:-264px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-264px 0'></span> <b>Soldat de char</b> : se promeut en Tétrarque céleste.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/chariotSoldier.png"/></p>
+
+<p><span class='tj-piece tj-picto' style='background-position:-2112px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2112px 0'></span> <b>Faucon-lion</b> : peut :</p>
+<ul>
+    <li>sauter directement sur n'importe quelle case de la zone de 5 × 5 qui l'entoure ;</li>
+    <li>anéantir une pièce adverse adjacente puis poursuivre son déplacement vers une case vide adjacente à celle-ci ;</li>
+    <li>rester sur place sans effectuer de capture.</li>
+</ul>
+
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/lionHawk.png"/></p>
+
+<p><span class='tj-piece tj-picto' style='background-position:-2420px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2420px 0'></span> <b>Soldat vertical</b> : se promeut en Soldat de char.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/verticalSoldier.png"/></p>
+
+<p><span class='tj-piece tj-picto' style='background-position:-2948px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2948px 0'></span> <b>Soldat horizontal</b> : se promeut en Buffle d'eau.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/horizontalSoldier.png"/></p>
+
+<p><span class='tj-piece tj-picto' style='background-position:-1804px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1804px 0'></span> <b>Chien</b> : se promeut en Général multiple.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/dog.png"/></p>
+
+<p><span class='tj-piece tj-picto' style='background-position:-1716px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1716px 0'></span> <b>Général multiple</b></p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/multiGeneral.png"/></p>
+
+<p><span class='tj-piece tj-picto' style='background-position:-2640px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2640px 0'></span> <b>Général de fer</b> : se promeut en Soldat vertical.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/ironGeneral.png"/></p>
+
+<p><span class='tj-piece tj-picto' style='background-position:-1144px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1144px 0'></span> <b>Aigle libre</b> : se déplace comme une Dame, mais possède également les mouvements diagonaux du Lion :</p>
+<ul>
+    <li>sauter directement vers n'importe quelle case située à exactement deux cases de distance dans une direction quelconque ;</li>
+    <li>anéantir une pièce adverse située en diagonale adjacente sans se déplacer (formellement un pas en avant puis un pas en arrière, appelé « capture en rafale ») ;</li>
+    <li>anéantir une pièce adverse située en diagonale adjacente puis poursuivre son déplacement vers une case vide située immédiatement au-delà (« frapper et fuir ») ;</li>
+    <li>anéantir une pièce adverse située en diagonale adjacente puis capturer normalement une seconde pièce située sur la diagonale suivante (« double capture ») ;</li>
+    <li>rester sur place sans capturer si au moins une case diagonale adjacente est libre (ce qui revient à passer son tour).</li>
+</ul>
+
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/freeEagle.png"/></p>
+
+<p><span class='tj-piece tj-picto' style='background-position:-2772px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2772px 0'></span> <b>Grand Général</b> : se déplace comme une Dame. Lorsqu'il capture, il peut sauter par-dessus un nombre arbitrairement grand de pièces, sauf le Roi ou le Prince.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/greatGeneral.png"/></p>
+
+<p><span class='tj-piece tj-picto' style='background-position:-2816px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2816px 0'></span> <b>Général de tour</b> : se déplace comme une Tour. Lorsqu'il capture, il peut sauter par-dessus un nombre arbitrairement grand de pièces, sauf les sauteuses de rang supérieur ou le Roi/Prince.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/rookGeneral.png"/></p>
+
+<p><span class='tj-piece tj-picto' style='background-position:-2860px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2860px 0'></span> <b>Général de fou</b> : se déplace comme un Fou. Lorsqu'il capture, il peut sauter par-dessus un nombre arbitrairement grand de pièces, sauf les sauteuses de rang supérieur ou le Roi/Prince.</p>
+<p><img class="piece-graph" src="{GAME}/res/rules/shogi/graphs/bishopGeneral.png"/></p>
+
+<p><b>Généraux sauteurs et royauté</b> : un général de fou, de tour, un vice-général ou un grand général ne capture jamais un roi ni un prince héritier par-dessus un écran — il lui faut une ligne dégagée, comme à toute pièce glissante. Tout le reste, il le capture par-dessus n'importe quel nombre de pièces de rang inférieur, et il ne peut toujours pas sauter par-dessus la royauté. Sans cette restriction, un général abat la royauté d'un bout à l'autre du plateau et le blanc dispose d'un mat forcé dès le premier coup (1. j5-j6 menace VGi4-o10, matant par-dessus quatre pièces).</p>
+
+<h2>Promotion</h2>
+<p>Une pièce peut se promouvoir quand elle entre dans les cinq dernières rangées, et quand elle s'y déplace ou en sort en capturant. La promotion est facultative, sauf pour une pièce qui ne pourrait plus bouger. Chaque ligne donne la pièce puis ce qu'elle devient, avec le glyphe de la skin « 2D Classic » à gauche et celui de « 2D Mnemonic » à côté.</p>
+<div id="promo">
+<table class='tj-promo'>
+<tr><td><span class='tj-piece tj-picto' style='background-position:0px 0'></span><span class='tj-piece tj-mnemo' style='background-position:0px 0'></span><span class='tj-name'>Pion</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1540px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1540px 0'></span><span class='tj-name'>Général d’or (tokin)</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1804px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1804px 0'></span><span class='tj-name'>Chien</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1716px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1716px 0'></span><span class='tj-name'>Multi-général</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2640px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2640px 0'></span><span class='tj-name'>Général de fer</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2464px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2464px 0'></span><span class='tj-name'>Soldat vertical</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2596px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2596px 0'></span><span class='tj-name'>Général de cuivre</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-704px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-704px 0'></span><span class='tj-name'>Coureur latéral</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2552px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2552px 0'></span><span class='tj-name'>Général d’argent</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1056px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1056px 0'></span><span class='tj-name'>Coureur vertical</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2508px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2508px 0'></span><span class='tj-name'>Général d’or</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1452px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1452px 0'></span><span class='tj-name'>Tour</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2024px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2024px 0'></span><span class='tj-name'>Léopard féroce</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1584px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1584px 0'></span><span class='tj-name'>Fou</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1012px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1012px 0'></span><span class='tj-name'>Tigre aveugle</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1100px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1100px 0'></span><span class='tj-name'>Cerf volant</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-308px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-308px 0'></span><span class='tj-name'>Éléphant ivre</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-924px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-924px 0'></span><span class='tj-name'>Prince héritier (royal)</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-44px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-44px 0'></span><span class='tj-name'>Cavalier</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2992px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2992px 0'></span><span class='tj-name'>Soldat latéral</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1760px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1760px 0'></span><span class='tj-name'>Kirin</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-572px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-572px 0'></span><span class='tj-name'>Lion</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2376px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2376px 0'></span><span class='tj-name'>Phénix</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2200px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2200px 0'></span><span class='tj-name'>Roi libre</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-3124px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-3124px 0'></span><span class='tj-name'>Lance</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1364px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1364px 0'></span><span class='tj-name'>Cheval blanc</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1232px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1232px 0'></span><span class='tj-name'>Chariot inversé</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-968px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-968px 0'></span><span class='tj-name'>Baleine</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1496px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1496px 0'></span><span class='tj-name'>Coureur latéral</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1320px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1320px 0'></span><span class='tj-name'>Sanglier libre</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-3168px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-3168px 0'></span><span class='tj-name'>Coureur vertical</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1276px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1276px 0'></span><span class='tj-name'>Bœuf volant</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2948px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2948px 0'></span><span class='tj-name'>Soldat latéral</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-836px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-836px 0'></span><span class='tj-name'>Buffle d’eau</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2420px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2420px 0'></span><span class='tj-name'>Soldat vertical</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-352px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-352px 0'></span><span class='tj-name'>Soldat de chariot</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-88px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-88px 0'></span><span class='tj-name'>Fou</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1980px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1980px 0'></span><span class='tj-name'>Dragon cheval</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-132px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-132px 0'></span><span class='tj-name'>Tour</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1892px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1892px 0'></span><span class='tj-name'>Dragon royal</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-1408px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1408px 0'></span><span class='tj-name'>Dragon cheval</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2244px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2244px 0'></span><span class='tj-name'>Faucon cornu</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-660px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-660px 0'></span><span class='tj-name'>Dragon royal</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-484px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-484px 0'></span><span class='tj-name'>Aigle planant</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2244px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2244px 0'></span><span class='tj-name'>Faucon cornu</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2728px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2728px 0'></span><span class='tj-name'>Général fou</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-484px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-484px 0'></span><span class='tj-name'>Aigle planant</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2684px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2684px 0'></span><span class='tj-name'>Général tour</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-528px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-528px 0'></span><span class='tj-name'>Lion</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2112px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2112px 0'></span><span class='tj-name'>Faucon-lion</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-176px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-176px 0'></span><span class='tj-name'>Roi libre</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-1144px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-1144px 0'></span><span class='tj-name'>Aigle libre</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-264px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-264px 0'></span><span class='tj-name'>Soldat de chariot</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-3080px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-3080px 0'></span><span class='tj-name'>Tétrarque céleste</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-880px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-880px 0'></span><span class='tj-name'>Buffle d’eau</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-396px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-396px 0'></span><span class='tj-name'>Démon de feu</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2860px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2860px 0'></span><span class='tj-name'>Général fou</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2904px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2904px 0'></span><span class='tj-name'>Vice-général</span></td></tr>
+<tr><td><span class='tj-piece tj-picto' style='background-position:-2816px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2816px 0'></span><span class='tj-name'>Général tour</span></td><td class='tj-arrow'>&#8594;</td><td><span class='tj-piece tj-picto' style='background-position:-2772px 0'></span><span class='tj-piece tj-mnemo' style='background-position:-2772px 0'></span><span class='tj-name'>Grand général</span></td></tr>
+</table>
+</div>
+<p>Le vice-général, le grand général, l'aigle libre, le faucon-lion, le démon de feu, le roi et toutes les pièces déjà promues ne se promeuvent pas.</p>

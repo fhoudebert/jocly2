@@ -167,6 +167,35 @@
 		}
 	}
 	
+	/*
+	 * Sprite spec for one entry of the promotion popup. Shared by base-view and
+	 * multi-leg-view: both of them build that popup, and only one applied the
+	 * selected skin, so a shogi variant that loads multi-leg-view (Chu, Tenjiku)
+	 * always showed the default sheet whatever skin was selected.
+	 * The whole skin override is merged, exactly like the board does for the
+	 * pieces, so file, clipping and rotation cannot diverge between the board and
+	 * the popup. The popup is made of 2D sprites in every case, so only a 2D skin
+	 * is merged here: under a 3D skin the default 2D sprites are kept, and a 3D
+	 * override (meshes, scales, ...) is never poured into the 2D spec.
+	 */
+	View.Game.cbPromoSpec = function(aGame,xdv,aspect,who) {
+		var pieces=aGame.cbView.pieces;
+		var spec=$.extend(true,{},pieces["default"],pieces[aspect]);
+		if(pieces[who])
+			spec=$.extend(true,spec,pieces[who]["default"],pieces[who][aspect]);
+		// aGame is the game object the view runs on, and jocly.game.js keeps the
+		// selected skin there (mSkin)
+		var skinName=aGame.mSkin || (xdv.game && xdv.game.mSkin);
+		var skinSpec=skinName && spec[skinName], skin3d=false;
+		(aGame.mViewOptions && aGame.mViewOptions.skins || []).forEach(function(skin) {
+			if(skin.name==skinName && skin["3d"])
+				skin3d=true;
+		});
+		if(skinSpec && !skin3d)
+			return $.extend(true,{},spec["2d"],skinSpec);
+		return $.extend(true,{},spec["2d"]);
+	}
+
 	View.Game.xdBuildScene = function(xdv){
 
 		currentGame=this;
@@ -614,16 +643,9 @@
 											});
 											promoMoves.forEach(function(move,index) {
 												var aspect=cbVar.pieceTypes[move.pr].aspect || cbVar.pieceTypes[move.pr].name;
-												var aspectSpec = $.extend(true,{},aGame.cbView.pieces["default"],aGame.cbView.pieces[aspect]);
-												if(aGame.cbView.pieces[this.mWho])
-													aspectSpec = $.extend(true,aspectSpec,
-															aGame.cbView.pieces[this.mWho]["default"],aGame.cbView.pieces[this.mWho][aspect]);
-												                                                   // use alternative skin sprites for promotion in shogi when specified
-												if( typeof aspectSpec[xdv.game.mSkin] !== "undefined"){														
-													aspectSpec["2d"].file = aspectSpec[xdv.game.mSkin].file;
-												}
-												xdv.updateGadget("promo#"+move.pr, {
-													base: $.extend(aspectSpec["2d"], { 
+																				var promoSpec=aGame.cbPromoSpec(aGame,xdv,aspect,this.mWho);
+																				xdv.updateGadget("promo#"+move.pr, {
+													base: $.extend({},promoSpec, {
 														visible: true,
 														x: (index-promoMoves.length/2)*aGame.cbPromoSize 
 													}),														
