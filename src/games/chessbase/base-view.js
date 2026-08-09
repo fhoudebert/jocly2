@@ -1294,12 +1294,13 @@
 				resources.material=pieceMat;
 				
 				resources.geometry = THREE.BufferGeometryUtils.mergeVertices(resources.geometry);
-				// needed if normals are not exported in the mesh file. On a model
-				// unwrapped as an atlas of islands, recomputing them splits the
-				// normals along every island border (the seam vertices only see
-				// their own side's faces) and draws visible shading seams: a mesh
-				// that ships normals can ask to keep them with mesh.keepNormals.
-				if(!(spec.mesh && spec.mesh.keepNormals && resources.geometry.getAttribute('normal')))
+				// Only when the mesh ships no normals of its own. Recomputing them
+				// splits the normals along every UV seam (a seam vertex only sees
+				// its own side's faces) and draws visible shading seams; on a
+				// non-indexed mesh it also forces flat shading. Meshes migrated
+				// from the old Blender JSON format carry per-face normals, for
+				// which this recompute was a no-op anyway.
+				if(!resources.geometry.getAttribute('normal'))
 					resources.geometry.computeVertexNormals();
 
 			},
