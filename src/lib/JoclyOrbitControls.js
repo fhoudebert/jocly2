@@ -272,15 +272,23 @@ THREE.OrbitControls = function ( camera, object, domElement ) {
 
 		position.copy( this.camTarget ).add( offset );
 
-		// apparently camera.lookAt is based on the camera relative position
-        // in our case, where the camera is attached to an object, we need
-        // to temporarily move the camera to this object for lookAt to work
-        // properly
-        var camPos = new THREE.Vector3();
-        camPos.copy(this.camera.position);
-        this.camera.position.copy(this.object.position);
+		// three.js >= r125 : Object3D.lookAt() travaille depuis la position
+		// MONDE (matrixWorld) et compense lui-même la rotation du parent ;
+		// pour une caméra fille du rig avec une position locale nulle, il
+		// fait donc exactement ce qu'il faut sans aide.
+		// L'ancien hack (copier temporairement la position du rig dans la
+		// position locale de la caméra, nécessaire quand lookAt lisait
+		// this.position en local, cf. r84) est devenu destructeur : la
+		// position monde vue par lookAt vaut alors rig + copie locale =
+		// 2 x la position du rig, et surtout le updateWorldMatrix(true,
+		// false) interne de lookAt FIGE cette translation doublée dans
+		// camera.matrixWorld. Si le rig n'est pas rattaché à la scène
+		// (cf. GadgetCamera.remove côté xd-view), rien ne recalcule cette
+		// matrice avant le rendu (renderer.render ne met à jour que la
+		// scène et les caméras SANS parent) : tout est alors dessiné
+		// depuis le double de la distance caméra -> plateau deux fois
+		// plus petit après un changement de skin 3D.
 		this.camera.lookAt( this.camTarget );
-        this.camera.position.copy(camPos);
 
 		thetaDelta = 0;
 		phiDelta = 0;

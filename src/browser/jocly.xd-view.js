@@ -2504,9 +2504,33 @@ if (window.JoclyXdViewCleanup)
 			this._super.call(this, gadget, options);
 			//this.object3d=threeCtx.camera;
 			this.object3d = threeCtx.body;
+			// Le rig caméra est un objet PARTAGE créé par BuildThree et
+			// rattaché à la scène ; si un remove() antérieur (changement de
+			// skin) l'a détaché, on le raccroche, sinon la caméra n'est plus
+			// atteignable depuis la racine de la scène et ses matrices ne
+			// sont plus recalculées par renderer.render.
+			if (this.object3d.parent !== threeCtx.scene)
+				threeCtx.scene.add(this.object3d);
 			this.cameraObject = this.object3d.children[0];
 			this.targetAnim = null;
 			this.camTarget = threeCtx.camTarget;
+		},
+		remove: function () {
+			// Ne PAS appeler GadgetObject3D.remove : il ferait
+			// this.object3d.parent.remove(this.object3d), c'est-a-dire
+			// scene.remove(threeCtx.body) -- le rig partage portant la
+			// camera serait orphelin apres unbuildGadgets() (changement de
+			// skin), et camera.matrixWorld ne serait plus jamais recalcule
+			// par le rendu (renderer.render ne met a jour que le graphe de
+			// scene et les cameras sans parent). On se contente du
+			// nettoyage propre a l'avatar.
+			if (this.targetAnim) {
+				this.targetAnim.stop();
+				this.targetAnim = null;
+			}
+			if (this.object3d && this.options.click)
+				this.object3d.off("mouseup");
+			this.object3d = null;
 		},
 		displayObject3D: function (force, options, delay) {
 			var $this = this;
