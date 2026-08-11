@@ -9134,6 +9134,79 @@ exports.games = (function () {
 			"viewScripts": config_view_js_tenjiku
 		},*/
 		{
+			"name": "tenjiku-shogi",
+			"modelScripts": modelScripts_tenjiku,
+			"config": {
+				"status": true,
+				"model": {
+					"title-en": "Tenjiku Shogi",
+					"summary": {
+						"en": "The 'exotic' shogi derived from Chu Shogi is the most extravagant and original of all historical variants.",
+						"fr": "Le shogi 'exotique' issu du chu shogi est la plus originale et extravagante des variantes historiques."
+					},
+					"rules": {
+						"en": "res/rules/shogi/tenjiku-rules.html",
+						"fr": "res/rules/shogi/tenjiku-rules_fr.html"
+					},
+					"module": "chessbase",
+					"plazza": "true",
+					"thumbnail": "res/rules/shogi/tenjiku-thumb.png",
+					"released": 1396536978,
+					"credits": {
+						"en": "res/rules/shogi/shogi-credits.html"
+					},
+					"gameOptions": config_model_gameOptions_tenjiku,
+					"js": modelScripts_tenjiku,
+					"levels": config_model_levels_tenjiku
+				},
+				"view": {
+					"title-en": "Chessbase view",
+					"visuals": {
+						"600x600": [
+							"res/visuals/tenjiku-600x600-2d.jpg"
+						]
+					},
+					"xdView": true,
+					"css": config_view_css,
+					"preferredRatio": 1,
+					"useShowMoves": true,
+					"useNotation": true,
+					"module": "chessbase",
+					"defaultOptions": config_view_defaultOptions,
+					"skins": [
+						{
+							"name": "skin2d",
+							"title": "2D Classic",
+							"3d": false,
+							"preload": [
+								"image|/res/images/cancel.png",
+								"image|/res/images/whitebg.png",
+								"image|/res/images/wikipedia.png",
+								"image|/res/shogi/tenjiku-shogi-picto-sprites.png"
+							]
+						},
+						{
+							"name": "skin2dmnemonic",
+							"title": "2D Mnemonic",
+							"3d": false,
+							"preload": [
+								"image|/res/images/cancel.png",
+								"image|/res/images/whitebg.png",
+								"image|/res/images/wikipedia.png",
+								"image|/res/shogi/tenjiku-shogi-mnemonic-sprites.png"
+							]
+						}
+					],
+					"animateSelfMoves": false,
+					"switchable": true,
+					"sounds": config_view_sounds,
+					"js": config_view_js_tenjiku,
+					"useAutoComplete": true
+				}
+			},
+			"viewScripts": config_view_js_tenjiku
+		},
+		{
 			"name": "makromachy",
 			"modelScripts": modelScripts_109,
 			"config": {

@@ -868,11 +868,21 @@
 			var self = this;
 
 			var promise = new Promise(function (resolve, reject) {
+				// mFullPlayedMoves, et NON mPlayedMoves : mPlayedMoves ne
+				// contient que les coups jusqu'a la position courante, donc
+				// s'en servir ici rendait tout deplacement EN AVANT impossible
+				// -- l'index etait borne a la position courante et rollback()
+				// ne faisait rien (bouton "coup suivant"/"fin" sans effet dans
+				// une fenetre d'historique, alors que "debut"/"precedent"
+				// marchaient). mFullPlayedMoves est justement maintenu pour ca
+				// par ApplyMove(), y compris la troncature quand un nouveau
+				// coup diverge de la suite enregistree, et c'est deja le defaut
+				// de BackTo() quand on ne lui passe pas de liste.
+				var full = self.game.mFullPlayedMoves || self.game.mPlayedMoves;
 				if (index < 0)
-					index = self.game.mPlayedMoves.length + index;
-				index = Math.max(0, Math.min(index, self.game.mPlayedMoves.length));
-				var playedMoves = self.game.mPlayedMoves;
-				self.game.BackTo(index, playedMoves);
+					index = full.length + index;
+				index = Math.max(0, Math.min(index, full.length));
+				self.game.BackTo(index);
 				if (self.area)
 					self.game.DisplayBoard();
 				resolve();

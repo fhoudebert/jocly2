@@ -1961,17 +1961,19 @@
 		},
 		"fr-griffon": {
 			mesh: {
-				jsFile:"/res/fairy/griffon/griffon.js"
+				jsFile:"/res/fairy/griffon/griffon.js",
 			},
 			materials: {
 				mat0: {
 					channels: {
 						diffuse: {
+							repeat: true,
 							texturesImg: {
 								diffImg : "/res/fairy/griffon/griffon-diffusemap.jpg",
 							}
 						},
 						normal: {
+							repeat: true,
 							texturesImg: {
 								normalImg: "/res/fairy/griffon/griffon-normalmap.jpg",
 							}
@@ -2003,19 +2005,19 @@
 		},
 		"fr-duchess": {
 			mesh: {
-				jsFile:"/res/fairy/lighthouse/lighthouse.js"
+				jsFile:"/res/fairy/duchess/duchess.js"
 			},
 			materials: {
 				mat0: {
 					channels: {
 						diffuse: {
 							texturesImg: {
-								diffImg : "/res/fairy/lighthouse/lighthouse-diffusemap.jpg",
+								diffImg : "/res/fairy/duchess/duchess-diffusemap.jpg",
 							}
 						},
 						normal: {
 							texturesImg: {
-								normalImg: "/res/fairy/lighthouse/lighthouse-normalmap.jpg",
+								normalImg: "/res/fairy/duchess/duchess-normalmap.jpg",
 							}
 						}
 					}

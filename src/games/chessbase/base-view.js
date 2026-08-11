@@ -1193,6 +1193,13 @@
 		    		spec.paintTexture.call(this,spec,ctx,material,chan,resources);
 		    		var texture =  new THREE.Texture(canvas);
 		    		if (chan === "diffuse") texture.colorSpace = THREE.SRGBColorSpace;
+		    		// THREE.Texture defaults to ClampToEdge: a model whose UVs go
+		    		// outside [0,1] (cylindrical unwrap, tiled material) smears the
+		    		// border column instead of tiling. Opt in with channel.repeat.
+		    		if (channel.repeat) {
+		    			texture.wrapS = THREE.RepeatWrapping;
+		    			texture.wrapT = THREE.RepeatWrapping;
+		    		}
 		    		texture.needsUpdate = true;
 		    		resources.textures[material][chan]=texture;
 	    		}
@@ -1287,7 +1294,14 @@
 				resources.material=pieceMat;
 				
 				resources.geometry = THREE.BufferGeometryUtils.mergeVertices(resources.geometry);
-				resources.geometry.computeVertexNormals(); // needed in normals not exported in js file!
+				// Only when the mesh ships no normals of its own. Recomputing them
+				// splits the normals along every UV seam (a seam vertex only sees
+				// its own side's faces) and draws visible shading seams; on a
+				// non-indexed mesh it also forces flat shading. Meshes migrated
+				// from the old Blender JSON format carry per-face normals, for
+				// which this recompute was a no-op anyway.
+				if(!resources.geometry.getAttribute('normal'))
+					resources.geometry.computeVertexNormals();
 
 			},
 

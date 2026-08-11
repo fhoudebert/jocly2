@@ -337,7 +337,14 @@ if (window.JoclyXdViewCleanup)
 
 		// Merge multiple per-primitive geometries into one indexed
 		// BufferGeometry with one group per original mesh/material.
+		// The merged geometry is always indexed, so the groups count
+		// INDICES, not vertices. A primitive that carries no index of its
+		// own gets a trivial 0..n-1 one. Reading only the vertex count here
+		// silently drops any index buffer and rebuilds the triangles out of
+		// consecutive vertex triplets, which turns a deduplicated mesh into
+		// confetti (draughts pieces, xiangqi tokens, move selectors...).
 		var mergedPositions = [], mergedNormals = [], mergedUvs = [], mergedColors = [];
+		var mergedIndices = [];
 		var hasNormals = meshNodes.every(function (m) { return !!m.geometry.attributes.normal; });
 		var hasUvs = meshNodes.every(function (m) { return !!m.geometry.attributes.uv; });
 		var hasColors = meshNodes.every(function (m) { return !!m.geometry.attributes.color; });
@@ -360,7 +367,13 @@ if (window.JoclyXdViewCleanup)
 				var cAttr = m.geometry.attributes.color;
 				for (var i2 = 0; i2 < cAttr.array.length; i2++) mergedColors.push(cAttr.array[i2]);
 			}
-			groups.push({ start: vertexOffset, count: count, materialIndex: materialIndexByInstance[i] });
+			var indexStart = mergedIndices.length;
+			var idx = m.geometry.index;
+			if (idx)
+				for (var i2 = 0; i2 < idx.count; i2++) mergedIndices.push(idx.array[i2] + vertexOffset);
+			else
+				for (var i2 = 0; i2 < count; i2++) mergedIndices.push(vertexOffset + i2);
+			groups.push({ start: indexStart, count: mergedIndices.length - indexStart, materialIndex: materialIndexByInstance[i] });
 			vertexOffset += count;
 		});
 
@@ -369,6 +382,9 @@ if (window.JoclyXdViewCleanup)
 		if (hasNormals) merged.setAttribute('normal', new THREE.BufferAttribute(new Float32Array(mergedNormals), 3));
 		if (hasUvs) merged.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(mergedUvs), 2));
 		if (hasColors) merged.setAttribute('color', new THREE.BufferAttribute(new Float32Array(mergedColors), meshNodes[0].geometry.attributes.color.itemSize));
+		merged.setIndex(vertexOffset > 65535
+			? new THREE.BufferAttribute(new Uint32Array(mergedIndices), 1)
+			: new THREE.BufferAttribute(new Uint16Array(mergedIndices), 1));
 		groups.forEach(function (g) { merged.addGroup(g.start, g.count, g.materialIndex); });
 
 		return { geometry: merged, materials: uniqueMaterials };
@@ -2488,9 +2504,33 @@ if (window.JoclyXdViewCleanup)
 			this._super.call(this, gadget, options);
 			//this.object3d=threeCtx.camera;
 			this.object3d = threeCtx.body;
+			// Le rig caméra est un objet PARTAGE créé par BuildThree et
+			// rattaché à la scène ; si un remove() antérieur (changement de
+			// skin) l'a détaché, on le raccroche, sinon la caméra n'est plus
+			// atteignable depuis la racine de la scène et ses matrices ne
+			// sont plus recalculées par renderer.render.
+			if (this.object3d.parent !== threeCtx.scene)
+				threeCtx.scene.add(this.object3d);
 			this.cameraObject = this.object3d.children[0];
 			this.targetAnim = null;
 			this.camTarget = threeCtx.camTarget;
+		},
+		remove: function () {
+			// Ne PAS appeler GadgetObject3D.remove : il ferait
+			// this.object3d.parent.remove(this.object3d), c'est-a-dire
+			// scene.remove(threeCtx.body) -- le rig partage portant la
+			// camera serait orphelin apres unbuildGadgets() (changement de
+			// skin), et camera.matrixWorld ne serait plus jamais recalcule
+			// par le rendu (renderer.render ne met a jour que le graphe de
+			// scene et les cameras sans parent). On se contente du
+			// nettoyage propre a l'avatar.
+			if (this.targetAnim) {
+				this.targetAnim.stop();
+				this.targetAnim = null;
+			}
+			if (this.object3d && this.options.click)
+				this.object3d.off("mouseup");
+			this.object3d = null;
 		},
 		displayObject3D: function (force, options, delay) {
 			var $this = this;

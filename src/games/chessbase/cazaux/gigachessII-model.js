@@ -359,7 +359,7 @@
       26: {
       name : 'duchess',
       abbrev : 'D',
-      aspect : 'fr-lighthouse',
+      aspect : 'fr-duchess',
       graph : this.cbMergeGraphs(geometry,
                   this.cbKingGraph(geometry,confine),
 this.cbShortRangeGraph(geometry,[
