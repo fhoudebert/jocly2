@@ -879,8 +879,24 @@
 				// coup diverge de la suite enregistree, et c'est deja le defaut
 				// de BackTo() quand on ne lui passe pas de liste.
 				var full = self.game.mFullPlayedMoves || self.game.mPlayedMoves;
+				// Sans argument, index vaut undefined : Math.min(undefined,n)
+				// donne NaN, Math.max(0,NaN) aussi, et BackTo(NaN) ne rejoue
+				// AUCUN coup -- la partie repartait donc du debut, en silence.
+				// Plutot que de choisir un defaut (rollback(0) exprime deja
+				// "tout defaire", undo() "defaire un coup"), on refuse.
+				var idx = Number(index);
+				if (!Number.isFinite(idx))
+					throw new Error("rollback(index): index must be a number, got " + index +
+						" - use rollback(0) to go back to the initial position, or undo(n) to take back n moves");
+				index = idx;
+				// Un index negatif est relatif a la POSITION COURANTE, pas a la
+				// ligne enregistree : sinon, en position reculee (mPlayedMoves
+				// plus court que mFullPlayedMoves), rollback(-1) resout un index
+				// SUPERIEUR a la position courante et AVANCE au lieu de reculer.
 				if (index < 0)
-					index = full.length + index;
+					index = self.game.mPlayedMoves.length + index;
+				// La borne haute, elle, reste la ligne enregistree : c'est ce qui
+				// permet de re-avancer apres avoir recule (cf. BackTo()).
 				index = Math.max(0, Math.min(index, full.length));
 				self.game.BackTo(index);
 				if (self.area)
@@ -890,6 +906,27 @@
 			return promise;
 		} else
 			return ProxiedMethod(this, "rollback", arguments);
+	}
+
+	// Defaire n coups depuis la position courante. rollback() prend un index
+	// ABSOLU dans la partie ; undo() est le pas relatif, sans ambiguite de
+	// referentiel, qui manquait pour derouler un parcours d'arbre.
+	GameProxy.prototype.undo = function (count) {
+		if (this.game) {
+			var self = this;
+
+			var promise = new Promise(function (resolve, reject) {
+				var n = count === undefined ? 1 : Number(count);
+				if (!Number.isFinite(n) || n < 0)
+					throw new Error("undo(count): count must be a positive number, got " + count);
+				self.game.BackTo(Math.max(0, self.game.mPlayedMoves.length - n));
+				if (self.area)
+					self.game.DisplayBoard();
+				resolve();
+			});
+			return promise;
+		} else
+			return ProxiedMethod(this, "undo", arguments);
 	}
 
 	GameProxy.prototype.otherPlayer = function (player) {
@@ -992,7 +1029,10 @@
 			return new Promise(function (resolve, reject) {
 				if (!self.game.mBoard.mMoves || self.game.mBoard.mMoves.length == 0)
 						self.game.mBoard.GenerateMoves(self.game);
-				resolve(self.game.mBoard.mMoves);
+				// Copie : mBoard.mMoves est le tableau interne, et le mode
+				// proxifie (iframe/worker) renvoie deja une copie serialisee.
+				// Sans ce slice(), le contrat depend du mode d'execution.
+				resolve(self.game.mBoard.mMoves.slice());
 			});
 		} else
 			return ProxiedMethod(this, "getPossibleMoves", arguments);

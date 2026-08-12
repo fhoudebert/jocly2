@@ -1065,6 +1065,20 @@ JocGame.prototype.ApplyMove = function(aMove) {
 		// specific game's ApplyMove) into a clear, actionable error at the
 		// actual point of failure.
 		throw new Error("JocGame.ApplyMove: no move to apply (aMove is " + aMove + ") - this usually means the previous machineSearch() call failed to produce a move; check the console for an earlier, more specific error");
+	// The other common failure: a move that was generated for ANOTHER position
+	// (a stale getPossibleMoves() list, a rollback()/load() that did not land
+	// where the caller thought). Left unchecked it dies several frames down in
+	// a game-specific ApplyMove on "can't read property 't' of undefined".
+	// Only checked when the move list is ALREADY generated: IsValidMove()
+	// otherwise calls GenerateMoves(), which would cost a full generation on
+	// every leaf of a tree walk (measured: x3 on a depth-2 ultima walk). The
+	// dangerous case is precisely the one where the caller just called
+	// getPossibleMoves(), so the list is there and the check is a linear scan.
+	// Not on the AI hot path either: the search applies moves through
+	// JocBoard.ApplyMove()/MakeAndApply(), never through here.
+	if(this.mBoard.mMoves && this.mBoard.mMoves.length>0 && !this.mBoard.IsValidMove(this,aMove,true))
+		throw new Error("JocGame.ApplyMove: move "+JSON.stringify(aMove)+" does not belong to the current position "+
+			"- it was most likely generated for another position; check the rollback()/load() calls made since it was obtained");
 	var move = new (this.GetMoveClass())({});
 	move.CopyFrom(aMove);
 	this.mPlayedMoves.push(move);
@@ -1114,7 +1128,16 @@ JocGame.prototype.ExportInitialBoardState = function(format) {
 		var board = new (this.GetBoardClass())(this);
 		if(board.InitialPosition)
 			board.InitialPosition(this);
-		var boardState = board.ExportBoardState(this,format);
+		// The board being exported is the INITIAL one, so the move counter must
+		// be read at zero played moves - ExportBoardState() derives it from
+		// mPlayedMoves, which still holds the moves played since.
+		var played = this.mPlayedMoves;
+		this.mPlayedMoves = [];
+		try {
+			var boardState = board.ExportBoardState(this,format);
+		} finally {
+			this.mPlayedMoves = played;
+		}
 		return {
 			boardState: boardState,
 			turn: board.mWho
@@ -1268,7 +1291,7 @@ JocBoard.prototype.MakeAndApply = function(aGame,aIndex) {
 	return board;
 }
 
-JocBoard.prototype.IsValidMove = function(aGame,move) {
+JocBoard.prototype.IsValidMove = function(aGame,move,quiet) {
 	if(typeof move.Equals != "function")
 		move=aGame.CreateMove(move);
 	if(!this.mMoves || this.mMoves.length==0) {
@@ -1279,7 +1302,10 @@ JocBoard.prototype.IsValidMove = function(aGame,move) {
 		if(move.Equals(this.mMoves[i]))
 			return true;
 	}
-	console.error("Invalid move "+JSON.stringify(move)+" in "+JSON.stringify(this.mMoves));
+	// quiet: the caller reports the failure itself (and dumping the whole move
+	// list on every node of a tree walk is unreadable)
+	if(!quiet)
+		console.error("Invalid move "+JSON.stringify(move)+" in "+JSON.stringify(this.mMoves));
 	return false;
 }
 
