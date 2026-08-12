@@ -3,7 +3,7 @@
  * Ultima view - 2D only. A plain 8x8 board, the module's own colours, and no
  * edge ring: Ultima is the game the family grew out of.
  *
- * Pieces are drawn from res/ultima/ultima-picto-sprites.png, shared with
+ * Pieces are drawn from res/ultima/baroque-picto-sprites.png, shared with
  * Rococo. Note the Pawn is the Pincer Pawn of column 0, not the Cannon Pawn
  * its cousins field, and that Ultima alone has a Coordinator.
  *

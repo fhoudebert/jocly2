@@ -101,7 +101,7 @@ check("columns are distinct", columns.length, new Set(columns).size);
 
 const file = def.pieces["default"]["2d"].file;
 check("the sprite sheet is the one shared with Ultima",
-	file, "/res/ultima/ultima-picto-sprites.png");
+	file, "/res/ultima/baroque-picto-sprites.png");
 
 const size = pngSize(path.join(CHESSBASE, file));
 check("the sheet is wide enough for every piece",

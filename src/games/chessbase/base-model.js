@@ -1616,14 +1616,26 @@
 		}
 	}
 
+	// Ply count the initial position starts at, so an imported FEN keeps its
+	// move number: "... 0 52" with white to move is ply 102, and after one
+	// black move the export reads 52 again, then 53 - as a FEN reader expects.
+	// 0 when the game starts from its own opening position (no imported FEN).
+	Model.Board.cbInitialPly = function(aGame) {
+		var initial=aGame.mInitial;
+		if(!initial || !(initial.moveNumber>0))
+			return 0;
+		return (initial.moveNumber-1)*2 + (initial.turn==-1 ? 1 : 0);
+	}
+
 	Model.Board.ExportBoardState = function(aGame) {
 		if(!aGame.cbVar.geometry.ExportBoardState)
 			return "not supported";
-		return aGame.cbVar.geometry.ExportBoardState(this,aGame.cbVar,aGame.mPlayedMoves.length);
+		return aGame.cbVar.geometry.ExportBoardState(this,aGame.cbVar,
+			this.cbInitialPly(aGame)+aGame.mPlayedMoves.length);
 	}
 
 	Model.Game.Import = function(format,data) {
-		var turn, pieces=[], castle={'1':{},'-1':{}}, enPassant=null, noCaptCount=0;
+		var turn, pieces=[], castle={'1':{},'-1':{}}, enPassant=null, noCaptCount=0, moveNumber=1;
 
 		if(format=='pjn') {
 			var result={
@@ -1757,6 +1769,11 @@
 			var noCaptCount1=parseInt(fenParts[4]);
 			if(!isNaN(noCaptCount1))
 				noCaptCount=noCaptCount1;
+			// 6th field: the full move number. It used to be dropped, so a
+			// position loaded at move 52 exported back as move 1.
+			var moveNumber1=parseInt(fenParts[5]);
+			if(!isNaN(moveNumber1) && moveNumber1>0)
+				moveNumber=moveNumber1;
 			
 			var initial={
 				pieces: pieces,
@@ -1764,6 +1781,7 @@
 				castle: castle,
 				enPassant: enPassant,
 				noCaptCount: noCaptCount,
+				moveNumber: moveNumber,
 			}
 			var status=true;
 			if(cbVar.importGame)

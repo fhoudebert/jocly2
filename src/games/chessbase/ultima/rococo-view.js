@@ -4,7 +4,7 @@
  * 36 squares of the outer ring are "edge squares", which a move may only enter
  * to capture, and are shaded distinctly so players can see it.
  *
- * Pieces are drawn from res/ultima/ultima-picto-sprites.png, shared with Ultima.
+ * Pieces are drawn from res/ultima/baroque-picto-sprites.png, shared with Ultima.
  *
  * Everything else is in baroque-view.js, shared with Rocaille and Ultima, which
  * must be listed before this file in viewScripts. The panel that separates a

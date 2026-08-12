@@ -101,7 +101,7 @@ check("columns start at 0 and are contiguous",
 /* ------------------------------------------------------- the sheet fits */
 
 const file = def.pieces["default"]["2d"].file;
-check("the sprite sheet is the expected file", file, "/res/ultima/ultima-picto-sprites.png");
+check("the sprite sheet is the expected file", file, "/res/ultima/baroque-picto-sprites.png");
 
 const size = pngSize(path.join(CHESSBASE, file));
 check("the sheet is wide enough for every piece", size.width >= (Math.max.apply(null, columns) + 1) * CELL, true);
@@ -111,40 +111,49 @@ check("White is the first row, Black the second",
 check("cell size matches the sheet",
 	[def.pieces["default"]["2d"].clipwidth, def.pieces["default"]["2d"].clipheight], [CELL, CELL]);
 
-/* ------------------------------------------- the rules page uses the sheet */
+/* ------------------------------------------ the rules pages use the sheet */
 
-const rulesPath = path.join(CHESSBASE, "res", "rules", "ultima", "ultima-rules.html");
-const rules = fs.readFileSync(rulesPath, "utf8");
+const manifest = require(path.join(CHESSBASE, "index.js")).games.find((g) => g.name == "ultima");
 
-check("the rules page is the one declared in the manifest",
-	require(path.join(CHESSBASE, "index.js")).games
-		.find((g) => g.name == "ultima").config.model.rules.en,
-	"res/rules/ultima/ultima-rules.html");
+// both pages, not just the English one: the French page is a separate file and
+// the sprite sheet moved under it once without anything noticing
+check("the manifest declares both rules pages",
+	manifest.config.model.rules,
+	{ en: "res/rules/ultima/ultima-rules.html", fr: "res/rules/ultima/ultima-rules_fr.html" });
 
-check("the rules page draws its pieces from the sprite sheet",
-	rules.indexOf("{GAME}" + file) >= 0, true);
-
-// the page declares --u-cols: it must equal the sheet's real column count, or
-// every icon is mis-framed (this is exactly what breaks when the shared sheet
-// grows a column and the page is not updated)
-const declaredCols = parseInt(/--u-cols:\s*(\d+)/.exec(rules)[1]);
-check("the rules page column count matches the sprite sheet width",
-	declaredCols, size.width / CELL);
-
-// .u-<name> { --u-col: c } must name the same column the view clips
-const wrong = [];
-aspects.forEach((aspect) => {
-	const name = aspect.replace(/^ultima-/, "");
-	const found = new RegExp("\\.u-" + name + "\\s*\\{[^}]*--u-col:\\s*(\\d+)").exec(rules);
-	if(!found) {
-		wrong.push(name + ": no rule in the page");
+const pageErrors = [];
+["en", "fr"].forEach((lang) => {
+	const rel = manifest.config.model.rules[lang];
+	const full = path.join(CHESSBASE, rel);
+	if(!fs.existsSync(full)) {
+		pageErrors.push(lang + ": page is missing");
 		return;
 	}
-	const col = style[aspect]["2d"].clipx / CELL;
-	if(parseInt(found[1]) !== col)
-		wrong.push(name + ": page column " + found[1] + ", view column " + col);
+	const rules = fs.readFileSync(full, "utf8");
+	if(rules.indexOf("{GAME}" + file) < 0)
+		pageErrors.push(lang + ": does not draw from the sprite sheet");
+	// the page declares --u-cols: it must equal the sheet's real column count,
+	// or every icon is mis-framed (this is exactly what breaks when the shared
+	// sheet grows a column and the page is not updated)
+	const declared = /--u-cols:\s*(\d+)/.exec(rules);
+	if(!declared)
+		pageErrors.push(lang + ": no --u-cols declaration");
+	else if(parseInt(declared[1]) !== size.width / CELL)
+		pageErrors.push(lang + ": --u-cols is " + declared[1] + ", sheet has " + (size.width / CELL));
+	// .u-<name> { --u-col: c } must name the same column the view clips
+	aspects.forEach((aspect) => {
+		const name = aspect.replace(/^ultima-/, "");
+		const found = new RegExp("\\.u-" + name + "\\s*\\{[^}]*--u-col:\\s*(\\d+)").exec(rules);
+		if(!found) {
+			pageErrors.push(lang + ": " + name + " has no rule in the page");
+			return;
+		}
+		const col = style[aspect]["2d"].clipx / CELL;
+		if(parseInt(found[1]) !== col)
+			pageErrors.push(lang + ": " + name + " page column " + found[1] + ", view column " + col);
+	});
 });
-check("the rules page and the view agree on every sprite column", wrong, []);
+check("the rules pages and the view agree on every sprite column", pageErrors, []);
 
 /* ------------------------------------------------------------ 2D only */
 
