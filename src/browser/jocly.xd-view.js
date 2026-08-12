@@ -760,6 +760,28 @@ if (window.JoclyXdViewCleanup)
 
 	/* ======================================== */
 
+	/* Proprietes de materiau qui participent a la compilation du programme
+	 * three.js : les changer apres coup n'a aucun effet tant que le materiau
+	 * n'est pas marque needsUpdate. C'est le cas de "transparent" : sans cela,
+	 * passer transparent a true et opacity a 0 ne cache rien, et les
+	 * indicateurs de coups restaient affiches apres avoir decoche "Show
+	 * possible moves" (un rechargement de page corrigeait l'affichage, le
+	 * materiau etant alors construit transparent des l'origine). */
+	var MAT_PROGRAM_PROPS = {
+		transparent: true,
+		alphaTest: true,
+		flatShading: true,
+		vertexColors: true,
+		fog: true,
+		side: true,
+		morphTargets: true,
+		skinning: true,
+		wireframe: true,
+		depthPacking: true,
+		premultipliedAlpha: true,
+		toneMapped: true,
+	};
+
 	function InitGlobals() {
 		xdv = new XDView();
 		VSIZE = 12600;
@@ -1692,8 +1714,11 @@ if (window.JoclyXdViewCleanup)
 											mat[mpi].setHex(newMatProp);
 											mat[mpi].convertSRGBToLinear();
 										}
-										else
+										else {
 											mat[mpi] = newMatProp;
+											if (MAT_PROGRAM_PROPS[mpi])
+												mat.needsUpdate = true;
+										}
 									})(mat, mpi, m);
 								}
 							}
@@ -1730,6 +1755,8 @@ if (window.JoclyXdViewCleanup)
 																$this.animStart(options);
 																if (mat[mpi] === undefined || isNaN(newMatProp)) {
 																	mat[mpi] = newMatProp;
+																	if (MAT_PROGRAM_PROPS[mpi])
+																		mat.needsUpdate = true;
 																	setTimeout(function () {
 																		$this.animEnd(options);
 																	});
@@ -1741,8 +1768,11 @@ if (window.JoclyXdViewCleanup)
 																			$this.animEnd(options);
 																		}).start();
 																}
-															} else
+															} else {
 																mat[mpi] = newMatProp;
+																if (MAT_PROGRAM_PROPS[mpi])
+																	mat.needsUpdate = true;
+															}
 														}
 													})(mat, mpi);
 												} else
