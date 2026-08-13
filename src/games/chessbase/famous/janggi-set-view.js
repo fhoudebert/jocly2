@@ -24,14 +24,13 @@
 	now one sheet, the row picked by the per-side clipping below and the
 	colour supplied by the style.
 
-	Orientation holds in every skin when the viewer switches side. In 2D the
-	view-switch only remaps cell positions and no rotation is ever applied, so
-	characters stay upright for whoever is reading. In 3D the camera moves,
-	and base-view.js already turns each piece by 180 degrees when
-	mViewAs * side < 0, which is the physical convention: each player reads
-	his own pieces the right way up, as across a real board. The wall skin
-	pins rotate to 0 in janggi-view.js, a vertical board being read from one
-	side only. Nothing here needs the shogi rotate trick.
+	A counter reads the same way in every skin. base-view.js gives a 3D piece
+	a half turn when its owner sits opposite the viewer; the 2D character skin
+	is given the same one below, since the 2D view-switch only remaps cell
+	positions and would otherwise leave every glyph upright. The pictogram
+	skin is deliberately left alone - a silhouette is read by its shape, not
+	by which way up it is. Nothing here needs the shogi rotate trick, whose
+	point is to tell two identical armies apart.
 */
 
 (function() {
@@ -68,7 +67,34 @@
 		which is why the clipx entries below carry no skin variant: the
 		columns are shared by both sheets.
 	*/
+	var CHARACTER_SKIN = "skin2d";
 	var WESTERN_SKIN = "skin2dwestern";
+
+	/*
+		Which way up a counter is read.
+
+		base-view.js turns a 3D piece by half a turn when mViewAs * side < 0,
+		so that each player reads his own pieces the right way up and the
+		opponent's upside down - what a physical set does, the board being
+		rotated in place when the viewpoint changes (grid-board-view.js
+		mirrors the rank axis for player A and the file axis for player B,
+		and mirroring both is a half turn). It applies that to the "3d"
+		channel only, so 2D characters stayed upright for both camps.
+
+		The same half turn is given here to the 2D character skin, so a
+		Janggi counter reads the same way whichever skin is on. mViewAs is
+		current at style-build time: setViewOptions -> GameInitView ->
+		cbDefineView re-evaluates the styles on every view switch, which is
+		what makes the glyphs turn over when the seat changes.
+
+		Scoped to CHARACTER_SKIN, and to the per-side blocks where the sheet
+		row is already chosen, so that the pictogram skin keeps its
+		silhouettes upright: there, orientation belongs to the drawing, not
+		to the reading.
+	*/
+	function OwnerRotation(mViewAs,side) {
+		return mViewAs * side < 0 ? 180 : 0;
+	}
 
 	View.Game.cbJanggiPieceStyle = function(modifier) {
 		var westernSheet = this.mViewOptions.fullPath + "/res/janggi/janggi-pieces-sprites-western.png";
@@ -98,6 +124,8 @@
 				},
 			},
 		};
+		style["1"]["default"][CHARACTER_SKIN] = { rotate: OwnerRotation(this.mViewAs,1) };
+		style["-1"]["default"][CHARACTER_SKIN] = { rotate: OwnerRotation(this.mViewAs,-1) };
 		style["default"][WESTERN_SKIN] = { file: westernSheet };
 		for(var aspect in CLIPX)
 			style[aspect] = { "2d": { clipx: CLIPX[aspect] } };
