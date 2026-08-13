@@ -2,17 +2,44 @@
 	Janggi pieces: octagonal counters, Cho (green) at the bottom, Han (red)
 	on the other side, in the three traditional sizes.
 
-	Sprite sheets come from res/janggi/make-sprites.py and follow the Xiangqi
-	layout: seven 300x300 cells, row 0 for side 1 and row 1 for side -1 in
-	the 2D sheet, one row of bare glyphs per side for the 3D face texture.
-	The token mesh, its bump map and the plain background are shared with
-	Xiangqi rather than duplicated.
+	Three sheets, all 7 columns x 2 rows of 300px cells, row 0 for side 1 and
+	row 1 for side -1:
+
+	  janggi-pieces-sprites.png          2D, the counters as they are played
+	  janggi-pieces-sprites-western.png  2D, same counters with pictograms
+	  janggi-pieces-sprites-glyphs.png   3D, the bare characters
+
+	Shogi gets away with ONE row per sheet because there its two armies are
+	identical and ownership is shown by orientation, so shogi-set-view.js can
+	re-use a single row and rotate it (see the note in its mnemonic style).
+	That does not transfer here: Cho and Han differ by COLOUR, which a 2D
+	sprite cannot be given at draw time, and on two of the seven pieces by the
+	character itself (楚/漢 and 卒/兵). Hence two rows on the 2D sheets.
+
+	The 3D sheet is a different matter. base-view.js paints a patternFill
+	channel by flooding the canvas with a colour and masking it with the image
+	(destination-in), so it reads nothing but the alpha: the old playera and
+	playerb sheets carried a green and a red copy of glyphs that were then
+	repainted anyway, and five of their seven columns were identical. They are
+	now one sheet, the row picked by the per-side clipping below and the
+	colour supplied by the style.
+
+	Orientation holds in every skin when the viewer switches side. In 2D the
+	view-switch only remaps cell positions and no rotation is ever applied, so
+	characters stay upright for whoever is reading. In 3D the camera moves,
+	and base-view.js already turns each piece by 180 degrees when
+	mViewAs * side < 0, which is the physical convention: each player reads
+	his own pieces the right way up, as across a real board. The wall skin
+	pins rotate to 0 in janggi-view.js, a vertical board being read from one
+	side only. Nothing here needs the shogi rotate trick.
 */
 
 (function() {
 
 	var FLAT_CANVAS_WIDTH = 1024 ;
 	var FLAT_CANVAS_HEIGHT = 1024 ;
+
+	var GLYPH_SHEET = "/res/janggi/janggi-pieces-sprites-glyphs.png";
 
 	var TOKEN_BGCOLOR = "rgb(243,226,191)"; // ivory, as the counters are
 
@@ -79,21 +106,20 @@
 
 	var style3D = {
 
+		/*
+			Only the clipping row and the fill colour change from one side to
+			the other. base-view.js paints a patternFill texture by flooding
+			the canvas with the colour and masking it with the image
+			(destination-in), so the sheet is read as a pure alpha mask and
+			one file serves both camps - the green and the red live here, in
+			the style, not in the pixels.
+		*/
 		'1': {
 			'default': {
 				'materials': {
 					'piecetop': {
 						'channels': {
-							'bump':{
-								'texturesImg': {
-									'bumpTexturePattern': "/res/janggi/janggi-pieces-sprites-playera.png",
-								}
-							},
 							'diffuse': {
-								'texturesImg': {
-									'mainDiffuse': "/res/xiangqi/whitebg.png",
-									'faceDiffuse': "/res/janggi/janggi-pieces-sprites-playera.png",
-								},
 								'patternFill': {
 									'faceDiffuse': "rgba(11,102,58,1)",  // Cho green
 								},
@@ -108,15 +134,14 @@
 				'materials': {
 					'piecetop': {
 						'channels': {
-							'bump':{
-								'texturesImg': {
-									'bumpTexturePattern': "/res/janggi/janggi-pieces-sprites-playerb.png",
-								}
+							'bump': {
+								'clipping': {
+									'bumpTexturePattern': { y: 300 },
+								},
 							},
 							'diffuse': {
-								'texturesImg': {
-									'mainDiffuse': "/res/xiangqi/whitebg.png",
-									'faceDiffuse': "/res/janggi/janggi-pieces-sprites-playerb.png",
+								'clipping': {
+									'faceDiffuse': { y: 300 },      // second row: Han
 								},
 								'patternFill': {
 									'faceDiffuse': "rgba(176,32,39,1)",  // Han red
@@ -156,6 +181,7 @@
 							size: { cx: 512, cy: 512 },
 							texturesImg: {
 								'bumpTexture': "/res/xiangqi/piecebump.jpg",
+								'bumpTexturePattern': GLYPH_SHEET,
 							},
 							'clipping': {
 								'bumpTexturePattern': {
@@ -170,6 +196,12 @@
 						},
 						'diffuse':{
 							size: { cx: FLAT_CANVAS_WIDTH, cy: FLAT_CANVAS_HEIGHT },
+							// painted in this order: the ivory ground first,
+							// the character on top of it
+							texturesImg: {
+								'mainDiffuse': "/res/xiangqi/whitebg.png",
+								'faceDiffuse': GLYPH_SHEET,
+							},
 							'clipping': {
 								'faceDiffuse': {
 									y:0,

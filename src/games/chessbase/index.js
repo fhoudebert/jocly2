@@ -3164,8 +3164,7 @@ exports.games = (function () {
 								"smoothedfilegeo|0|/res/xiangqi/token.js",
 								"image|/res/xiangqi/wood2.jpg",
 								"image|/res/xiangqi/whitebg.png",
-								"image|/res/janggi/janggi-pieces-sprites-playera.png",
-								"image|/res/janggi/janggi-pieces-sprites-playerb.png",
+								"image|/res/janggi/janggi-pieces-sprites-glyphs.png",
 								"image|/res/xiangqi/piecebump.jpg"
 							],
 							"world": config_view_skins_world_2,
@@ -3181,8 +3180,7 @@ exports.games = (function () {
 								"smoothedfilegeo|0|/res/xiangqi/token.js",
 								"image|/res/xiangqi/wood2.jpg",
 								"image|/res/xiangqi/whitebg.png",
-								"image|/res/janggi/janggi-pieces-sprites-playera.png",
-								"image|/res/janggi/janggi-pieces-sprites-playerb.png",
+								"image|/res/janggi/janggi-pieces-sprites-glyphs.png",
 								"image|/res/xiangqi/piecebump.jpg"
 							],
 							"world": config_view_skins_world_2,
