@@ -3198,6 +3198,17 @@ exports.games = (function () {
 								"image|/res/xiangqi/wood2.jpg",
 								"image|/res/janggi/janggi-pieces-sprites.png"
 							]
+						},
+						{
+							"name": "skin2dwestern",
+							"title": "2D Pictograms",
+							"3d": false,
+							"preload": [
+								"image|/res/images/cancel.png",
+								"image|/res/images/whitebg.png",
+								"image|/res/xiangqi/wood2.jpg",
+								"image|/res/janggi/janggi-pieces-sprites-western.png"
+							]
 						}
 					],
 					"animateSelfMoves": false,
@@ -9199,8 +9210,8 @@ exports.games = (function () {
 				"model": {
 					"title-en": "Tenjiku Shogi",
 					"summary": {
-						"en": "The 'exotic' shogi derived from Chu Shogi is the most extravagant and original of all historical variants.",
-						"fr": "Le shogi 'exotique' issu du chu shogi est la plus originale et extravagante des variantes historiques."
+						"en": "The 'exotic' shogi derived from Chu Shogi is the most extravagant of all historical variants.",
+						"fr": "Le shogi 'exotique' issu du chu shogi est la plus extravagante des variantes historiques."
 					},
 					"rules": {
 						"en": "res/rules/shogi/tenjiku-rules.html",

@@ -33,7 +33,18 @@
 		'jg-soldier':1800,
 	};
 
+	/*
+		The pictogram skin is the same sheet layout with the characters
+		replaced by silhouettes, so it only needs to point `file` elsewhere.
+		A skin override is merged over the "2d" spec of the very same piece
+		(jocly.xd-view.js: base, then "2d"/"3d", then options[skinName]),
+		which is why the clipx entries below carry no skin variant: the
+		columns are shared by both sheets.
+	*/
+	var WESTERN_SKIN = "skin2dwestern";
+
 	View.Game.cbJanggiPieceStyle = function(modifier) {
+		var westernSheet = this.mViewOptions.fullPath + "/res/janggi/janggi-pieces-sprites-western.png";
 		var style = {
 			"1": {
 				"default": {
@@ -60,6 +71,7 @@
 				},
 			},
 		};
+		style["default"][WESTERN_SKIN] = { file: westernSheet };
 		for(var aspect in CLIPX)
 			style[aspect] = { "2d": { clipx: CLIPX[aspect] } };
 		return $.extend(true,style,modifier);
