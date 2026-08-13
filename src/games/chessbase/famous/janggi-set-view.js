@@ -87,6 +87,12 @@
 		cbDefineView re-evaluates the styles on every view switch, which is
 		what makes the glyphs turn over when the seat changes.
 
+		The 3D wall skin used to opt out of it, with a rotate: 0 inherited
+		from the Xiangqi view. Nothing about that skin required it - it is the
+		flat 3D skin seen from an elevation of 89 degrees instead of 60, so
+		the half turn is just as visible and just as meaningful - and the
+		override is gone, leaving every character skin in agreement.
+
 		Scoped to CHARACTER_SKIN, and to the per-side blocks where the sheet
 		row is already chosen, so that the pictogram skin keeps its
 		silhouettes upright: there, orientation belongs to the drawing, not

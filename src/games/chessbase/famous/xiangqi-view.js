@@ -43,9 +43,6 @@
 						//display: this.cbDisplayPieceFn(this.cbXiangqiPieceStyle),
 						scale: [.5,.5,.5],
 					},
-					"skin3dwall": {
-						rotate: 0,
-					},
 					"skin3dwestern": {
 						display: this.cbXiangqiWesternPieceStyle()["default"]["3d"].display, 
 					},

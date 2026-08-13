@@ -23,6 +23,34 @@
 			return 0;
 	}
 	
+	/*
+		Which way up a counter is read.
+
+		base-view.js turns a 3D piece by half a turn when mViewAs * side < 0,
+		so that each player reads his own pieces the right way up and the
+		opponent's upside down, as across a physical board - the board itself
+		being rotated in place when the viewpoint changes (grid-board-view.js
+		mirrors the rank axis for player A and the file axis for player B,
+		and mirroring both is a half turn). It applies that to the "3d"
+		channel only, so 2D characters stayed upright for both camps.
+
+		The same half turn is given here to the 2D character skin, so a
+		counter reads the same way whichever skin is on. mViewAs is current at
+		style-build time: setViewOptions -> GameInitView -> cbDefineView
+		re-evaluates the styles on every view switch, which is what makes the
+		glyphs turn over when the seat changes.
+
+		Scoped to CHARACTER_SKIN, and to the per-side blocks where the sheet
+		row is already chosen, so that the western skins keep their
+		silhouettes upright: there, orientation belongs to the drawing rather
+		than to the reading.
+	*/
+	var CHARACTER_SKIN = "skin2d";
+
+	function OwnerRotation(mViewAs,side) {
+		return mViewAs * side < 0 ? 180 : 0;
+	}
+
 	View.Game.cbXiangqiPieceStyle = function(modifier) {
 		return $.extend(true,{
 			"1": {
@@ -30,12 +58,18 @@
 					"2d": {
 						clipy: 0,
 					},
+					"skin2d": {
+						rotate: OwnerRotation(this.mViewAs,1),
+					},
 				},
 			},
 			"-1": {
 				"default": {
 					"2d": {
 						clipy: 300,
+					},
+					"skin2d": {
+						rotate: OwnerRotation(this.mViewAs,-1),
 					},
 				},
 			},
