@@ -40,11 +40,12 @@ global.JocGame = {
     },
 };
 
-function loadGame(scripts) {
+function loadGame(scripts, setup) {
     global.Model = { Game: {}, Board: {}, Move: {} };
     scripts.forEach(f => eval.call(null, fs.readFileSync(BASE + f, 'utf8')));
     const g = Object.create(Model.Game);
     g.g = {};
+    if (setup) setup(g);
     g.GetRepeatOccurence = () => 0;
     g.CreateMove = function (m) { const mv = Object.create(Model.Move); Object.assign(mv, m); return mv; };
     g.InitGame();
@@ -87,6 +88,16 @@ function movesOf(board, sq) {
     const f = geo.PosByName(sq);
     return board.mMoves.filter(m => m.f === f && !m.pass)
         .map(m => (m.c != null ? 'x' : '') + N(m.t)).sort().join(' ');
+}
+
+function play(proto, game, board, from, to) {   // apply a legal move, return the new board
+    board.GenerateMoves(game);
+    const mv = board.mMoves.find(m => m.f === geo.PosByName(from) && m.t === geo.PosByName(to));
+    if (!mv) throw new Error('no legal move ' + from + to);
+    const next = Object.create(proto);
+    next.Init(game); next.CopyFrom(board); next.ApplyMove(game, mv); next.mWho = -board.mWho;
+    next.GenerateMoves(game);
+    return next;
 }
 
 let failures = 0;
@@ -162,12 +173,33 @@ check('P e9 (centre)', movesOf(b, 'e9'), 'd10 d9 e10 f10 f9');
 b = fromPieces(['P:1:d2', 'K:1:a1', 'K:-1:e9'], 1);
 check('P d2 (own palace: no backward diagonal)', movesOf(b, 'd2'), 'c2 d3 e2');
 
-console.log('\n=== bikjang / check detection ===');
-b = fromPieces(['K:1:d2', 'K:-1:e9'], 1);
-check('the General may not step onto the open file of the other',
-    movesOf(b, 'd2'), 'd1 d3');
-b = fromPieces(['K:1:d2', 'P:1:e5', 'K:-1:e9'], 1);
-check('...but may when something stands in between', movesOf(b, 'd2'), 'd1 d3 e2');
+console.log('\n=== bikjang: facing Generals, traditional rule ===');
+// Cho on d2, Han on e9, each with a spare move: a Soldier for Han, one for Cho.
+// Han also has a Chariot that can interpose on the e-file.
+const BIK = ['K:1:d2', 'P:1:a4', 'K:-1:e9', 'P:-1:a7', 'R:-1:a5'];
+b = fromPieces(BIK, 1);
+check('the General may step onto the open file of the other', movesOf(b, 'd2'), 'd1 d3 e2');
+
+let offer = play(Board, aGame, fromPieces(BIK, 1), 'd2', 'e2');   // Cho offers
+check('the offer itself is not the draw', !!offer.mFinished, false);
+check('bikjang seen, but only on this ply', [offer.bikjang, offer.bikjangPrev].join(), 'true,false');
+
+let answer = play(Board, aGame, offer, 'e9', 'd9');               // Han steps aside
+check('answered by moving the General: play goes on', !!answer.mFinished, false);
+answer = play(Board, aGame, offer, 'a5', 'e5');                   // Han interposes
+check('answered by interposing: play goes on', !!answer.mFinished, false);
+answer = play(Board, aGame, offer, 'a7', 'a6');                   // Han ignores it
+check('unanswered: the game is drawn', !!answer.mFinished, true);
+check('...and it is a draw, not a win', answer.mWinner, 0);
+
+// the two-ply window must survive the copy the search makes of every node
+const copy = Object.create(Board);
+copy.Init(aGame); copy.CopyFrom(answer);
+check('CopyFrom carries the bikjang state', [copy.bikjang, copy.bikjangPrev].join(), 'true,true');
+check('so does the signature', copy.GetSignature() != fromPieces(
+    ['K:1:e2', 'P:1:a4', 'K:-1:e9', 'P:-1:a6', 'R:-1:a5'], 1).GetSignature(), true);
+
+console.log('\n=== check detection ===');
 b = fromPieces(['K:1:e2', 'K:-1:a10', 'C:-1:e7', 'P:-1:e5'], 1);
 check('cannon e7 checks the general e2 over the soldier e5',
     b.cbGetAttackers(aGame, geo.PosByName('e2'), 1, 100).length, 1);
@@ -179,6 +211,9 @@ check('...nor over two screens',
     b.cbGetAttackers(aGame, geo.PosByName('e2'), 1, 100).length, 0);
 b = fromPieces(['K:1:e2', 'K:-1:a10', 'R:-1:e7', 'C:1:e5', 'P:1:e4'], 1);
 check('a cannon does not shield its own general from a chariot',
+    b.cbGetAttackers(aGame, geo.PosByName('e2'), 1, 100).length, 0);
+b = fromPieces(['K:1:e2', 'K:-1:e9'], 1);
+check('a General does not check the other one',
     b.cbGetAttackers(aGame, geo.PosByName('e2'), 1, 100).length, 0);
 
 console.log('\n=== pass ===');
@@ -223,8 +258,8 @@ function perftOf(game, proto, depth) {
     return perft(game, b, depth);
 }
 check('janggi perft(1)', perftOf(aGame, Board, 1), 31);
-check('janggi perft(2)', perftOf(aGame, Board, 2), 949);
-check('janggi perft(3)', perftOf(aGame, Board, 3), 29697);
+check('janggi perft(2)', perftOf(aGame, Board, 2), 961);
+check('janggi perft(3)', perftOf(aGame, Board, 3), 30353);
 
 console.log('\n=== no regression on the games sharing the patched mechanisms ===');
 const xGame = loadGame(['base-model.js', 'grid-geo-model.js', 'famous/xiangqi-model.js']);
@@ -234,6 +269,22 @@ check('xiangqi perft(3)', perftOf(xGame, Model.Board, 3), 79666);
 const tGame = loadGame(['base-model.js', 'grid-geo-model.js', 'locust-move-model.js', 'shogi/tenjiku-shogi-model.js']);
 check('tenjiku perft(1)', perftOf(tGame, Model.Board, 1), 74);
 check('tenjiku perft(2)', perftOf(tGame, Model.Board, 2), 5457);
+
+console.log('\n=== the other reading of bikjang: cbJanggiBikjang = "forbidden" ===');
+const fGame = loadGame(['base-model.js', 'grid-geo-model.js', 'famous/janggi-model.js'],
+    g => { g.cbJanggiBikjang = 'forbidden'; });
+const fBoard = Object.create(Model.Board);
+fGame.mInitial = {
+    turn: 1,
+    pieces: [{ s: 1, t: 7, p: fGame.cbVar.geometry.PosByName('d2'), m: true, r: 0 },
+             { s: -1, t: 7, p: fGame.cbVar.geometry.PosByName('e9'), m: true, r: 0 }],
+};
+fBoard.Init(fGame); fBoard.InitialPosition(fGame); fGame.mInitial = null;
+fBoard.GenerateMoves(fGame);
+check('the General may NOT step onto the open file',
+    fBoard.mMoves.filter(m => m.f == fGame.cbVar.geometry.PosByName('d2'))
+        .map(m => fGame.cbVar.geometry.PosName(m.t)).sort().join(' '), 'd1 d3');
+check('forbidden perft(2)', perftOf(fGame, Model.Board, 2), 949);
 
 console.log('\n' + (failures ? failures + ' FAILURE(S)' : 'all checks passed'));
 process.exit(failures ? 1 : 0);

@@ -14,6 +14,11 @@
 	var FLAG_CAPTURE_SELF = 0x800000; // special move to square occupied by friend
 	var FLAG_SPECIAL_CAPTURE = 0x2000000; // special move to square occupied by foe
 	var FLAG_THREAT = 0x1000000; // forces inclusion in threat graph
+	var FLAG_SCREEN_MOVE = 0x4000000; // move to if target pos empty AND a piece has been
+	                                  // jumped in the path (Janggi cannon, which - unlike
+	                                  // the Xiangqi one - needs a screen to move, not only
+	                                  // to capture). The mirror image of FLAG_MOVE, which
+	                                  // only applies as long as nothing has been jumped.
 	Model.Game.cbConstants = {
 		MASK: MASK,
 		FLAG_MOVE: FLAG_MOVE,
@@ -26,6 +31,7 @@
 		FLAG_CAPTURE_SELF: FLAG_CAPTURE_SELF,
 		FLAG_SPECIAL_CAPTURE: FLAG_SPECIAL_CAPTURE,
 		FLAG_THREAT: FLAG_THREAT,
+		FLAG_SCREEN_MOVE: FLAG_SCREEN_MOVE,
 	}
 	var USE_TYPED_ARRAYS = typeof Int32Array != "undefined";
 	
@@ -172,11 +178,20 @@
 						} else if(tg1 & (FLAG_CAPTURE | FLAG_THREAT)) {
 							item.t=typeName;
 							threat=true;
-						} else if(tg1 & FLAG_STOP)
+						} else if(tg1 & (FLAG_STOP | FLAG_SCREEN_MOVE))
+							// a screen-move square is not a threat, but it must stay in
+							// the path: a piece standing there is a screen for whatever
+							// comes next on the line
 							threat=true;
 						if(tg1 & FLAG_SCREEN_CAPTURE) {
 							$this.cbUseScreenCapture=true;
-							if(pType.ranking > $this.cbMaxScreenRanking)
+							// Only a FLYING hopper (Tenjiku's generals) can attack from
+							// behind more than one screen, and cbMaxScreenRanking is what
+							// turns that (expensive, and for a plain hopper plainly wrong)
+							// multi-screen walk on in cbCollectAttackersScreen. A ranked
+							// but non-flying hopper - the Janggi cannon, ranked so that no
+							// cannon jumps over another - must leave it at 0.
+							if(pType.flying && pType.ranking > $this.cbMaxScreenRanking)
 								$this.cbMaxScreenRanking = pType.ranking;
 							item.ts=typeName;
 							threat=true;
@@ -464,6 +479,10 @@
 				epTarget: !!pType.epTarget,
 				epCatch: !!pType.epCatch,
 				ranking: r,
+				// a hopper that keeps going behind its screen, jumping over any
+				// number of lower-ranked pieces (Tenjiku Shogi generals), as
+				// opposed to a plain one-screen hopper (Xiangqi/Janggi cannon)
+				flying: !!pType.flying,
 				antiTrade: pType.antiTrade || 0,
 			}
 		}
@@ -1127,6 +1146,13 @@
 								a: pType.abbrev,
 								ept: lastPos==piece.p || !pType.epTarget?undefined:lastPos,
 							});
+						else if((tg1 & FLAG_SCREEN_MOVE) && screen==true)
+							PromotedMoves(piece,{
+								f: piece.p,
+								t: pos1,
+								c: null,
+								a: pType.abbrev,
+							});
 						else if(tg1 & FLAG_SPECIAL)
 							this.specials.push({
 								f: piece.p,
@@ -1137,17 +1163,22 @@
 							});
 					} else if(tg1 & FLAG_SCREEN_CAPTURE) {
 						var piece1=this.pieces[index1];
+						var opaque=(piece.r && (piece.r|1) <= piece1.r); // blocking power too large
 						if(screen || tg1 & FLAG_CAPTURE) { // direct capture might also be possible
-							if(piece1.s!=piece.s)
+							// A flying hopper stops at the first piece it cannot jump over,
+							// but may still capture it (Tenjiku Shogi). A plain hopper may
+							// do neither: the Janggi cannon can neither jump over nor
+							// capture another cannon.
+							if(piece1.s!=piece.s && (pType.flying || !opaque))
 								PromotedMoves(piece,{
 									f: piece.p,
 									t: pos1,
 									c: piece1.i,
 									a: pType.abbrev,
 								});
-							if(!piece.r && screen) break; // normal hoppers terminate after first screen capture
+							if(!pType.flying && screen) break; // normal hoppers terminate after first screen capture
 						}
-						if(piece.r && (piece.r|1) <= piece1.r) break; // blocking power too large
+						if(opaque) break;
 						screen=true;
 					} else {
 						var piece1;

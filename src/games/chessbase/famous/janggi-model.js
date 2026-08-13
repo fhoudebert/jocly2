@@ -20,11 +20,11 @@
 	      Chariot       : 1 or 2 steps along a palace diagonal
 	      Cannon        : corner -> opposite corner, hopping the centre
 	      Soldier       : corner <-> centre, forward only
-	  - the Generals facing each other on an open file ("bikjang") is
-	    handled here like in Xiangqi, i.e. simply forbidden - the General
-	    graph gives each General a FLAG_CAPTURE_KING ray down its file, so
-	    a move ending in bikjang is rejected as self-check. That is the
-	    tournament rule; see BIKJANG_DRAW below for the casual one.
+	  - the Generals facing each other on an open file ("bikjang") is legal
+	    and amounts to a draw offer: if the opponent does not break it, the
+	    game is drawn. See cbJanggiBikjang below - the Xiangqi treatment
+	    (facing simply forbidden, the KBA tournament rule) is the other
+	    setting of the same switch.
 	  - a player with no legal move passes instead of being stalemated.
 
 	Two mechanisms of base-model.js are used here and nowhere else:
@@ -74,11 +74,15 @@
 	/*
 		General and Guard: one step along any line of the palace, i.e. any
 		orthogonal step that stays inside, plus the corner<->centre diagonals.
-		`royal` adds the bikjang ray: an unobstructed file to the other
-		palace lets a General "capture" the enemy General, which is what makes
-		facing Generals illegal.
+
+		`flyingGeneral` adds the Xiangqi ray: an unobstructed file to the
+		other palace lets a General "capture" the enemy General, which is what
+		makes facing Generals illegal. It is only built for the "forbidden"
+		reading of bikjang; under the traditional rule the two Generals do not
+		attack each other at all, facing is a legal draw offer, and General
+		and Guard end up with exactly the same graph.
 	*/
-	function PalaceStepGraph(royal) {
+	function PalaceStepGraph(flyingGeneral) {
 		var graph={};
 		for(var pos=0;pos<geometry.boardSize;pos++) {
 			graph[pos]=[];
@@ -92,7 +96,7 @@
 			PalaceDiagNeighbors(pos).forEach(function(pos1) {
 				graph[pos].push(TA([pos1 | c.FLAG_MOVE | c.FLAG_CAPTURE]));
 			});
-			if(royal)
+			if(flyingGeneral)
 				[[0,1],[0,-1]].forEach(function(delta) {
 					var direction=[], pos1=geometry.Graph(pos,delta);
 					while(pos1!=null) {
@@ -208,6 +212,39 @@
 
 	// ---- game parameters ---------------------------------------------------
 
+	/*
+		Bikjang (빅장), the facing Generals.
+
+		"draw"      - the traditional rule, and the default: a General may be
+		              moved onto the open file of the other. That is a draw
+		              offer; if the opponent breaks the alignment - moving his
+		              General away or interposing a piece - play goes on,
+		              otherwise the game is drawn. This is what
+		              Fairy-Stockfish calls janggitraditional (bikjangRule on,
+		              no material counting).
+		"forbidden" - the KBA tournament rule, and the Xiangqi treatment: the
+		              Generals may never face each other. Costs nothing to run
+		              (it is the flying-general ray of the General's graph)
+		              but is not what any Fairy-Stockfish Janggi variant does.
+
+		The sources differ on one point this does not model: Murray, Gollon
+		and Pritchard all state that only the player who is BEHIND IN MATERIAL
+		may offer bikjang. Fairy-Stockfish ignores it too. Whoever offers it,
+		the offer costs the game at most half a point, so the practical
+		difference is small.
+	*/
+	Model.Game.cbJanggiBikjang = "draw";
+
+	function Facing(board) { // Generals on the same file, nothing in between
+		var k1=board.kings[1], k2=board.kings[-1];
+		if(k1===undefined || k2===undefined) return false;
+		if(geometry.C(k1)!=geometry.C(k2)) return false;
+		var step=(k1<k2 ? geometry.width : -geometry.width);
+		for(var pos=k1+step; pos!=k2; pos+=step)
+			if(board.board[pos]>=0) return false;
+		return true;
+	}
+
 	// A player with no legal move is not stalemated: he passes (한수 쉼) and
 	// the game goes on. Kept as a game option because the sources disagree on
 	// whether one may pass at ANY time (Pritchard, Zillions) or only when
@@ -318,7 +355,7 @@
 					name: 'general',
 					aspect: 'jg-general',
 					isKing: true,
-					graph: PalaceStepGraph(true),
+					graph: PalaceStepGraph(this.cbJanggiBikjang=="forbidden"),
 					abbrev: 'K',
 					initial: [{s:1,p:13},{s:-1,p:76}], // centre of the palace
 				},
@@ -346,6 +383,44 @@
 	}
 
 	/*
+		Bikjang is a property of a POSITION, but the draw needs two: the one
+		where the offer was made, and the one after the answer. `bikjang`
+		holds the current position's state and `bikjangPrev` the one before,
+		which is all the two-ply window the rule needs.
+
+		Both have to travel with the board - CopyFrom is what the search uses
+		to build every node - and both belong in the signature, or two
+		positions identical on the board but one move apart in the offer
+		would share a transposition entry.
+	*/
+	var SuperInitialPosition = Model.Board.InitialPosition;
+	Model.Board.InitialPosition = function(aGame) {
+		SuperInitialPosition.apply(this,arguments);
+		this.bikjang = this.bikjangPrev = false;
+	}
+
+	var SuperCopyFrom = Model.Board.CopyFrom;
+	Model.Board.CopyFrom = function(aBoard) {
+		SuperCopyFrom.apply(this,arguments);
+		this.bikjang = aBoard.bikjang;
+		this.bikjangPrev = aBoard.bikjangPrev;
+	}
+
+	var SuperApplyMove = Model.Board.ApplyMove;
+	Model.Board.ApplyMove = function(aGame,move) {
+		var was = this.bikjang;
+		SuperApplyMove.apply(this,arguments);
+		this.bikjangPrev = was;
+		this.bikjang = (aGame.cbJanggiBikjang=="draw") && Facing(this);
+	}
+
+	var SuperGetSignature = Model.Board.GetSignature;
+	Model.Board.GetSignature = function() {
+		return SuperGetSignature.apply(this,arguments)
+			^ (this.bikjang ? 0x5bd1 : 0) ^ (this.bikjangPrev ? 0x2e07 : 0);
+	}
+
+	/*
 		Passing. A player who cannot move is not stalemated in Janggi, he
 		hands the turn over. The null move {f:p,t:p} goes through ApplyMove
 		and cbQuickApply untouched: board[f] is cleared then rewritten with
@@ -354,6 +429,14 @@
 	*/
 	var SuperGenerateMoves = Model.Board.GenerateMoves;
 	Model.Board.GenerateMoves = function(aGame) {
+		// The offer was made on the previous ply and the answer left the
+		// Generals facing: drawn, whatever either side can still play.
+		if(this.bikjang && this.bikjangPrev) {
+			this.mMoves = [];
+			this.mFinished = true;
+			this.mWinner = JocGame.DRAW;
+			return;
+		}
 		SuperGenerateMoves.apply(this,arguments);
 		if(aGame.cbJanggiPass && this.mMoves.length==0) {
 			// NOT this.check: that counter is fed by the previous ApplyMove and
