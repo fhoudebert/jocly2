@@ -1,0 +1,38 @@
+<p>Deux adversaires, <b>Cho</b> (vert, qui commence) et <b>Han</b> (rouge).</p>
+
+<p>Pour gagner, vous devez mettre échec et mat le Général adverse.</p>
+
+<h2>Plateau</h2>
+
+<p>Une grille de 9 × 10. Les pièces se placent sur les intersections, pas dans les cases. Chaque camp possède un <b>palais</b> de 3 × 3 marqué par ses diagonales. Contrairement aux échecs chinois, <b>il n'y a pas de rivière</b> : chaque colonne est continue d'un bout à l'autre du plateau.</p>
+
+<p style="text-align:center"><img style='max-width:100%' src="{GAME}/res/rules/janggi/janggi-emptyboard.png"/></p>
+
+<h2>Pièces</h2>
+
+<p>Pour chaque camp : 1 général, 2 gardes, 2 éléphants, 2 chevaux, 2 chars, 2 canons, 5 soldats. Le général démarre <b>au centre du palais</b>.</p>
+
+<p style="text-align:center"><img style='max-width:100%' src="{GAME}/res/janggi/janggi-pieces-sprites.png"/></p>
+
+<h2>Les diagonales du palais</h2>
+
+<p>Toutes les pièces sauf le cheval et l'éléphant peuvent emprunter les diagonales tracées dans un palais. Ces lignes ne relient que les coins au centre : le milieu de chaque bord du palais n'a donc aucune diagonale.</p>
+
+<h2>Déplacements</h2>
+
+<ul>
+<li><b>Général</b> et <b>garde</b> se déplacent d'un pas le long de n'importe quelle ligne du palais, et n'en sortent jamais. Ils bougent de la même façon ; seul le général peut être mis en échec.</li>
+<li><b>Char</b> : comme une tour. Dans un palais, il peut en plus glisser d'un ou deux pas sur une diagonale, d'un coin au centre, du centre à un coin, ou d'un coin au coin opposé.</li>
+<li><b>Canon</b> : comme un char, mais il <b>doit sauter exactement une pièce</b>, l'écran, à chaque déplacement — capture ou non. Il ne peut ni sauter par-dessus un autre canon ni le capturer. Sur une diagonale du palais, il ne peut aller que d'un coin au coin opposé, par-dessus ce qui occupe le centre. En début de partie aucun canon ne peut bouger.</li>
+<li><b>Cheval</b> : un pas orthogonal puis un pas diagonal vers l'extérieur, bloqué si le premier pas est occupé — exactement comme aux échecs chinois.</li>
+<li><b>Éléphant</b> : un pas orthogonal puis <b>deux</b> pas diagonaux vers l'extérieur. Chacun des deux points intermédiaires peut le bloquer. Il parcourt tout le plateau : aucune rivière ne l'arrête.</li>
+<li><b>Soldat</b> : un pas en avant ou de côté, jamais en arrière, et il capture de la même façon. Il n'y a pas de promotion au Janggi. Dans le palais adverse, il peut aussi emprunter les diagonales, tant qu'elles le font avancer.</li>
+</ul>
+
+<h2>Généraux face à face</h2>
+
+<p>Un général ne peut pas rester face au général adverse sur une colonne dégagée.</p>
+
+<h2>Passer son tour</h2>
+
+<p>Un joueur qui n'a aucun coup légal n'a pas perdu et n'est pas pat : il passe, et la partie continue.</p>
