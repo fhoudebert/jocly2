@@ -92,6 +92,10 @@
     <script src="../../dist/browser/jocly.js"></script>
     <script src="https://code.jquery.com/jquery-4.0.0.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao="
         crossorigin="anonymous"></script>
+    <!-- control.js is shared by control.html and control_fr.html: it picks the
+         translation of the game summaries from here (falling back to the lang
+         attribute of <html>, then to English) -->
+    <script>window.JOCLY_LANG = "fr";</script>
     <script src="js/control.js"></script>
 </body>
 

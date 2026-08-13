@@ -109,3 +109,16 @@ html,body {
 .game-descr-name {
     font-weight: bold;
 }
+
+/* localized one-liner under each game name, and under the title of the game
+   currently loaded */
+.game-descr-summary {
+    font-size: 0.85em;
+    color: #666;
+}
+
+#game-title .game-title-summary {
+    font-weight: normal;
+    font-size: 0.85em;
+    opacity: 0.8;
+}
