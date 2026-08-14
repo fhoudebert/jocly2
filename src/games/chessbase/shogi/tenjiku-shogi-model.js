@@ -341,19 +341,19 @@
 					initial: [{s:1,p:37},{s:1,p:42},{s:-1,p:213},{s:-1,p:218}] },
 
 				42: { name:'bishop-general', aspect:'sh-bishopgeneral', abbrev:'BG', fenAbbrev:'B!', value:12,
-					graph: LR(DIAG,flying), ranking: 1,
+					graph: LR(DIAG,flying), ranking: 1, flying: true,
 					initial: [{s:1,p:53},{s:1,p:58},{s:-1,p:197},{s:-1,p:202}] },
 
 				43: { name:'rook-general', aspect:'sh-rookgeneral', abbrev:'RG', fenAbbrev:'R!', value:14,
-					graph: LR(ORTH,flying), ranking: 1,
+					graph: LR(ORTH,flying), ranking: 1, flying: true,
 					initial: [{s:1,p:54},{s:1,p:57},{s:-1,p:198},{s:-1,p:201}] },
 
 				44: { name:'vice-general', aspect:'sh-vicegeneral', abbrev:'VG', fenAbbrev:'V!', value:16,
-					graph: MG(LR(DIAG,flying),AreaHook()), ranking: 3,
+					graph: MG(LR(DIAG,flying),AreaHook()), ranking: 3, flying: true,
 					initial: [{s:1,p:56},{s:-1,p:199}] },
 
 				45: { name:'great-general', aspect:'sh-greatgeneral', abbrev:'GG', fenAbbrev:'G!', value:20,
-					graph: LR(ADJ,flying), ranking: 5,
+					graph: LR(ADJ,flying), ranking: 5, flying: true,
 					initial: [{s:1,p:55},{s:-1,p:200}] },
 
 				46: { name:'free-eagle', aspect:'sh-freeeagle', abbrev:'FE', fenAbbrev:'Q!', value:11,
@@ -473,16 +473,16 @@
 					graph: MG(this.cbQueenGraph(geometry),SR(JUMP2),SR(DIAG,hitrun)) },
 
 				82: { name:'bishop-general2', aspect:'sh-promotion-bishgen', abbrev:'+HF', fenAbbrev:'+H!', value:12,
-					graph: LR(DIAG,flying), ranking: 1 },
+					graph: LR(DIAG,flying), ranking: 1, flying: true },
 
 				83: { name:'rook-general2', aspect:'sh-promotion-rookgen', abbrev:'+SE', fenAbbrev:'+D!', value:14,
-					graph: LR(ORTH,flying), ranking: 1 },
+					graph: LR(ORTH,flying), ranking: 1, flying: true },
 
 				84: { name:'vice-general2', aspect:'sh-promotion-vicegen', abbrev:'+BG', fenAbbrev:'+B!', value:16,
-					graph: MG(LR(DIAG,flying),AreaHook()), ranking: 3 },
+					graph: MG(LR(DIAG,flying),AreaHook()), ranking: 3, flying: true },
 
 				85: { name:'great-general2', aspect:'sh-promotion-greatgen', abbrev:'+RG', fenAbbrev:'+R!', value:20,
-					graph: LR(ADJ,flying), ranking: 5 },
+					graph: LR(ADJ,flying), ranking: 5, flying: true },
 
 				86: { name:'fire-demon2', aspect:'sh-promotion-demon', abbrev:'+WB', fenAbbrev:'+W', value:40,
 					graph: MG(LR(DEMON_SLIDE,burning),AreaHook()) },

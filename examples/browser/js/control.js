@@ -1,5 +1,36 @@
 
 /*
+ * Language of this page. control.html and control_fr.html share this script,
+ * so the page says which one it is: window.JOCLY_LANG if set, otherwise the
+ * lang attribute of <html> ("fr-CA" and the like being cut down to "fr").
+ */
+function PageLang() {
+    var lang = window.JOCLY_LANG ||
+        (document.documentElement.getAttribute("lang") || "en");
+    return lang.toLowerCase().split("-")[0];
+}
+
+/*
+ * Reads a translatable manifest field. Game manifests give summary as
+ * { en: "...", fr: "..." }, so printing it straight would show
+ * "[object Object]". Falls back to English, then to whatever translation
+ * exists, and passes plain strings through untouched.
+ */
+function Localized(field) {
+    if(field == null)
+        return "";
+    if(typeof field == "string")
+        return field;
+    var lang = PageLang();
+    if(field[lang])
+        return field[lang];
+    if(field.en)
+        return field.en;
+    var first = Object.keys(field)[0];
+    return first ? field[first] : "";
+}
+
+/*
  * Displays winner
  */
 function NotifyWinner(winner) {
@@ -147,7 +178,11 @@ $(document).ready(function () {
         // get game configuration to setup control UI
         match.getConfig()
             .then( (config) => {
-                $("#game-title").show().text(config.model["title-en"]);
+                // titles are English-only in the manifests, so the summary is
+                // what carries the game's name in the reader's language
+                $("#game-title").show().empty()
+                    .append($("<div>").text(config.model["title-en"]))
+                    .append($("<div>").addClass("game-title-summary").text(Localized(config.model.summary)));
                 $("#close-games span").show();
                 $("#game-status").show();
 
@@ -425,7 +460,7 @@ $(document).ready(function () {
                                     backgroundImage: "url('"+game.thumbnail+"')"
                                 })
                                 .append($("<div>").addClass("game-descr-name").text(game.title))
-                                .append($("<div>").addClass("game-descr-summary").text(game.summary))
+                                .append($("<div>").addClass("game-descr-summary").text(Localized(game.summary)))
                                 .on("click",()=>{
                                     var url0 = window.location;
                                     var url = url0.origin + url0.pathname + "?game=" + game.gameName;

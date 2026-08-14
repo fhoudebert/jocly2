@@ -43,6 +43,12 @@
 						//display: this.cbDisplayPieceFn(this.cbXiangqiPieceStyle),
 						scale: [.5,.5,.5],
 					},
+					/*
+						The one character skin that does not turn a counter
+						over when its owner sits opposite the viewer, so that
+						a board where every character reads the right way up
+						stays available to players who prefer it.
+					*/
 					"skin3dwall": {
 						rotate: 0,
 					},

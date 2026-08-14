@@ -1,0 +1,116 @@
+<style>
+	table.jg-pieces {
+		border-collapse: collapse;
+		margin: 12px 0;
+	}
+	table.jg-pieces th, table.jg-pieces td {
+		border-bottom: 1px solid #ccc;
+		padding: 6px 12px 6px 0;
+		text-align: left;
+		vertical-align: middle;
+	}
+	.jg-icon {
+		display: inline-block;
+		width: 40px;
+		height: 40px;
+		vertical-align: middle;
+		background-repeat: no-repeat;
+		/* Les deux planches contiennent --jg-cols colonnes sur 2 rangées de
+		   cellules carrées, la rangée 0 pour Cho et la rangée 1 pour Han.
+		   Seul --jg-col change d'une pièce à l'autre : la page des règles est
+		   donc dessinée avec les sprites mêmes du plateau, sans fichiers
+		   d'icônes séparés à maintenir. */
+		--jg-cols: 7;
+		background-size: calc(var(--jg-cols) * 100%) 200%;
+		background-position-x: calc(var(--jg-col) / (var(--jg-cols) - 1) * 100%);
+	}
+	.jg-char  { background-image: url({GAME}/res/janggi/janggi-pieces-sprites.png); }
+	.jg-picto { background-image: url({GAME}/res/janggi/janggi-pieces-sprites-western.png); }
+	.jg-cho { background-position-y: 0; }
+	.jg-han { background-position-y: 100%; }
+	/* indice de colonne de chaque pièce dans les deux planches */
+	.jg-general  { --jg-col: 0; }
+	.jg-guard    { --jg-col: 1; }
+	.jg-horse    { --jg-col: 2; }
+	.jg-elephant { --jg-col: 3; }
+	.jg-chariot  { --jg-col: 4; }
+	.jg-cannon   { --jg-col: 5; }
+	.jg-soldier  { --jg-col: 6; }
+</style>
+
+<p>Le janggi (장기), ou échecs coréens, oppose <b>Cho</b> (vert, parfois bleu, qui a le trait) à <b>Han</b> (rouge). La victoire s'obtient en mettant le général adverse échec et mat.</p>
+
+<h2>Plateau</h2>
+
+<p>Une grille de 9 lignes verticales sur 10 horizontales. Les pièces se placent sur les 90 intersections, et non dans les cases. Chaque camp possède son <b>palais</b> de 3 sur 3, parcouru par quatre diagonales reliant les coins à la position centrale. Contrairement au xiangqi, <b>il n'y a pas de rivière</b> : chaque colonne est continue d'un bout à l'autre du plateau.</p>
+
+<p style="text-align:center"><img style='max-width:100%' src="{GAME}/res/rules/janggi/janggi-emptyboard.png"/></p>
+
+<h2>Les pièces</h2>
+
+<p>Les pièces sont traditionnellement des jetons octogonaux de trois tailles, portant des hanja. Les deux camps écrivent les mêmes caractères, sauf sur le général et le soldat. La seconde icône de chaque ligne est la même pièce dans la skin <b>2D Pictogrammes</b>, pour qui ne lit pas les caractères.</p>
+
+<table class="jg-pieces">
+<tr><th>Cho</th><th>Han</th><th>Pièce</th><th>Déplacement</th></tr>
+
+<tr>
+<td><span class="jg-icon jg-char jg-cho jg-general"></span><span class="jg-icon jg-picto jg-cho jg-general"></span></td>
+<td><span class="jg-icon jg-char jg-han jg-general"></span><span class="jg-icon jg-picto jg-han jg-general"></span></td>
+<td><b>Général</b> (楚 / 漢)</td>
+<td>Une intersection par tour le long de n'importe quelle ligne du palais, diagonales comprises. Il démarre sur l'intersection <b>centrale</b> du palais et ne peut jamais en sortir.</td>
+</tr>
+
+<tr>
+<td><span class="jg-icon jg-char jg-cho jg-guard"></span><span class="jg-icon jg-picto jg-cho jg-guard"></span></td>
+<td><span class="jg-icon jg-char jg-han jg-guard"></span><span class="jg-icon jg-picto jg-han jg-guard"></span></td>
+<td><b>Garde</b> (士)</td>
+<td>Exactement comme le général, et aussi confiné que lui. Les deux gardes encadrent le général au départ et constituent sa protection principale.</td>
+</tr>
+
+<tr>
+<td><span class="jg-icon jg-char jg-cho jg-horse"></span><span class="jg-icon jg-picto jg-cho jg-horse"></span></td>
+<td><span class="jg-icon jg-char jg-han jg-horse"></span><span class="jg-icon jg-picto jg-han jg-horse"></span></td>
+<td><b>Cavalier</b> (馬)</td>
+<td>Un pas orthogonal puis un pas en diagonale vers l'extérieur, sans sauter : il est bloqué si une pièce occupe le premier pas. Identique au cavalier du xiangqi.</td>
+</tr>
+
+<tr>
+<td><span class="jg-icon jg-char jg-cho jg-elephant"></span><span class="jg-icon jg-picto jg-cho jg-elephant"></span></td>
+<td><span class="jg-icon jg-char jg-han jg-elephant"></span><span class="jg-icon jg-picto jg-han jg-elephant"></span></td>
+<td><b>Éléphant</b> (象)</td>
+<td>Un pas orthogonal puis <b>deux</b> intersections en diagonale au-delà, arrivant au coin opposé d'un rectangle de 2 sur 3. Chacun des deux points intermédiaires peut le bloquer. Aucune rivière ne le confine : il prend une part active à l'attaque.</td>
+</tr>
+
+<tr>
+<td><span class="jg-icon jg-char jg-cho jg-chariot"></span><span class="jg-icon jg-picto jg-cho jg-chariot"></span></td>
+<td><span class="jg-icon jg-char jg-han jg-chariot"></span><span class="jg-icon jg-picto jg-han jg-chariot"></span></td>
+<td><b>Chariot</b> (車)</td>
+<td>Comme la tour des échecs occidentaux, et aussi le long des diagonales du palais, mais seulement en ligne droite. C'est la pièce la plus puissante du jeu.</td>
+</tr>
+
+<tr>
+<td><span class="jg-icon jg-char jg-cho jg-cannon"></span><span class="jg-icon jg-picto jg-cho jg-cannon"></span></td>
+<td><span class="jg-icon jg-char jg-han jg-cannon"></span><span class="jg-icon jg-picto jg-han jg-cannon"></span></td>
+<td><b>Canon</b> (包)</td>
+<td>Il saute par-dessus une pièce et une seule, alliée ou ennemie, à n'importe quelle distance, et se pose ou capture au-delà. Le saut est nécessaire <b>pour se déplacer autant que pour capturer</b>. La pièce intermédiaire ne peut pas être un autre canon, et un canon ne peut capturer un canon ; aucun canon ne peut jouer au premier coup de la partie. Sur une diagonale du palais, il va d'un coin au coin opposé, par-dessus ce qui occupe le centre.</td>
+</tr>
+
+<tr>
+<td><span class="jg-icon jg-char jg-cho jg-soldier"></span><span class="jg-icon jg-picto jg-cho jg-soldier"></span></td>
+<td><span class="jg-icon jg-char jg-han jg-soldier"></span><span class="jg-icon jg-picto jg-han jg-soldier"></span></td>
+<td><b>Soldat</b> (卒 / 兵)</td>
+<td>Un pas en avant ou sur le côté, jamais en arrière, et il capture de la même façon. Il n'y a pas de promotion au janggi ; parvenu sur la dernière ligne, le soldat ne peut plus que se déplacer latéralement. Dans le palais ennemi, il emprunte aussi les diagonales, tant qu'elles le font avancer.</td>
+</tr>
+</table>
+
+<h2>Les diagonales du palais</h2>
+
+<p>Toutes les pièces sauf le cavalier et l'éléphant peuvent emprunter les diagonales tracées dans un palais. Ces lignes ne relient que les coins à la position centrale : le milieu de chaque bord du palais n'a donc aucune diagonale.</p>
+
+<h2>Le bikjang : les généraux face à face</h2>
+
+<p>Un joueur peut décider de réaliser un mouvement qui mette les deux généraux face à face sans pièce intermédiaire, situation appelée <b>bikjang</b>. L'autre joueur doit alors rompre l'alignement — en éloignant son général ou en interposant une pièce — sinon la partie est nulle. Cette règle diffère de celle du xiangqi, où il est illégal de mettre les généraux face à face.</p>
+
+<h2>Passer son tour</h2>
+
+<p>Le pat n'existe pas au janggi : un joueur qui n'a aucun coup légal n'a pas perdu, il passe son tour en laissant son général à sa position, et la partie continue.</p>

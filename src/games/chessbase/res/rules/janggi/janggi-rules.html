@@ -1,0 +1,115 @@
+<style>
+	table.jg-pieces {
+		border-collapse: collapse;
+		margin: 12px 0;
+	}
+	table.jg-pieces th, table.jg-pieces td {
+		border-bottom: 1px solid #ccc;
+		padding: 6px 12px 6px 0;
+		text-align: left;
+		vertical-align: middle;
+	}
+	.jg-icon {
+		display: inline-block;
+		width: 40px;
+		height: 40px;
+		vertical-align: middle;
+		background-repeat: no-repeat;
+		/* Both sheets hold --jg-cols columns x 2 rows of square cells, row 0
+		   being Cho and row 1 Han. Nothing but --jg-col changes from one piece
+		   to the next, so the rules page is drawn with the very sprites the
+		   board uses - no separate icon files to keep in sync. */
+		--jg-cols: 7;
+		background-size: calc(var(--jg-cols) * 100%) 200%;
+		background-position-x: calc(var(--jg-col) / (var(--jg-cols) - 1) * 100%);
+	}
+	.jg-char  { background-image: url({GAME}/res/janggi/janggi-pieces-sprites.png); }
+	.jg-picto { background-image: url({GAME}/res/janggi/janggi-pieces-sprites-western.png); }
+	.jg-cho { background-position-y: 0; }
+	.jg-han { background-position-y: 100%; }
+	/* column index of each piece within both sheets */
+	.jg-general  { --jg-col: 0; }
+	.jg-guard    { --jg-col: 1; }
+	.jg-horse    { --jg-col: 2; }
+	.jg-elephant { --jg-col: 3; }
+	.jg-chariot  { --jg-col: 4; }
+	.jg-cannon   { --jg-col: 5; }
+	.jg-soldier  { --jg-col: 6; }
+</style>
+
+<p>Janggi (장기) is the chess played in Korea. Two players, <b>Cho</b> (green, moves first) and <b>Han</b> (red). To win, you must checkmate your opponent's General.</p>
+
+<h2>Board</h2>
+
+<p>A 9 &times; 10 grid. Pieces stand on the 90 intersections, not in the squares. Each side has a 3 &times; 3 <b>palace</b> crossed by four diagonal lines joining its corners to its centre. Unlike Chinese chess, <b>there is no river</b>: every file runs unbroken from one end of the board to the other.</p>
+
+<p style="text-align:center"><img style='max-width:100%' src="{GAME}/res/rules/janggi/janggi-emptyboard.png"/></p>
+
+<h2>The pieces</h2>
+
+<p>Pieces are traditionally octagonal counters of three sizes, marked with hanja. Both camps write the same characters except on the General and the Soldier. The second icon of each row is the same piece in the <b>2D Pictograms</b> skin, for players who do not read the characters.</p>
+
+<table class="jg-pieces">
+<tr><th>Cho</th><th>Han</th><th>Piece</th><th>Moves</th></tr>
+
+<tr>
+<td><span class="jg-icon jg-char jg-cho jg-general"></span><span class="jg-icon jg-picto jg-cho jg-general"></span></td>
+<td><span class="jg-icon jg-char jg-han jg-general"></span><span class="jg-icon jg-picto jg-han jg-general"></span></td>
+<td><b>General</b> (楚 / 漢)</td>
+<td>One step along any line of the palace, diagonals included. It starts on the <b>centre</b> of the palace and may never leave it.</td>
+</tr>
+
+<tr>
+<td><span class="jg-icon jg-char jg-cho jg-guard"></span><span class="jg-icon jg-picto jg-cho jg-guard"></span></td>
+<td><span class="jg-icon jg-char jg-han jg-guard"></span><span class="jg-icon jg-picto jg-han jg-guard"></span></td>
+<td><b>Guard</b> (士)</td>
+<td>Exactly like the General, and just as confined. The two Guards start on either side of the General's file, and are its main protection.</td>
+</tr>
+
+<tr>
+<td><span class="jg-icon jg-char jg-cho jg-horse"></span><span class="jg-icon jg-picto jg-cho jg-horse"></span></td>
+<td><span class="jg-icon jg-char jg-han jg-horse"></span><span class="jg-icon jg-picto jg-han jg-horse"></span></td>
+<td><b>Horse</b> (馬)</td>
+<td>One step orthogonally, then one step diagonally outwards. Blocked if the first step is occupied - exactly as in Chinese chess.</td>
+</tr>
+
+<tr>
+<td><span class="jg-icon jg-char jg-cho jg-elephant"></span><span class="jg-icon jg-picto jg-cho jg-elephant"></span></td>
+<td><span class="jg-icon jg-char jg-han jg-elephant"></span><span class="jg-icon jg-picto jg-han jg-elephant"></span></td>
+<td><b>Elephant</b> (象)</td>
+<td>One step orthogonally, then <b>two</b> steps diagonally outwards, reaching the far corner of a 2 &times; 3 rectangle. Either intermediate point blocks it. With no river to hold it back, it takes an active part in the attack.</td>
+</tr>
+
+<tr>
+<td><span class="jg-icon jg-char jg-cho jg-chariot"></span><span class="jg-icon jg-picto jg-cho jg-chariot"></span></td>
+<td><span class="jg-icon jg-char jg-han jg-chariot"></span><span class="jg-icon jg-picto jg-han jg-chariot"></span></td>
+<td><b>Chariot</b> (車)</td>
+<td>Like a rook, and along the palace diagonals as well, one or two steps in a straight line. The strongest piece in the game.</td>
+</tr>
+
+<tr>
+<td><span class="jg-icon jg-char jg-cho jg-cannon"></span><span class="jg-icon jg-picto jg-cho jg-cannon"></span></td>
+<td><span class="jg-icon jg-char jg-han jg-cannon"></span><span class="jg-icon jg-picto jg-han jg-cannon"></span></td>
+<td><b>Cannon</b> (包)</td>
+<td>Jumps over exactly one piece, friend or foe, at any distance, and lands or captures beyond it. The screen is needed <b>to move as well as to capture</b>. It may neither jump over nor capture another Cannon, and no Cannon can move on the first turn of the game. On a palace diagonal it goes from one corner to the opposite one, over whatever stands on the centre.</td>
+</tr>
+
+<tr>
+<td><span class="jg-icon jg-char jg-cho jg-soldier"></span><span class="jg-icon jg-picto jg-cho jg-soldier"></span></td>
+<td><span class="jg-icon jg-char jg-han jg-soldier"></span><span class="jg-icon jg-picto jg-han jg-soldier"></span></td>
+<td><b>Soldier</b> (卒 / 兵)</td>
+<td>One step forward or sideways, never backwards, capturing the same way. There is no promotion in Janggi. Inside the enemy palace it may also follow the diagonals, as long as they take it forward.</td>
+</tr>
+</table>
+
+<h2>The palace diagonals</h2>
+
+<p>Every piece except the Horse and the Elephant may travel along the diagonal lines of a palace. Those lines only join the corners to the centre, so the middle of each palace edge has no diagonal.</p>
+
+<h2>Bikjang: facing Generals</h2>
+
+<p>A General may be moved onto the open file of the enemy General, with nothing in between. This is a draw offer: if the opponent does not break the alignment - moving his General away or interposing a piece - the game is drawn. This is where Janggi parts company with Chinese chess, which forbids facing Generals outright.</p>
+
+<h2>Passing</h2>
+
+<p>A player who has no legal move does not lose and is not stalemated: he passes, leaving his General where it stands, and the game goes on.</p>

@@ -94,7 +94,14 @@ function HandleModuleGames(modelOnly) {
 		// this is executed for every game module
 		var push = this.push.bind(this);
 		var moduleName = path.basename(file.path);
-		var moduleManifest = require(file.path);
+		// The manifest has to be read afresh: `gulp watch` runs this task
+		// again in the SAME node process, where require() would hand back the
+		// copy it cached on the first build. Edits to a module's index.js -
+		// a new game, a new skin, a changed level - would then be watched,
+		// trigger a rebuild, and be written out stale.
+		var manifestPath = require.resolve(file.path);
+		delete require.cache[manifestPath];
+		var moduleManifest = require(manifestPath);
 		var streams = [];
 		moduleManifest.games.forEach((game) => {
 			// this is executed for every game in the game module
