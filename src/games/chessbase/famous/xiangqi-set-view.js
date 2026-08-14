@@ -43,7 +43,9 @@
 		Scoped to CHARACTER_SKIN, and to the per-side blocks where the sheet
 		row is already chosen, so that the western skins keep their
 		silhouettes upright: there, orientation belongs to the drawing rather
-		than to the reading.
+		than to the reading. The 3D wall skin is the deliberate exception
+		among the character skins - xiangqi-view.js pins its rotate to 0 -
+		leaving one board where every character reads the right way up.
 	*/
 	var CHARACTER_SKIN = "skin2d";
 

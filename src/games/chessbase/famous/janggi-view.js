@@ -42,6 +42,18 @@
 					"3d": {
 						scale: [.5,.5,.5],
 					},
+					/*
+						The one character skin that does not turn a counter
+						over when its owner sits opposite the viewer. Every
+						other skin follows the physical convention - see the
+						note in janggi-set-view.js - which leaves one army
+						upside down at all times; this keeps a board where
+						all fourteen characters read the right way up, for
+						players who prefer it that way.
+					*/
+					"skin3dwall": {
+						rotate: 0,
+					},
 				},
 			}),
 		};
