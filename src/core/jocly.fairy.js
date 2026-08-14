@@ -498,7 +498,7 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 	/*
 	 * Resolves a level that may declare several candidate sub-levels under
 	 * "variants" (see config_model_levels_capablanca_expert in
-	 * src/games/chessbase/index.js) instead of a single static "variant"
+	 * src/games/chessbase/manifest/shared.js) instead of a single static "variant"
 	 * field - used for Jocly game modules whose "prelude" mechanism (see
 	 * prelude-model.js) lets the player choose between several distinct
 	 * variants sharing one board/geometry at the start of each game (e.g.
@@ -556,7 +556,7 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 	 * stuck "thinking" or ending the turn with no move, degrade to the
 	 * strongest level in this game's own config whose AI is not
 	 * fairy-stockfish (levels are conventionally declared weakest-first
-	 * throughout src/games/chessbase/index.js, so the scan is from the
+	 * throughout the chessbase manifest, so the scan is from the
 	 * end) and restart the machine search through the normal
 	 * JocGame.StartMachine() dispatch. Only engine-*initialization*
 	 * failures come here: an error in an individual search on a working
