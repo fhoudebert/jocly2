@@ -203,7 +203,7 @@ JocGame.prototype.AttachElement = function (element, options) {
 		else {
 		// The systemJSConfig block that used to be built here (with a
 		// `meta`/`globals` mapping for jQuery/THREE/xdview) configured
-		// SystemJS 0.x's "globals" feature, which doesn't just shim names —
+		// SystemJS 0.x's "globals" feature, which doesn't just shim names -
 		// per SystemJS's own docs, "referenced modules automatically
 		// become dependencies", i.e. it actually loaded jquery.js/three.js
 		// *before* executing jocly-xdview.js/the per-game -view.js file.

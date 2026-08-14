@@ -834,7 +834,7 @@ exports.games = {
 
 				"summary": {
 					"en": "FantasticXIII + Gigachess II - 16x16",
-					"fr": "FantasticXIII + Gigachess II — 16x16"
+					"fr": "FantasticXIII + Gigachess II - 16x16"
 				},
 				"rules": {
 					"en": "res/rules/fantasticXIII/bigorra-rules.html",
@@ -1326,7 +1326,7 @@ exports.games = {
 				"title-en": "Zanzibar S",
 				"summary": {
 					"en": "Extended Metamachy - 12x12",
-					"fr": "Metamachie étendu — 12x12"
+					"fr": "Metamachie étendu - 12x12"
 				},
 				"rules": {
 					"en": "res/rules/metamachy/zanzibar-s-rules.html",

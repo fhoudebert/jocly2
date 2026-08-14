@@ -9,7 +9,7 @@
  * shared global `exports` variable (mirroring how Workers reuse one
  * `exports` via importScripts()). That broke as soon as a module's
  * asynchronous callbacks (Promises resolved after the script finished
- * loading) tried to read `exports` again — by then the loader had already
+ * loading) tried to read `exports` again - by then the loader had already
  * restored the global to whatever it was before, since <script> execution
  * is not something we can observe finishing synchronously, and the next
  * load may have already reassigned it in the meantime.
@@ -20,9 +20,9 @@
  * than literally writing `eval(...)`, which per the language spec forces
  * the call to run against the global scope instead of the caller's local
  * scope). This gives each module its own real `exports` object captured
- * in a closure for its entire lifetime — including any Promise callbacks
+ * in a closure for its entire lifetime - including any Promise callbacks
  * that resolve long after the initial load, exactly like a real CommonJS
- * `require()` would — while still letting the module's code see every
+ * `require()` would - while still letting the module's code see every
  * other global (jQuery's `$`, `THREE`, etc.) exactly as a plain <script>
  * tag would, since indirect eval runs in the real global scope rather
  * than a `new Function(...)`'s isolated parameter list (which an earlier
@@ -67,15 +67,15 @@
 	// Some third-party scripts (three.js being the case that surfaced this)
 	// are UMD bundles whose own top-level wrapper checks
 	// `typeof exports === "object" && typeof module !== "undefined"` to
-	// decide whether to act as a CommonJS module — and if so, call their
+	// decide whether to act as a CommonJS module - and if so, call their
 	// factory with a *literal* `global` argument from their own bundler
 	// output (e.g. `factory(void 0, ...)`), not a real reference to the
 	// global object. Loading them through importScript() above satisfies
 	// the `typeof exports === "object"` half of that check (since we hand
 	// it an empty object) without satisfying what the script actually
 	// needs to attach itself to `window`, crashing instead. These scripts
-	// were never meant to be loaded as CommonJS to begin with — they're
-	// plain globals, exactly like a classic <script> tag — so load them
+	// were never meant to be loaded as CommonJS to begin with - they're
+	// plain globals, exactly like a classic <script> tag - so load them
 	// that way instead, via real <script> injection.
 	function loadGlobalScript(relativeUrl) {
 		var url = baseURL + relativeUrl;

@@ -275,7 +275,7 @@ if (window.JoclyXdViewCleanup)
 		}
 	}
 
-	// Adapt a loaded glTF (gltf.scene, a tree of Group/Mesh nodes — one Mesh
+	// Adapt a loaded glTF (gltf.scene, a tree of Group/Mesh nodes - one Mesh
 	// per primitive/material, per the glTF spec) into the same flat
 	// {geometry, materials} shape that the rest of this file expects from
 	// the old LegacyJSONLoader/THREE.Geometry pipeline. Concretely: merge
@@ -308,7 +308,7 @@ if (window.JoclyXdViewCleanup)
 		// confirmed empirically that GLTFLoader shares the instance for
 		// simple models (e.g. piece-v2.gltf, 4 primitives/2 materials) but
 		// clones it for others (e.g. mana-piece-smoothed2.gltf, 353
-		// primitives/2 materials — instance-based dedup left all 353 as
+		// primitives/2 materials - instance-based dedup left all 353 as
 		// "unique"). The three.js GLTFLoader issue tracker confirms
 		// materials get cloned in some cases (e.g. for skinned meshes).
 		// Dedupe by material *name* instead, which is robust regardless of
