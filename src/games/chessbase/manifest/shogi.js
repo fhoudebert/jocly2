@@ -898,8 +898,6 @@ exports.games = {
 		},
 		"viewScripts": config_view_js_108
 	},
-
-	/*
 	"tenjiku-shogi": {
 		"name": "tenjiku-shogi",
 		"modelScripts": modelScripts_tenjiku,
@@ -973,6 +971,5 @@ exports.games = {
 		},
 		"viewScripts": config_view_js_tenjiku
 	},
-	*/
 
 };
