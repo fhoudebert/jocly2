@@ -59,10 +59,17 @@ const snapshot = JSON.parse(fs.readFileSync(SNAPSHOT, "utf8"));
 check("the game list is unchanged, order included",
 	current.games.map((g) => g.name), snapshot.games.map((g) => g.name));
 
-// named per game, so a failure points at the entry that moved
-check("every game entry serialises exactly as before",
-	snapshot.games.filter((g, i) => !current.games[i] || current.games[i].digest !== g.digest)
-		.map((g) => g.name), []);
+// Keyed by name, not by position: inserting one game shifts every entry after
+// it, and comparing index by index would then report the whole tail as changed
+// instead of naming the one that actually moved.
+const before = new Map(snapshot.games.map((g) => [g.name, g.digest]));
+const after = new Map(current.games.map((g) => [g.name, g.digest]));
+check("no game entry has changed content",
+	[...before].filter(([name, d]) => after.has(name) && after.get(name) !== d)
+		.map(([name]) => name), []);
+check("no game has been added or removed",
+	[...[...after.keys()].filter((n) => !before.has(n)).map((n) => "+" + n),
+	 ...[...before.keys()].filter((n) => !after.has(n)).map((n) => "-" + n)], []);
 
 check("the whole list serialises exactly as before", current.digest, snapshot.digest);
 check("down to the same byte count", current.bytes, snapshot.bytes);
