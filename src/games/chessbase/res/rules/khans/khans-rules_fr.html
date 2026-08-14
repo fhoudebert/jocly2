@@ -1,0 +1,136 @@
+<style>
+	.khans-diagram {
+		display: block;
+		max-width: 272px;
+		width: 100%;
+		margin: 10px auto 10px auto;
+	}
+	.khans-setup {
+		display: block;
+		max-width: 340px;
+		width: 100%;
+		margin: 10px auto 20px auto;
+	}
+	table.khans-pieces {
+		border-collapse: collapse;
+		margin: 10px 0 10px 0;
+	}
+	table.khans-pieces th, table.khans-pieces td {
+		border: 1px solid #999;
+		padding: 4px 10px 4px 10px;
+		text-align: left;
+	}
+	.khans-legend {
+		font-style: italic;
+		text-align: center;
+	}
+	h1, h2, h3 {
+		clear: both;
+	}
+</style>
+
+<h1>Les échecs du Khan</h1>
+
+<p>Khan's Chess est un jeu asymétrique : le <b>Royaume</b> (les Blancs) est
+l'armée d'échecs habituelle, la <b>Horde</b> (les Noirs) est entièrement montée.
+Couch Tomato l'a conçu en 2023-2024 comme un successeur rééquilibré d'Orda Chess,
+dont il remplace les pions et la yourte par l'éclaireur et la khatoun.</p>
+
+<img class="khans-setup" src="{GAME}/res/rules/khans/khans-setup.svg" alt="Position de départ"/>
+
+<p>Les pièces de la Horde occupent la case de leur homologue des échecs : les
+lanciers aux coins, les kheshigs à côté, puis les archers, la khatoun et le khan
+au centre. Ses éclaireurs partent de la deuxième rangée et non de la première. Le
+Royaume joue toujours en premier.</p>
+
+<h2>La Horde</h2>
+
+<p>Toutes les unités de la Horde se déplacent comme un cavalier — l'armée mongole
+était une cavalerie — mais la plupart <b>ne capturent pas là où elles se
+déplacent</b>. On appelle ces pièces divergentes ; le pion des échecs en est
+l'exemple familier. Un lancier posté trois cases plus loin sur la colonne de votre
+dame l'attaque donc bel et bien, alors qu'un lancier à un saut de cavalier
+n'attaque rien du tout.</p>
+
+<table class="khans-pieces">
+	<tr><th>Pièce de la Horde</th><th>Homologue du Royaume</th><th>Déplacement</th><th>Capture / échec</th></tr>
+	<tr><td>Éclaireur (S)</td><td>Pion</td><td>cavalier vers l'avant</td><td>une case droit devant</td></tr>
+	<tr><td>Khatoun (T)</td><td>Dame</td><td>cavalier</td><td>roi</td></tr>
+	<tr><td>Archer monté (A)</td><td>Fou</td><td>cavalier</td><td>fou</td></tr>
+	<tr><td>Kheshig (H)</td><td>Cavalier</td><td>cavalier + roi</td><td>cavalier + roi</td></tr>
+	<tr><td>Lancier (L)</td><td>Tour</td><td>cavalier</td><td>tour</td></tr>
+</table>
+
+<p class="khans-legend">Sur les diagrammes ci-dessous, un disque vert marque une
+case où la pièce peut se rendre, un anneau rouge une case où elle peut
+capturer.</p>
+
+<h3>Éclaireur (S)</h3>
+
+<img class="khans-diagram" src="{GAME}/res/rules/khans/scout-moves.svg" alt="Déplacement de l'éclaireur"/>
+
+<p>L'éclaireur saute comme un cavalier, mais vers les quatre cases avant
+seulement, et il n'attaque qu'une seule case, droit devant lui. Cette attaque
+étroite en fait un bien moins bon défenseur que le pion — les éclaireurs ne
+forment pas de chaînes — mais il traverse l'échiquier deux fois plus vite et
+menace donc de promouvoir très tôt. Arrivé sur la dernière rangée, il promeut
+obligatoirement en khatoun.</p>
+
+<h3>Khatoun (T)</h3>
+
+<img class="khans-diagram" src="{GAME}/res/rules/khans/khatun-moves.svg" alt="Déplacement de la khatoun"/>
+
+<p>La khatoun se déplace comme un cavalier et capture comme un roi. Bien qu'elle
+occupe la case de la dame, c'est la pièce la plus faible de la rangée, et elle
+donne sa pleine mesure en défense. (La khatoun est l'épouse du khan.)</p>
+
+<h3>Archer monté (A)</h3>
+
+<img class="khans-diagram" src="{GAME}/res/rules/khans/archer-moves.svg" alt="Déplacement de l'archer"/>
+
+<p>L'archer se déplace comme un cavalier et capture en diagonale comme un fou.
+N'étant pas prisonnier d'une couleur de cases — il peut atteindre toute
+l'échiquier — il vaut plus que le fou qui lui fait face. Il enfile et fourchette
+à distance sans jamais souffrir du défaut du fou.</p>
+
+<h3>Kheshig (H)</h3>
+
+<img class="khans-diagram" src="{GAME}/res/rules/khans/kheshig-moves.svg" alt="Déplacement du kheshig"/>
+
+<p>Le kheshig combine le cavalier et le roi, et c'est la seule pièce de la Horde
+qui capture exactement là où elle se déplace. Il part de la case du cavalier mais
+c'est la pièce la plus forte du jeu, et la Horde garde en général ses kheshigs à
+la maison jusqu'à la finale : mater le khan tant qu'un kheshig le garde est très
+difficile. Les kheshigs formaient la garde impériale de la royauté mongole.</p>
+
+<h3>Lancier (L)</h3>
+
+<img class="khans-diagram" src="{GAME}/res/rules/khans/lancer-moves.svg" alt="Déplacement du lancier"/>
+
+<p>Le lancier se déplace comme un cavalier et capture en ligne comme une tour. Il
+est plus faible qu'une tour, et de plus en plus à mesure que l'échiquier se vide,
+puisqu'il ne peut pas le traverser d'un seul coup — mais il entre en jeu bien plus
+tôt qu'une tour, ce qui est la compensation de la Horde.</p>
+
+<h2>Règles</h2>
+
+<ol>
+	<li>Le Royaume (les Blancs) joue toujours en premier.</li>
+	<li>La seule pièce commune aux deux armées est le roi. Celui de la Horde
+		s'appelle le khan ; le nom et le symbole diffèrent pour des raisons
+		purement thématiques, il joue exactement comme un roi.</li>
+	<li>La Horde ne roque pas. Le Royaume roque comme aux échecs.</li>
+	<li>Les pions promeuvent en n'importe quelle pièce, comme aux échecs. Les
+		éclaireurs promeuvent uniquement en khatoun.</li>
+	<li><b>Campmate</b> : amener son propre roi sur la rangée opposée — la
+		huitième pour le Royaume, la première pour la Horde — gagne
+		immédiatement la partie. Le roi n'a évidemment pas le droit de s'y
+		mettre en échec : il faut prendre la rangée, pas seulement y marcher.</li>
+	<li><b>Le pat est une défaite</b> pour le joueur qui ne peut plus jouer, et
+		non une nulle comme aux échecs.</li>
+	<li>Tout le reste, y compris la répétition, est comme aux échecs.</li>
+</ol>
+
+<p>Les deux armées sont de force voisine : les pièces de la Horde sont
+individuellement malcommodes, mais elles se développent plus vite et les kheshigs
+dominent la finale.</p>

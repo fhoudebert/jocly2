@@ -1,6 +1,6 @@
 {
-	"bytes": 348302,
-	"digest": "be440d6a81520361",
+	"bytes": 351891,
+	"digest": "bd48d5f6242501ad",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -224,7 +224,7 @@
 		},
 		{
 			"name": "bigorra-chess",
-			"digest": "51b04f9204092c39"
+			"digest": "0533f9207fb94c86"
 		},
 		{
 			"name": "wild-tamerlane-chess",
@@ -248,7 +248,7 @@
 		},
 		{
 			"name": "zanzibar-s-chess",
-			"digest": "b54fd72c567d8416"
+			"digest": "dde028c32715a9b0"
 		},
 		{
 			"name": "team-mate-chess",
@@ -277,6 +277,10 @@
 		{
 			"name": "spartan-chess",
 			"digest": "7b867f2304d4da6f"
+		},
+		{
+			"name": "khans-chess",
+			"digest": "460c8f6cb15f7d1e"
 		},
 		{
 			"name": "scirocco-chess",

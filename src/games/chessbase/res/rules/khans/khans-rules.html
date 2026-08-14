@@ -1,0 +1,132 @@
+<style>
+	.khans-diagram {
+		display: block;
+		max-width: 272px;
+		width: 100%;
+		margin: 10px auto 10px auto;
+	}
+	.khans-setup {
+		display: block;
+		max-width: 340px;
+		width: 100%;
+		margin: 10px auto 20px auto;
+	}
+	table.khans-pieces {
+		border-collapse: collapse;
+		margin: 10px 0 10px 0;
+	}
+	table.khans-pieces th, table.khans-pieces td {
+		border: 1px solid #999;
+		padding: 4px 10px 4px 10px;
+		text-align: left;
+	}
+	.khans-legend {
+		font-style: italic;
+		text-align: center;
+	}
+	h1, h2, h3 {
+		clear: both;
+	}
+</style>
+
+<h1>Khan's Chess</h1>
+
+<p>Khan's Chess is an asymmetric game: the <b>Kingdom</b> (White) is the ordinary
+chess army, while the <b>Horde</b> (Black) is entirely mounted. It was designed by
+Couch Tomato in 2023-2024 as a rebalanced successor to Orda Chess, replacing that
+game's pawns and yurt with the scout and the khatun.</p>
+
+<img class="khans-setup" src="{GAME}/res/rules/khans/khans-setup.svg" alt="Starting position"/>
+
+<p>The Horde's pieces stand where their chess counterparts would: lancers in the
+corners, kheshigs beside them, archers next, khatun and khan in the middle. Its
+scouts start on the second rank rather than the first. The Kingdom always moves
+first.</p>
+
+<h2>The Horde</h2>
+
+<p>Every Horde unit moves like a knight - the Mongol army was cavalry - but most
+of them <b>capture differently from the way they move</b>. Pieces like that are
+called divergent; the chess pawn is the familiar example. So a lancer sitting
+three squares away from your queen on the same file is attacking it, while a
+lancer a knight's jump away is attacking nothing at all.</p>
+
+<table class="khans-pieces">
+	<tr><th>Horde piece</th><th>Kingdom counterpart</th><th>Moves</th><th>Captures / checks</th></tr>
+	<tr><td>Scout (S)</td><td>Pawn</td><td>forward knight</td><td>one square straight ahead</td></tr>
+	<tr><td>Khatun (T)</td><td>Queen</td><td>knight</td><td>king</td></tr>
+	<tr><td>Horse Archer (A)</td><td>Bishop</td><td>knight</td><td>bishop</td></tr>
+	<tr><td>Kheshig (H)</td><td>Knight</td><td>knight + king</td><td>knight + king</td></tr>
+	<tr><td>Lancer (L)</td><td>Rook</td><td>knight</td><td>rook</td></tr>
+</table>
+
+<p class="khans-legend">In the diagrams below, a green disc marks a square the
+piece can move to, a red ring a square it can capture on.</p>
+
+<h3>Scout (S)</h3>
+
+<img class="khans-diagram" src="{GAME}/res/rules/khans/scout-moves.svg" alt="Scout movement"/>
+
+<p>The scout jumps like a knight, but only to the four forward squares, and it
+attacks a single square straight ahead. That narrow attack makes it much worse
+than a pawn at defending - scouts cannot form chains - but it crosses the board
+in half the time, so it threatens promotion early. A scout reaching the last rank
+promotes, and can only become a khatun.</p>
+
+<h3>Khatun (T)</h3>
+
+<img class="khans-diagram" src="{GAME}/res/rules/khans/khatun-moves.svg" alt="Khatun movement"/>
+
+<p>The khatun moves as a knight and captures as a king. Despite occupying the
+queen's square she is the weakest piece of the back rank, and is at her best on
+defence. (A khatun is the khan's wife.)</p>
+
+<h3>Horse Archer (A)</h3>
+
+<img class="khans-diagram" src="{GAME}/res/rules/khans/archer-moves.svg" alt="Horse archer movement"/>
+
+<p>The archer moves as a knight and captures along the diagonals like a bishop.
+Because it is not colourbound - it can reach every square of the board - it is
+worth more than the bishop it faces. Archers fork and skewer at a distance while
+being impossible to trap by colour.</p>
+
+<h3>Kheshig (H)</h3>
+
+<img class="khans-diagram" src="{GAME}/res/rules/khans/kheshig-moves.svg" alt="Kheshig movement"/>
+
+<p>The kheshig combines the knight and the king, and is the one Horde piece that
+captures exactly where it moves. It starts on the knight's square but is the
+strongest unit in the game, and the Horde generally keeps its kheshigs at home
+until the endgame: mating the khan while a kheshig still guards him is very hard.
+The kheshigs were the imperial guard of the Mongol royalty.</p>
+
+<h3>Lancer (L)</h3>
+
+<img class="khans-diagram" src="{GAME}/res/rules/khans/lancer-moves.svg" alt="Lancer movement"/>
+
+<p>The lancer moves as a knight and captures along the ranks and files like a
+rook. It is weaker than a rook, and increasingly so as the board empties, since
+it cannot travel across the board in one move - but it enters play far earlier
+than a rook does, which is the Horde's compensation.</p>
+
+<h2>Rules</h2>
+
+<ol>
+	<li>The Kingdom (White) always moves first.</li>
+	<li>The only piece the two armies have in common is the king. The Horde's
+		king is called the khan; the different name and symbol are purely
+		thematic, and it plays exactly like a king.</li>
+	<li>The Horde cannot castle. The Kingdom castles as in chess.</li>
+	<li>Pawns promote to any piece, as in chess. Scouts promote to a khatun
+		only.</li>
+	<li><b>Campmate</b>: bringing your own king to the far rank - the eighth for
+		the Kingdom, the first for the Horde - wins the game immediately. As
+		ever, the king may not move into check to do it, so the far rank has to
+		be taken, not merely walked to.</li>
+	<li><b>Stalemate is a loss</b> for the player who cannot move, rather than a
+		draw as in chess.</li>
+	<li>Everything else, repetition included, is as in chess.</li>
+</ol>
+
+<p>The two armies are close in strength: the Horde's pieces are individually
+awkward, but they develop faster and the kheshigs dominate the endgame.</p>

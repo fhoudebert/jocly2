@@ -121,6 +121,45 @@ t.check("a kheshig move does not",
 
 /* ---------------- the rules page ---------------- */
 
+/*
+ * Which moves hop and which slide. grid-board-view.js works this out from the
+ * piece graphs, so the view does not need - and must not have - a hand-rolled
+ * cbMoveMidZ: an override would have to re-derive all of this, and the ones
+ * written before that code existed silently dropped the king's hop over the
+ * rook when castling. What is checked here is the outcome, on this game's own
+ * pieces, plus the fact that the view leaves it alone.
+ */
+console.log("\nmove animation");
+
+const view = fs.readFileSync(path.join(CHESSBASE, "famous", "khans-view.js"), "utf8");
+t.ok("the view does not override cbMoveMidZ", view.indexOf("cbMoveMidZ =") < 0);
+
+// lift the shared implementation out of grid-board-view.js and run it here:
+// loading the whole view layer would need a browser
+const gridView = fs.readFileSync(path.join(CHESSBASE, "grid-board-view.js"), "utf8");
+const from = gridView.indexOf("View.Board.cbMoveMidZ");
+let cursor = gridView.indexOf("{", from), depth = 0, to = cursor;
+for(; to < gridView.length; to++) {
+	if(gridView[to] === "{") depth++;
+	else if(gridView[to] === "}" && --depth === 0) { to++; break; }
+}
+const viewCtx = { View: { Board: {} }, console };
+require("vm").runInContext(gridView.slice(from, to), require("vm").createContext(viewCtx));
+const midZ = viewCtx.View.Board.cbMoveMidZ;
+const square = (name) => game.cbVar.geometry.PosByName(name);
+const hops = (abbrev, f, to_, extra) =>
+	midZ(game, Object.assign({ a: abbrev, f: square(f), t: square(to_), c: null }, extra), 0, 0) > 0;
+
+t.check("the kheshig hops on a knight move", hops("H", "d4", "e6"), true);
+t.check("and slides on a king step", hops("H", "d4", "d5"), false);
+t.check("the lancer hops when it moves", hops("L", "d4", "e6"), true);
+t.check("and slides when it captures down the file", hops("L", "d4", "d8"), false);
+t.check("the archer slides along its diagonal", hops("A", "d4", "g7"), false);
+t.check("the scout hops forward", hops("S", "d7", "e5"), true);
+t.check("and slides onto the square it takes", hops("S", "d7", "d6"), false);
+t.check("the king still hops over the rook when castling",
+	hops("K", "e1", "g1", { cg: 1 }), true);
+
 console.log("\nrules page resources");
 
 const entry = require(path.join(CHESSBASE, "manifest", "famous.js")).games["khans-chess"].config.model;
