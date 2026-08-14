@@ -3187,6 +3187,22 @@ exports.games = (function () {
 							"camera": config_view_skins_camera_2
 						},
 						{
+							"name": "skin3dwestern",
+							"title": "3D Western",
+							"3d": true,
+							"preload": [
+								"smoothedfilegeo|0|/res/ring-target.js",
+								"image|/res/images/cancel.png",
+								"smoothedfilegeo|0|/res/xiangqi/token.js",
+								"image|/res/xiangqi/wood2.jpg",
+								"image|/res/xiangqi/whitebg.png",
+								"image|/res/xiangqi/xiangqi-pieces-sprites-western-player.png",
+								"image|/res/xiangqi/piecebump.jpg"
+							],
+							"world": config_view_skins_world_2,
+							"camera": config_view_skins_camera
+						},
+						{
 							"name": "skin2d",
 							"title": "2D Classic",
 							"3d": false,

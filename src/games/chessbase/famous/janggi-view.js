@@ -54,6 +54,9 @@
 					"skin3dwall": {
 						rotate: 0,
 					},
+					"skin3dwestern": {
+						display: this.cbDisplayPieceFn(this.cbJanggiWesternPieceStyle3D),
+					},
 				},
 			}),
 		};

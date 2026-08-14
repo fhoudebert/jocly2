@@ -271,4 +271,60 @@
 
 	View.Game.cbJanggiPieceStyle3D = $.extend(true,{},View.Game.cbTokenPieceStyle3D,style3D);
 
+	/*
+		3D pictograms, at no cost in new artwork.
+
+		The silhouettes are Jocly's Xiangqi western set - the same file the 2D
+		pictogram sheet was cut from - and it happens to fit here without a
+		single change: seven columns in our order, 300px cells, and the alpha
+		is all that is read, the colour coming from the patternFill the
+		character style already sets per side.
+
+		Its one difference is that it holds a single row, the silhouettes
+		being the same for both camps where the characters are not (楚/漢,
+		卒/兵). So Han's clipping, which points at the second row of the
+		character sheet, is sent back to row 0 here.
+
+		This skin does NOT pin rotate: a piece whose owner sits opposite the
+		viewer turns over, as on a real board seen from the other side.
+	*/
+	var WESTERN_GLYPHS = "/res/xiangqi/xiangqi-pieces-sprites-western-player.png";
+
+	View.Game.cbJanggiWesternPieceStyle3D = $.extend(true,{},View.Game.cbJanggiPieceStyle3D,{
+		'default': {
+			'materials': {
+				'piecetop': {
+					'channels': {
+						'diffuse': {
+							'texturesImg': {
+								'faceDiffuse': WESTERN_GLYPHS,
+							},
+						},
+						'bump': {
+							'texturesImg': {
+								'bumpTexturePattern': WESTERN_GLYPHS,
+							},
+						},
+					},
+				},
+			},
+		},
+		'-1': {
+			'default': {
+				'materials': {
+					'piecetop': {
+						'channels': {
+							'diffuse': {
+								'clipping': { 'faceDiffuse': { y: 0 } },
+							},
+							'bump': {
+								'clipping': { 'bumpTexturePattern': { y: 0 } },
+							},
+						},
+					},
+				},
+			},
+		},
+	});
+
 })();
