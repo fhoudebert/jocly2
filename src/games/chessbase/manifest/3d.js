@@ -11,11 +11,62 @@ const {
 	config_view_defaultOptions, config_view_skins_preload, config_view_skins_world_lightPosition,
 	config_view_skins_world_skyLightPosition, config_view_sounds, config_model_levels_10,
 	config_model_levels_15, config_model_credits, config_view_skins_preload_4,
-	config_view_skins_4, modelScripts_16, config_view_skins_camera_targetBounds,
-	config_view_skins_5, config_view_js_16, modelScripts_24, modelScripts_space_spartan,
-	config_view_js_space_spartan, config_view_js_24, config_view_skins_camera_target,
-	modelScripts_26, config_view_js_26
+	config_view_skins_4, config_view_skins_camera_targetBounds, config_view_skins_5,
+	config_view_skins_camera_target
 } = require("./shared.js");
+
+// declarations only this family uses, lifted out of shared.js
+var modelScripts_16 = [
+	"base-model.js",
+	"multiplan-geo-model.js",
+	"3d/raumschach-model.js"
+]
+
+var config_view_js_16 = [
+	"base-view.js",
+	"multiplan-board-view.js",
+	"fairy-set-view.js",
+	"3d/raumschach-view.js"
+]
+
+var modelScripts_24 = [
+	"base-model.js",
+	"multiplan-geo-model.js",
+	"3d/3dchess-model.js"
+]
+
+var modelScripts_space_spartan = [
+	"base-model.js",
+	"multiplan-geo-model.js",
+	"3d/space-spartan-model.js"
+]
+
+var config_view_js_space_spartan = [
+	"base-view.js",
+	"multiplan-board-view.js",
+	"fairy-set-view.js",
+	"3d/space-spartan-view.js"
+]
+
+var config_view_js_24 = [
+	"base-view.js",
+	"multiplan-board-view.js",
+	"staunton-set-view.js",
+	"3d/3dchess-view.js"
+]
+
+var modelScripts_26 = [
+	"base-model.js",
+	"cubic-geo-model.js",
+	"3d/cubic-model.js"
+]
+
+var config_view_js_26 = [
+	"base-view.js",
+	"cubic-board-view.js",
+	"staunton-set-view.js",
+	"3d/cubic-view.js"
+]
 
 exports.games = {
 

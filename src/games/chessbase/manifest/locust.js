@@ -10,10 +10,73 @@
 const {
 	modelScripts, config_model_gameOptions, config_view_css, config_view_defaultOptions,
 	config_view_skins_world, config_view_skins_camera, config_view_sounds,
-	config_model_gameOptions_2, config_view_skins_2, modelScripts_101, modelScripts_102,
-	modelScripts_109, modelScripts_110, config_model_levels_15, config_view_js_101,
-	config_view_js_102, config_view_js_109, config_view_js_110
+	config_model_gameOptions_2, config_view_skins_2, config_model_levels_15
 } = require("./shared.js");
+
+// declarations only this family uses, lifted out of shared.js
+var modelScripts_101 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"fairy-piece-model.js",
+	"locust-move-model.js",
+	"locust/werewolf-model.js"
+]
+
+var modelScripts_102 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"fairy-piece-model.js",
+	"locust-move-model.js",
+	"locust/elven-model.js"
+]
+
+var modelScripts_109 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"fairy-piece-model.js",
+	"locust-move-model.js",
+	"locust/makromachy-model.js"
+]
+
+var modelScripts_110 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"fairy-piece-model.js",
+	"locust-move-model.js",
+	"locust/minjiku-shogi-model.js"
+]
+
+var config_view_js_101 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"multi-leg-view.js",
+	"locust/werewolf-view.js"
+]
+
+var config_view_js_102 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"multi-leg-view.js",
+	"locust/elven-view.js"
+]
+
+var config_view_js_109 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"multi-leg-view.js",
+	"locust/makromachy-view.js"
+]
+
+var config_view_js_110 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"multi-leg-view.js",
+	"locust/minjiku-shogi-view.js"
+]
 
 exports.games = {
 

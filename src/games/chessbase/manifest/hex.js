@@ -8,12 +8,86 @@
 
 const {
 	modelScripts, config_model_gameOptions, config_view_defaultOptions, config_view_skins_world,
-	config_view_sounds, config_model_levels_15, config_view_skins_preload_4, modelScripts_17,
-	config_view_css_2, config_view_skins_preload_6, config_view_skins_camera_3,
-	config_view_skins_7, config_view_skins_8, config_view_js_17, modelScripts_18,
-	config_view_js_18, modelScripts_19, config_view_js_19, modelScripts_20, config_view_js_20,
-	modelScripts_21, config_view_skins_preload_8, config_view_js_21
+	config_view_sounds, config_model_levels_15, config_view_skins_preload_4,
+	config_view_skins_preload_6, config_view_skins_camera_3, config_view_skins_6,
+	config_view_skins_7, config_view_skins_preload_8
 } = require("./shared.js");
+
+// declarations only this family uses, lifted out of shared.js
+var modelScripts_17 = [
+	"base-model.js",
+	"hex-geo-model.js",
+	"hex/glinski-model.js"
+]
+
+var config_view_css_2 = [
+	"chessbase.css",
+	"hex.css"
+]
+
+var config_view_skins_8 = [
+	config_view_skins_6,
+	config_view_skins_7
+]
+
+var config_view_js_17 = [
+	"base-view.js",
+	"hex-board-view.js",
+	"staunton-set-view.js",
+	"hex/glinski-view.js"
+]
+
+var modelScripts_18 = [
+	"base-model.js",
+	"hex-geo-model.js",
+	"hex/brusky-model.js"
+]
+
+var config_view_js_18 = [
+	"base-view.js",
+	"hex-board-view.js",
+	"staunton-set-view.js",
+	"hex/brusky-view.js"
+]
+
+var modelScripts_19 = [
+	"base-model.js",
+	"hex-geo-model.js",
+	"hex/devasa-model.js"
+]
+
+var config_view_js_19 = [
+	"base-view.js",
+	"hex-board-view.js",
+	"staunton-set-view.js",
+	"hex/devasa-view.js"
+]
+
+var modelScripts_20 = [
+	"base-model.js",
+	"hex-geo-model.js",
+	"hex/mccooey-model.js"
+]
+
+var config_view_js_20 = [
+	"base-view.js",
+	"hex-board-view.js",
+	"staunton-set-view.js",
+	"hex/mccooey-view.js"
+]
+
+var modelScripts_21 = [
+	"base-model.js",
+	"hex-geo-model.js",
+	"hex/shafran-model.js"
+]
+
+var config_view_js_21 = [
+	"base-view.js",
+	"hex-board-view.js",
+	"staunton-set-view.js",
+	"hex/shafran-view.js"
+]
 
 exports.games = {
 

@@ -9,15 +9,76 @@
 
 const {
 	modelScripts, config_model_gameOptions, config_model_levels_5,
-	config_model_levels_5_knightmate_expert, config_model_levels_5_antichess_expert,
-	config_model_levels_5_demi_expert, config_view_css, config_view_defaultOptions,
+	config_model_levels_knightmate_expert, config_model_levels_antichess_expert,
+	config_model_levels_demi_expert, config_view_css, config_view_defaultOptions,
 	config_view_skins_world, config_view_skins_camera, config_view_skins,
 	config_view_skins_camera_2, config_view_skins_preload_2, config_view_sounds, config_view_js,
-	config_model_gameOptions_2, config_view_skins_3, modelScripts_knightmate, config_model_rules,
-	config_model_credits, config_view_js_15, config_view_skins_preload_4, config_view_skins_4,
-	modelScripts_39, config_view_js_35, modelScripts_40, config_view_js_36, modelScripts_49,
-	config_view_js_44
+	config_model_gameOptions_2, config_view_skins_3, config_model_credits,
+	config_view_skins_preload_4, config_view_skins_4
 } = require("./shared.js");
+
+// declarations only this family uses, lifted out of shared.js
+var config_model_levels_5_knightmate_expert = config_model_levels_5.concat([config_model_levels_knightmate_expert]);
+
+var config_model_levels_5_antichess_expert = config_model_levels_5.concat([config_model_levels_antichess_expert]);
+
+var config_model_levels_5_demi_expert = config_model_levels_5.concat([config_model_levels_demi_expert]);
+
+var modelScripts_knightmate = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"standard/knightmate-model.js"
+]
+
+var config_model_rules = {
+	"en": "famous/rules.html"
+}
+
+var config_view_js_15 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"staunton-set-view.js",
+	"famous/basic-view.js"
+]
+
+var modelScripts_39 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"standard/demi-model.js"
+]
+
+var config_view_js_35 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"staunton-set-view.js",
+	"standard/demi-view.js"
+]
+
+var modelScripts_40 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"standard/romanchenko-model.js"
+]
+
+var config_view_js_36 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"staunton-set-view.js",
+	"standard/romanchenko-view.js"
+]
+
+var modelScripts_49 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"standard/sweet16-model.js"
+]
+
+var config_view_js_44 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"staunton-set-view.js",
+	"standard/sweet16-view.js"
+]
 
 exports.games = {
 

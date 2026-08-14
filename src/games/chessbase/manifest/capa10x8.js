@@ -8,10 +8,30 @@
  */
 
 const {
-	modelScripts, config_model_gameOptions, config_model_levels_5_capablanca_expert,
-	config_view_css, config_view_defaultOptions, config_view_sounds, modelScripts_capablanca,
-	config_view_skins_11, config_view_js_capablanca
+	modelScripts, config_model_gameOptions, config_model_levels_5,
+	config_model_levels_capablanca_expert, config_view_css, config_view_defaultOptions,
+	config_view_sounds, config_view_skins_11
 } = require("./shared.js");
+
+// declarations only this family uses, lifted out of shared.js
+var config_model_levels_5_capablanca_expert = config_model_levels_5.concat([config_model_levels_capablanca_expert]);
+
+var modelScripts_capablanca = [
+
+	"base-model.js",
+	"grid-geo-model.js",
+	"fairy-piece-model.js",
+	"prelude-model.js",
+	"capa10x8/capablanca-model.js"
+]
+
+var config_view_js_capablanca = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"prelude-view.js",
+	"capa10x8/capablanca-view.js"
+]
 
 exports.games = {
 

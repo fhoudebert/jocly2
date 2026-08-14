@@ -9,10 +9,65 @@
 const {
 	modelScripts, config_model_gameOptions, config_model_levels_5, config_view_css,
 	config_view_defaultOptions, config_view_skins_world, config_view_skins_camera,
-	config_view_sounds, config_model_levels_15, config_view_skins_9, modelScripts_47,
-	config_view_js_42, modelScripts_lca, config_view_js_lca, modelScripts_timurid,
-	modelScripts_gross, config_view_js_timurid, config_view_js_duodecimal
+	config_view_sounds, config_model_levels_15, config_view_skins_9
 } = require("./shared.js");
+
+// declarations only this family uses, lifted out of shared.js
+var modelScripts_47 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"duodecimal/reformed-courier-model.js"
+]
+
+var config_view_js_42 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"duodecimal/reformed-courier-view.js"
+]
+
+var modelScripts_lca = [
+		"base-model.js",
+		"grid-geo-model.js",
+		"duodecimal/leychessalpha-model.js"
+	]
+
+	var config_view_js_lca = [
+		"base-view.js",
+		"grid-board-view.js",
+		"fairy-set-view.js",
+		"duodecimal/leychessalpha-view.js"
+]
+
+var modelScripts_timurid = [
+		"base-model.js",
+		"grid-geo-model.js",
+        "fairy-piece-model.js",
+        "prelude-model.js",
+		"duodecimal/timurid-model.js"
+	]
+
+var modelScripts_gross = [
+		"base-model.js",
+		"grid-geo-model.js",
+        "fairy-piece-model.js",
+		"duodecimal/gross-model.js"
+	]
+
+	var config_view_js_timurid = [
+		"base-view.js",
+		"grid-board-view.js",
+		"fairy-set-view.js",
+        "prelude-view.js",
+		"duodecimal/timurid-view.js"
+	]
+
+	var config_view_js_duodecimal = [
+		"base-view.js",
+		"grid-board-view.js",
+		"fairy-set-view.js",
+		"duodecimal/duodecimal-view.js"
+	]
 
 exports.games = {
 

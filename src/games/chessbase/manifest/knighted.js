@@ -8,10 +8,37 @@
 
 const {
 	modelScripts, config_model_gameOptions, config_model_levels_5,
-	config_model_levels_5_chancellor_expert, config_view_css, config_view_defaultOptions,
+	config_model_levels_chancellor_expert, config_view_css, config_view_defaultOptions,
 	config_view_skins_world, config_view_skins_camera, config_view_sounds, config_view_skins_9,
-	config_view_skins_13, modelScripts_35, config_view_js_32, modelScripts_36
+	config_view_skins_12
 } = require("./shared.js");
+
+// declarations only this family uses, lifted out of shared.js
+var config_model_levels_5_chancellor_expert = config_model_levels_5.concat([config_model_levels_chancellor_expert]);
+
+var config_view_skins_13 = [
+	config_view_skins_12,
+	config_view_skins_9
+]
+
+var modelScripts_35 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"knighted/modern-model.js"
+]
+
+var config_view_js_32 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"knighted/modern-view.js"
+]
+
+var modelScripts_36 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"knighted/chancellor-model.js"
+]
 
 exports.games = {
 

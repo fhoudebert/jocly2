@@ -8,12 +8,57 @@
  */
 
 const {
-	modelScripts, config_model_gameOptions, config_model_levels_5_amazon_expert,
-	config_model_levels_5_gustav3_expert, config_model_levels_5_tuttifrutti_expert,
-	config_view_css, config_view_defaultOptions, config_view_skins_world,
-	config_view_skins_camera, config_view_sounds, config_view_skins_9, modelScripts_41,
-	config_view_js_37, modelScripts_43, config_view_js_39, modelScripts_48, config_view_js_43
+	modelScripts, config_model_gameOptions, config_model_levels_5,
+	config_model_levels_amazon_expert, config_model_levels_gustav3_expert,
+	config_model_levels_tuttifrutti_expert, config_view_css, config_view_defaultOptions,
+	config_view_skins_world, config_view_skins_camera, config_view_sounds, config_view_skins_9
 } = require("./shared.js");
+
+// declarations only this family uses, lifted out of shared.js
+var config_model_levels_5_amazon_expert = config_model_levels_5.concat([config_model_levels_amazon_expert]);
+
+var config_model_levels_5_gustav3_expert = config_model_levels_5.concat([config_model_levels_gustav3_expert]);
+
+var config_model_levels_5_tuttifrutti_expert = config_model_levels_5.concat([config_model_levels_tuttifrutti_expert]);
+
+var modelScripts_41 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"amazon/amazon-model.js"
+]
+
+var config_view_js_37 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"amazon/amazon-view.js"
+]
+
+var modelScripts_43 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"amazon/gustav3-model.js"
+]
+
+var config_view_js_39 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"amazon/gustav3-view.js"
+]
+
+var modelScripts_48 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"amazon/tutti-frutti-model.js"
+]
+
+var config_view_js_43 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"amazon/tutti-frutti-view.js"
+]
 
 exports.games = {
 

@@ -7,16 +7,145 @@
  */
 
 const {
-	modelScripts, config_model_levels_5_gardner_expert, config_model_levels_5_losalamos_expert,
-	config_model_levels_5_mini4x4_expert, config_model_levels_5_mini4x5_expert,
-	config_model_levels_5_micro4x5_expert, config_model_levels_5_baby_expert,
-	config_model_levels_5_malett_expert, config_model_levels_5_attack_expert, config_view_css,
-	config_view_defaultOptions, config_view_sounds, config_model_gameOptions_2, modelScripts_3,
-	config_view_skins_3, config_view_js_3, modelScripts_4, config_view_js_4, modelScripts_5,
-	config_view_js_5, modelScripts_6, config_view_js_6, modelScripts_7, config_view_js_7,
-	modelScripts_8, config_view_js_8, modelScripts_9, config_view_js_9, modelScripts_10,
-	config_view_js_10
+	modelScripts, config_model_levels_5, config_model_levels_gardner_expert,
+	config_model_levels_losalamos_expert, config_model_levels_mini4x4_expert,
+	config_model_levels_mini4x5_expert, config_model_levels_micro4x5_expert,
+	config_model_levels_baby_expert, config_model_levels_malett_expert,
+	config_model_levels_attack_expert, config_view_css, config_view_defaultOptions,
+	config_view_sounds, config_model_gameOptions_2, config_view_skins_3
 } = require("./shared.js");
+
+// declarations only this family uses, lifted out of shared.js
+// --- Mini-chess family (mini/*.js): none of these boards/setups match
+// a native Fairy-Stockfish variant, so each gets a customVariantIni.
+// Derived from "chess" (not "gardner", whose gardner_variant() hardcodes
+// doubleStep=false/castling=false) whenever the Jocly model actually
+// uses cbInitialPawnGraph (double-step) and/or a "castle" table, so the
+// inherited defaults already match; maxRank/maxFile/promotionRegion are
+// still overridden explicitly since Variant::conclude() bakes them in
+// relative to the *base* variant's own board size, not the derived one
+// (verified directly: omitting promotionRegionWhite/Black here reproduces
+// gardner's own Rank5BB default unchanged, which falls outside a 4-rank
+// board and silently disables promotion altogether).
+var config_model_levels_5_gardner_expert = config_model_levels_5.concat([config_model_levels_gardner_expert]);
+
+var config_model_levels_5_losalamos_expert = config_model_levels_5.concat([config_model_levels_losalamos_expert]);
+
+var config_model_levels_5_mini4x4_expert = config_model_levels_5.concat([config_model_levels_mini4x4_expert]);
+
+var config_model_levels_5_mini4x5_expert = config_model_levels_5.concat([config_model_levels_mini4x5_expert]);
+
+var config_model_levels_5_micro4x5_expert = config_model_levels_5.concat([config_model_levels_micro4x5_expert]);
+
+var config_model_levels_5_baby_expert = config_model_levels_5.concat([config_model_levels_baby_expert]);
+
+var config_model_levels_5_malett_expert = config_model_levels_5.concat([config_model_levels_malett_expert]);
+
+var config_model_levels_5_attack_expert = config_model_levels_5.concat([config_model_levels_attack_expert]);
+
+var modelScripts_3 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"mini/gardner-model.js"
+]
+
+var config_view_js_3 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"staunton-set-view.js",
+	"mini/gardner-view.js"
+]
+
+var modelScripts_4 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"mini/mini4x4-model.js"
+]
+
+var config_view_js_4 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"staunton-set-view.js",
+	"mini/mini4x4-view.js"
+]
+
+var modelScripts_5 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"mini/mini4x5-model.js"
+]
+
+var config_view_js_5 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"staunton-set-view.js",
+	"mini/mini4x5-view.js"
+]
+
+var modelScripts_6 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"mini/micro4x5-model.js"
+]
+
+var config_view_js_6 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"staunton-set-view.js",
+	"mini/micro4x5-view.js"
+]
+
+var modelScripts_7 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"mini/baby-model.js"
+]
+
+var config_view_js_7 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"staunton-set-view.js",
+	"mini/baby-view.js"
+]
+
+var modelScripts_8 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"mini/malett-model.js"
+]
+
+var config_view_js_8 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"staunton-set-view.js",
+	"mini/malett-view.js"
+]
+
+var modelScripts_9 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"mini/los-alamos-model.js"
+]
+
+var config_view_js_9 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"staunton-set-view.js",
+	"mini/los-alamos-view.js"
+]
+
+var modelScripts_10 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"mini/attack-model.js"
+]
+
+var config_view_js_10 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"staunton-set-view.js",
+	"mini/attack-view.js"
+]
 
 exports.games = {
 

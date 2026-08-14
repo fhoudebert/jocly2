@@ -9,10 +9,56 @@
 
 const {
 	modelScripts, config_model_gameOptions, config_view_css, config_view_defaultOptions,
-	config_view_sounds, config_view_skins_2, modelScripts_rococo, config_view_js_rococo,
-	modelScripts_rocaille, config_view_js_rocaille, modelScripts_ultima, config_view_js_ultima,
-	config_model_levels_15
+	config_view_sounds, config_view_skins_2, config_model_levels_15
 } = require("./shared.js");
+
+// declarations only this family uses, lifted out of shared.js
+var modelScripts_rococo = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"ultima/baroque-core.js",
+	"ultima/rococo-model.js"
+]
+
+var config_view_js_rococo = [
+	"base-view.js",
+	"grid-board-view.js",
+	"ultima/baroque-view.js",
+	"ultima/rococo-view.js",
+	"ultima/baroque-choice-view.js",
+	"ultima/baroque-capture-view.js"
+]
+
+var modelScripts_rocaille = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"ultima/baroque-core.js",
+	"ultima/rocaille-model.js"
+]
+
+var config_view_js_rocaille = [
+	"base-view.js",
+	"grid-board-view.js",
+	"ultima/baroque-view.js",
+	"ultima/rocaille-view.js",
+	"ultima/baroque-choice-view.js",
+	"ultima/baroque-capture-view.js"
+]
+
+var modelScripts_ultima = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"ultima/ultima-model.js"
+]
+
+var config_view_js_ultima = [
+	"base-view.js",
+	"grid-board-view.js",
+	"ultima/baroque-view.js",
+	"ultima/ultima-view.js",
+	"ultima/baroque-choice-view.js",
+	"ultima/baroque-capture-view.js"
+]
 
 exports.games = {
 

@@ -9,9 +9,28 @@
 const {
 	modelScripts, config_model_gameOptions, config_model_levels_5, config_view_css,
 	config_view_defaultOptions, config_view_skins_world, config_view_skins_camera,
-	config_view_sounds, config_view_skins_9, config_view_js_31, modelScripts_45, modelScripts_46,
-	config_view_js_41
+	config_view_sounds, config_view_skins_9, config_view_js_31
 } = require("./shared.js");
+
+// declarations only this family uses, lifted out of shared.js
+var modelScripts_45 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"tressau/kaisergame-model.js"
+]
+
+var modelScripts_46 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"tressau/sultangame-model.js"
+]
+
+var config_view_js_41 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"tressau/sultangame-view.js"
+]
 
 exports.games = {
 

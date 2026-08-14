@@ -2,14 +2,21 @@
  * Building blocks shared by the game entries of this module: script lists,
  * level sets, game options, view skins, cameras and worlds.
  *
- * Lifted verbatim out of index.js, where they sat as 2784 lines of preamble in
- * front of the games array. Declaration order and cross-references are
- * unchanged - several are built from the ones above them - so the values are
- * identical, object identity included.
+ * What is left here is what SEVERAL families use. Everything wanted by only one
+ * of them has followed it into manifest/<family>.js, where it sits above the
+ * entries that use it. Ownership was computed by following the dependency
+ * graph, not by name: a declaration built from another drags it along, so a
+ * level set assembled here for one game left with that game.
  *
- * Some are used by a single game and will follow it into its family file; that
- * pruning waits until every family has moved out and each name has an obvious
- * home.
+ * A handful of declarations no game references at all - config_view_js_30,
+ * modelScripts_15, config_model_levels_5_basic_expert - and they are kept, on
+ * the assumption that they are unwired work rather than rubbish. They hold
+ * back whatever they are built from, which is why some names below have a
+ * single family in sight.
+ *
+ * Declaration order and cross-references are unchanged - several are built
+ * from the ones above them - so the values are identical, object identity
+ * included.
  */
 
 var modelScripts = [
@@ -109,7 +116,6 @@ var config_model_levels_expert = {
 	"skillLevel": 20,
 	"moveTimeMs": 1000
 }
-var config_model_levels_5_expert = config_model_levels_5.concat([config_model_levels_expert]);
 
 // --- Additional "Expert" (Fairy-Stockfish) levels, pass 1 ---
 // Each entry below was verified by comparing Jocly's own
@@ -131,7 +137,6 @@ var config_model_levels_amazon_expert = {
 	"skillLevel": 20,
 	"moveTimeMs": 1000
 }
-var config_model_levels_5_amazon_expert = config_model_levels_5.concat([config_model_levels_amazon_expert]);
 
 // Shako: FEN matches exactly, no pieceMap needed. Uses
 // config_model_levels_15 (not _5) as its base level list. The actual
@@ -224,7 +229,6 @@ var config_model_levels_chancellor_expert = {
 	"skillLevel": 20,
 	"moveTimeMs": 1000
 }
-var config_model_levels_5_chancellor_expert = config_model_levels_5.concat([config_model_levels_chancellor_expert]);
 
 // Xiangqi: same rules/position, different piece letters
 // (Jocly H(orse)/E(lephant) vs Fairy-Stockfish's N(knight)/B(ishop)).
@@ -238,7 +242,6 @@ var config_model_levels_xiangqi_expert = {
 	"pieceMap": { "H": "N", "E": "B" },
 	"evalFile": "nnue/xiangqi.nnue"
 }
-var config_model_levels_5_xiangqi_expert = config_model_levels_5.concat([config_model_levels_xiangqi_expert]);
 
 // Shatranj: same rules/position, different piece letters
 // (Jocly E(lephant)/G(eneral) vs Fairy-Stockfish's B(ishop)/Q(ueen)).
@@ -251,7 +254,6 @@ var config_model_levels_shatranj_expert = {
 	"moveTimeMs": 1000,
 	"pieceMap": { "E": "B", "G": "Q" }
 }
-var config_model_levels_5_shatranj_expert = config_model_levels_5.concat([config_model_levels_shatranj_expert]);
 
 // Knightmate: same rules/position, the royal piece (moves like a
 // knight) is "K" in Jocly vs "M" in Fairy-Stockfish, while the regular
@@ -269,7 +271,6 @@ var config_model_levels_knightmate_expert = {
 	"moveTimeMs": 1000,
 	"pieceMap": { "K": "M", "N": "K" }
 }
-var config_model_levels_5_knightmate_expert = config_model_levels_5.concat([config_model_levels_knightmate_expert]);
 
 // Grand: same rules/position (Jocly does not actually implement
 // castling for this game either, despite the default "KQkq" in its FEN
@@ -284,7 +285,6 @@ var config_model_levels_grand_expert = {
 	"moveTimeMs": 1000,
 	"pieceMap": { "M": "C" }
 }
-var config_model_levels_5_grand_expert = config_model_levels_5.concat([config_model_levels_grand_expert]);
 
 // Capablanca-chess module (capa10x8/capablanca-model.js): a single
 // Jocly game whose "prelude" (see prelude-model.js) lets the player
@@ -382,7 +382,6 @@ var config_model_levels_capablanca_expert = {
 		{ "setup": 8, "variant": "joclyunivers", "pieceMap": { "M": "C" }, "customVariantIni": config_model_levels_capablanca_missing_setups_ini, "evalFile": "nnue/capablanca-chess.nnue" }
 	]
 }
-var config_model_levels_5_capablanca_expert = config_model_levels_5.concat([config_model_levels_capablanca_expert]);
 
 // Antichess (Jocly's "losing-chess"): FEN matches exactly (including the
 // absence of castling rights), no pieceMap needed. Jocly implements the
@@ -402,7 +401,6 @@ var config_model_levels_antichess_expert = {
 	"moveTimeMs": 1000,
 	"evalFile": "nnue/antichess.nnue"
 }
-var config_model_levels_5_antichess_expert = config_model_levels_5.concat([config_model_levels_antichess_expert]);
 
 // Chess960 (Fischer Random): same rules/position-randomization as
 // Fairy-Stockfish's "fischerandom", no pieceMap needed - but, unlike
@@ -429,7 +427,6 @@ var config_model_levels_chess960_expert = {
 	"moveTimeMs": 1000,
 	"chess960": true
 }
-var config_model_levels_5_chess960_expert = config_model_levels_5.concat([config_model_levels_chess960_expert]);
 
 // Makruk (Thai Chess): same rules and position as Fairy-Stockfish's
 // "makruk", different single-letter abbreviations for the Khon
@@ -454,7 +451,6 @@ var config_model_levels_makruk_expert = {
 	"moveTimeMs": 1000,
 	"pieceMap": { "B": "S", "Q": "M" }
 }
-var config_model_levels_5_makruk_expert = config_model_levels_5.concat([config_model_levels_makruk_expert]);
 
 // Wildebeest: 11x10 board, already declared as an official example
 // variant directly in Fairy-Stockfish's own variants.ini
@@ -522,7 +518,6 @@ var config_model_levels_wildebeest_expert = {
 	"pieceMap": { "M": "C" },
 	"customVariantIni": config_model_levels_wildebeest_expert_ini
 }
-var config_model_levels_5_wildebeest_expert = config_model_levels_5.concat([config_model_levels_wildebeest_expert]);
 
 // Heavychess: 10x10 board with several fairy pieces, none of which has
 // a native Fairy-Stockfish variant equivalent (marshall/chancellor-like,
@@ -579,7 +574,6 @@ var config_model_levels_heavychess_expert = {
 	"chess960": true,
 	"customVariantIni": config_model_levels_heavychess_expert_ini
 }
-var config_model_levels_5_heavychess_expert = config_model_levels_5.concat([config_model_levels_heavychess_expert]);
 
 // Shogi: same rules and starting position as Fairy-Stockfish's "shogi"
 // (startFen matches byte-for-byte once Jocly's own captured-pieces
@@ -742,7 +736,6 @@ var config_model_levels_gardner_expert = {
 	"skillLevel": 20,
 	"moveTimeMs": 1000
 }
-var config_model_levels_5_gardner_expert = config_model_levels_5.concat([config_model_levels_gardner_expert]);
 
 // Los Alamos Chess: FEN now matches Fairy-Stockfish's native
 // "losalamos" exactly, after fixing a real placement bug in
@@ -762,7 +755,6 @@ var config_model_levels_losalamos_expert = {
 	"skillLevel": 20,
 	"moveTimeMs": 1000
 }
-var config_model_levels_5_losalamos_expert = config_model_levels_5.concat([config_model_levels_losalamos_expert]);
 
 // Basic Chess: exactly the same piece set, starting position and rules
 // as classic-chess (base-model.js/famous/basic-model.js is identical to
@@ -771,18 +763,6 @@ var config_model_levels_5_losalamos_expert = config_model_levels_5.concat([confi
 // so it reuses classic-chess's own "chess" variant/FEN unchanged, no
 // pieceMap or customVariantIni needed.
 var config_model_levels_5_basic_expert = config_model_levels_5.concat([config_model_levels_expert]);
-
-// --- Mini-chess family (mini/*.js): none of these boards/setups match
-// a native Fairy-Stockfish variant, so each gets a customVariantIni.
-// Derived from "chess" (not "gardner", whose gardner_variant() hardcodes
-// doubleStep=false/castling=false) whenever the Jocly model actually
-// uses cbInitialPawnGraph (double-step) and/or a "castle" table, so the
-// inherited defaults already match; maxRank/maxFile/promotionRegion are
-// still overridden explicitly since Variant::conclude() bakes them in
-// relative to the *base* variant's own board size, not the derived one
-// (verified directly: omitting promotionRegionWhite/Black here reproduces
-// gardner's own Rank5BB default unchanged, which falls outside a 4-rank
-// board and silently disables promotion altogether).
 
 // Mini Chess 4x4 (mini4x4-model.js): R/Q/K + pawns only, single-square
 // pawn moves only (cbPawnGraph, not cbInitialPawnGraph) and no castling
@@ -809,7 +789,6 @@ var config_model_levels_mini4x4_expert = {
 	"moveTimeMs": 1000,
 	"customVariantIni": config_model_levels_mini4x4_expert_ini
 }
-var config_model_levels_5_mini4x4_expert = config_model_levels_5.concat([config_model_levels_mini4x4_expert]);
 
 // Mini Chess 4x5 (mini4x5-model.js): same R/Q/K + pawns piece set as
 // mini4x4, but on a 4x5 board with double-step pawns (ipawn types) and
@@ -841,7 +820,6 @@ var config_model_levels_mini4x5_expert = {
 	"moveTimeMs": 1000,
 	"customVariantIni": config_model_levels_mini4x5_expert_ini
 }
-var config_model_levels_5_mini4x5_expert = config_model_levels_5.concat([config_model_levels_mini4x5_expert]);
 
 // Micro Chess (micro4x5-model.js, Glimne 1997): 4x5 board with a single
 // pawn per side and one each of R/B/N/K - NOT the same starting
@@ -885,7 +863,6 @@ var config_model_levels_micro4x5_expert = {
 	"moveTimeMs": 1000,
 	"customVariantIni": config_model_levels_micro4x5_expert_ini
 }
-var config_model_levels_5_micro4x5_expert = config_model_levels_5.concat([config_model_levels_micro4x5_expert]);
 
 // Baby Chess (mini/baby-model.js, 5x5): standard R/N/B/Q/K piece set,
 // mirrored back ranks (White RNBQK / Black KQBNR, kings facing kings),
@@ -927,7 +904,6 @@ var config_model_levels_baby_expert = {
 	"moveTimeMs": 1000,
 	"customVariantIni": config_model_levels_baby_expert_ini
 }
-var config_model_levels_5_baby_expert = config_model_levels_5.concat([config_model_levels_baby_expert]);
 
 // Malett Chess (mini/malett-model.js, 5x5, Jeff Mallett): the genuinely
 // asymmetric variant where White plays with two knights and no bishops
@@ -961,7 +937,6 @@ var config_model_levels_malett_expert = {
 	"moveTimeMs": 1000,
 	"customVariantIni": config_model_levels_malett_expert_ini
 }
-var config_model_levels_5_malett_expert = config_model_levels_5.concat([config_model_levels_malett_expert]);
 
 // Chess Attack (mini/attack-model.js, 5x6): standard R/N/B/Q/K piece
 // set on a 5x6 board, both back ranks in the *same* file order (kings
@@ -988,7 +963,6 @@ var config_model_levels_attack_expert = {
 	"moveTimeMs": 1000,
 	"customVariantIni": config_model_levels_attack_expert_ini
 }
-var config_model_levels_5_attack_expert = config_model_levels_5.concat([config_model_levels_attack_expert]);
 
 // Demi-Chess (standard/demi-model.js, 4x8, Peter Krystufek 1986): only
 // K/B/N/R start on the board - no queen at all (queen only ever
@@ -1017,7 +991,6 @@ var config_model_levels_demi_expert = {
 	"moveTimeMs": 1000,
 	"customVariantIni": config_model_levels_demi_expert_ini
 }
-var config_model_levels_5_demi_expert = config_model_levels_5.concat([config_model_levels_demi_expert]);
 
 // Gustav III Chess: native Fairy-Stockfish variant "gustav3", FEN
 // matches exactly (including the FEN's "*" wall-square markers -
@@ -1035,7 +1008,6 @@ var config_model_levels_gustav3_expert = {
 	"skillLevel": 20,
 	"moveTimeMs": 1000
 }
-var config_model_levels_5_gustav3_expert = config_model_levels_5.concat([config_model_levels_gustav3_expert]);
 
 // Spartan Chess: native Fairy-Stockfish variant "spartan", FEN matches
 // byte-for-byte. No pieceMap needed.
@@ -1089,7 +1061,6 @@ var config_model_levels_hectochess_expert = {
 	"moveTimeMs": 1000,
 	"customVariantIni": config_model_levels_hectochess_expert_ini
 }
-var config_model_levels_5_hectochess_expert = config_model_levels_5.concat([config_model_levels_hectochess_expert]);
 
 // Tutti-Frutti Chess (Ralph Betza & Philip Cohen, 1978-79): 8x8 board
 // with 3 piece compounds (amazon=QN, empress=RN, princess=BN), no
@@ -1125,7 +1096,6 @@ var config_model_levels_tuttifrutti_expert = {
 	"moveTimeMs": 1000,
 	"customVariantIni": config_model_levels_tuttifrutti_expert_ini
 }
-var config_model_levels_5_tuttifrutti_expert = config_model_levels_5.concat([config_model_levels_tuttifrutti_expert]);
 
 // Courier chess: same rules and starting position as Fairy-Stockfish's
 // "courier" (including the absence of castling - Jocly's courier-model.js
@@ -1248,12 +1218,6 @@ var config_view_js = [
 	"extruded-set-view.js",
 	"famous/classic-view.js"
 ]
-var modelScripts_2 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"famous/xiangqi-model.js",
-	"famous/xiangqi-db.min.js"
-]
 var config_model_gameOptions_levelOptions_2 = {
 	"pieceValueFactor": 1,
 	"pieceValueRatioFactor": 1,
@@ -1277,77 +1241,6 @@ var config_view_skins_world_lightPosition_2 = {
 	"y": 10,
 	"z": 10
 }
-var config_view_skins_world_2 = {
-	"lightIntensity": 0.8,
-	"skyLightIntensity": 0.5,
-	"lightCastShadow": true,
-	"fog": false,
-	"color": 4686804,
-	"lightPosition": config_view_skins_world_lightPosition_2,
-	"skyLightPosition": config_view_skins_world_skyLightPosition,
-	"lightShadowDarkness": 0.75,
-	"ambientLightColor": 4473924
-}
-var config_view_skins_preload_3 = [
-	"smoothedfilegeo|0|/res/ring-target.js",
-	"image|/res/images/cancel.png",
-	"smoothedfilegeo|0|/res/xiangqi/token.js",
-	"image|/res/xiangqi/wood3.jpg",
-	"image|/res/xiangqi/clearwoodtexture.jpg",
-	"image|/res/xiangqi/decoration-cross.png",
-	"image|/res/xiangqi/whitebg.png",
-	"image|/res/xiangqi/xiangqi-pieces-sprites-western-player.png",
-	"image|/res/xiangqi/piecebump.jpg"
-]
-var config_view_js_2 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"famous/xiangqi-board-view.js",
-	"famous/xiangqi-set-view.js",
-	"famous/xiangqi-view.js"
-]
-var modelScripts_janggi = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"famous/janggi-model.js"
-]
-var config_view_js_janggi = [
-	"base-view.js",
-	"grid-board-view.js",
-	"famous/janggi-board-view.js",
-	"famous/janggi-set-view.js",
-	"famous/janggi-view.js"
-]
-/*
-Janggi + Fairy-Stockfish: ON HOLD, hence commented out rather than
-deleted. The engine has the variant built in, and "janggitraditional" is
-the one that matches this model - bikjangRule on, no material counting -
-while Jocly's H(orse)/E(lephant) are its N/B exactly as for Xiangqi.
-
-What is left to reconcile is the pass: Fairy-Stockfish sets
-pass[WHITE] = pass[BLACK] = true, i.e. a player may pass on ANY turn,
-while this model only passes when nothing else can move. The engine can
-therefore answer with a null move that has no counterpart in the move
-list, and jocly.fairy.js's ResolveMove would either throw or fall back on
-the nearest legal move by edit distance - silently wrong. Enable this
-level once the two agree on when a pass is available.
-
-var config_model_levels_janggi_expert = {
-	"name": "expert",
-	"label": "Expert",
-	"ai": "fairy-stockfish",
-	"variant": "janggitraditional",
-	"skillLevel": 20,
-	"moveTimeMs": 1000,
-	"pieceMap": { "H": "N", "E": "B" }
-}
-var config_model_levels_5_janggi_expert = config_model_levels_5.concat([config_model_levels_janggi_expert]);
-*/
-var modelScripts_3 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"mini/gardner-model.js"
-]
 var config_view_skins_2 = {
 	"name": "skin2d",
 	"title": "2D Classic",
@@ -1357,94 +1250,6 @@ var config_view_skins_2 = {
 var config_view_skins_3 = [
 	config_view_skins,
 	config_view_skins_2
-]
-var config_view_js_3 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"staunton-set-view.js",
-	"mini/gardner-view.js"
-]
-var modelScripts_4 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"mini/mini4x4-model.js"
-]
-var config_view_js_4 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"staunton-set-view.js",
-	"mini/mini4x4-view.js"
-]
-var modelScripts_5 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"mini/mini4x5-model.js"
-]
-var config_view_js_5 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"staunton-set-view.js",
-	"mini/mini4x5-view.js"
-]
-var modelScripts_6 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"mini/micro4x5-model.js"
-]
-var config_view_js_6 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"staunton-set-view.js",
-	"mini/micro4x5-view.js"
-]
-var modelScripts_7 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"mini/baby-model.js"
-]
-var config_view_js_7 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"staunton-set-view.js",
-	"mini/baby-view.js"
-]
-var modelScripts_8 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"mini/malett-model.js"
-]
-var config_view_js_8 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"staunton-set-view.js",
-	"mini/malett-view.js"
-]
-var modelScripts_9 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"mini/los-alamos-model.js"
-]
-var config_view_js_9 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"staunton-set-view.js",
-	"mini/los-alamos-view.js"
-]
-var modelScripts_10 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"mini/attack-model.js"
-]
-var config_view_js_10 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"staunton-set-view.js",
-	"mini/attack-view.js"
-]
-var modelScripts_11 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"historical/courier-model.js"
 ]
 var config_model_levels_6 = {
 	"name": "easy",
@@ -1499,19 +1304,6 @@ var config_model_levels_10 = [
 	config_model_levels_8,
 	config_model_levels_9
 ]
-var config_model_levels_10_courier_expert = config_model_levels_10.concat([config_model_levels_courier_expert]);
-var config_view_js_11 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"historical/courier-board-view.js",
-	"historical/courierchess-set-view.js",
-	"historical/courier-view.js"
-]
-var modelScripts_12 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"famous/makruk-model.js"
-]
 var config_view_skins_world_lightPosition_3 = {
 	"x": -10,
 	"y": 5,
@@ -1528,125 +1320,6 @@ var config_view_skins_world_3 = {
 	"lightShadowDarkness": 0.85,
 	"ambientLightColor": 1118481
 }
-var config_view_js_12 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"makruk-board-view.js",
-	"makruk-set-view.js",
-	"famous/makruk-view.js"
-]
-var modelScripts_13 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"cazaux/shako-model.js"
-]
-var modelScripts_100 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"team-mate-model.js"
-]
-var modelScripts_rococo = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"ultima/baroque-core.js",
-	"ultima/rococo-model.js"
-]
-var config_view_js_rococo = [
-	"base-view.js",
-	"grid-board-view.js",
-	"ultima/baroque-view.js",
-	"ultima/rococo-view.js",
-	"ultima/baroque-choice-view.js",
-	"ultima/baroque-capture-view.js"
-]
-var modelScripts_rocaille = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"ultima/baroque-core.js",
-	"ultima/rocaille-model.js"
-]
-var config_view_js_rocaille = [
-	"base-view.js",
-	"grid-board-view.js",
-	"ultima/baroque-view.js",
-	"ultima/rocaille-view.js",
-	"ultima/baroque-choice-view.js",
-	"ultima/baroque-capture-view.js"
-]
-var modelScripts_ultima = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"ultima/ultima-model.js"
-]
-var config_view_js_ultima = [
-	"base-view.js",
-	"grid-board-view.js",
-	"ultima/baroque-view.js",
-	"ultima/ultima-view.js",
-	"ultima/baroque-choice-view.js",
-	"ultima/baroque-capture-view.js"
-]
-var modelScripts_101 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"fairy-piece-model.js",
-	"locust-move-model.js",
-	"locust/werewolf-model.js"
-]
-var modelScripts_102 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"fairy-piece-model.js",
-	"locust-move-model.js",
-	"locust/elven-model.js"
-]
-var modelScripts_103 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"famous/spartan-model.js"
-]
-var modelScripts_104 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"decimal/scirocco-model.js"
-]
-var modelScripts_seireigi = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"drop-model.js",
-	"shogi/seireigi-shogi-model.js"
-]
-var modelScripts_chu_seireigi = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"drop-model.js",
-        "fairy-piece-model.js",
-	"shogi/chu-seireigi-model.js"
-]
-var modelScripts_105 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"drop-model.js",
-	"shogi/shogi-model.js"
-]
-var modelScripts_106 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"drop-model.js",
-	"shogi/tori-shogi-model.js"
-]
-var modelScripts_107 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"drop-model.js",
-	"shogi/mini-shogi-model.js"
-]
-var modelScripts_108 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"locust-move-model.js",
-	"shogi/chu-shogi-model.js"
-]
 // Tenjiku Shogi needs its own evaluation weights and search budgets: the
 // board is 16x16 with 78 pieces a side, positions have 70+ legal moves, and
 // above all a check by a jumping general cannot be answered by interposing
@@ -1663,12 +1336,6 @@ var config_model_gameOptions_levelOptions_tenjiku = {
 	"endingDistKingFactor": 0.05,
 	"distKingCornerFactor": 0.1
 }
-var config_model_gameOptions_tenjiku = {
-	"preventRepeat": true,
-	"uctTransposition": "state",
-	"uctIgnoreLoop": false,
-	"levelOptions": config_model_gameOptions_levelOptions_tenjiku
-}
 // Follow a check a couple of moves further when its replies are forced: the
 // combinations that decide a game of Tenjiku start with a capture the static
 // evaluation calls bad (a general for a lesser piece), so the plain search
@@ -1678,116 +1345,6 @@ var config_model_levels_mateSearch_tenjiku = {
 	"maxReplies": 4,
 	"maxDepth": 6
 }
-var config_model_levels_tenjiku = [
-	{
-		"name": "easy",
-		"label": "Easy",
-		"ai": "uct",
-		"playoutDepth": 0,
-		"minVisitsExpand": 1,
-		"c": 0.6,
-		"ignoreLeaf": false,
-		"uncertaintyFactor": 3,
-		"maxNodes": 20000
-	},
-	{
-		"name": "fast",
-		"label": "Fast [5sec]",
-		"ai": "uct",
-		"playoutDepth": 0,
-		"minVisitsExpand": 1,
-		"c": 0.6,
-		"ignoreLeaf": false,
-		"uncertaintyFactor": 3,
-		"mateSearch": config_model_levels_mateSearch_tenjiku,
-		"maxDuration": 5,
-		"isDefault": true
-	},
-	{
-		"name": "medium",
-		"label": "Medium",
-		"ai": "uct",
-		"playoutDepth": 0,
-		"minVisitsExpand": 1,
-		"c": 0.6,
-		"ignoreLeaf": false,
-		"uncertaintyFactor": 3,
-		"mateSearch": config_model_levels_mateSearch_tenjiku,
-		"maxNodes": 150000,
-		"maxDuration": 40
-	},
-	{
-		"name": "strong",
-		"label": "Strong",
-		"ai": "uct",
-		"playoutDepth": 0,
-		"minVisitsExpand": 1,
-		"c": 0.6,
-		"ignoreLeaf": false,
-		"uncertaintyFactor": 3,
-		"mateSearch": config_model_levels_mateSearch_tenjiku,
-		"maxNodes": 500000,
-		"maxDuration": 120
-	},
-	{
-		"name": "hyper",
-		"label": "10 min",
-		"ai": "uct",
-		"playoutDepth": 0,
-		"minVisitsExpand": 1,
-		"c": 0.6,
-		"ignoreLeaf": false,
-		"uncertaintyFactor": 3,
-		"mateSearch": config_model_levels_mateSearch_tenjiku,
-		"maxNodes": 2500000,
-		"maxDuration": 600
-	},
-	{
-		"name": "correspondence",
-		"label": "20 min",
-		"ai": "uct",
-		"playoutDepth": 0,
-		"minVisitsExpand": 1,
-		"c": 0.6,
-		"ignoreLeaf": false,
-		"uncertaintyFactor": 3,
-		"mateSearch": config_model_levels_mateSearch_tenjiku,
-		"maxNodes": 5000000,
-		"maxDuration": 1200
-	}
-]
-var modelScripts_tenjiku = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"locust-move-model.js",
-	"shogi/tenjiku-shogi-model.js"
-]
-var modelScripts_109 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"fairy-piece-model.js",
-	"locust-move-model.js",
-	"locust/makromachy-model.js"
-]
-var modelScripts_110 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"fairy-piece-model.js",
-	"locust-move-model.js",
-	"locust/minjiku-shogi-model.js"
-]
-var modelScripts_kyoto = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"drop-model.js",
-	"shogi/kyoto-shogi-model.js"
-]
-var modelScripts_kotaishi = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"drop-model.js",
-	"shogi/kotaishi-shogi-model.js"
-]
 var config_model_levels_11 = {
 	"name": "easy",
 	"label": "Easy",
@@ -1841,8 +1398,6 @@ var config_model_levels_15 = [
 	config_model_levels_13,
 	config_model_levels_14
 ]
-var config_model_levels_15_shako_expert = config_model_levels_15.concat([config_model_levels_shako_expert]);
-var config_model_levels_15_shogi_expert = config_model_levels_15.concat([config_model_levels_shogi_expert]);
 
 // Kotaishi Shogi (shogi + drunk elephant, promoting to crown prince):
 // needs its OWN expert level - sharing shogi's verbatim is silently
@@ -1908,126 +1463,6 @@ var config_model_levels_kotaishi_expert = {
 	"pocketGeometry": true,
 	"customVariantIni": config_model_levels_kotaishi_expert_ini
 }
-var config_model_levels_15_kotaishi_expert = config_model_levels_15.concat([config_model_levels_kotaishi_expert]);
-var config_model_levels_15_minishogi_expert = config_model_levels_15.concat([config_model_levels_minishogi_expert]);
-var config_model_levels_15_kyotoshogi_expert = config_model_levels_15.concat([config_model_levels_kyotoshogi_expert]);
-var config_model_levels_15_torishogi_expert = config_model_levels_15.concat([config_model_levels_torishogi_expert]);
-var config_model_levels_15_spartan_expert = config_model_levels_15.concat([config_model_levels_spartan_expert]);
-var config_model_levels_15_pemba_expert = config_model_levels_15.concat([config_model_levels_pemba_expert]);
-var config_view_js_13 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"cazaux/shako-view.js"
-]
-var config_view_js_100 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"team-mate-view.js"
-]
-var config_view_js_101 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"multi-leg-view.js",
-	"locust/werewolf-view.js"
-]
-var config_view_js_102 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"multi-leg-view.js",
-	"locust/elven-view.js"
-]
-var config_view_js_103 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"famous/spartan-view.js"
-]
-var config_view_js_104 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"multi-leg-view.js",
-	"decimal/scirocco-view.js"
-]
-var config_view_js_chu_seireigi = [
-	"base-view.js",
-	"grid-board-view.js",
-	"shogi/chu-seireigi-set-view.js",
-	"drop-view.js",
-	"shogi/chu-seireigi-view.js"
-]
-	var config_view_js_seireigi = [
-	"base-view.js",
-	"grid-board-view.js",
-	"shogi/seireigi-shogi-set-view.js",
-	"drop-view.js",
-	"shogi/seireigi-shogi-view.js"
-]
-	var config_view_js_kotaishi = [
-	"base-view.js",
-	"grid-board-view.js",
-	"shogi/kotaishi-shogi-set-view.js",
-	"drop-view.js",
-	"shogi/shogi-view.js"
-]
-var config_view_js_105 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"shogi/shogi-set-view.js",
-	"drop-view.js",
-	"shogi/shogi-view.js"
-]
-var config_view_js_106 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"shogi/tori-set-view.js",
-	"drop-view.js",
-	"shogi/tori-shogi-view.js"
-]
-var config_view_js_107 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"shogi/shogi-set-view.js",
-	"drop-view.js",
-	"shogi/mini-shogi-view.js"
-]
-var config_view_js_108 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"shogi/tenjiku-set-view.js",
-	"multi-leg-view.js",
-	"shogi/chu-shogi-view.js"
-]
-var config_view_js_tenjiku = [
-	"base-view.js",
-	"grid-board-view.js",
-	"shogi/tenjiku-set-view.js",
-	"multi-leg-view.js",
-	"shogi/tenjiku-shogi-view.js"
-]
-var config_view_js_109 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"multi-leg-view.js",
-	"locust/makromachy-view.js"
-]
-var config_view_js_110 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"multi-leg-view.js",
-	"locust/minjiku-shogi-view.js"
-]
-var modelScripts_14 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"famous/shatranj-model.js"
-]
 var config_model_gameOptions_levelOptions_3 = {
 	"checkFactor": 0.2,
 	"pieceValueFactor": 1,
@@ -2049,35 +1484,14 @@ var config_model_gameOptions_3 = {
 	"uctIgnoreLoop": false,
 	"levelOptions": config_model_gameOptions_levelOptions_3
 }
-var config_view_js_14 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"shatranj-board-view.js",
-	"nishapur-set-view.js",
-	"famous/shatranj-view.js"
-]
 var modelScripts_15 = [
 	"base-model.js",
 	"grid-geo-model.js",
 	"famous/basic-model.js"
 ]
-var modelScripts_knightmate = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"standard/knightmate-model.js"
-]
-var config_model_rules = {
-	"en": "famous/rules.html"
-}
 var config_model_credits = {
 	"en": "famous/credits.html"
 }
-var config_view_js_15 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"staunton-set-view.js",
-	"famous/basic-view.js"
-]
 var config_view_skins_preload_4 = [
 ]
 var config_view_skins_4 = {
@@ -2086,11 +1500,6 @@ var config_view_skins_4 = {
 	"3d": false,
 	"preload": config_view_skins_preload_4
 }
-var modelScripts_16 = [
-	"base-model.js",
-	"multiplan-geo-model.js",
-	"3d/raumschach-model.js"
-]
 var config_view_skins_camera_targetBounds = [
 	3000,
 	3000,
@@ -2107,21 +1516,6 @@ var config_view_skins_5 = {
 	"3d": false,
 	"preload": config_view_skins_preload_5
 }
-var config_view_js_16 = [
-	"base-view.js",
-	"multiplan-board-view.js",
-	"fairy-set-view.js",
-	"3d/raumschach-view.js"
-]
-var modelScripts_17 = [
-	"base-model.js",
-	"hex-geo-model.js",
-	"hex/glinski-model.js"
-]
-var config_view_css_2 = [
-	"chessbase.css",
-	"hex.css"
-]
 var config_view_skins_preload_6 = [
 	"smoothedfilegeo|0|/res/ring-target-hexagon.js",
 	"image|/res/images/cancel.png",
@@ -2172,54 +1566,6 @@ var config_view_skins_7 = {
 	"3d": false,
 	"preload": config_view_skins_preload_7
 }
-var config_view_skins_8 = [
-	config_view_skins_6,
-	config_view_skins_7
-]
-var config_view_js_17 = [
-	"base-view.js",
-	"hex-board-view.js",
-	"staunton-set-view.js",
-	"hex/glinski-view.js"
-]
-var modelScripts_18 = [
-	"base-model.js",
-	"hex-geo-model.js",
-	"hex/brusky-model.js"
-]
-var config_view_js_18 = [
-	"base-view.js",
-	"hex-board-view.js",
-	"staunton-set-view.js",
-	"hex/brusky-view.js"
-]
-var modelScripts_19 = [
-	"base-model.js",
-	"hex-geo-model.js",
-	"hex/devasa-model.js"
-]
-var config_view_js_19 = [
-	"base-view.js",
-	"hex-board-view.js",
-	"staunton-set-view.js",
-	"hex/devasa-view.js"
-]
-var modelScripts_20 = [
-	"base-model.js",
-	"hex-geo-model.js",
-	"hex/mccooey-model.js"
-]
-var config_view_js_20 = [
-	"base-view.js",
-	"hex-board-view.js",
-	"staunton-set-view.js",
-	"hex/mccooey-view.js"
-]
-var modelScripts_21 = [
-	"base-model.js",
-	"hex-geo-model.js",
-	"hex/shafran-model.js"
-]
 var config_view_skins_preload_8 = [
 	"smoothedfilegeo|0|/res/ring-target-cylinder-v3.js",
 	"image|/res/images/cancel.png",
@@ -2243,21 +1589,6 @@ var config_view_skins_preload_8 = [
 	"image|/res/staunton/king/king-diffusemap.jpg",
 	"image|/res/staunton/king/king-normalmap.jpg"
 ]
-var config_view_js_21 = [
-	"base-view.js",
-	"hex-board-view.js",
-	"staunton-set-view.js",
-	"hex/shafran-view.js"
-]
-var modelScripts_22 = [
-	"base-model.js",
-	"cylinder-geo-model.js",
-	"circular/circular-model.js"
-]
-var config_view_css_3 = [
-	"chessbase.css",
-	"circular.css"
-]
 var config_view_skins_camera_4 = {
 	"fov": 45,
 	"distMax": 50,
@@ -2266,99 +1597,10 @@ var config_view_skins_camera_4 = {
 	"elevationMin": 0,
 	"distMin": 0
 }
-var config_view_js_22 = [
-	"base-view.js",
-	"circular-board-view.js",
-	"staunton-set-view.js",
-	"circular/circular-view.js"
-]
-var modelScripts_23 = [
-	"base-model.js",
-	"cylinder-geo-model.js",
-	"circular/byzantine-model.js"
-]
-var config_view_js_23 = [
-	"base-view.js",
-	"circular-board-view.js",
-	"nishapur-set-view.js",
-	"circular/byzantine-view.js"
-]
-var modelScripts_24 = [
-	"base-model.js",
-	"multiplan-geo-model.js",
-	"3d/3dchess-model.js"
-]
-var modelScripts_space_spartan = [
-	"base-model.js",
-	"multiplan-geo-model.js",
-	"3d/space-spartan-model.js"
-]
-var config_view_js_space_spartan = [
-	"base-view.js",
-	"multiplan-board-view.js",
-	"fairy-set-view.js",
-	"3d/space-spartan-view.js"
-]
-var config_view_js_24 = [
-	"base-view.js",
-	"multiplan-board-view.js",
-	"staunton-set-view.js",
-	"3d/3dchess-view.js"
-]
-var modelScripts_25 = [
-	"base-model.js",
-	"cylinder-geo-model.js",
-	"circular/cylinder-model.js"
-]
 var config_view_skins_camera_target = [
 	0,
 	0,
 	0
-]
-var config_view_js_25 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"cylinder-board-view.js",
-	"staunton-set-view.js",
-	"circular/cylinder-view.js"
-]
-var modelScripts_26 = [
-	"base-model.js",
-	"cubic-geo-model.js",
-	"3d/cubic-model.js"
-]
-var config_view_js_26 = [
-	"base-view.js",
-	"cubic-board-view.js",
-	"staunton-set-view.js",
-	"3d/cubic-view.js"
-]
-var modelScripts_27 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"cazaux/rollerball-model.js"
-]
-var config_view_js_27 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"staunton-set-view.js",
-	"cazaux/rollerball-view.js"
-]
-var modelScripts_28 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"famous/chess960-model.js"
-]
-var config_view_js_28 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"staunton-set-view.js",
-	"famous/chess960-view.js"
-]
-var modelScripts_29 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"cazaux/metamachy-model.js"
 ]
 var config_view_skins_preload_9 = [
 	"image|/res/images/cancel.png",
@@ -2371,20 +1613,6 @@ var config_view_skins_9 = {
 	"3d": false,
 	"preload": config_view_skins_preload_9
 }
-var config_view_js_29 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"cazaux/metamachy-view.js"
-]
-var modelScripts_capablanca = [
-
-	"base-model.js",
-	"grid-geo-model.js",
-	"fairy-piece-model.js",
-	"prelude-model.js",
-	"capa10x8/capablanca-model.js"
-]
 var config_view_skins_preload_10 = [
 	"smoothedfilegeo|0|/res/ring-target.js",
 	"image|/res/images/cancel.png",
@@ -2432,13 +1660,6 @@ var config_view_js_30 = [
 	"fairy-set-view.js",
 	"capa10x8/capablanca-view.js"
 ]
-var config_view_js_capablanca = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"prelude-view.js",
-	"capa10x8/capablanca-view.js"
-]
 var config_view_skins_preload_11 = [
 	"smoothedfilegeo|0|/res/ring-target.js",
 	"image|/res/images/cancel.png",
@@ -2473,429 +1694,57 @@ var config_view_skins_12 = {
 	"world": config_view_skins_world,
 	"camera": config_view_skins_camera
 }
-var config_view_skins_13 = [
-	config_view_skins_12,
-	config_view_skins_9
-]
-var modelScripts_34 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"fairy-piece-model.js",
-	"decimal/grand-model.js"
-]
-var modelScripts_hectochess = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"fairy-piece-model.js",
-	"decimal/hectochess-model.js"
-]
-var modelScripts_heavychess = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"fairy-piece-model.js",
-	"decimal/heavy-model.js"
-
-]
 var config_view_js_31 = [
 	"base-view.js",
 	"grid-board-view.js",
 	"fairy-set-view.js",
 	"decimal/grand-view.js"
 ]
-var modelScripts_35 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"knighted/modern-model.js"
-]
-var config_view_js_32 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"knighted/modern-view.js"
-]
-var modelScripts_36 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"knighted/chancellor-model.js"
-]
-var modelScripts_37 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"decimal/wildebeest-model.js"
-]
-var config_view_js_33 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"decimal/wildebeest-view.js"
-]
-var modelScripts_38 = [
-	"base-model.js",
-	"smess-geo-model.js",
-	"smess-model.js"
-]
-var config_view_js_34 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"smess-set-view.js",
-	"smess-view.js"
-]
-var modelScripts_39 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"standard/demi-model.js"
-]
-var config_view_js_35 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"staunton-set-view.js",
-	"standard/demi-view.js"
-]
-var modelScripts_40 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"standard/romanchenko-model.js"
-]
-var config_view_js_36 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"staunton-set-view.js",
-	"standard/romanchenko-view.js"
-]
-var modelScripts_41 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"amazon/amazon-model.js"
-]
-var config_view_js_37 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"amazon/amazon-view.js"
-]
-var modelScripts_42 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"historical/dukerutland-model.js"
-]
-var config_view_js_38 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"historical/dukerutland-view.js"
-]
-var modelScripts_43 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"amazon/gustav3-model.js"
-]
-var config_view_js_39 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"amazon/gustav3-view.js"
-]
-var modelScripts_44 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"decimal/hyderabad-model.js"
-]
-var config_view_js_40 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"decimal/hyderabad-view.js"
-]
-var modelScripts_45 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"tressau/kaisergame-model.js"
-]
-var modelScripts_46 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"tressau/sultangame-model.js"
-]
-var config_view_js_41 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"tressau/sultangame-view.js"
-]
-var modelScripts_47 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"duodecimal/reformed-courier-model.js"
-]
-var config_view_js_42 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"duodecimal/reformed-courier-view.js"
-]
-var modelScripts_48 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"amazon/tutti-frutti-model.js"
-]
-var config_view_js_43 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"amazon/tutti-frutti-view.js"
-]
-var modelScripts_49 = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"standard/sweet16-model.js"
-]
-var config_view_js_44 = [
-	"base-view.js",
-	"grid-board-view.js",
-	"staunton-set-view.js",
-	"standard/sweet16-view.js"
-]
-var modelScripts_tera = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"cazaux/terachess-model.js"
-]
-var config_view_js_tera = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"cazaux/terachess-view.js"
-]
-var modelScripts_giga = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"cazaux/gigachess-model.js"
-]
-var config_view_js_giga = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"cazaux/gigachess-view.js"
-]
-var modelScripts_lca = [
-		"base-model.js",
-		"grid-geo-model.js",
-		"duodecimal/leychessalpha-model.js"
-	]
-	var config_view_js_lca = [
-		"base-view.js",
-		"grid-board-view.js",
-		"fairy-set-view.js",
-		"duodecimal/leychessalpha-view.js"
-]
-
-var modelScripts_wtamerlane = [
-		"base-model.js",
-		"grid-geo-model.js",
-		"cazaux/wild-tamerlane-model.js"
-	]
-	var config_view_js_wtamerlane = [
-		"base-view.js",
-		"grid-board-view.js",
-		"fairy-set-view.js",
-		"cazaux/wild-tamerlane-view.js"
-	]
-var modelScripts_fantasticXIII = [
-		"base-model.js",
-		"grid-geo-model.js",
-		"fairy-piece-model.js",
-		"cazaux/fantasticXIII-model.js"
-	]
-	var config_view_js_fantasticXIII = [
-		"base-view.js",
-		"grid-board-view.js",
-		"fairy-set-view.js",
-		"cazaux/fantasticXIII-view.js"
-	]
-var modelScripts_bigorra = [
-		"base-model.js",
-		"grid-geo-model.js",
-		"fairy-piece-model.js",
-		"cazaux/bigorra-model.js"
-	]
-	var config_view_js_bigorra = [
-		"base-view.js",
-		"grid-board-view.js",
-		"fairy-set-view.js",
-		"cazaux/bigorra-view.js"
-	]
-var modelScripts_pemba = [
-		"base-model.js",
-		"grid-geo-model.js",
-		"cazaux/pemba-model.js"
-	]
-	var config_view_js_pemba = [
-		"base-view.js",
-		"grid-board-view.js",
-		"fairy-set-view.js",
-		"cazaux/pemba-view.js"
-	]
-var modelScripts_gigaII = [
-	"base-model.js",
-	"grid-geo-model.js",
-        "fairy-piece-model.js",
-	"cazaux/gigachessII-model.js"
-]
-var config_view_js_gigaII = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"cazaux/gigachessII-view.js"
-]
-var modelScripts_timurid = [
-		"base-model.js",
-		"grid-geo-model.js",
-        "fairy-piece-model.js",
-        "prelude-model.js",
-		"duodecimal/timurid-model.js"
-	]
-var modelScripts_gross = [
-		"base-model.js",
-		"grid-geo-model.js",
-        "fairy-piece-model.js",
-		"duodecimal/gross-model.js"
-	]
-	var config_view_js_timurid = [
-		"base-view.js",
-		"grid-board-view.js",
-		"fairy-set-view.js",
-        "prelude-view.js",
-		"duodecimal/timurid-view.js"
-	]
-	var config_view_js_duodecimal = [
-		"base-view.js",
-		"grid-board-view.js",
-		"fairy-set-view.js",
-		"duodecimal/duodecimal-view.js"
-	]
-var modelScripts_zanzibars = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"fairy-piece-model.js",
-	"cazaux/zanzibar-s-model.js"
-]
-var config_view_js_zanzibars = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"cazaux/zanzibar-view.js"
-]
-var modelScripts_acedrex = [
-	"base-model.js",
-	"grid-geo-model.js",
-	"historical/grant-acedrex-model.js"
-]
-var config_view_js_acedrex = [
-	"base-view.js",
-	"grid-board-view.js",
-	"fairy-set-view.js",
-	"historical/grant-acedrex-view.js"
-]
 
 module.exports = {
 	modelScripts, config_model_gameOptions_levelOptions, config_model_gameOptions,
 	config_model_levels, config_model_levels_2, config_model_levels_3, config_model_levels_4,
-	config_model_levels_5, config_model_levels_expert, config_model_levels_5_expert,
-	config_model_levels_amazon_expert, config_model_levels_5_amazon_expert,
+	config_model_levels_5, config_model_levels_expert, config_model_levels_amazon_expert,
 	config_model_levels_shako_expert, config_model_levels_pemba_expert_ini,
 	config_model_levels_pemba_expert, config_model_levels_chancellor_expert,
-	config_model_levels_5_chancellor_expert, config_model_levels_xiangqi_expert,
-	config_model_levels_5_xiangqi_expert, config_model_levels_shatranj_expert,
-	config_model_levels_5_shatranj_expert, config_model_levels_knightmate_expert,
-	config_model_levels_5_knightmate_expert, config_model_levels_grand_expert,
-	config_model_levels_5_grand_expert, config_model_levels_capablanca_missing_setups_ini,
-	config_model_levels_capablanca_expert, config_model_levels_5_capablanca_expert,
-	config_model_levels_antichess_expert, config_model_levels_5_antichess_expert,
-	config_model_levels_chess960_expert, config_model_levels_5_chess960_expert,
-	config_model_levels_makruk_expert, config_model_levels_5_makruk_expert,
-	config_model_levels_wildebeest_expert_ini, config_model_levels_wildebeest_expert,
-	config_model_levels_5_wildebeest_expert, config_model_levels_heavychess_expert_ini,
-	config_model_levels_heavychess_expert, config_model_levels_5_heavychess_expert,
-	config_model_levels_shogi_expert, config_model_levels_minishogi_expert,
-	config_model_levels_kyotoshogi_expert, config_model_levels_torishogi_expert,
-	config_model_levels_gardner_expert, config_model_levels_5_gardner_expert,
-	config_model_levels_losalamos_expert, config_model_levels_5_losalamos_expert,
-	config_model_levels_5_basic_expert, config_model_levels_mini4x4_expert_ini,
-	config_model_levels_mini4x4_expert, config_model_levels_5_mini4x4_expert,
+	config_model_levels_xiangqi_expert, config_model_levels_shatranj_expert,
+	config_model_levels_knightmate_expert, config_model_levels_grand_expert,
+	config_model_levels_capablanca_missing_setups_ini, config_model_levels_capablanca_expert,
+	config_model_levels_antichess_expert, config_model_levels_chess960_expert,
+	config_model_levels_makruk_expert, config_model_levels_wildebeest_expert_ini,
+	config_model_levels_wildebeest_expert, config_model_levels_heavychess_expert_ini,
+	config_model_levels_heavychess_expert, config_model_levels_shogi_expert,
+	config_model_levels_minishogi_expert, config_model_levels_kyotoshogi_expert,
+	config_model_levels_torishogi_expert, config_model_levels_gardner_expert,
+	config_model_levels_losalamos_expert, config_model_levels_5_basic_expert,
+	config_model_levels_mini4x4_expert_ini, config_model_levels_mini4x4_expert,
 	config_model_levels_mini4x5_expert_ini, config_model_levels_mini4x5_expert,
-	config_model_levels_5_mini4x5_expert, config_model_levels_micro4x5_expert_ini,
-	config_model_levels_micro4x5_expert, config_model_levels_5_micro4x5_expert,
+	config_model_levels_micro4x5_expert_ini, config_model_levels_micro4x5_expert,
 	config_model_levels_baby_expert_ini, config_model_levels_baby_expert,
-	config_model_levels_5_baby_expert, config_model_levels_malett_expert_ini,
-	config_model_levels_malett_expert, config_model_levels_5_malett_expert,
+	config_model_levels_malett_expert_ini, config_model_levels_malett_expert,
 	config_model_levels_attack_expert_ini, config_model_levels_attack_expert,
-	config_model_levels_5_attack_expert, config_model_levels_demi_expert_ini,
-	config_model_levels_demi_expert, config_model_levels_5_demi_expert,
-	config_model_levels_gustav3_expert, config_model_levels_5_gustav3_expert,
-	config_model_levels_spartan_expert, config_model_levels_hectochess_expert_ini,
-	config_model_levels_hectochess_expert, config_model_levels_5_hectochess_expert,
+	config_model_levels_demi_expert_ini, config_model_levels_demi_expert,
+	config_model_levels_gustav3_expert, config_model_levels_spartan_expert,
+	config_model_levels_hectochess_expert_ini, config_model_levels_hectochess_expert,
 	config_model_levels_tuttifrutti_expert_ini, config_model_levels_tuttifrutti_expert,
-	config_model_levels_5_tuttifrutti_expert, config_model_levels_courier_expert, config_view_css,
-	config_view_defaultOptions, config_view_skins_preload, config_view_skins_world_lightPosition,
+	config_model_levels_courier_expert, config_view_css, config_view_defaultOptions,
+	config_view_skins_preload, config_view_skins_world_lightPosition,
 	config_view_skins_world_skyLightPosition, config_view_skins_world, config_view_skins_camera,
 	config_view_skins, config_view_skins_camera_2, config_view_skins_preload_2,
-	config_view_sounds, config_view_js, modelScripts_2, config_model_gameOptions_levelOptions_2,
-	config_model_gameOptions_2, config_view_skins_world_lightPosition_2,
-	config_view_skins_world_2, config_view_skins_preload_3, config_view_js_2, modelScripts_janggi,
-	config_view_js_janggi, modelScripts_3, config_view_skins_2, config_view_skins_3,
-	config_view_js_3, modelScripts_4, config_view_js_4, modelScripts_5, config_view_js_5,
-	modelScripts_6, config_view_js_6, modelScripts_7, config_view_js_7, modelScripts_8,
-	config_view_js_8, modelScripts_9, config_view_js_9, modelScripts_10, config_view_js_10,
-	modelScripts_11, config_model_levels_6, config_model_levels_7, config_model_levels_8,
-	config_model_levels_9, config_model_levels_10, config_model_levels_10_courier_expert,
-	config_view_js_11, modelScripts_12, config_view_skins_world_lightPosition_3,
-	config_view_skins_world_3, config_view_js_12, modelScripts_13, modelScripts_100,
-	modelScripts_rococo, config_view_js_rococo, modelScripts_rocaille, config_view_js_rocaille,
-	modelScripts_ultima, config_view_js_ultima, modelScripts_101, modelScripts_102,
-	modelScripts_103, modelScripts_104, modelScripts_seireigi, modelScripts_chu_seireigi,
-	modelScripts_105, modelScripts_106, modelScripts_107, modelScripts_108,
-	config_model_gameOptions_levelOptions_tenjiku, config_model_gameOptions_tenjiku,
-	config_model_levels_mateSearch_tenjiku, config_model_levels_tenjiku, modelScripts_tenjiku,
-	modelScripts_109, modelScripts_110, modelScripts_kyoto, modelScripts_kotaishi,
-	config_model_levels_11, config_model_levels_12, config_model_levels_13,
-	config_model_levels_14, config_model_levels_15, config_model_levels_15_shako_expert,
-	config_model_levels_15_shogi_expert, config_model_levels_kotaishi_expert_ini,
-	config_model_levels_kotaishi_expert, config_model_levels_15_kotaishi_expert,
-	config_model_levels_15_minishogi_expert, config_model_levels_15_kyotoshogi_expert,
-	config_model_levels_15_torishogi_expert, config_model_levels_15_spartan_expert,
-	config_model_levels_15_pemba_expert, config_view_js_13, config_view_js_100,
-	config_view_js_101, config_view_js_102, config_view_js_103, config_view_js_104,
-	config_view_js_chu_seireigi, config_view_js_seireigi, config_view_js_kotaishi,
-	config_view_js_105, config_view_js_106, config_view_js_107, config_view_js_108,
-	config_view_js_tenjiku, config_view_js_109, config_view_js_110, modelScripts_14,
-	config_model_gameOptions_levelOptions_3, config_model_gameOptions_3, config_view_js_14,
-	modelScripts_15, modelScripts_knightmate, config_model_rules, config_model_credits,
-	config_view_js_15, config_view_skins_preload_4, config_view_skins_4, modelScripts_16,
+	config_view_sounds, config_view_js, config_model_gameOptions_levelOptions_2,
+	config_model_gameOptions_2, config_view_skins_world_lightPosition_2, config_view_skins_2,
+	config_view_skins_3, config_model_levels_6, config_model_levels_7, config_model_levels_8,
+	config_model_levels_9, config_model_levels_10, config_view_skins_world_lightPosition_3,
+	config_view_skins_world_3, config_model_gameOptions_levelOptions_tenjiku,
+	config_model_levels_mateSearch_tenjiku, config_model_levels_11, config_model_levels_12,
+	config_model_levels_13, config_model_levels_14, config_model_levels_15,
+	config_model_levels_kotaishi_expert_ini, config_model_levels_kotaishi_expert,
+	config_model_gameOptions_levelOptions_3, config_model_gameOptions_3, modelScripts_15,
+	config_model_credits, config_view_skins_preload_4, config_view_skins_4,
 	config_view_skins_camera_targetBounds, config_view_skins_preload_5, config_view_skins_5,
-	config_view_js_16, modelScripts_17, config_view_css_2, config_view_skins_preload_6,
-	config_view_skins_camera_3, config_view_skins_6, config_view_skins_preload_7,
-	config_view_skins_7, config_view_skins_8, config_view_js_17, modelScripts_18,
-	config_view_js_18, modelScripts_19, config_view_js_19, modelScripts_20, config_view_js_20,
-	modelScripts_21, config_view_skins_preload_8, config_view_js_21, modelScripts_22,
-	config_view_css_3, config_view_skins_camera_4, config_view_js_22, modelScripts_23,
-	config_view_js_23, modelScripts_24, modelScripts_space_spartan, config_view_js_space_spartan,
-	config_view_js_24, modelScripts_25, config_view_skins_camera_target, config_view_js_25,
-	modelScripts_26, config_view_js_26, modelScripts_27, config_view_js_27, modelScripts_28,
-	config_view_js_28, modelScripts_29, config_view_skins_preload_9, config_view_skins_9,
-	config_view_js_29, modelScripts_capablanca, config_view_skins_preload_10,
-	config_view_skins_10, config_view_skins_11, config_view_js_30, config_view_js_capablanca,
-	config_view_skins_preload_11, config_view_skins_12, config_view_skins_13, modelScripts_34,
-	modelScripts_hectochess, modelScripts_heavychess, config_view_js_31, modelScripts_35,
-	config_view_js_32, modelScripts_36, modelScripts_37, config_view_js_33, modelScripts_38,
-	config_view_js_34, modelScripts_39, config_view_js_35, modelScripts_40, config_view_js_36,
-	modelScripts_41, config_view_js_37, modelScripts_42, config_view_js_38, modelScripts_43,
-	config_view_js_39, modelScripts_44, config_view_js_40, modelScripts_45, modelScripts_46,
-	config_view_js_41, modelScripts_47, config_view_js_42, modelScripts_48, config_view_js_43,
-	modelScripts_49, config_view_js_44, modelScripts_tera, config_view_js_tera, modelScripts_giga,
-	config_view_js_giga, modelScripts_lca, config_view_js_lca, modelScripts_wtamerlane,
-	config_view_js_wtamerlane, modelScripts_fantasticXIII, config_view_js_fantasticXIII,
-	modelScripts_bigorra, config_view_js_bigorra, modelScripts_pemba, config_view_js_pemba,
-	modelScripts_gigaII, config_view_js_gigaII, modelScripts_timurid, modelScripts_gross,
-	config_view_js_timurid, config_view_js_duodecimal, modelScripts_zanzibars,
-	config_view_js_zanzibars, modelScripts_acedrex, config_view_js_acedrex
+	config_view_skins_preload_6, config_view_skins_camera_3, config_view_skins_6,
+	config_view_skins_preload_7, config_view_skins_7, config_view_skins_preload_8,
+	config_view_skins_camera_4, config_view_skins_camera_target, config_view_skins_preload_9,
+	config_view_skins_9, config_view_skins_preload_10, config_view_skins_10, config_view_skins_11,
+	config_view_js_30, config_view_skins_preload_11, config_view_skins_12, config_view_js_31
 };

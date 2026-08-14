@@ -7,13 +7,54 @@
  */
 
 const {
-	modelScripts, config_model_gameOptions, config_model_levels_5, config_view_css,
-	config_view_defaultOptions, config_view_skins_world, config_view_skins_camera,
-	config_view_sounds, config_model_gameOptions_2, modelScripts_11,
-	config_model_levels_10_courier_expert, config_view_js_11, config_model_levels_15,
-	config_view_skins_9, modelScripts_42, config_view_js_38, modelScripts_acedrex,
-	config_view_js_acedrex
+	modelScripts, config_model_gameOptions, config_model_levels_5,
+	config_model_levels_courier_expert, config_view_css, config_view_defaultOptions,
+	config_view_skins_world, config_view_skins_camera, config_view_sounds,
+	config_model_gameOptions_2, config_model_levels_10, config_model_levels_15, config_view_skins_9
 } = require("./shared.js");
+
+// declarations only this family uses, lifted out of shared.js
+var modelScripts_11 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"historical/courier-model.js"
+]
+
+var config_model_levels_10_courier_expert = config_model_levels_10.concat([config_model_levels_courier_expert]);
+
+var config_view_js_11 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"historical/courier-board-view.js",
+	"historical/courierchess-set-view.js",
+	"historical/courier-view.js"
+]
+
+var modelScripts_42 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"historical/dukerutland-model.js"
+]
+
+var config_view_js_38 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"historical/dukerutland-view.js"
+]
+
+var modelScripts_acedrex = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"historical/grant-acedrex-model.js"
+]
+
+var config_view_js_acedrex = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"historical/grant-acedrex-view.js"
+]
 
 exports.games = {
 

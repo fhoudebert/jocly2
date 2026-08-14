@@ -10,9 +10,35 @@
 const {
 	modelScripts, config_model_gameOptions, config_model_levels_5, config_view_css,
 	config_view_defaultOptions, config_view_skins_world, config_view_skins_camera,
-	config_view_sounds, config_view_skins_2, modelScripts_100, config_model_levels_15,
-	config_view_js_100, modelScripts_38, config_view_js_34
+	config_view_sounds, config_view_skins_2, config_model_levels_15
 } = require("./shared.js");
+
+// declarations only this family uses, lifted out of shared.js
+var modelScripts_100 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"team-mate-model.js"
+]
+
+var config_view_js_100 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"team-mate-view.js"
+]
+
+var modelScripts_38 = [
+	"base-model.js",
+	"smess-geo-model.js",
+	"smess-model.js"
+]
+
+var config_view_js_34 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"smess-set-view.js",
+	"smess-view.js"
+]
 
 exports.games = {
 

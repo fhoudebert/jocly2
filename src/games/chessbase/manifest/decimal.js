@@ -9,14 +9,83 @@
 
 const {
 	modelScripts, config_model_gameOptions, config_model_levels_5,
-	config_model_levels_5_grand_expert, config_model_levels_5_wildebeest_expert,
-	config_model_levels_5_heavychess_expert, config_model_levels_5_hectochess_expert,
-	config_view_css, config_view_defaultOptions, config_view_skins_world,
-	config_view_skins_camera, config_view_sounds, config_view_skins_2, modelScripts_104,
-	config_model_levels_15, config_view_js_104, config_view_skins_9, config_view_skins_11,
-	modelScripts_34, modelScripts_hectochess, modelScripts_heavychess, config_view_js_31,
-	modelScripts_37, config_view_js_33, modelScripts_44, config_view_js_40
+	config_model_levels_grand_expert, config_model_levels_wildebeest_expert,
+	config_model_levels_heavychess_expert, config_model_levels_hectochess_expert, config_view_css,
+	config_view_defaultOptions, config_view_skins_world, config_view_skins_camera,
+	config_view_sounds, config_view_skins_2, config_model_levels_15, config_view_skins_9,
+	config_view_skins_11, config_view_js_31
 } = require("./shared.js");
+
+// declarations only this family uses, lifted out of shared.js
+var config_model_levels_5_grand_expert = config_model_levels_5.concat([config_model_levels_grand_expert]);
+
+var config_model_levels_5_wildebeest_expert = config_model_levels_5.concat([config_model_levels_wildebeest_expert]);
+
+var config_model_levels_5_heavychess_expert = config_model_levels_5.concat([config_model_levels_heavychess_expert]);
+
+var config_model_levels_5_hectochess_expert = config_model_levels_5.concat([config_model_levels_hectochess_expert]);
+
+var modelScripts_104 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"decimal/scirocco-model.js"
+]
+
+var config_view_js_104 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"multi-leg-view.js",
+	"decimal/scirocco-view.js"
+]
+
+var modelScripts_34 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"fairy-piece-model.js",
+	"decimal/grand-model.js"
+]
+
+var modelScripts_hectochess = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"fairy-piece-model.js",
+	"decimal/hectochess-model.js"
+]
+
+var modelScripts_heavychess = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"fairy-piece-model.js",
+	"decimal/heavy-model.js"
+
+]
+
+var modelScripts_37 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"decimal/wildebeest-model.js"
+]
+
+var config_view_js_33 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"decimal/wildebeest-view.js"
+]
+
+var modelScripts_44 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"decimal/hyderabad-model.js"
+]
+
+var config_view_js_40 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"decimal/hyderabad-view.js"
+]
 
 exports.games = {
 

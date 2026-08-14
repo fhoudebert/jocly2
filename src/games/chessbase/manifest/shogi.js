@@ -8,16 +8,238 @@
  */
 
 const {
-	modelScripts, config_view_css, config_view_defaultOptions, config_view_skins_world,
-	config_view_skins_camera, config_view_sounds, config_model_gameOptions_2, config_view_skins_2,
-	modelScripts_seireigi, modelScripts_chu_seireigi, modelScripts_105, modelScripts_106,
-	modelScripts_107, modelScripts_108, modelScripts_kyoto, modelScripts_kotaishi,
-	config_model_levels_15, config_model_levels_15_shogi_expert,
-	config_model_levels_15_kotaishi_expert, config_model_levels_15_minishogi_expert,
-	config_model_levels_15_kyotoshogi_expert, config_model_levels_15_torishogi_expert,
-	config_view_js_chu_seireigi, config_view_js_seireigi, config_view_js_kotaishi,
-	config_view_js_105, config_view_js_106, config_view_js_107, config_view_js_108
+	modelScripts, config_model_levels_shogi_expert, config_model_levels_minishogi_expert,
+	config_model_levels_kyotoshogi_expert, config_model_levels_torishogi_expert, config_view_css,
+	config_view_defaultOptions, config_view_skins_world, config_view_skins_camera,
+	config_view_sounds, config_model_gameOptions_2, config_view_skins_2,
+	config_model_gameOptions_levelOptions_tenjiku, config_model_levels_mateSearch_tenjiku,
+	config_model_levels_15, config_model_levels_kotaishi_expert
 } = require("./shared.js");
+
+// declarations only this family uses, lifted out of shared.js
+var modelScripts_seireigi = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"drop-model.js",
+	"shogi/seireigi-shogi-model.js"
+]
+
+var modelScripts_chu_seireigi = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"drop-model.js",
+        "fairy-piece-model.js",
+	"shogi/chu-seireigi-model.js"
+]
+
+var modelScripts_105 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"drop-model.js",
+	"shogi/shogi-model.js"
+]
+
+var modelScripts_106 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"drop-model.js",
+	"shogi/tori-shogi-model.js"
+]
+
+var modelScripts_107 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"drop-model.js",
+	"shogi/mini-shogi-model.js"
+]
+
+var modelScripts_108 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"locust-move-model.js",
+	"shogi/chu-shogi-model.js"
+]
+
+var config_model_gameOptions_tenjiku = {
+	"preventRepeat": true,
+	"uctTransposition": "state",
+	"uctIgnoreLoop": false,
+	"levelOptions": config_model_gameOptions_levelOptions_tenjiku
+}
+
+var config_model_levels_tenjiku = [
+	{
+		"name": "easy",
+		"label": "Easy",
+		"ai": "uct",
+		"playoutDepth": 0,
+		"minVisitsExpand": 1,
+		"c": 0.6,
+		"ignoreLeaf": false,
+		"uncertaintyFactor": 3,
+		"maxNodes": 20000
+	},
+	{
+		"name": "fast",
+		"label": "Fast [5sec]",
+		"ai": "uct",
+		"playoutDepth": 0,
+		"minVisitsExpand": 1,
+		"c": 0.6,
+		"ignoreLeaf": false,
+		"uncertaintyFactor": 3,
+		"mateSearch": config_model_levels_mateSearch_tenjiku,
+		"maxDuration": 5,
+		"isDefault": true
+	},
+	{
+		"name": "medium",
+		"label": "Medium",
+		"ai": "uct",
+		"playoutDepth": 0,
+		"minVisitsExpand": 1,
+		"c": 0.6,
+		"ignoreLeaf": false,
+		"uncertaintyFactor": 3,
+		"mateSearch": config_model_levels_mateSearch_tenjiku,
+		"maxNodes": 150000,
+		"maxDuration": 40
+	},
+	{
+		"name": "strong",
+		"label": "Strong",
+		"ai": "uct",
+		"playoutDepth": 0,
+		"minVisitsExpand": 1,
+		"c": 0.6,
+		"ignoreLeaf": false,
+		"uncertaintyFactor": 3,
+		"mateSearch": config_model_levels_mateSearch_tenjiku,
+		"maxNodes": 500000,
+		"maxDuration": 120
+	},
+	{
+		"name": "hyper",
+		"label": "10 min",
+		"ai": "uct",
+		"playoutDepth": 0,
+		"minVisitsExpand": 1,
+		"c": 0.6,
+		"ignoreLeaf": false,
+		"uncertaintyFactor": 3,
+		"mateSearch": config_model_levels_mateSearch_tenjiku,
+		"maxNodes": 2500000,
+		"maxDuration": 600
+	},
+	{
+		"name": "correspondence",
+		"label": "20 min",
+		"ai": "uct",
+		"playoutDepth": 0,
+		"minVisitsExpand": 1,
+		"c": 0.6,
+		"ignoreLeaf": false,
+		"uncertaintyFactor": 3,
+		"mateSearch": config_model_levels_mateSearch_tenjiku,
+		"maxNodes": 5000000,
+		"maxDuration": 1200
+	}
+]
+
+var modelScripts_tenjiku = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"locust-move-model.js",
+	"shogi/tenjiku-shogi-model.js"
+]
+
+var modelScripts_kyoto = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"drop-model.js",
+	"shogi/kyoto-shogi-model.js"
+]
+
+var modelScripts_kotaishi = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"drop-model.js",
+	"shogi/kotaishi-shogi-model.js"
+]
+
+var config_model_levels_15_shogi_expert = config_model_levels_15.concat([config_model_levels_shogi_expert]);
+
+var config_model_levels_15_kotaishi_expert = config_model_levels_15.concat([config_model_levels_kotaishi_expert]);
+
+var config_model_levels_15_minishogi_expert = config_model_levels_15.concat([config_model_levels_minishogi_expert]);
+
+var config_model_levels_15_kyotoshogi_expert = config_model_levels_15.concat([config_model_levels_kyotoshogi_expert]);
+
+var config_model_levels_15_torishogi_expert = config_model_levels_15.concat([config_model_levels_torishogi_expert]);
+
+var config_view_js_chu_seireigi = [
+	"base-view.js",
+	"grid-board-view.js",
+	"shogi/chu-seireigi-set-view.js",
+	"drop-view.js",
+	"shogi/chu-seireigi-view.js"
+]
+
+	var config_view_js_seireigi = [
+	"base-view.js",
+	"grid-board-view.js",
+	"shogi/seireigi-shogi-set-view.js",
+	"drop-view.js",
+	"shogi/seireigi-shogi-view.js"
+]
+
+	var config_view_js_kotaishi = [
+	"base-view.js",
+	"grid-board-view.js",
+	"shogi/kotaishi-shogi-set-view.js",
+	"drop-view.js",
+	"shogi/shogi-view.js"
+]
+
+var config_view_js_105 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"shogi/shogi-set-view.js",
+	"drop-view.js",
+	"shogi/shogi-view.js"
+]
+
+var config_view_js_106 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"shogi/tori-set-view.js",
+	"drop-view.js",
+	"shogi/tori-shogi-view.js"
+]
+
+var config_view_js_107 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"shogi/shogi-set-view.js",
+	"drop-view.js",
+	"shogi/mini-shogi-view.js"
+]
+
+var config_view_js_108 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"shogi/tenjiku-set-view.js",
+	"multi-leg-view.js",
+	"shogi/chu-shogi-view.js"
+]
+
+var config_view_js_tenjiku = [
+	"base-view.js",
+	"grid-board-view.js",
+	"shogi/tenjiku-set-view.js",
+	"multi-leg-view.js",
+	"shogi/tenjiku-shogi-view.js"
+]
 
 exports.games = {
 

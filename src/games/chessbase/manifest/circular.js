@@ -11,10 +11,55 @@ const {
 	config_view_defaultOptions, config_view_skins_world_skyLightPosition, config_view_skins_world,
 	config_view_sounds, config_view_skins_world_3, config_model_gameOptions_3,
 	config_view_skins_preload_4, config_view_skins_camera_targetBounds, config_view_skins_5,
-	config_view_skins_7, config_view_skins_preload_8, modelScripts_22, config_view_css_3,
-	config_view_skins_camera_4, config_view_js_22, modelScripts_23, config_view_js_23,
-	modelScripts_25, config_view_skins_camera_target, config_view_js_25
+	config_view_skins_7, config_view_skins_preload_8, config_view_skins_camera_4,
+	config_view_skins_camera_target
 } = require("./shared.js");
+
+// declarations only this family uses, lifted out of shared.js
+var modelScripts_22 = [
+	"base-model.js",
+	"cylinder-geo-model.js",
+	"circular/circular-model.js"
+]
+
+var config_view_css_3 = [
+	"chessbase.css",
+	"circular.css"
+]
+
+var config_view_js_22 = [
+	"base-view.js",
+	"circular-board-view.js",
+	"staunton-set-view.js",
+	"circular/circular-view.js"
+]
+
+var modelScripts_23 = [
+	"base-model.js",
+	"cylinder-geo-model.js",
+	"circular/byzantine-model.js"
+]
+
+var config_view_js_23 = [
+	"base-view.js",
+	"circular-board-view.js",
+	"nishapur-set-view.js",
+	"circular/byzantine-view.js"
+]
+
+var modelScripts_25 = [
+	"base-model.js",
+	"cylinder-geo-model.js",
+	"circular/cylinder-model.js"
+]
+
+var config_view_js_25 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"cylinder-board-view.js",
+	"staunton-set-view.js",
+	"circular/cylinder-view.js"
+]
 
 exports.games = {
 

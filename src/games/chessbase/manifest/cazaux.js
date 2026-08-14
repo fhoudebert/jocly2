@@ -8,17 +8,164 @@
  */
 
 const {
-	modelScripts, config_model_gameOptions, config_model_levels_5, config_view_css,
+	modelScripts, config_model_gameOptions, config_model_levels_5,
+	config_model_levels_shako_expert, config_model_levels_pemba_expert, config_view_css,
 	config_view_defaultOptions, config_view_skins_world, config_view_skins_camera,
-	config_view_sounds, config_view_skins_2, modelScripts_13, config_model_levels_15,
-	config_model_levels_15_shako_expert, config_model_levels_15_pemba_expert, config_view_js_13,
-	config_view_skins_7, config_view_skins_camera_4, modelScripts_27, config_view_js_27,
-	modelScripts_29, config_view_skins_9, config_view_js_29, modelScripts_tera,
-	config_view_js_tera, modelScripts_giga, config_view_js_giga, modelScripts_wtamerlane,
-	config_view_js_wtamerlane, modelScripts_fantasticXIII, config_view_js_fantasticXIII,
-	modelScripts_bigorra, config_view_js_bigorra, modelScripts_pemba, config_view_js_pemba,
-	modelScripts_gigaII, config_view_js_gigaII, modelScripts_zanzibars, config_view_js_zanzibars
+	config_view_sounds, config_view_skins_2, config_model_levels_15, config_view_skins_7,
+	config_view_skins_camera_4, config_view_skins_9
 } = require("./shared.js");
+
+// declarations only this family uses, lifted out of shared.js
+var modelScripts_13 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"cazaux/shako-model.js"
+]
+
+var config_model_levels_15_shako_expert = config_model_levels_15.concat([config_model_levels_shako_expert]);
+
+var config_model_levels_15_pemba_expert = config_model_levels_15.concat([config_model_levels_pemba_expert]);
+
+var config_view_js_13 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"cazaux/shako-view.js"
+]
+
+var modelScripts_27 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"cazaux/rollerball-model.js"
+]
+
+var config_view_js_27 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"staunton-set-view.js",
+	"cazaux/rollerball-view.js"
+]
+
+var modelScripts_29 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"cazaux/metamachy-model.js"
+]
+
+var config_view_js_29 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"cazaux/metamachy-view.js"
+]
+
+var modelScripts_tera = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"cazaux/terachess-model.js"
+]
+
+var config_view_js_tera = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"cazaux/terachess-view.js"
+]
+
+var modelScripts_giga = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"cazaux/gigachess-model.js"
+]
+
+var config_view_js_giga = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"cazaux/gigachess-view.js"
+]
+
+var modelScripts_wtamerlane = [
+		"base-model.js",
+		"grid-geo-model.js",
+		"cazaux/wild-tamerlane-model.js"
+	]
+
+	var config_view_js_wtamerlane = [
+		"base-view.js",
+		"grid-board-view.js",
+		"fairy-set-view.js",
+		"cazaux/wild-tamerlane-view.js"
+	]
+
+var modelScripts_fantasticXIII = [
+		"base-model.js",
+		"grid-geo-model.js",
+		"fairy-piece-model.js",
+		"cazaux/fantasticXIII-model.js"
+	]
+
+	var config_view_js_fantasticXIII = [
+		"base-view.js",
+		"grid-board-view.js",
+		"fairy-set-view.js",
+		"cazaux/fantasticXIII-view.js"
+	]
+
+var modelScripts_bigorra = [
+		"base-model.js",
+		"grid-geo-model.js",
+		"fairy-piece-model.js",
+		"cazaux/bigorra-model.js"
+	]
+
+	var config_view_js_bigorra = [
+		"base-view.js",
+		"grid-board-view.js",
+		"fairy-set-view.js",
+		"cazaux/bigorra-view.js"
+	]
+
+var modelScripts_pemba = [
+		"base-model.js",
+		"grid-geo-model.js",
+		"cazaux/pemba-model.js"
+	]
+
+	var config_view_js_pemba = [
+		"base-view.js",
+		"grid-board-view.js",
+		"fairy-set-view.js",
+		"cazaux/pemba-view.js"
+	]
+
+var modelScripts_gigaII = [
+	"base-model.js",
+	"grid-geo-model.js",
+        "fairy-piece-model.js",
+	"cazaux/gigachessII-model.js"
+]
+
+var config_view_js_gigaII = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"cazaux/gigachessII-view.js"
+]
+
+var modelScripts_zanzibars = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"fairy-piece-model.js",
+	"cazaux/zanzibar-s-model.js"
+]
+
+var config_view_js_zanzibars = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"cazaux/zanzibar-view.js"
+]
 
 exports.games = {
 

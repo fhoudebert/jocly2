@@ -9,18 +9,162 @@
  */
 
 const {
-	modelScripts, config_model_gameOptions, config_model_levels_5, config_model_levels_5_expert,
-	config_model_levels_5_xiangqi_expert, config_model_levels_5_shatranj_expert,
-	config_model_levels_5_chess960_expert, config_model_levels_5_makruk_expert, config_view_css,
-	config_view_defaultOptions, config_view_skins_world, config_view_skins_camera,
+	modelScripts, config_model_gameOptions, config_model_levels_5, config_model_levels_expert,
+	config_model_levels_xiangqi_expert, config_model_levels_shatranj_expert,
+	config_model_levels_chess960_expert, config_model_levels_makruk_expert,
+	config_model_levels_spartan_expert, config_view_css, config_view_defaultOptions,
+	config_view_skins_world_skyLightPosition, config_view_skins_world, config_view_skins_camera,
 	config_view_skins, config_view_skins_camera_2, config_view_skins_preload_2,
-	config_view_sounds, config_view_js, modelScripts_2, config_model_gameOptions_2,
-	config_view_skins_world_2, config_view_skins_preload_3, config_view_js_2, modelScripts_janggi,
-	config_view_js_janggi, config_view_skins_2, config_view_skins_3, modelScripts_12,
-	config_view_skins_world_3, config_view_js_12, modelScripts_103,
-	config_model_levels_15_spartan_expert, config_view_js_103, modelScripts_14,
-	config_model_gameOptions_3, config_view_js_14, modelScripts_28, config_view_js_28
+	config_view_sounds, config_view_js, config_model_gameOptions_2,
+	config_view_skins_world_lightPosition_2, config_view_skins_2, config_view_skins_3,
+	config_view_skins_world_3, config_model_levels_15, config_model_gameOptions_3
 } = require("./shared.js");
+
+// declarations only this family uses, lifted out of shared.js
+var config_model_levels_5_expert = config_model_levels_5.concat([config_model_levels_expert]);
+
+var config_model_levels_5_xiangqi_expert = config_model_levels_5.concat([config_model_levels_xiangqi_expert]);
+
+var config_model_levels_5_shatranj_expert = config_model_levels_5.concat([config_model_levels_shatranj_expert]);
+
+var config_model_levels_5_chess960_expert = config_model_levels_5.concat([config_model_levels_chess960_expert]);
+
+var config_model_levels_5_makruk_expert = config_model_levels_5.concat([config_model_levels_makruk_expert]);
+
+var modelScripts_2 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"famous/xiangqi-model.js",
+	"famous/xiangqi-db.min.js"
+]
+
+var config_view_skins_world_2 = {
+	"lightIntensity": 0.8,
+	"skyLightIntensity": 0.5,
+	"lightCastShadow": true,
+	"fog": false,
+	"color": 4686804,
+	"lightPosition": config_view_skins_world_lightPosition_2,
+	"skyLightPosition": config_view_skins_world_skyLightPosition,
+	"lightShadowDarkness": 0.75,
+	"ambientLightColor": 4473924
+}
+
+var config_view_skins_preload_3 = [
+	"smoothedfilegeo|0|/res/ring-target.js",
+	"image|/res/images/cancel.png",
+	"smoothedfilegeo|0|/res/xiangqi/token.js",
+	"image|/res/xiangqi/wood3.jpg",
+	"image|/res/xiangqi/clearwoodtexture.jpg",
+	"image|/res/xiangqi/decoration-cross.png",
+	"image|/res/xiangqi/whitebg.png",
+	"image|/res/xiangqi/xiangqi-pieces-sprites-western-player.png",
+	"image|/res/xiangqi/piecebump.jpg"
+]
+
+var config_view_js_2 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"famous/xiangqi-board-view.js",
+	"famous/xiangqi-set-view.js",
+	"famous/xiangqi-view.js"
+]
+
+var modelScripts_janggi = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"famous/janggi-model.js"
+]
+
+var config_view_js_janggi = [
+	"base-view.js",
+	"grid-board-view.js",
+	"famous/janggi-board-view.js",
+	"famous/janggi-set-view.js",
+	"famous/janggi-view.js"
+]
+
+var modelScripts_12 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"famous/makruk-model.js"
+]
+
+var config_view_js_12 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"makruk-board-view.js",
+	"makruk-set-view.js",
+	"famous/makruk-view.js"
+]
+
+var modelScripts_103 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"famous/spartan-model.js"
+]
+
+var config_model_levels_15_spartan_expert = config_model_levels_15.concat([config_model_levels_spartan_expert]);
+
+var config_view_js_103 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"famous/spartan-view.js"
+]
+
+var modelScripts_14 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"famous/shatranj-model.js"
+]
+
+var config_view_js_14 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"shatranj-board-view.js",
+	"nishapur-set-view.js",
+	"famous/shatranj-view.js"
+]
+
+var modelScripts_28 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"famous/chess960-model.js"
+]
+
+var config_view_js_28 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"staunton-set-view.js",
+	"famous/chess960-view.js"
+]
+
+/*
+Janggi + Fairy-Stockfish: ON HOLD, hence commented out rather than
+deleted. The engine has the variant built in, and "janggitraditional" is
+the one that matches this model - bikjangRule on, no material counting -
+while Jocly's H(orse)/E(lephant) are its N/B exactly as for Xiangqi.
+
+What is left to reconcile is the pass: Fairy-Stockfish sets
+pass[WHITE] = pass[BLACK] = true, i.e. a player may pass on ANY turn,
+while this model only passes when nothing else can move. The engine can
+therefore answer with a null move that has no counterpart in the move
+list, and jocly.fairy.js's ResolveMove would either throw or fall back on
+the nearest legal move by edit distance - silently wrong. Enable this
+level once the two agree on when a pass is available.
+
+var config_model_levels_janggi_expert = {
+	"name": "expert",
+	"label": "Expert",
+	"ai": "fairy-stockfish",
+	"variant": "janggitraditional",
+	"skillLevel": 20,
+	"moveTimeMs": 1000,
+	"pieceMap": { "H": "N", "E": "B" }
+}
+var config_model_levels_5_janggi_expert = config_model_levels_5.concat([config_model_levels_janggi_expert]);
+*/
 
 exports.games = {
 
