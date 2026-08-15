@@ -99,8 +99,16 @@ function HandleModuleGames(modelOnly) {
 		// copy it cached on the first build. Edits to a module's index.js -
 		// a new game, a new skin, a changed level - would then be watched,
 		// trigger a rebuild, and be written out stale.
+		//
+		// The whole module directory, not just its index.js: a manifest split
+		// across several files (chessbase/manifest/*.js) would otherwise keep
+		// serving the cached halves, and an edit to a shared block would be
+		// silently ignored - the same bug, harder to spot.
 		var manifestPath = require.resolve(file.path);
-		delete require.cache[manifestPath];
+		var moduleRoot = path.dirname(manifestPath) + path.sep;
+		Object.keys(require.cache)
+			.filter((cached) => cached.startsWith(moduleRoot))
+			.forEach((cached) => delete require.cache[cached]);
 		var moduleManifest = require(manifestPath);
 		var streams = [];
 		moduleManifest.games.forEach((game) => {

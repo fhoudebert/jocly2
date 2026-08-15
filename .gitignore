@@ -5,5 +5,8 @@ tmp/
 npm-debug.log
 private/
 tabulon
-
+engine/
 package-lock.json
+*.patch
+voir.sh
+engine/fairy-stockfish

@@ -56,14 +56,31 @@ check("view uses the picto style as default 2D",/cbChuPieceStyle\(/.test(view));
 check("view wires the mnemonic sheet under skin2dmnemonic",
 	/"skin2dmnemonic":\s*this\.cbChuMnemonicPieceStyle\(\)\["default"\]\["2d"\]/.test(view));
 
-// and index.js must declare the two skins with the right preloads
-var index=fs.readFileSync(path.join(base,"index.js"),"utf8");
-var entry=index.split('"name": "tenjiku-shogi"')[1]||"";
-entry=entry.split('"viewScripts"')[0];
-check("index.js declares the 2D Classic skin",/"name": "skin2d"/.test(entry));
-check("index.js declares the 2D Mnemonic skin",/"name": "skin2dmnemonic"/.test(entry));
+// ...and the manifest must declare the two skins with the right preloads.
+// The game entries no longer sit in index.js: the module's manifest is split
+// into manifest/<family>.js, so look for the entry rather than assume a file.
+var manifestDir=path.join(base,"manifest");
+var manifestFiles=[path.join(base,"index.js")].concat(
+	fs.existsSync(manifestDir)
+		? fs.readdirSync(manifestDir).filter(function(f){ return /\.js$/.test(f); })
+			.map(function(f){ return path.join(manifestDir,f); })
+		: []);
+var holder=manifestFiles.filter(function(f){
+	return fs.readFileSync(f,"utf8").indexOf('"name": "tenjiku-shogi"')>=0;
+});
+check("the manifest declares the game exactly once",holder.length===1,
+	holder.length+" file(s): "+holder.map(function(f){ return path.basename(f); }).join(", "));
+var entry=(fs.readFileSync(holder[0]||manifestFiles[0],"utf8")
+	.split('"name": "tenjiku-shogi"')[1]||"").split('"viewScripts"')[0];
+var where=path.basename(holder[0]||"index.js");
+check(where+" declares the 2D Classic skin",/"name": "skin2d"/.test(entry));
+check(where+" declares the 2D Mnemonic skin",/"name": "skin2dmnemonic"/.test(entry));
 check("2D Classic preloads the picto sheet",/tenjiku-shogi-picto-sprites\.png/.test(entry));
 check("2D Mnemonic preloads the mnemonic sheet",/tenjiku-shogi-mnemonic-sprites\.png/.test(entry));
+
+// the entry must actually be live, not left behind commented out
+var built=require(path.join(__dirname,"..","src","games","chessbase","index.js")).games;
+check("the game is in exports.games",built.some(function(g){ return g.name==="tenjiku-shogi"; }));
 
 console.log("\n"+passed+" passed, "+failed+" failed");
 process.exit(failed?1:0);

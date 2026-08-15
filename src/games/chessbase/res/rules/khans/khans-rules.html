@@ -1,0 +1,101 @@
+<style>
+	h1, h2, h3 {
+		clear: both;
+	}
+    .piece-graph {
+        height: auto;
+        max-width: 300px;
+        margin: 0 auto;
+        display: block;
+    }
+
+</style>
+
+<h1>Khan's Chess</h1>
+
+<p>Khan's Chess is an asymmetric game: the <b>Kingdom</b> (White) is
+the FIDE chess army, while the <b>Horde</b> (Black) is entirely mounted.
+Couch Tomato designed it in 2023-2024 as a rebalanced successor to Orda Chess,
+replacing its pawns and yurt with the scout and khatun.</p>
+
+<p>The Horde's pieces occupy the squares of their chess counterparts: the
+lancers in the corners, the kheshigs next to them, then the archers, the khatun
+and the khan in the center. Its scouts start from the second rank rather than the first.
+The Kingdom always moves first.</p>
+
+<h2>The Horde</h2>
+
+<p>All Horde units move like a knight — the Mongol army was a cavalry army —
+but most <b>do not capture where they move</b></p>
+
+
+<h3>Scout (S)</h3>
+<p>
+<img style="max-width:100%;" src='{GAME}/res/rules/fairy/scout.png'>
+
+only, and it attacks only a single square, directly in front of it. This narrow attack
+makes it a much worse defender than the pawn — scouts cannot form chains — but
+it crosses the board twice as fast and therefore threatens to promote very early.
+Upon reaching the last rank, it must promote to a khatun.</p>
+<p><img class='piece-graph' src="{GAME}/res/rules/khans/scout-moves.png" alt="Scout movement"/></p>
+
+<h3>Khatun (T)</h3>
+<p>
+<img style="max-width:100%;" src='{GAME}/res/rules/fairy/duchess.png'>
+</p>
+
+
+<p>The khatun moves like a knight and captures like a king. Although it
+occupies the queen's square, it is the weakest piece on the back rank, and
+is most effective in defense. (The khatun is the khan's wife.)</p>
+<p><img class='piece-graph' src="{GAME}/res/rules/khans/khatun-moves.png" alt="Khatun movement"/></p>
+
+<h3>Mounted Archer (A)</h3>
+
+
+<img style="max-width:100%;" src='{GAME}/res/rules/fairy/bow.png'>
+<p>The archer moves like a knight and captures diagonally like a bishop.
+Since it is not restricted to squares of one color — it can reach the entire
+board — it is worth more than the opposing bishop.</p>
+<p><img class='piece-graph' src="{GAME}/res/rules/khans/archer-moves.png" alt="Archer movement"/></p>
+
+<h3>Kheshig / Centaur</h3>
+<p>
+<img style="max-width:100%;" src='{GAME}/res/rules/fairy/crowned-knight.png'>
+</p>
+
+<p>The kheshig combines the knight and the king, and is the only Horde piece
+that captures exactly where it moves. It starts on the knight's square but
+is the strongest piece in the game, and the Horde generally keeps its kheshigs
+at home until the endgame: checkmating the khan while a kheshig is guarding it
+is very difficult. Kheshigs formed the imperial guard of Mongol royalty.</p>
+<p><img class='piece-graph' src='{GAME}/res/rules/graphs/centaur.png'></p>
+
+<h3>Lancer (L)</h3>
+<p>
+<img src='{GAME}/res/rules/fairy/marshall.png'>
+</p>
+<p>The lancer moves like a knight and captures along ranks and files like a rook.
+It is weaker than a rook, and increasingly so as the board empties,
+since it cannot cross the board in a single move — but it enters the game much
+earlier than a rook, which is the Horde's compensation.</p>
+<p><img class='piece-graph' src="{GAME}/res/rules/khans/lancer-moves.png" alt="Lancer movement"/></p>
+
+<h2>Rules</h2>
+
+<ol>
+	<li>The Kingdom (White) always moves first.</li>
+	<li>The only piece common to both armies is the king. The Horde's king
+		is called the khan; the name and symbol differ purely for thematic
+		reasons, and it plays exactly like a king.</li>
+	<li>The Horde cannot castle. The Kingdom castles as in chess.</li>
+	<li>Pawns promote to any piece, as in chess. Scouts promote only to khatuns.</li>
+	<li><b>Camp Checkmate</b>: Capturing the opponent's camp by moving your own king
+		(without being in check) onto the opposite rank immediately wins the game.</li>
+	<li><b>Stalemate is a loss</b> for the player who can no longer move, rather
+		than a draw as in chess.</li>
+	<li>Everything else, including repetition, is as in chess.</li>
+</ol>
+
+<p>The two armies are roughly equal in strength: the Horde's pieces are
+individually awkward, but they develop faster and the kheshigs dominate the endgame.</p>

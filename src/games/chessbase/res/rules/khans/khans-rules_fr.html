@@ -1,0 +1,102 @@
+<style>
+	h1, h2, h3 {
+		clear: both;
+	}
+    .piece-graph {
+        height: auto;
+        max-width: 300px;
+        margin: 0 auto;
+        display: block;
+    }
+
+</style>
+
+<h1>Les échecs du Khan</h1>
+
+<p>Khan's Chess est un jeu asymétrique : le <b>Royaume</b> (les Blancs) est
+l'armée d'échecs FIDE, la <b>Horde</b> (les Noirs) est entièrement montée.
+Couch Tomato l'a conçu en 2023-2024 comme un successeur rééquilibré d'Orda Chess,
+dont il remplace les pions et la yourte par l'éclaireur et la khatoun.</p>
+
+<p>Les pièces de la Horde occupent la case de leur homologue des échecs : les
+lanciers aux coins, les kheshigs à côté, puis les archers, la khatoun et le khan
+au centre. Ses éclaireurs partent de la deuxième rangée et non de la première. Le
+Royaume joue toujours en premier.</p>
+
+<h2>La Horde</h2>
+
+<p>Toutes les unités de la Horde se déplacent comme un cavalier — l'armée mongole
+était une cavalerie — mais la plupart <b>ne capturent pas là où elles se
+déplacent</b></p>
+
+
+<h3>Éclaireur (S)</h3>
+<p>
+<img style="max-width:100%;" src='{GAME}/res/rules/fairy/scout.png'>
+
+seulement, et il n'attaque qu'une seule case, droit devant lui. Cette attaque
+étroite en fait un bien moins bon défenseur que le pion — les éclaireurs ne
+forment pas de chaînes — mais il traverse l'échiquier deux fois plus vite et
+menace donc de promouvoir très tôt. Arrivé sur la dernière rangée, il promeut
+obligatoirement en khatoun.</p>
+<p><img class='piece-graph' src="{GAME}/res/rules/khans/scout-moves.png" alt="Déplacement de l'éclaireur"/></p>
+<h3>Khatoun (T)</h3>
+<p>
+<img style="max-width:100%;" src='{GAME}/res/rules/fairy/duchess.png'>
+</p>
+
+
+<p>La khatoun se déplace comme un cavalier et capture comme un roi. Bien qu'elle
+occupe la case de la dame, c'est la pièce la plus faible de la rangée, et elle
+donne sa pleine mesure en défense. (La khatoun est l'épouse du khan.)</p>
+<p><img class='piece-graph' src="{GAME}/res/rules/khans/khatun-moves.png" alt="Déplacement de la khatoun"/></p>
+<h3>Archer monté (A)</h3>
+
+
+<img style="max-width:100%;" src='{GAME}/res/rules/fairy/bow.png'>
+<p>L'archer se déplace comme un cavalier et capture en diagonale comme un fou.
+N'étant pas prisonnier d'une couleur de cases — il peut atteindre toute
+l'échiquier — il vaut plus que le fou qui lui fait face.</p>
+<p><img class='piece-graph' src="{GAME}/res/rules/khans/archer-moves.png" alt="Déplacement de l'archer"/></p>
+<h3>Kheshig / Centaure</h3>
+<p>
+<img style="max-width:100%;" src='{GAME}/res/rules/fairy/crowned-knight.png'>
+</p>
+
+<p>Le kheshig combine le cavalier et le roi, et c'est la seule pièce de la Horde
+qui capture exactement là où elle se déplace. Il part de la case du cavalier mais
+c'est la pièce la plus forte du jeu, et la Horde garde en général ses kheshigs à
+la maison jusqu'à la finale : mater le khan tant qu'un kheshig le garde est très
+difficile. Les kheshigs formaient la garde impériale de la royauté mongole.</p>
+<p><img class='piece-graph' src='{GAME}/res/rules/graphs/centaur.png'></p>
+
+<h3>Lancier (L)</h3>
+<p>
+<img src='{GAME}/res/rules/fairy/marshall.png'>
+</p>
+<p>Le lancier se déplace comme un cavalier et capture en ligne comme une tour. Il
+est plus faible qu'une tour, et de plus en plus à mesure que l'échiquier se vide,
+puisqu'il ne peut pas le traverser d'un seul coup — mais il entre en jeu bien plus
+tôt qu'une tour, ce qui est la compensation de la Horde.</p>
+<p><img class='piece-graph' src="{GAME}/res/rules/khans/lancer-moves.png" alt="Déplacement du lancier"/></p>
+
+<h2>Règles</h2>
+
+<ol>
+	<li>Le Royaume (les Blancs) joue toujours en premier.</li>
+	<li>La seule pièce commune aux deux armées est le roi. Celui de la Horde
+		s'appelle le khan ; le nom et le symbole diffèrent pour des raisons
+		purement thématiques, il joue exactement comme un roi.</li>
+	<li>La Horde ne roque pas. Le Royaume roque comme aux échecs.</li>
+	<li>Les pions promeuvent en n'importe quelle pièce, comme aux échecs. Les
+		éclaireurs promeuvent uniquement en khatoun.</li>
+	<li><b>Mat de Camp</b> : Prendre le camp adverse en amenant son propre roi (sans être en échec) sur la rangée opposée gagne
+		immédiatement la partie.</li>
+	<li><b>Le pat est une défaite</b> pour le joueur qui ne peut plus jouer, et
+		non une nulle comme aux échecs.</li>
+	<li>Tout le reste, y compris la répétition, est comme aux échecs.</li>
+</ol>
+
+<p>Les deux armées sont de force voisine : les pièces de la Horde sont
+individuellement malcommodes, mais elles se développent plus vite et les kheshigs
+dominent la finale.</p>
