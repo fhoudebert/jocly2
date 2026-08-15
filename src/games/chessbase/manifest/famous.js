@@ -958,14 +958,8 @@ exports.games = {
 				"plazza": "true",
 				"thumbnail": "res/rules/khans/khans-thumb.png",
 				"released": 1755129600,
-				"credits": {
-					"en": "res/rules/khans/khans-credits.html"
-				},
 				"gameOptions": config_model_gameOptions_khans,
 				"js": modelScripts_khans,
-				"description": {
-					"en": "res/rules/khans/khans-description.html"
-				},
 				"levels": config_model_levels_15_khans_expert
 			},
 			"view": {

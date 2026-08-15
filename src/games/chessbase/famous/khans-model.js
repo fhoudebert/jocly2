@@ -177,7 +177,7 @@
 
 				8: {
 					name: 'lancer',
-					aspect: 'fr-lance',
+					aspect: 'fr-marshall',
 					graph: Divergent(
 						KnightMoveGraph(),
 						this.cbLongRangeGraph(geometry, ORTHO_STEPS, 0, CAPTURE)),
