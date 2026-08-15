@@ -18,7 +18,7 @@ const vm = require("vm");
 
 const SRC = path.join(__dirname, "..", "..", "src");
 
-const SCRIPTS = ["base-model.js", "grid-geo-model.js", "famous/khans-model.js"];
+const SCRIPTS = ["base-model.js", "grid-geo-model.js", "asymmetric/khans-model.js"];
 
 function loadModel(scripts) {
 	const sandbox = {

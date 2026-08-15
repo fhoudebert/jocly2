@@ -5,7 +5,7 @@
  *   node tests/khans/fairy.test.js
  *
  * The variant has no built-in equivalent in the bundled engine, so the level
- * declares it at runtime with a customVariantIni (see manifest/famous.js). A
+ * declares it at runtime with a customVariantIni (see manifest/asymmetric.js). A
  * wrong or drifting definition there does not fail loudly - the engine happily
  * searches a different game and returns a move Jocly then Levenshtein-matches
  * to something legal. So this suite drives the real wasm binary directly, with
@@ -50,7 +50,7 @@ const t = H.runner();
 
 /* ---------------- the level, as shipped ---------------- */
 
-const game_config = require(path.join(ROOT, "src", "games", "chessbase", "manifest", "famous.js"))
+const game_config = require(path.join(ROOT, "src", "games", "chessbase", "manifest", "asymmetric.js"))
 	.games["khans-chess"];
 const levels = game_config.config.model.levels;
 const level = levels.find((l) => l && l.ai === "fairy-stockfish");

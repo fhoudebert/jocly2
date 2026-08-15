@@ -18,6 +18,7 @@
 
 const boards3d = require("./manifest/3d.js").games;
 const amazon = require("./manifest/amazon.js").games;
+const asymmetric = require("./manifest/asymmetric.js").games;
 const capa10x8 = require("./manifest/capa10x8.js").games;
 const cazaux = require("./manifest/cazaux.js").games;
 const circular = require("./manifest/circular.js").games;
@@ -104,8 +105,8 @@ exports.games = [
 	ultima["rocaille"],
 	locust["werewolf-chess"],
 	locust["elven-chess"],
-	famous["spartan-chess"],
-	famous["khans-chess"],
+	asymmetric["spartan-chess"],
+	asymmetric["khans-chess"],
 	decimal["scirocco-chess"],
 	shogi["shogi"],
 	shogi["kotaishi-shogi"],

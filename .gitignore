@@ -5,5 +5,7 @@ tmp/
 npm-debug.log
 private/
 tabulon
-
+engine/
 package-lock.json
+*.patch
+*.sh

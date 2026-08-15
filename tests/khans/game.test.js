@@ -80,7 +80,7 @@ aspects.forEach((aspect) => {
  * against the names they are meant to mean.
  */
 console.log("\nevaluation type numbers");
-const source = fs.readFileSync(path.join(CHESSBASE, "famous", "khans-model.js"), "utf8");
+const source = fs.readFileSync(path.join(CHESSBASE, "asymmetric", "khans-model.js"), "utf8");
 const nameOfType = (type) => (game.cbVar.pieceTypes[type] || {}).name;
 
 const minorList = /\[\[1,2\],\[1,3\],\[-1,(\d+)\],\[-1,(\d+)\]\]/.exec(source);
@@ -131,7 +131,7 @@ t.check("a kheshig move does not",
  */
 console.log("\nmove animation");
 
-const view = fs.readFileSync(path.join(CHESSBASE, "famous", "khans-view.js"), "utf8");
+const view = fs.readFileSync(path.join(CHESSBASE, "asymmetric", "khans-view.js"), "utf8");
 t.ok("the view does not override cbMoveMidZ", view.indexOf("cbMoveMidZ =") < 0);
 
 // lift the shared implementation out of grid-board-view.js and run it here:
@@ -162,11 +162,14 @@ t.check("the king still hops over the rook when castling",
 
 console.log("\nrules page resources");
 
-const entry = require(path.join(CHESSBASE, "manifest", "famous.js")).games["khans-chess"].config.model;
+const entry = require(path.join(CHESSBASE, "manifest", "asymmetric.js")).games["khans-chess"].config.model;
+// credits and description are optional - several games in the module declare
+// neither - so only what the entry actually points at is checked
 const declared = [entry.thumbnail]
-	.concat(Object.values(entry.rules))
-	.concat(Object.values(entry.credits))
-	.concat(Object.values(entry.description));
+	.concat(Object.values(entry.rules || {}))
+	.concat(Object.values(entry.credits || {}))
+	.concat(Object.values(entry.description || {}))
+	.filter(Boolean);
 declared.forEach((file) => {
 	t.ok("the manifest's " + path.basename(file) + " exists",
 		fs.existsSync(path.join(CHESSBASE, file)));

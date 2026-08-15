@@ -1,6 +1,6 @@
 {
-	"bytes": 355458,
-	"digest": "b6f45f00f7a5ea74",
+	"bytes": 351819,
+	"digest": "8a768672d9dab337",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -144,7 +144,7 @@
 		},
 		{
 			"name": "heavychess",
-			"digest": "9978ac1ade52e1a6"
+			"digest": "948492b14cf5a090"
 		},
 		{
 			"name": "modern-chess",
@@ -276,11 +276,11 @@
 		},
 		{
 			"name": "spartan-chess",
-			"digest": "7b867f2304d4da6f"
+			"digest": "1f65c733718ebf7a"
 		},
 		{
 			"name": "khans-chess",
-			"digest": "460c8f6cb15f7d1e"
+			"digest": "108549260473b865"
 		},
 		{
 			"name": "scirocco-chess",
@@ -317,10 +317,6 @@
 		{
 			"name": "chu-shogi",
 			"digest": "dfa6c5ba288b5e05"
-		},
-		{
-			"name": "tenjiku-shogi",
-			"digest": "278ac822d8a3fcef"
 		},
 		{
 			"name": "makromachy",
