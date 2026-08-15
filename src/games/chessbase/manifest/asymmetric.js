@@ -151,9 +151,6 @@ exports.games = {
 				},
 				"gameOptions": config_model_gameOptions,
 				"js": modelScripts_103,
-				"description": {
-					"en": "spartan-description.html"
-				},
 				"levels": config_model_levels_15_spartan_expert
 			},
 			"view": {
