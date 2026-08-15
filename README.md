@@ -76,12 +76,12 @@ Notes:
 - you can specify the games to be built in the distribution with the `--games` option. For instance, `gulp --no-default-games --modules src/games/chessbase --games xiangqi:classic-chess build` only generates Jocly for Classic Chess and XiangQi
 - using the `no-obsolete` option filters out the games marked as obsolete
 
-API Documentation
+Related projects:
 -----------------
 
-Jocly offers two distinct APIs:
-- the [Application API](https://github.com/aclap-dev/jocly/wiki/Application-API) to make Web applications
-- the [Game API](https://github.com/aclap-dev/jocly/wiki/Game-API) to create games to run with Jocly features
+-play Jocly (Human or AI) via a web server with a mobile-friendly interface : [Mogichex](https://github.com/fhoudebert/mogichex) 
+-play Jocly (Human or AI) via a web server with a desktop-friendly interface: [Joclymatch](https ://github.com/fhoudebert/joclymatch) 
+-play Jocly against an opponent or a computer via a native client (Linux, Windows) : [Tabulon](https://biscandine.fr/variantes/tabulon/) 
 
 ## Credits
 
