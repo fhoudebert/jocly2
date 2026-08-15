@@ -8,4 +8,5 @@ tabulon
 engine/
 package-lock.json
 *.patch
-*.sh
+voir.sh
+engine/fairy-stockfish
