@@ -552,6 +552,11 @@ var config_model_levels_heavychess_expert_ini = [
 	"[heavychess:grand]",
 	"archbishop = -",
 	"chancellor = -",
+	// 't' in the startFen below is the amazon (queen + knight), the game's
+	// heaviest piece. Without this line Fairy-Stockfish does not know the
+	// letter, drops it from the start position, and plays the whole game a
+	// piece short on both sides - see tests/chessbase/fairy-inis.test.js.
+	"amazon = t",
 	"customPiece1 = m:RN",
 	"customPiece2 = a:BN",
 	"customPiece3 = d:RF",

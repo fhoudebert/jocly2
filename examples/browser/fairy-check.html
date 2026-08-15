@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<title>Fairy-Stockfish check</title>
+<!--
+	Talks to the bundled Fairy-Stockfish directly - no Jocly, no game, no AI
+	worker - and prints every line the engine says.
+
+	It exists to split a failing "Expert" level in two. Everything between the
+	browser and the engine (cross-origin isolation, asset paths, the wasm
+	build itself, the custom variant definition) is exercised here; nothing of
+	the embedding application is. So:
+
+	  - this page works, the app does not  ->  the fault is in the app's own
+	    engine layer, not in the engine, the headers or the variant ini;
+	  - this page fails too               ->  the message below is the real
+	    one, and the app was only reporting a symptom.
+
+	Serve it from the same place as the app (paths are relative), open it, and
+	read the log. Defaults to Khan's Chess, which is defined at run time
+	through a customVariantIni - use the dropdown to compare with a variant
+	the engine has built in.
+-->
+<style>
+	body { font: 14px/1.5 system-ui, sans-serif; margin: 20px; max-width: 900px; }
+	h1 { font-size: 18px; }
+	#env div { padding: 2px 0; }
+	.ok::before { content: "OK  "; color: #2e7d32; font-weight: bold; }
+	.bad::before { content: "KO  "; color: #c62828; font-weight: bold; }
+	#log { background: #111; color: #eee; padding: 12px; border-radius: 4px;
+	       white-space: pre-wrap; font: 12px/1.45 ui-monospace, monospace;
+	       min-height: 260px; max-height: 60vh; overflow: auto; }
+	.sent { color: #7fb3ff; }
+	.err  { color: #ff8a80; font-weight: bold; }
+	select, button { font-size: 14px; padding: 4px 8px; }
+</style>
+</head>
+<body>
+
+<h1>Fairy-Stockfish check</h1>
+
+<div id="env"></div>
+
+<p>
+	<select id="variant">
+		<option value="khans">khans (custom variant, defined by the ini)</option>
+		<option value="chess">chess (built in - isolates the ini)</option>
+		<option value="crazyhouse">crazyhouse (built in)</option>
+	</select>
+	<button id="run">Run</button>
+</p>
+
+<div id="log"></div>
+
+<script>
+(function() {
+
+// Where the engine assets live, relative to this page - the same directory
+// jocly.fairy.js points its worker at (baseURL + "fairy-stockfish/").
+var ENGINE_DIR = "/dist/browser/fairy-stockfish/";
+
+// Khan's Chess, exactly as the game's Expert level declares it (see
+// src/games/chessbase/manifest/famous.js).
+var KHANS_INI = [
+	"[khans:chess]",
+	"pieceToCharTable = -",
+	"centaur = h",
+	"knibis = a",
+	"kniroo = l",
+	"customPiece1 = t:mNcK",
+	"customPiece2 = s:mfhNcfW",
+	"promotionPawnTypesBlack = s",
+	"promotionPieceTypesBlack = t",
+	"stalemateValue = loss",
+	"nMoveRuleTypesBlack = s",
+	"flagPiece = k",
+	"flagRegionWhite = *8",
+	"flagRegionBlack = *1",
+	"startFen = lhatkahl/ssssssss/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
+	""
+].join("\n");
+
+var START_FEN = {
+	khans: "lhatkahl/ssssssss/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
+	chess: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+	crazyhouse: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1"
+};
+
+var logEl = document.getElementById("log");
+function log(text, cls) {
+	var line = document.createElement("div");
+	if(cls) line.className = cls;
+	line.textContent = text;
+	logEl.appendChild(line);
+	logEl.scrollTop = logEl.scrollHeight;
+}
+
+/* ---- environment ---- */
+
+var envEl = document.getElementById("env");
+function report(label, good, detail) {
+	var div = document.createElement("div");
+	div.className = good ? "ok" : "bad";
+	div.textContent = label + (detail ? " - " + detail : "");
+	envEl.appendChild(div);
+}
+
+var isolated = (typeof crossOriginIsolated !== "undefined") ? crossOriginIsolated : false;
+var hasSAB = (typeof SharedArrayBuffer !== "undefined");
+report("cross-origin isolated", isolated,
+	isolated ? "" : "serve this page with Cross-Origin-Opener-Policy: same-origin and " +
+		"Cross-Origin-Embedder-Policy: require-corp - they are response headers on the " +
+		"HTML document and cannot be set from inside it. For a local check: " +
+		"node examples/browser/serve.js, then open the URL it prints. Under Apache, " +
+		"the .htaccess next to this file already does it.");
+report("SharedArrayBuffer", hasSAB,
+	hasSAB ? "" : "the bundled wasm build is multi-threaded and cannot run without it");
+report("secure context", window.isSecureContext, window.isSecureContext ? "" : "https or localhost required");
+
+/* ---- the engine ---- */
+
+var engine = null;
+
+function loadEngine() {
+	if(engine) return Promise.resolve(engine);
+	if(!hasSAB)
+		return Promise.reject(new Error(
+			"SharedArrayBuffer is missing - the engine cannot start. This is a " +
+			"server configuration problem, not an engine or variant problem."));
+	return new Promise(function(resolve, reject) {
+		var script = document.createElement("script");
+		script.src = ENGINE_DIR + "stockfish.js";
+		script.onerror = function() {
+			reject(new Error("could not load " + script.src + " - check the path and that the file is deployed"));
+		};
+		script.onload = function() {
+			if(typeof Stockfish !== "function")
+				return reject(new Error("stockfish.js loaded but did not define Stockfish()"));
+			Stockfish({ locateFile: function(file) { return ENGINE_DIR + file; } })
+				.then(function(sf) {
+					engine = sf;
+					sf.addMessageListener(function(line) {
+						log(line, /^(info string )?(error|unknown|No such|Unrecognized)/i.test(line) ? "err" : null);
+					});
+					resolve(sf);
+				}, reject);
+		};
+		document.head.appendChild(script);
+	});
+}
+
+function send(cmd) {
+	log("> " + cmd, "sent");
+	engine.postMessage(cmd);
+}
+
+document.getElementById("run").addEventListener("click", function() {
+	var variant = document.getElementById("variant").value;
+	logEl.innerHTML = "";
+	log("engine directory: " + ENGINE_DIR);
+	loadEngine().then(function() {
+		log("engine started");
+		if(variant === "khans") {
+			// Same two steps as jocly.fairyworker.js: write the definition
+			// into the engine's virtual filesystem, point VariantPath at it,
+			// and only then select the variant.
+			engine.FS.writeFile("/jocly-custom-variants.ini", KHANS_INI);
+			send("setoption name VariantPath value /jocly-custom-variants.ini");
+		}
+		send("setoption name UCI_Variant value " + variant);
+		send("position fen " + START_FEN[variant]);
+		send("d");            // the engine echoes the board it actually has
+		send("go depth 10");  // and then plays a move
+		log("(waiting for bestmove - if nothing follows, the engine died here)");
+	}).catch(function(error) {
+		log(String(error && error.message || error), "err");
+	});
+});
+
+})();
+</script>
+
+</body>
+</html>
