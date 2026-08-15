@@ -448,7 +448,6 @@ exports.games = {
 				"title-en": "Chessbase view",
 				"visuals": {
 					"600x600": [
-						"res/visuals/seireigi-600x600-3d.jpg",
 						"res/visuals/seireigi-600x600-2d.jpg"
 					]
 				},
