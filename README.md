@@ -33,31 +33,6 @@ Use joclymatch [to play remotly againt a human from a desktop](https://www.bisca
 
 Use mogichex [to play remotly againt a human from a mobile device](https://www.biscandine.fr/variantes/mogichex)
 
-Install
--------
-````
-npm install jocly
-````
-
-Using Jocly in a Web page
--------------------------
-
-Insert this line to your HTML source code:
-````
-<script src="node_modules/jocly/dist/browser/jocly.js"></script>
-````
-
-You are now ready to use the Jocly API through the `Jocly` global object.
-
-Using Jocly in a node.js application
-------------------------------------
-
-````Javascript
-const Jocly = require("jocly");
-````
-
-You are now ready to use the Jocly API through the `Jocly` entry point.
-
 Building
 --------
 
