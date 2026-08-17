@@ -33,31 +33,6 @@ Use joclymatch [to play remotly againt a human from a desktop](https://www.bisca
 
 Use mogichex [to play remotly againt a human from a mobile device](https://www.biscandine.fr/variantes/mogichex)
 
-Install
--------
-````
-npm install jocly
-````
-
-Using Jocly in a Web page
--------------------------
-
-Insert this line to your HTML source code:
-````
-<script src="node_modules/jocly/dist/browser/jocly.js"></script>
-````
-
-You are now ready to use the Jocly API through the `Jocly` global object.
-
-Using Jocly in a node.js application
-------------------------------------
-
-````Javascript
-const Jocly = require("jocly");
-````
-
-You are now ready to use the Jocly API through the `Jocly` entry point.
-
 Building
 --------
 
@@ -76,12 +51,12 @@ Notes:
 - you can specify the games to be built in the distribution with the `--games` option. For instance, `gulp --no-default-games --modules src/games/chessbase --games xiangqi:classic-chess build` only generates Jocly for Classic Chess and XiangQi
 - using the `no-obsolete` option filters out the games marked as obsolete
 
-API Documentation
+Related projects:
 -----------------
 
-Jocly offers two distinct APIs:
-- the [Application API](https://github.com/aclap-dev/jocly/wiki/Application-API) to make Web applications
-- the [Game API](https://github.com/aclap-dev/jocly/wiki/Game-API) to create games to run with Jocly features
+-play Jocly (Human or AI) via a web server with a mobile-friendly interface : [Mogichex](https://github.com/fhoudebert/mogichex) 
+-play Jocly (Human or AI) via a web server with a desktop-friendly interface: [Joclymatch](https ://github.com/fhoudebert/joclymatch) 
+-play Jocly against an opponent or a computer via a native client (Linux, Windows) : [Tabulon](https://biscandine.fr/variantes/tabulon/) 
 
 ## Credits
 
