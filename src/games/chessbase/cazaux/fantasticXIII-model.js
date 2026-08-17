@@ -192,9 +192,11 @@
                     aspect : 'fr-axe',
                     graph : this.cbMergeGraphs(geometry,
                   this.cbPawnGraph(geometry,1),
+                  // the eight 3-square jumps: [3,-3] used to be missing,
+                  // hidden by [-3,3] appearing twice
                   this.cbShortRangeGraph(geometry,[
-						[-3,3],[0,3],[3,3],[-3,0],[3,0],[-3,-3],
-						[0,-3],[-3,3]])),
+						[-3,3],[0,3],[3,3],[-3,0],[3,0],
+						[-3,-3],[0,-3],[3,-3]])),
                     value : 3.25,
                     initial: [{s:1,p:18},{s:1,p:20},{s:1,p:32}],
                 },
@@ -204,15 +206,22 @@
                     aspect : 'fr-axe',
                     graph : this.cbMergeGraphs(geometry,
                   this.cbPawnGraph(geometry,-1),
+                  // the eight 3-square jumps: [3,-3] used to be missing,
+                  // hidden by [-3,3] appearing twice
                   this.cbShortRangeGraph(geometry,[
-						[-3,3],[0,3],[3,3],[-3,0],[3,0],[-3,-3],
-						[0,-3],[-3,3]])),
+						[-3,3],[0,3],[3,3],[-3,0],[3,0],
+						[-3,-3],[0,-3],[3,-3]])),
                     value : 3.25,
                     initial: [{s:-1,p:148},{s:-1,p:150},{s:-1,p:136}],
                 },
                 11: {
-                  name : 'princew',
+                  // the name carries the side for base-model's FEN reader,
+                  // and the letter has to differ from the Pawn's - "P!" is
+                  // the module's convention for a second piece on a letter
+                  // (see shogi/tenjiku-shogi-model.js)
+                  name : 'prince-w',
                   abbrev : 'P',
+                  fenAbbrev : 'P!',
                   aspect : 'fr-admiral',
                   graph : this.cbPrinceGraph(geometry,1,confine),
                   value : 3.25,
@@ -220,8 +229,9 @@
                   epTarget : true,
                 },
                 12: {
-                  name : 'princeb',
+                  name : 'prince-b',
                   abbrev : 'P',
+                  fenAbbrev : 'P!',
                   aspect : 'fr-admiral',
                   graph : this.cbPrinceGraph(geometry,-1,confine),
                   value : 3.25,
@@ -273,19 +283,9 @@
 				    if (piece.t==7 && ((geometry.R(move.t)==lastRow && piece.s > 0) || (geometry.R(move.t)==firstRow && piece.s < 0)) ) 
 					    return [14];
 				    if ((piece.t==9 ) && (geometry.R(move.t)==lastRow && piece.s > 0 && piece.p > 142)) {
-                        console.log("move.t",move.t);
-                        console.log("piece.s",piece.s);
-                        console.log("aGame",aGame);
-                        console.log("move",move);
-                        console.log("piece",piece);
                         return [15];
                     }
                     if ((piece.t==10 ) && (geometry.R(move.t)==firstRow && piece.s < 0 && piece.p < 26)) {
-                    console.log("move.t",move.t);
-                        console.log("piece.s",piece.s);
-                        console.log("aGame",aGame);
-                        console.log("move",move);
-                        console.log("piece",piece);
                         return [15];
                     }
                     return [];
@@ -295,4 +295,85 @@
 	}
 
 	
+
+	/*
+	 * The King's privilege, "identical to Metamachy": on its first move the
+	 * King may jump to a free square two squares away - straight, diagonal or
+	 * like a Knight. The square it passes over may be occupied but must not be
+	 * threatened, and for a Knight-like jump the rules ask only that ONE of the
+	 * two squares it passes between be free of threat ("if jumping from f2 to
+	 * h3, either g2 or g3 must not be under attack"). It is barred while the
+	 * King is in check, and there is no castling in this game.
+	 *
+	 * Each entry is [ destination, square passed over ] for a straight or
+	 * diagonal jump, [ destination, square A, square B ] for a Knight-like one.
+	 * The Kings stand on g1 (6) and g13 (162) of a 13x13 board, on the edge
+	 * rank, so seven of the sixteen squares of the ring fall off the board and
+	 * nine entries remain per side.
+	 */
+	var kingLongMoves={
+		"1": {   // White's King on g1
+			6: [ [4,5], [8,7],                     // e1, i1  - straight
+			     [30,18], [34,20],                 // e3, i3  - diagonal
+			     [32,19],                          // g3      - straight
+			     [17,5,18], [21,7,20],             // e2, i2  - like a Knight
+			     [31,18,19], [33,19,20] ],         // f3, h3  - like a Knight
+		},
+		"-1": {  // Black's King on g13
+			162: [ [160,161], [164,163],
+			       [134,148], [138,150],
+			       [136,149],
+			       [147,161,148], [151,163,150],
+			       [135,148,149], [137,149,150] ],
+		},
+	}
+
+	var SuperModelBoardGenerateMoves=Model.Board.GenerateMoves;
+	Model.Board.GenerateMoves = function(aGame) {
+		SuperModelBoardGenerateMoves.apply(this,arguments);
+		var kPiece=this.pieces[this.board[this.kings[this.mWho]]];
+		if(!kPiece.m && !this.check) {
+			var $this=this;
+			// would the King be attacked standing on that square? The square is
+			// emptied first: the King leaps over whatever sits there, and a
+			// piece left in place would block the very line we are testing.
+			function safe(pos) {
+				var tmpOut=$this.board[pos];
+				$this.board[pos]=-1;
+				var undo=$this.cbQuickApply(aGame,{ f: kPiece.p, t: pos });
+				var attacked=$this.cbGetAttackers(aGame,pos,$this.mWho,true).length>0;
+				var gives=!attacked
+					&& $this.cbGetAttackers(aGame,$this.kings[-$this.mWho],-$this.mWho,true).length>0;
+				$this.cbQuickUnapply(aGame,undo);
+				$this.board[pos]=tmpOut;
+				$this.cbIntegrity(aGame);
+				return { ok: !attacked, check: gives };
+			}
+			var lMoves=kingLongMoves[this.mWho][kPiece.p];
+			for(var i=0;i<lMoves.length;i++) {
+				var lMove=lMoves[i];
+				if(this.board[lMove[0]]>=0) // "may jump to a FREE square"
+					continue;
+				var landing=safe(lMove[0]);
+				if(!landing.ok)
+					continue;
+				var passed=false;
+				for(var j=1;j<lMove.length;j++)
+					if(safe(lMove[j]).ok) {
+						passed=true;
+						break;
+					}
+				if(!passed)
+					continue;
+				this.mMoves.push({
+					f: kPiece.p,
+					t: lMove[0],
+					c: null,
+					ck: landing.check,
+					a: 'K',
+				});
+			}
+		}
+	}
+
 })();
