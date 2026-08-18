@@ -153,7 +153,7 @@ exports.games = {
 				"title-en": "Hectochess",
 				"summary": {
 					"en": "Chess on 10x10 with champions and wizards",
-					"fr": "Échecs en 10x10 avec champions et sorciers"
+					"fr": "Échecs en 10x10 avec champions et enchanteurs"
 				},
 				"rules": {
 					"en": "res/rules/decimal/hectochess-rules.html",
