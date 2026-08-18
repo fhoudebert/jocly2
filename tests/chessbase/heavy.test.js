@@ -190,4 +190,49 @@ t.check("a game runs", (() => {
 	return played;
 })(), 60);
 
-t.done("Heavy Chess");
+/* ---------------- the two games that carried the same block ---------------- */
+
+/*
+ * hectochess and gross were copied from the same source and had the same
+ * numbers in them, over their own piece sets: K+Rook, K+Marshall,
+ * K+Archbishop, K+Wizard and K+Leo against a bare King were all declared
+ * drawn. They are checked here rather than in files of their own because what
+ * is being checked is exactly the same thing.
+ */
+console.log("\nhectochess and gross, same block, same fix");
+
+[["hectochess", "decimal/hectochess-model.js"],
+ ["gross", "duodecimal/gross-model.js"]].forEach(([label, model]) => {
+	const box = H.loadModel(["base-model.js", "grid-geo-model.js", "fairy-piece-model.js", model]);
+	const other = H.newGame(box);
+	const board = other.cbVar.geometry;
+	const kinds = other.cbVar.pieceTypes;
+	const corner = board.PosName(0);
+	const far = board.PosName(board.boardSize - 1);
+	const middle = board.PosName(Math.floor(board.height / 2) * board.width + 4);
+	const judge = (pieces) => {
+		const position = H.setup(box, other, pieces, 1);
+		position.mMoves = [];
+		position.GenerateMoves(other);
+		position.Evaluate(other);
+		if(!position.mFinished)
+			return "playing";
+		return position.mWinner === 2 ? "draw" : "winner";
+	};
+
+	t.check(label + ": King against King", judge({ [corner]: "wK", [far]: "bK" }), "draw");
+
+	// every piece of the game, one at a time, against a bare King: only the
+	// Bishop and the Knight leave a position no one can win
+	Object.keys(kinds).forEach((type) => {
+		const name = kinds[type].name, letter = kinds[type].abbrev;
+		if(!letter || /pawn|king/.test(name))
+			return;
+		const dead = name === "bishop" || name === "knight";
+		t.check(label + ": King and " + name,
+			judge({ [corner]: "wK", [middle]: "w" + letter, [far]: "bK" }),
+			dead ? "draw" : "playing");
+	});
+});
+
+t.done("Heavy Chess, hectochess and gross");
