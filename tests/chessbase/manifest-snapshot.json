@@ -1,6 +1,6 @@
 {
-	"bytes": 351733,
-	"digest": "f20fbb3409f0e751",
+	"bytes": 351736,
+	"digest": "2730756f99a08002",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -140,7 +140,7 @@
 		},
 		{
 			"name": "hectochess",
-			"digest": "77764d18a9020818"
+			"digest": "0cef37de8397d0bc"
 		},
 		{
 			"name": "heavychess",
