@@ -335,7 +335,14 @@
 				// no, so intermediate squares must be visited
 				if(hit>=0) {
 					d=aGame.g.distGraph[aMove.f][hit];
-					if(d>1) return (zFrom+zTo+2200+200*d)/2; // non-contiguous path: jump
+					// A path that starts with a LEAP and then slides - the
+					// Unicorn of Grant Acedrex jumps like a Knight, then runs
+					// on diagonally. The bend is the square it lands on, which
+					// the oblique-slide inference below cannot work out: that
+					// assumes a straight leg plus a 45-degree one. Hand the
+					// square over instead, and the piece hops the leap and
+					// rides the rest.
+					if(d>1) return { z: (zFrom+zTo+2200+200*d)/2, via: hit };
 					g=aGame.cbVar.geometry;
 					var dx=g.C(aMove.t)-g.C(aMove.f), dy=g.R(aMove.t)-g.R(aMove.f);
 					if(dx*dy*(dx*dx-dy*dy)) { // move is oblique

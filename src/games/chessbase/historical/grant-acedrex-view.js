@@ -192,18 +192,22 @@
 		};
 	}
 
-	/* Make the jumps */
-	View.Board.cbMoveMidZ = function(aGame,aMove,zFrom,zTo) {
-		var geo=aGame.cbVar.geometry;
-		var dx=Math.abs(geo.C(aMove.t)-geo.C(aMove.f));
-		var dy=Math.abs(geo.R(aMove.t)-geo.R(aMove.f));
-		if(("_Z_N_E_D_L_J_T_F_G_S_".indexOf("_"+aMove.a+"_")>=0) && (aGame.g.distGraph[aMove.f][aMove.t]>1))
-			return Math.max(zFrom,zTo)+2000;
-		else if(("_A_C_M_".indexOf("_"+aMove.a+"_")>=0) && dx!=dy && dx!=0 && dy!=0)
-			return Math.max(zFrom,zTo)+2000;
-		else if(("_Z_W_".indexOf("_"+aMove.a+"_")>=0) && aMove.c != null)
-			return Math.max(zFrom,zTo)+2000;
-		else
-			return (zFrom+zTo)/2;
-	}
+	/*
+	 * No cbMoveMidZ here on purpose.
+	 *
+	 * This view used to override it with a table of piece letters: jump when
+	 * the distance is more than one, jump when the move is oblique, jump when
+	 * a screen piece captures, slide otherwise. grid-board-view.js now derives
+	 * all of that from the piece graphs themselves, and derives more: a
+	 * destination reached as the first step of a path is a leap and jumps,
+	 * a screen capture jumps, and a path whose legs are not in line - the
+	 * Eagle's diagonal step then straight ray, the Rhinoceros' straight step
+	 * then diagonal ray, the Ship, the Snake - gets a BENT trajectory that
+	 * follows the two legs instead of cutting the corner.
+	 *
+	 * The hand-written version cannot express that bend: it only ever answered
+	 * "jump" or "slide straight". Keeping it made those pieces either glide
+	 * through squares they never visit or hop over the whole move.
+	 */
+
 })();
