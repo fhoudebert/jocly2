@@ -7,10 +7,34 @@
 
 	Model.Game.cbDefine=function(){
 
-		var hitrun=this.cbConstants.FLAG_HITRUN;		// for Lion's adjacent enemy, to add 2nd leg
+		/*
+		 * For the Lion's adjacent squares, to add a second leg. FLAG_SPECIAL
+		 * covers the case where the first leg lands on an EMPTY square: the
+		 * only second leg then generated is the one back to the start, which
+		 * is the Lion "moving to an adjacent empty square and back, effectively
+		 * passing a turn". Without it a Lion could pass only by capturing
+		 * something and returning (igui).
+		 *
+		 * The engine plays it; a human cannot, yet. A move that ends where it
+		 * began has the piece's own square as its target, and that gadget is
+		 * bound to "cancel the selection", which jocly binds last and which
+		 * therefore wins. The choice panel of the baroque family
+		 * (ultima/baroque-choice-view.js) is built for exactly this and was
+		 * tried here, but it opens as soon as the piece is selected - fine for
+		 * an immobilized Swapper with one option, unusable for a Lion with
+		 * twenty-five, whose move markers it covers - and it fought with the
+		 * two-leg input of multi-leg-view over the hit-and-run moves. Offering
+		 * the pass needs an affordance that does not sit on the board.
+		 */
+		var hitrun=this.cbConstants.FLAG_HITRUN | this.cbConstants.FLAG_SPECIAL;
 		var locust=this.cbConstants.FLAG_CHECKER		// for Falcon & Eagle jump, to empty...
 			 | this.cbConstants.FLAG_SPECIAL_CAPTURE;	// ... or occupied
-		var igui=this.cbConstants.FLAG_RIFLE;			// for Falcon & Eagle adjacent enemy, to add igui
+		// For the Falcon's and the Eagle's adjacent square on their own ray:
+		// FLAG_RIFLE adds the igui - take it and come back - and FLAG_SPECIAL
+		// the same move over an empty square, which takes nothing and so
+		// passes the turn. "Returning to the starting square ... needs the
+		// adjacent square either to be empty or contain an opponent."
+		var igui=this.cbConstants.FLAG_RIFLE | this.cbConstants.FLAG_SPECIAL;
 
 		return {
 			geometry:geometry,
@@ -573,12 +597,27 @@
 				if(piece.t>25) // unpromotable or already promoted
 					return [];
 				var rank=geometry.R(move.f);
+				/*
+				 * A piece promotes on ENTERING the zone of the furthest four
+				 * ranks, and - for a move that starts inside it - only when
+				 * that move captures. The move must still end in the zone:
+				 * the modern Shogi rule where any move touching the zone may
+				 * promote, leaving it included, "is apparently a later
+				 * invention ... but was never used in Chu Shogi".
+				 */
 				if(piece.s==1) {
-					if(piece.t==0 && rank==10) return[29]; // last-rank Pawn
+					/*
+					 * "There is a special rule for Pawns: when these reach the
+					 * last rank, they are allowed to promote even on a
+					 * non-capture." Allowed, not forced - promotion in Chu
+					 * Shogi is always the player's choice, and this line used
+					 * to offer the Tokin alone.
+					 */
+					if(piece.t==0 && rank==10) return[0,29]; // last-rank Pawn
 					if(rank>=8 && move.c == null) return []; // was already in zone, and no capture
 					if(geometry.R(move.t) < 8) return []; // did not end in zone
 				} else {
-					if(piece.t==1 && rank==1) return[30];
+					if(piece.t==1 && rank==1) return[1,30];
 					if(rank<=3 && move.c == null) return [];
 					if(geometry.R(move.t)>3) return [];
 				}

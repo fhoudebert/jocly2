@@ -63,7 +63,8 @@
 
 	var OriginalApplyMove = Model.Board.ApplyMove;
 	Model.Board.ApplyMove = function(aGame,move) {
-		if(move.kill !== undefined) { // locust capture, remove victim
+		// kill == null on a Lion's pass: a first leg that took nothing
+		if(move.kill != null || move.kill === -1) { // locust capture, remove victim
 			if(move.kill == -1) {
 				var bz = aGame.burnZone[move.t];
 				for(var i=0; i<bz.length; i++) {
@@ -110,7 +111,7 @@
 				}
 			}
 		}
-		if(move.kill !== undefined) { // remove locust victim
+		if(move.kill != null || move.kill === -1) { // remove locust victim
 			if(move.kill == -1) {
 				var bz = aGame.burnZone[move.t];
 				for(var i=0; i<bz.length; i++) {
@@ -162,6 +163,25 @@
 						});
 						return;
 					}
+					/*
+					 * A quiet first leg. This only happens for a piece that asks
+					 * for it with FLAG_SPECIAL on top of FLAG_HITRUN, and the only
+					 * second leg worth generating is the one back to where it
+					 * started: the Lion's "pass". Every other second leg would land
+					 * on a square its own two-square leaps already reach, and would
+					 * merely duplicate a move it already has.
+					 */
+					if(move.c == null) {
+						moves.push({
+							f: move.f,
+							t: move.f,
+							c: null,
+							a: move.a,
+							via: move.t,
+							kill: null,
+						});
+						return;
+					}
 					var nb = aGame.neighbors[move.t];
 					var n = nb.length;
 					for(var j=0; j<n; j++) { // all directions for second leg
@@ -199,6 +219,24 @@
 						}
 					} else { // rifle type
 						via = move.t; to = move.f; index = $this.board[via]; victim2 = null;
+						if(index < 0) {
+							/*
+							 * The square stepped on is empty. Returning to the start
+							 * "needs the adjacent square either to be empty or contain
+							 * an opponent", so this is the Falcon's and the Eagle's
+							 * pass, along their own ray. Only a piece that asks for it
+							 * with FLAG_SPECIAL gets here.
+							 */
+							moves.push({
+								f: move.f,
+								t: move.f,
+								c: null,
+								a: move.a,
+								via: via,
+								kill: null,
+							});
+							return;
+						}
 					}
 					victim = $this.pieces[index];
 					if(victim.s != $this.mWho)
@@ -214,7 +252,24 @@
 			} else Model.Board.customGen(moves, move, $this, aGame);
 		});
 
-		return moves;
+		/*
+		 * One pass per piece. A Lion may step out onto any adjacent empty
+		 * square and come back, and the square it touches changes nothing -
+		 * same position, same turn passed. Keeping all eight would put eight
+		 * identical moves in front of the search, and eight identical pictures
+		 * on the choice panel.
+		 */
+		var passed = {};
+		return moves.filter(function(move) {
+			if(move.t !== move.f)
+				return true;
+			if(move.kill != null)
+				return true;   // an igui takes something: those differ
+			if(passed[move.f])
+				return false;
+			passed[move.f] = true;
+			return true;
+		});
 	}
 
 	var OriginalGetAttackers = Model.Board.cbGetAttackers;
@@ -232,8 +287,11 @@
 
 	var OriginalToString = Model.Move.ToString;
 	Model.Move.ToString = function(format) {
-		if(this.via !== undefined) { // locust capture	(computer form currently undefined)		
-			return this.a + 'x' + geometry.PosName(this.via) +
+		if(this.via !== undefined) { // two-leg move	(computer form currently undefined)
+			// 'x' before the intermediate square only if something was taken
+			// there: a Lion's pass steps out and back without capturing, and
+			// used to be written as though it had eaten the empty square.
+			return this.a + (this.kill == null ? '-' : 'x') + geometry.PosName(this.via) +
 					(this.c == null ? '-' : 'x') + geometry.PosName(this.t);
 		}
 		return OriginalToString.call(this, format);
