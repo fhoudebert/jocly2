@@ -205,19 +205,20 @@
 		};
 	}
 
-	/* Make the knight jump when moving */
-	View.Board.cbMoveMidZ = function(aGame,aMove,zFrom,zTo) {
-		var geo=aGame.cbVar.geometry;
-		var dx=Math.abs(geo.C(aMove.t)-geo.C(aMove.f));
-		var dy=Math.abs(geo.R(aMove.t)-geo.R(aMove.f));					
-		if(("_N_E_J_".indexOf("_"+aMove.a+"_")>=0) && (aGame.g.distGraph[aMove.f][aMove.t]>1))
-			return Math.max(zFrom,zTo)+2000;
-		/*else if(("__".indexOf("_"+aMove.a+"_")>=0) && dx!=dy && dx!=0 && dy!=0)
-			return Math.max(zFrom,zTo)+2000;*/
-		else if(("_C_W_".indexOf("_"+aMove.a+"_")>=0) && aMove.c != null)
-			return Math.max(zFrom,zTo)+2000;
-		else
-			return (zFrom+zTo)/2;
-	}
-
+	/*
+	 * No cbMoveMidZ here on purpose.
+	 *
+	 * The table this view used to carry listed the Knight, the Elephant and
+	 * the Camel as jumpers, plus the Cannon and a "W" this game has no piece
+	 * for. What it left out was the Gryphon, whose move is a diagonal step
+	 * followed by a straight ray - so it slid straight from where it stood to
+	 * where it landed, cutting across squares its path never touches.
+	 *
+	 * grid-board-view.js reads all of that off the piece graphs: leaps jump,
+	 * screen captures jump, and a path whose two legs are not in line gets a
+	 * bent trajectory. Checked move by move against the old table first -
+	 * Knight, Camel and the Elephant's two-square leap still jump, the
+	 * Elephant's single step and the Cannon's quiet move still slide, and the
+	 * Cannon jumps when it captures over a screen.
+	 */
 })();
