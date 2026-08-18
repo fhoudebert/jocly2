@@ -168,6 +168,84 @@
 	}
 	
 	/*
+	 * Where the entries of the promotion popup go.
+	 *
+	 * The popup used to be a single row: width cbPromoSize*(n+1), each entry
+	 * cbPromoSize apart. That is fine for the four choices of orthodox chess,
+	 * and hopeless for a large variant - Makromachy offers sixteen, which at
+	 * 2000 units each is 34000 wide against the 12000 the whole board gets,
+	 * so most of the pieces sat off screen with no way to reach them.
+	 *
+	 * So the entries are laid out on a grid that fits the board's width, and
+	 * only if that still needs more than three rows are they shrunk, down to
+	 * half size. Rows are balanced rather than filled: nine entries make two
+	 * rows of five and four, not a full row and a stray.
+	 */
+	View.Game.cbPromoField = 12000;   // the space the board itself occupies
+
+	View.Game.cbPromoLayout = function(count) {
+		var field = this.cbPromoField;
+		var size = this.cbPromoSize;
+		var perRow = Math.max(1, Math.floor(field / size));
+		if(count <= perRow)
+			return { size: size, perRow: count, rows: 1 };
+		var rows = Math.ceil(count / perRow);
+		var floor = this.cbPromoSize / 2;   // never smaller than this
+		while(rows > 3 && size > floor) {
+			size = Math.max(floor, Math.round(size * 0.85));
+			perRow = Math.max(1, Math.floor(field / size));
+			rows = Math.ceil(count / perRow);
+		}
+		return { size: size, perRow: Math.ceil(count / rows), rows: rows };
+	}
+
+	/*
+	 * Show it. base-view and multi-leg-view both used to carry their own copy
+	 * of this, which is how the popup came to ignore the selected skin in one
+	 * of them - see cbPromoSpec below.
+	 */
+	View.Game.cbShowPromo = function(xdv, aGame, promoMoves, who) {
+		var layout = aGame.cbPromoLayout(promoMoves.length);
+		xdv.updateGadget("promo-board", {
+			base: {
+				visible: true,
+				width: (layout.perRow + 1) * layout.size,
+				height: layout.rows * layout.size,
+			}
+		});
+		xdv.updateGadget("promo-cancel", {
+			base: {
+				visible: true,
+				x: layout.perRow * layout.size / 2,
+				y: -(layout.rows - 1) * layout.size / 2,
+			}
+		});
+		promoMoves.forEach(function(move, index) {
+			var pieceType = aGame.cbVar.pieceTypes[move.pr];
+			var aspect = pieceType.aspect || pieceType.name;
+			// same sprite spec as the board, selected skin included
+			var promoSpec = aGame.cbPromoSpec(aGame, xdv, aspect, who);
+			var col = index % layout.perRow, row = Math.floor(index / layout.perRow);
+			var placed = {
+				visible: true,
+				x: (col - layout.perRow / 2) * layout.size,
+				y: (row - (layout.rows - 1) / 2) * layout.size,
+			};
+			// the sprite follows the cell it sits in, but only when the grid
+			// had to shrink: left alone otherwise, a popup of four choices is
+			// laid out exactly as it always was
+			if(layout.size != aGame.cbPromoSize) {
+				var scale = layout.size / aGame.cbPromoSize;
+				placed.width = (promoSpec.width || aGame.cbPromoSize * 0.6) * scale;
+				placed.height = (promoSpec.height || aGame.cbPromoSize * 0.6) * scale;
+			}
+			xdv.updateGadget("promo#" + move.pr, {
+				base: $.extend({}, promoSpec, placed),
+			});
+		});
+	}
+
+	/*
 	 * Sprite spec for one entry of the promotion popup. Shared by base-view and
 	 * multi-leg-view: both of them build that popup, and only one applied the
 	 * selected skin, so a shogi variant that loads multi-leg-view (Chu, Tenjiku)
@@ -628,30 +706,8 @@
 									var $this=this;
 									this.cbAnimate(xdv,aGame,move,function() {
 										var promoMoves=actions[move.t].moves;
-										if(promoMoves.length>1) {
-											xdv.updateGadget("promo-board",{
-												base: {
-													visible: true,
-													width: aGame.cbPromoSize*(promoMoves.length+1),
-												}
-											});
-											xdv.updateGadget("promo-cancel",{
-												base: {
-													visible: true,
-													x: promoMoves.length*aGame.cbPromoSize/2,
-												}
-											});
-											promoMoves.forEach(function(move,index) {
-												var aspect=cbVar.pieceTypes[move.pr].aspect || cbVar.pieceTypes[move.pr].name;
-																				var promoSpec=aGame.cbPromoSpec(aGame,xdv,aspect,this.mWho);
-																				xdv.updateGadget("promo#"+move.pr, {
-													base: $.extend({},promoSpec, {
-														visible: true,
-														x: (index-promoMoves.length/2)*aGame.cbPromoSize 
-													}),														
-												});												
-											},$this);
-										}
+										if(promoMoves.length>1)
+											aGame.cbShowPromo(xdv,aGame,promoMoves,$this.mWho);
 										callback();
 									});
 								},

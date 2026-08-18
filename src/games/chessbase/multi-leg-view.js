@@ -128,30 +128,9 @@
 									var $this=this;
 									this.cbAnimate(xdv,aGame,move,function() {
 										var promoMoves=actions[target].moves;
-										if(promoMoves.length>1) {
-											xdv.updateGadget("promo-board",{
-												base: {
-													visible: true,
-													width: aGame.cbPromoSize*(promoMoves.length+1),
-												}
-											});
-											xdv.updateGadget("promo-cancel",{
-												base: {
-													visible: true,
-													x: promoMoves.length*aGame.cbPromoSize/2,
-												}
-											});
-											promoMoves.forEach(function(move,index) {
-												var aspect=aGame.cbVar.pieceTypes[move.pr].aspect || aGame.cbVar.pieceTypes[move.pr].name;
-									// same sprite spec as the board, selected skin included
-									var promoSpec=aGame.cbPromoSpec(aGame,xdv,aspect,this.mWho);
-									xdv.updateGadget("promo#"+move.pr, {
-													base: $.extend({},promoSpec, { 
-														x: (index-promoMoves.length/2)*aGame.cbPromoSize 
-													}),
-												});
-											},$this);
-										}
+										if(promoMoves.length>1)
+											// laid out by base-view: one copy of the grid, one place to fix
+											aGame.cbShowPromo(xdv,aGame,promoMoves,$this.mWho);
 										callback();
 									});
 								});
