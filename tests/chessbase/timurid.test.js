@@ -4,18 +4,6 @@
  *
  *   node tests/chessbase/timurid.test.js
  *
- * The pieces themselves were right. What was not is the view's own cbMoveMidZ
- * table, which decided which pieces hop: it listed letters this game does not
- * use, and left out the Griffon, the Ship and the Rhinoceros - see
- * tests/chessbase/trajectory.test.js, which checks the paths those pieces now
- * travel.
- *
- * One rule here departs from the English page shipped with the game, and is
- * asserted below so that it is not "fixed" by mistake later: the Pawn keeps
- * its double step from any square, not only from its own rank. The English
- * page said "exactly as in usual Chess" - on a 12x12 board that would leave
- * Pawns crawling - while the French one already described the longer step.
- * The English wording has been brought in line.
  */
 
 const H = require("../khans/harness.js");

@@ -4,22 +4,6 @@
  *
  *   node tests/chessbase/heavy.test.js
  *
- * The pieces were right. The evaluation was not, and its mistake ended games:
- * the block that spots a position no one can win addressed piece types by
- * NUMBER, with the numbers of orthodox chess it had been copied from. There,
- * 4, 5, 6, 7 are the Knight, Bishop, Rook and Queen. Here they are the Dragon
- * King, the Centaur, the Marshall and the Knight, and the real Queen, Rook,
- * Amazon and Missionary sit at numbers the test never read - so a King and
- * Queen against a bare King was declared drawn the moment it appeared, and so
- * were King and Rook, King and Amazon, King and Missionary.
- *
- * The same slip put Black's Pawns at the Archbishop's slot in the term that
- * pushes Pawns towards promotion, and made the "develop your minor pieces"
- * term watch the Dragon King and the Centaur.
- *
- * Everything is now addressed by name, which is what the checks below pin
- * down: the draw must fire for the three positions that really are dead, and
- * for nothing else.
  */
 
 const H = require("../khans/harness.js");

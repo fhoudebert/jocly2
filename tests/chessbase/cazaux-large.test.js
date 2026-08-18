@@ -3,18 +3,6 @@
  * them (res/rules/metamachy, res/rules/terachess, res/rules/minjiku-shogi).
  *
  *   node tests/chessbase/cazaux-large.test.js
- *
- * Metamachy and Terachess turned out to need no correction. The checks are
- * here because both are large - 30 and 64 pieces a side, 12 and 24 kinds - and
- * a piece whose leap is one delta short, or a promotion pointing at the wrong
- * type, is invisible in play: the game runs, it just plays a different game.
- * That is exactly how the missing Troll jump and the Giraffe's en-passant got
- * as far as they did in the neighbouring models.
- *
- * Minjiku needed one fix, in its FEN rather than its rules: the Lateral Mover
- * that has not moved yet - the one that may still slide two squares forward -
- * shared a letter with the moved one and lost it on import, so a reloaded
- * position handed back four pieces that had quietly lost a move.
  */
 
 const H = require("../khans/harness.js");

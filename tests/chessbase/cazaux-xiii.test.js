@@ -1,7 +1,5 @@
 /*
- * Fantastic XIII and Bigorra, against
- *   https://www.chessvariants.com/invention/fantastic-xiii
- *   https://www.chessvariants.com/rules/bigorra
+ * Fantastic XIII and Bigorra
  *
  *   node tests/chessbase/cazaux-xiii.test.js
  *

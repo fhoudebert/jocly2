@@ -5,23 +5,6 @@
  *
  *   node tests/chessbase/giga-grand.test.js
  *
- * Grand Chess turned out to need no correction at all, including the rule
- * that catches everyone out - a Pawn promotes only to a friendly piece that
- * has already been captured, and if none has, it may not pass the 9th rank.
- * The checks are here anyway: that rule is easy to break by accident, and it
- * is enforced by counting one's own pieces still on the board, so anything
- * touching piece bookkeeping can silently unblock it.
- *
- * Gigachess II needed two fixes, both in the King's jump and its neighbours:
- *
- *   - the two squares of a Knight-like jump were encoded as two separate
- *     entries sharing a destination. Read by a loop that requires every
- *     listed square to be safe, that does give the rules' "at least one of
- *     the two" - but it also pushes the same move twice when both are safe,
- *     and f2/j2, which are straight jumps over a single square, had been
- *     given three entries each, so they were allowed as soon as any of
- *     g1/g2/g3 was free of threat;
- *   - the Giraffe could capture en passant, which belongs to Pawns alone.
  */
 
 const H = require("../khans/harness.js");
