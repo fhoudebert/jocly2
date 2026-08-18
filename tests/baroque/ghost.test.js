@@ -15,7 +15,7 @@
  * rather than rules it does, which is what makes them worth pinning.
  */
 
-const h = require("../rococo/harness.js");
+const h = require("./rococo/harness.js");
 
 const W = 12;
 
