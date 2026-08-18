@@ -121,8 +121,9 @@
       graph : this.cbShortRangeGraph(geometry,[[-3,-2],[-3,2],[3,-2],[3,2],[2,3],[2,-3],[-2,3],[-2,-3]]),
       value : 2,
       initial: [{s:1,p:2},{s:1,p:11},{s:-1,p:184},{s:-1,p:193}],
-      epCatch : true,
-      epTarget : true,
+      // no en passant for the Giraffe: "Only a Pawn may capture en passant".
+      // With epCatch it took a passing Pawn whenever its (3,2) leap happened
+      // to land on the square that Pawn had crossed.
       },
       3: {
       name : 'rhino',
@@ -135,8 +136,14 @@
       initial: [{s:1,p:4},{s:-1,p:186}],
       },
       4: {
+      // The Prince needs a FEN letter of its own: 'P' belongs to the Pawn,
+      // and with both claiming it every Pawn came back as a Prince on
+      // reload. "P!" is the module's convention for a second piece on a
+      // letter (see shogi/tenjiku-shogi-model.js, and the Princes of
+      // fantasticXIII and bigorra).
       name : 'princew',
       abbrev : 'P',
+      fenAbbrev : 'P!',
       aspect : 'fr-admiral',
       graph : this.cbPrinceGraph(geometry,1,confine),
       value : 3,
@@ -147,6 +154,7 @@
       5: {
       name : 'princeb',
       abbrev : 'P',
+      fenAbbrev : 'P!',
       aspect : 'fr-admiral',
       graph : this.cbPrinceGraph(geometry,-1,confine),
       value : 3,
@@ -430,66 +438,98 @@ this.cbShortRangeGraph(geometry,[
 	 *   - handle king special move: a kind of castle involving only the king
 	 *   -When jumping like a Knight, at least one of the two intermediate squares must be free of threat (e.g., if jumping from h2 to j3, either i2 or i3 must not be under attack).
 	 */
+	/*
+	 * The King's privilege, as in Metamachy: on its first move the King may
+	 * jump to a free square two squares away - straight, diagonal or like a
+	 * Knight. The square it passes over may be occupied but must not be
+	 * threatened, and for a Knight-like jump the rules ask only that ONE of
+	 * the two squares it passes between be free of threat ("if jumping from
+	 * h2 to j3, either i2 or i3 must not be under attack"). Barred while in
+	 * check; there is no castling in this game.
+	 *
+	 * One entry per destination: [ destination, square passed over ] for a
+	 * straight or diagonal jump, [ destination, square A, square B ] for a
+	 * Knight-like one. The two squares of a Knight-like jump used to be split
+	 * into two entries sharing a destination, which made the move appear
+	 * twice - and f2/j2, which are straight jumps over a single square, had
+	 * been given three entries each, so they were allowed as soon as ANY of
+	 * g1/g2/g3 (resp. i1/i2/i3) was safe.
+	 *
+	 * The Kings stand on h2 (21) and h13 (175) of a 14x14 board, on the second
+	 * rank, so five of the sixteen squares of the ring fall off the board and
+	 * eleven entries remain per side.
+	 */
 	var kingLongMoves={
-		"1": {
-21: [ [48,34],[50,36],[48,35],[50,35],[49,35],[37,22],[23,22],[9,22],[37,36],[9,8],[5,6],[5,20],[33,20],[19,20],[33,34],[19,34],[19,6],[47,34],[23,8],[23,36],[51,36]]
+		"1": {   // White's King on h2
+			21: [ [19,20], [23,22], [49,35],                 // f2, j2, h4  - straight
+			      [47,34], [51,36],                          // f4, j4      - diagonal
+			      [5,6,20], [9,8,22],                        // f1, j1      - like a Knight
+			      [33,20,34], [37,22,36],                    // f3, j3
+			      [48,34,35], [50,35,36] ],                  // g4, i4
 		},
-		"-1": {
-			175: [ [145,160],[149,162],[163,162],[163,176],[191,176],[187,174],[159,174],[159,160],[147,161],[146,160],[146,161],[148,161],[148,162],[149,162],[177,176],[173,174]]
+		"-1": {  // Black's King on h13
+			175: [ [173,174], [177,176], [147,161],
+			       [145,160], [149,162],
+			       [187,188,174], [191,190,176],
+			       [159,174,160], [163,176,162],
+			       [146,160,161], [148,161,162] ],
 		},
 	}
 
-var SuperModelBoardGenerateMoves=Model.Board.GenerateMoves;
+	var SuperModelBoardGenerateMoves=Model.Board.GenerateMoves;
 	Model.Board.GenerateMoves = function(aGame) {
 
 		SuperModelBoardGenerateMoves.apply(this,arguments); // call regular GenerateMoves method
-		// now consider special 2 cases king moves
 		var kPiece=this.pieces[this.board[this.kings[this.mWho]]];
 		if(!kPiece.m && !this.check) {
-			var lMoves=kingLongMoves[this.mWho][kPiece.p];
+			var $this=this;
+			// would the King be attacked standing on that square? The square is
+			// emptied first: the King leaps over whatever sits there, and a
+			// piece left in place would block the very line we are testing.
+			function safe(pos) {
+				var tmpOut=$this.board[pos];
+				$this.board[pos]=-1;
+				var undo=$this.cbQuickApply(aGame,{ f: kPiece.p, t: pos });
+				var attacked=$this.cbGetAttackers(aGame,pos,$this.mWho,true).length>0;
+				var gives=!attacked
+					&& $this.cbGetAttackers(aGame,$this.kings[-$this.mWho],-$this.mWho,true).length>0;
+				$this.cbQuickUnapply(aGame,undo);
+				$this.board[pos]=tmpOut;
+				$this.cbIntegrity(aGame);
+				return { ok: !attacked, check: gives };
+			}
+			// The table is keyed by the King's starting square, which is the
+			// only place an unmoved King can be in a played game. A position
+			// built by hand or loaded from an unusual FEN can still put one
+			// elsewhere, and reading .length off nothing crashes the whole
+			// move generator - so fall through to the ordinary King moves.
+			var lMoves=kingLongMoves[this.mWho][kPiece.p] || [];
 			for(var i=0;i<lMoves.length;i++) {
 				var lMove=lMoves[i];
-				if(this.board[lMove[0]]>=0)
+				if(this.board[lMove[0]]>=0) // "may jump to a FREE square"
 					continue;
-				var canMove=true;
-				var oppInCheck=false;
-				for(var j=0;j<lMove.length;j++) {
-					var pos=lMove[j];
-					var tmpOut=this.board[pos];
-					this.board[pos]=-1; // remove possible piece to prevent problems when quick-applying/unapplying
-					var undo=this.cbQuickApply(aGame,{
-						f: kPiece.p,
-						t: pos,
-					});
-					var inCheck=this.cbGetAttackers(aGame,pos,this.mWho,true).length>0;
-					if(!inCheck && j==0)
-						oppInCheck=this.cbGetAttackers(aGame,this.kings[-this.mWho],-this.mWho,true).length>0;
-					this.cbQuickUnapply(aGame,undo);
-					this.board[pos]=tmpOut;
-					this.cbIntegrity(aGame);
-					if(inCheck 
-/* // king move but doesn‘t jump
-|| tmpOut>-1
-*/                  ) {
-						canMove=false;
+				var landing=safe(lMove[0]);
+				if(!landing.ok)
+					continue;
+				var passed=false;
+				for(var j=1;j<lMove.length;j++)
+					if(safe(lMove[j]).ok) {
+						passed=true;
 						break;
 					}
-				}
-
-				if(canMove)
-					this.mMoves.push({
-						f: kPiece.p,
-						t: lMove[0],
-                        //t: pos,
-						c: null,
-						ck: oppInCheck,
-						a: 'K',
-					});
+				if(!passed)
+					continue;
+				this.mMoves.push({
+					f: kPiece.p,
+					t: lMove[0],
+					c: null,
+					ck: landing.check,
+					a: 'K',
+				});
 			}
 		}
 	}
 
-	
 	/*
 	 * Model.Board.ApplyMove overriding: setup phase and king special move
 	 */

@@ -96,7 +96,18 @@ function typeOfSided(game, abbrev, side, virgin) {
 	if(!wanted.length) wanted = match;
 	if(wanted.length > 1) {
 		const sided = wanted.filter((t) => (types[t].initial || []).some((d) => d.s === side));
-		if(sided.length) wanted = sided;
+		if(sided.length)
+			wanted = sided;
+		else {
+			// Types that never sit on a starting square carry no side in their
+			// `initial`. base-model.js resolves those by name, a "-w"/"-b"
+			// suffix (see its FEN import); do the same, or a moved black Pawn
+			// comes back as the white one and walks up the board.
+			const named = wanted.filter((t) =>
+				new RegExp(side > 0 ? "-w$" : "-b$").test(types[t].name || ""));
+			if(named.length)
+				wanted = named;
+		}
 	}
 	return wanted[0];
 }

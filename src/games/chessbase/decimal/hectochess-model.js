@@ -25,7 +25,40 @@
 			abbrev: 'L',
 			initial: [{s:1,p:2},{s:1,p:7},{s:-1,p:92},{s:-1,p:97}],
 		});
-        
+
+
+        /*
+         * Piece types by name. The draw test and the evaluation terms below
+         * used to address them by number, with the numbers of ORTHODOX chess
+         * they were copied from - there 4, 5, 6, 7 are the Knight, Bishop,
+         * Rook and Queen. In this game they are other pieces, and the ones
+         * that matter most sit at numbers the test never read: a King and
+         * Rook against a bare King was declared drawn the moment it appeared,
+         * and so were several other winning endings.
+         */
+        var TYPE = {};
+        for(var t in p.pieceTypes)
+            TYPE[p.pieceTypes[t].name] = parseInt(t);
+
+        // the two pieces that cannot force mate on their own
+        var MINORS = [TYPE['bishop'], TYPE['knight']];
+        // every other piece: having one means more than a bare King
+        var HEAVY = [];
+        for(var t in p.pieceTypes) {
+            var index = parseInt(t);
+            if(p.pieceTypes[t].name != 'king' && MINORS.indexOf(index) < 0)
+                HEAVY.push(index);
+        }
+        function heavyCount(count) {
+            var total = 0;
+            for(var i = 0; i < HEAVY.length; i++)
+                total += count[HEAVY[i]] || 0;
+            return total;
+        }
+        function minorCount(count) {
+            return (count[MINORS[0]] || 0) + (count[MINORS[1]] || 0);
+        }
+
 		return {
 			
 			geometry: geometry,
@@ -50,20 +83,16 @@
 			},
 
 			evaluate: function(aGame,evalValues,material) {
-				// check lack of material to checkmate
+				// A bare King faced with a King and at most one Bishop or
+				// Knight cannot be mated; anything else is still a game.
 				var white=material[1].count;
 				var black=material[-1].count;
-				if(!white[0] && !white[1] && !white[4] && !white[5] && !white[6] && !white[7]) { // white king single
-					if(!black[2] && !black[3] && !black[6] && !black[7] && (black[4]+black[5]<2 || black[5]<2)) {
-						this.mFinished=true;
-						this.mWinner=JocGame.DRAW;
-					}
-				}
-				if(!black[2] && !black[3] && !black[4] && !black[5] && !black[6] && !black[7]) { // black king single
-					if(!white[0] && !white[1] && !white[6] && !white[7] && (white[4]+white[5]<2 || white[5]<2)) {
-						this.mFinished=true;
-						this.mWinner=JocGame.DRAW;
-					}
+				var whiteBare = heavyCount(white)==0 && minorCount(white)==0;
+				var blackBare = heavyCount(black)==0 && minorCount(black)==0;
+				if((whiteBare && heavyCount(black)==0 && minorCount(black)<2)
+					|| (blackBare && heavyCount(white)==0 && minorCount(white)<2)) {
+					this.mFinished=true;
+					this.mWinner=JocGame.DRAW;
 				}
 				
 				// check 64 moves without capture
@@ -75,7 +104,7 @@
 				// motivate pawns to reach the promotion line
 				var distPromo=aGame.cbUseTypedArrays?new Int8Array(3):[0,0,0];
 				var height=geometry.height;
-				var pawns=material[1].byType[0],pawnsLength;
+				var pawns=material[1].byType[TYPE['pawnw']],pawnsLength;
 				if(pawns) {
 					pawnsLength=pawns.length;
 					for(var i=0;i<pawnsLength;i++)
@@ -85,7 +114,8 @@
 						case 4: distPromo[2]++; break;
 						}
 				}
-				pawns=material[-1].byType[2],pawnsLength;
+				// ... and Black's, which were read from the Archbishop's slot
+				pawns=material[-1].byType[TYPE['pawnb']];
 				if(pawns) {
 					pawnsLength=pawns.length;
 					for(var i=0;i<pawnsLength;i++)
@@ -103,15 +133,18 @@
 					evalValues['distPawnPromo3']=distPromo[2];
 				
 				// motivate knights and bishops to deploy early
+				// the loop used to walk types 4 and 5, which in this game are
+				// not the Knight and the Bishop
 				var minorPiecesMoved=0;
-				for(var t=4;t<=5;t++)
+				MINORS.forEach(function(type) {
 					for(var s=1;s>=-1;s-=2) {
-						var pieces=material[s].byType[t];
+						var pieces=material[s].byType[type];
 						if(pieces)
 							for(var i=0;i<pieces.length;i++)
 								if(pieces[i].m)
 									minorPiecesMoved+=s;
 					}
+				});
 				if(minorPiecesMoved!=0) {
 					evalValues['minorPiecesMoved']=minorPiecesMoved;
 				}

@@ -171,7 +171,8 @@
 					value: 5.2,
 					abbrev: 'R',
 					initial: [{s:1,p:0},{s:1,p:11},{s:-1,p:132},{s:-1,p:143}],
-					castle: true,
+					// no castling in Grant Acedrex - the King has its own
+					// privilege instead, handled in GenerateMoves below
 				},
 				7: {
 	            	name: 'leon',
@@ -209,50 +210,31 @@
 	            },			
 
 			},
-            // pawn promote to the piece occupying the square initially
+			/*
+			 * A Pawn reaching the far side becomes the piece belonging to the
+			 * file it lands on; on the King's file (g) it becomes an Anqa, as
+			 * does one landing on the Anqa's own file (f). Both armies start
+			 * with the same back rank, so one table by file serves both.
+			 */
 			promote: function(aGame,piece,move) {
-                
-				if(piece.t==1 && geometry.R(move.t)==11) {
-                    if(move.t==132 || move.t==143){
-                        return [6];
-                    }
-                    else if(move.t==133 || move.t==142){
-                        return [7];
-                    }
-                    else if(move.t==134 || move.t==141){
-                        return [10];
-                    }
-                    else if(move.t==135 || move.t==140){
-                        return [9];
-                    }
-                    else if(move.t==136 || move.t==139){
-                        return [5];
-                    }else{
-                        return [4]; 
-                    }
-					
-                }
-				else if(piece.t==3 && geometry.R(move.t)==0){
-                    if(move.t==0 || move.t==11){
-                        return [6];
-                    }
-                    else if(move.t==1 || move.t==10){
-                        return [7];
-                    }
-                    else if(move.t==2 || move.t==9){
-                        return [10];
-                    }
-                    else if(move.t==3 || move.t==8){
-                        return [9];
-                    }
-                    else if(move.t==4 || move.t==7){
-                        return [5];
-                    }else{
-                        return [4]; 
-                    }
-					
-                }
-			    else
+
+				var PROMOTION = [6,7,10,9,5,4,4,5,9,10,7,6]; // by file, a..l
+				var rank = geometry.R(move.t);
+
+				if(rank==11 && (piece.t==0 || piece.t==1))
+					return [PROMOTION[geometry.C(move.t)]];
+				if(rank==0 && (piece.t==2 || piece.t==3))
+					return [PROMOTION[geometry.C(move.t)]];
+
+				// Otherwise an unmoved Pawn turns into a moved one, which is
+				// what takes its double step away. Without this the initial
+				// type is never left behind and every Pawn keeps the double
+				// step for the whole game, from any square.
+				if(piece.t==1)
+					return [0];
+				if(piece.t==3)
+					return [2];
+
 				return [];
 			},
 
@@ -261,17 +243,30 @@
 
 	/*
 	 * Model.Board.GenerateMoves:
-	 *   - handle setup phase 
-	 *   - handle king special move: a kind of castle involving only the king
+	 *   - handle the King's privilege: on its first move it may go two squares
+	 *     in any of the eight directions, leaping over the square in between
+	 *     even when that one is occupied ("as does the Alfferza"). It may not
+	 *     capture with that jump, may not use it to escape a check, and - the
+	 *     codex being silent, the reading followed here and by the Game
+	 *     Courier preset - may not pass over a square the opponent attacks.
+	 *
+	 * Each entry is [ destination, square passed over ]. Both squares are
+	 * tested for check, the second one being the reason the intermediate must
+	 * be right: with the wrong square the game asks the wrong question and
+	 * both allows and forbids the jump for the wrong reasons.
+	 *
+	 * Only five entries per side: the Kings start on the edge rank, so the
+	 * two backwards jumps and the backwards diagonals fall off the board. The
+	 * knight-like jumps that the commented-out lines used to add are NOT part
+	 * of the privilege - the text says the Alfferza's move, which is the
+	 * second square in a straight line.
 	 */
 	var kingLongMoves={
-		"1": {
-			6: [ [4,5],[8,9],[30,18],[28,17],[32,19] ],
-//6: [ [4,5],[8,9],[30,18],[28,17],[32,19],[16,5,7],[29,17,18],[31,18,19],[20,7,19] ],
+		"1": {   // White's King on g1 (6)
+			6: [ [4,5], [8,7], [30,18], [28,17], [32,19] ],
 		},
-		"-1": {
-			138: [ [1140,13],[136,137],[114,126],[116,127],[112,125] ],
-//			138: [ [1140,13],[136,137],[114,126],[116,127],[112,125],[128,127,139],[115,126,127],[113,125,126],[124,125,137] ],
+		"-1": {  // Black's King on g12 (138)
+			138: [ [140,139], [136,137], [114,126], [116,127], [112,125] ],
 		},
 	}
 	

@@ -201,20 +201,7 @@
 		};
 	}
 
-	/* Make the jumps */
-	View.Board.cbMoveMidZ = function(aGame,aMove,zFrom,zTo) {
-		var geo=aGame.cbVar.geometry;
-		var dx=Math.abs(geo.C(aMove.t)-geo.C(aMove.f));
-		var dy=Math.abs(geo.R(aMove.t)-geo.R(aMove.f));
-        // jump to move
-		if(("_O_T_C_Q_M_H_".indexOf("_"+aMove.a+"_")>=0) && (aGame.g.distGraph[aMove.f][aMove.t]>1))
-			return Math.max(zFrom,zTo)+2000;
-		else if(("_A_C_N_M_".indexOf("_"+aMove.a+"_")>=0) && dx!=dy && dx!=0 && dy!=0)
-			return Math.max(zFrom,zTo)+2000;
-// jump to attack
-		else if(("_Z_W_".indexOf("_"+aMove.a+"_")>=0) && aMove.c != null)
-			return Math.max(zFrom,zTo)+2000;
-		else
-			return (zFrom+zTo)/2;
-	}
+	/** No customn cbMoveMidZ here on purpose. */
+
+
 })();

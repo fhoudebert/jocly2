@@ -144,6 +144,7 @@
 						[2,2],[1,2],[0,2],[-1,2],[-2,2],[-2,1]]),
 					value: 6,
 					abbrev: 'SQ',
+					fenAbbrev : 'Q!',
 					initial: [{s:1,p:2},{s:1,p:13},{s:-1,p:242},{s:-1,p:253}],
 				},
 
@@ -175,6 +176,7 @@
 					graph: this.cbSnakeGraph(geometry),
 					value: 3.7,
 					abbrev: 'SN',
+					fenAbbrev : 'N!',
 					initial: [{s:1,p:37},{s:1,p:42},{s:-1,p:213},{s:-1,p:218}],
 				},
 
@@ -193,8 +195,10 @@
                     graph : this.cbMergeGraphs(geometry,
                   this.cbPawnGraph(geometry,1),
                   this.cbShortRangeGraph(geometry,[
-						[-3,3],[0,3],[3,3],[-3,0],[3,0],[-3,-3],
-						[0,-3],[-3,3]])),
+						// the eight 3-square jumps: [3,-3] used to be missing,
+						// hidden by [-3,3] appearing twice
+						[-3,3],[0,3],[3,3],[-3,0],[3,0],
+						[-3,-3],[0,-3],[3,-3]])),
                     value : 3.2,
                     initial: [{s:1,p:48},{s:1,p:50},{s:1,p:52},{s:1,p:54},{s:1,p:57},{s:1,p:59},{s:1,p:61},{s:1,p:63}],
                 },
@@ -205,14 +209,17 @@
                     graph : this.cbMergeGraphs(geometry,
                   this.cbPawnGraph(geometry,-1),
                   this.cbShortRangeGraph(geometry,[
-						[-3,3],[0,3],[3,3],[-3,0],[3,0],[-3,-3],
-						[0,-3],[-3,3]])),
+						// the eight 3-square jumps: [3,-3] used to be missing,
+						// hidden by [-3,3] appearing twice
+						[-3,3],[0,3],[3,3],[-3,0],[3,0],
+						[-3,-3],[0,-3],[3,-3]])),
                     value : 3.2,
                     initial: [{s:-1,p:192},{s:-1,p:194},{s:-1,p:196},{s:-1,p:198},{s:-1,p:201},{s:-1,p:203},{s:-1,p:205},{s:-1,p:207}],
                 },
                 11: {
-                  name : 'princew',
+                  name : 'prince-w',
                   abbrev : 'P',
+					fenAbbrev : 'P!',
                   aspect : 'fr-admiral',
                   graph : this.cbPrinceGraph(geometry,1,confine),
                   value : 3.1,
@@ -220,8 +227,9 @@
                   epTarget : true,
                 },
                 12: {
-                  name : 'princeb',
+                  name : 'prince-b',
                   abbrev : 'P',
+					fenAbbrev : 'P!',
                   aspect : 'fr-admiral',
                   graph : this.cbPrinceGraph(geometry,-1,confine),
                   value : 3.1,
@@ -261,8 +269,9 @@
                   initial: [{s:1,p:8},{s:-1,p:248}],
                 },
                 16: {
-                  name : 'soldierw',
+                  name : 'soldier-w',
                   abbrev : 'S',
+					fenAbbrev : 'S!',
                   aspect : 'fr-corporal',
                   graph : this.cbMergeGraphs(geometry,
                   this.cbInitialPawnGraph(geometry,1),
@@ -274,8 +283,9 @@
                   epTarget : true,
                 },
                 17: {
-                  name : 'soldierb',
+                  name : 'soldier-b',
                   abbrev : 'S',
+					fenAbbrev : 'S!',
                   aspect : 'fr-corporal',
                   graph : this.cbMergeGraphs(geometry,
                   this.cbInitialPawnGraph(geometry,-1),
@@ -354,6 +364,7 @@
                   25: {
                   name : 'sorcerer',
                   abbrev : 'O',
+					fenAbbrev : 'O!',
                   aspect : 'fr-star',
                   graph : this.cbLongRangeGraph(geometry,[[0,-1],[0,1],[-1,0],[1,0],[1,1],[1,-1],[-1,-1],[-1,1]],null,this.cbConstants.FLAG_MOVE | this.cbConstants.FLAG_SCREEN_CAPTURE),
                   value : 7,
@@ -372,6 +383,7 @@
                   27: {
                   name : 'cannon',
                   abbrev : 'C',
+					fenAbbrev : 'C!',
                   aspect : 'fr-cannon2',
                   graph : this.cbXQCannonGraph(geometry),
                   value : 3.6,
@@ -380,6 +392,7 @@
                   28: {
                   name : 'camel',
                   abbrev : 'M',
+					fenAbbrev : 'M!',
                   aspect : 'fr-camel',
                   graph : this.cbShortRangeGraph(geometry,[[-3,-1],[-3,1],[3,-1],[3,1],[1,3],[1,-3],[-1,3],[-1,-3]]),
                   value : 2.6,
@@ -392,8 +405,10 @@
                   graph : this.cbShortRangeGraph(geometry,[[-3,-2],[-3,2],[3,-2],[3,2],[2,3],[2,-3],[-2,3],[-2,-3]]),
                   value : 2.4,
                   initial: [{s:1,p:18},{s:1,p:29},{s:-1,p:226},{s:-1,p:237}],
-                  epCatch : true,
-                  epTarget : true,
+                  // no en passant for the Giraffe: "Only a Pawn or a Soldier
+                  // may capture en passant". With epCatch it could take a
+                  // passing Pawn whenever its (3,2) leap happened to land on
+                  // the square that Pawn crossed.
                   },
                   30: {
                   name : 'bow',
@@ -406,6 +421,7 @@
                   31: {
                   name : 'amiral',
                   abbrev : 'S',
+					fenAbbrev : 'A!',
                   aspect : 'fr-crowned-rook',
                   graph : this.cbMergeGraphs(geometry,
                               this.cbKingGraph(geometry,confine),
@@ -436,6 +452,7 @@
                   34: {
                   name : 'marshall',
                   abbrev : 'H',
+					fenAbbrev : 'H!',
                   aspect : 'fr-marshall',
                   graph : this.cbMergeGraphs(geometry,
                               this.cbKnightGraph(geometry,confine),

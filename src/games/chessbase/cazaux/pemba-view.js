@@ -212,20 +212,17 @@
 		};
 	}
 
-	/* Make the jumps */
-	View.Board.cbMoveMidZ = function(aGame,aMove,zFrom,zTo) {
-		var geo=aGame.cbVar.geometry;
-		var dx=Math.abs(geo.C(aMove.t)-geo.C(aMove.f));
-		var dy=Math.abs(geo.R(aMove.t)-geo.R(aMove.f));
-		if(("_N_E_D_L_J_T_F_G_S_".indexOf("_"+aMove.a+"_")>=0) && (aGame.g.distGraph[aMove.f][aMove.t]>1))
-			return Math.max(zFrom,zTo)+2000;
-		else if(("_A_C_M_".indexOf("_"+aMove.a+"_")>=0) && dx!=dy && dx!=0 && dy!=0)
-			return Math.max(zFrom,zTo)+2000;
-		else if(("_Z_W_".indexOf("_"+aMove.a+"_")>=0) && aMove.c != null)
-			return Math.max(zFrom,zTo)+2000;
-		else
-			return (zFrom+zTo)/2;
-	}
+	/*
+	 * No cbMoveMidZ here on purpose.
+	 *
+	 * This file carried the same table twice, in its two blocks, and both
+	 * copies used letters from another game: pemba's Giraffe was not in the
+	 * jump list although it is a leaper, and its Cannon was not in the
+	 * capture-jump list, so it slid quietly over the screen it captures past.
+	 *
+	 * grid-board-view.js reads it off the piece graphs. Compared move by move
+	 * against the old table: apart from those two, the two agree everywhere.
+	 */
 })();
 /*
  *
@@ -441,18 +438,4 @@
 		};
 	}
 
-	/* Make the jumps */
-	View.Board.cbMoveMidZ = function(aGame,aMove,zFrom,zTo) {
-		var geo=aGame.cbVar.geometry;
-		var dx=Math.abs(geo.C(aMove.t)-geo.C(aMove.f));
-		var dy=Math.abs(geo.R(aMove.t)-geo.R(aMove.f));
-		if(("_N_E_D_L_J_T_F_G_S_".indexOf("_"+aMove.a+"_")>=0) && (aGame.g.distGraph[aMove.f][aMove.t]>1))
-			return Math.max(zFrom,zTo)+2000;
-		else if(("_A_C_M_".indexOf("_"+aMove.a+"_")>=0) && dx!=dy && dx!=0 && dy!=0)
-			return Math.max(zFrom,zTo)+2000;
-		else if(("_Z_W_".indexOf("_"+aMove.a+"_")>=0) && aMove.c != null)
-			return Math.max(zFrom,zTo)+2000;
-		else
-			return (zFrom+zTo)/2;
-	}
 })();

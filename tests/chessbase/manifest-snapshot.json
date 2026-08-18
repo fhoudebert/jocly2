@@ -1,6 +1,6 @@
 {
-	"bytes": 351819,
-	"digest": "8a768672d9dab337",
+	"bytes": 351736,
+	"digest": "2730756f99a08002",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -140,7 +140,7 @@
 		},
 		{
 			"name": "hectochess",
-			"digest": "77764d18a9020818"
+			"digest": "0cef37de8397d0bc"
 		},
 		{
 			"name": "heavychess",
@@ -276,7 +276,7 @@
 		},
 		{
 			"name": "spartan-chess",
-			"digest": "1f65c733718ebf7a"
+			"digest": "7afa49a0c37eedd7"
 		},
 		{
 			"name": "khans-chess",
@@ -296,7 +296,7 @@
 		},
 		{
 			"name": "seireigi",
-			"digest": "d0ab61f5ea018fc4"
+			"digest": "7c5c3ddd0e4e3561"
 		},
 		{
 			"name": "chu-seireigi",

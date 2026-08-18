@@ -117,7 +117,8 @@
 					value: 5,
 					abbrev: 'R',
 					initial: [{s:1,p:13},{s:1,p:22},{s:-1,p:121},{s:-1,p:130}],
-					castle: true,
+					// "There is no castling in Zanzibar" - the King's jump
+					// below takes its place
 				},
 
 				7: {
@@ -273,10 +274,25 @@
 	 *   - handle setup phase 
 	 *   - handle king special move: a kind of castle involving only the king
 	 */
+	/*
+	 * The King's jump, which replaces castling: on its first move the King may
+	 * jump to any free square two squares away - straight, diagonal or like a
+	 * Knight. The square it passes over may be occupied, but it may not be
+	 * threatened; the jump is barred while the King is in check.
+	 *
+	 * Each entry is [ destination, square passed over ] for a straight or
+	 * diagonal jump, and [ destination, square A, square B ] for a Knight-like
+	 * one - the two squares it could be said to pass between, of which the
+	 * rules require only ONE to be free of threat ("if jumping from f2 to h3,
+	 * either g2 or g3 must not be under attack").
+	 *
+	 * Eleven entries from f2, nine from f1: the ring of squares two away is
+	 * sixteen, and the rest fall off the board.
+	 */
 	var kingLongMoves={
 		"1": {
 			17: [ [15,16],[19,18],[41,29],[39,28],[43,30],[3,4,16],[27,16,28],[40,28,29],[42,29,30],[31,18,30],[7,18,6] ],
-			5: [ [3,4],[7,8],[29,17],[27,16],[31,18],[15,4,6],[28,16,17],[30,17,18],[19,6,18] ],
+			5: [ [3,4],[7,6],[29,17],[27,16],[31,18],[15,4,16],[28,16,17],[30,17,18],[19,6,18] ],
 		},
 		"-1": {
 			125: [ [127,126],[123,124],[101,113],[99,112],[103,114],[135,124,136],[111,112,124],[100,112,113],[102,113,114],[115,114,126],[139,126,138] ],
@@ -292,48 +308,56 @@
 		}
 		if(this.setupState=="setup")  {
 			this.mMoves=[];
-			for(var i=0;i<12;i++)
+			for(var i=0;i<24;i++)
 				this.mMoves.push({setup:i});
 			return;
 		}
 		SuperModelBoardGenerateMoves.apply(this,arguments); // call regular GenerateMoves method
-		// now consider special 2 cases king moves
+		// now consider the King's jump
 		var kPiece=this.pieces[this.board[this.kings[this.mWho]]];
 		if(!kPiece.m && !this.check) {
+			var $this=this;
+			// would the King be attacked standing on that square? The square is
+			// emptied first: the King leaps over whatever sits there, and a
+			// piece left in place would block the very line we are testing.
+			function safe(pos) {
+				var tmpOut=$this.board[pos];
+				$this.board[pos]=-1;
+				var undo=$this.cbQuickApply(aGame,{ f: kPiece.p, t: pos });
+				var attacked=$this.cbGetAttackers(aGame,pos,$this.mWho,true).length>0;
+				var gives=!attacked
+					&& $this.cbGetAttackers(aGame,$this.kings[-$this.mWho],-$this.mWho,true).length>0;
+				$this.cbQuickUnapply(aGame,undo);
+				$this.board[pos]=tmpOut;
+				$this.cbIntegrity(aGame);
+				return { ok: !attacked, check: gives };
+			}
 			var lMoves=kingLongMoves[this.mWho][kPiece.p];
 			for(var i=0;i<lMoves.length;i++) {
 				var lMove=lMoves[i];
-				if(this.board[lMove[0]]>=0)
+				if(this.board[lMove[0]]>=0) // "may jump to a FREE square"
 					continue;
-				var canMove=true;
-				var oppInCheck=false;
-				for(var j=0;j<lMove.length;j++) {
-					var pos=lMove[j];
-					var tmpOut=this.board[pos];
-					this.board[pos]=-1; // remove possible piece to prevent problems when quick-applying/unapplying
-					var undo=this.cbQuickApply(aGame,{
-						f: kPiece.p,
-						t: pos,
-					});
-					var inCheck=this.cbGetAttackers(aGame,pos,this.mWho,true).length>0;
-					if(!inCheck && j==0)
-						oppInCheck=this.cbGetAttackers(aGame,this.kings[-this.mWho],-this.mWho,true).length>0;
-					this.cbQuickUnapply(aGame,undo);
-					this.board[pos]=tmpOut;
-					this.cbIntegrity(aGame);
-					if(inCheck) {
-						canMove=false;
+				var landing=safe(lMove[0]);
+				if(!landing.ok)
+					continue;
+				// One square passed over for a straight or diagonal jump, and
+				// it has to be safe. Two for a Knight-like jump, of which one
+				// safe square is enough.
+				var passed=false;
+				for(var j=1;j<lMove.length;j++)
+					if(safe(lMove[j]).ok) {
+						passed=true;
 						break;
 					}
-				}
-				if(canMove)
-					this.mMoves.push({
-						f: kPiece.p,
-						t: lMove[0],
-						c: null,
-						ck: oppInCheck,
-						a: 'K',
-					});
+				if(!passed)
+					continue;
+				this.mMoves.push({
+					f: kPiece.p,
+					t: lMove[0],
+					c: null,
+					ck: landing.check,
+					a: 'K',
+				});
 			}
 		}
 	}
@@ -386,7 +410,25 @@
 //				$this.zSign=aGame.zobrist.update($this.zSign,"board",pIndex,pos);
 			});
 			// setup KQLEFU positions according to the setup
-			var setup=move.setup;
+			/*
+			 * The rules count 24 starting positions: the King on f1 or f2 (2),
+			 * then the Queen beside, beneath or diagonal to it (3), then the
+			 * Eagle on one of the two squares left and the Lion on the other
+			 * (2), then the Rhinoceros and the Buffalo either way round on the
+			 * two remaining squares (2). 2x3x2x2 = 24.
+			 *
+			 * The Rhinoceros/Buffalo pairing is an independent choice, which is
+			 * why it is taken from its own bit here: indices 0-11 and 12-23 are
+			 * the same twelve arrangements of King, Queen, Eagle and Lion with
+			 * the two other chiefs swapped. That is exactly what the view has
+			 * always drawn - its gadget list runs 0-23, the first twelve
+			 * labelled "...F" and the last twelve "...U" - while the model only
+			 * ever generated twelve moves and derived the pairing from the
+			 * Eagle/Lion bit, so half the positions could not be reached and
+			 * the two choices moved together.
+			 */
+			var setup=move.setup%12;
+			var swapChiefs=move.setup>=12;
 
 			var remaining={};
 			if(setup/6<1) {
@@ -461,8 +503,8 @@
             remaining[1]=[4,7]
             remaining[-1]=[136,139]
             var rhino,buffalo;
-            setup%=2;
-			if(setup==0) {
+			// its own choice now, not a copy of the Eagle/Lion one
+			if(!swapChiefs) {
 				rhino=0;
 				buffalo=1;
 			} else {
@@ -528,7 +570,7 @@
 	 */
 	Model.Board.StaticGenerateMoves = function(aGame) {
 		if(this.setupState=="setup")
-			return [aGame.CreateMove({setup:Math.floor(Math.random()*12)})];
+			return [aGame.CreateMove({setup:Math.floor(Math.random()*24)})];
 		return null;
 	}
 	
