@@ -133,7 +133,13 @@
 			abbrev : 'W',
 			aspect : 'fr-corporal',
 			graph : this.cbMergeGraphs(geometry,
-				    this.cbFlexiPawnGraph(geometry,1,2),
+				    // "moves one or two squares straight ahead (non-jumping)",
+				    // from anywhere. cbFlexiPawnGraph's third argument is the
+				    // RANK beyond which the long push stops, not the number of
+				    // steps, so passing 2 there gave a Warrior on its own rank
+				    // five squares and one square from the fourth rank on.
+				    this.cbLongRangeGraph(geometry,[[0,1]],null,this.cbConstants.FLAG_MOVE,2),
+				    this.cbShortRangeGraph(geometry,[[1,1],[-1,1]],null,this.cbConstants.FLAG_CAPTURE),
 				    this.cbShortRangeGraph(geometry,[[2,-1],[-2,-1],[1,-2],[-1,-2]],null,this.cbConstants.FLAG_SPECIAL_CAPTURE)
 				),
 			value : 2.01,
@@ -147,7 +153,13 @@
 			abbrev : 'W',
 			aspect : 'fr-corporal',
 			graph : this.cbMergeGraphs(geometry,
-				    this.cbFlexiPawnGraph(geometry,-1,2),
+				    // "moves one or two squares straight ahead (non-jumping)",
+				    // from anywhere. cbFlexiPawnGraph's third argument is the
+				    // RANK beyond which the long push stops, not the number of
+				    // steps, so passing 2 there gave a Warrior on its own rank
+				    // five squares and one square from the fourth rank on.
+				    this.cbLongRangeGraph(geometry,[[0,-1]],null,this.cbConstants.FLAG_MOVE,2),
+				    this.cbShortRangeGraph(geometry,[[1,-1],[-1,-1]],null,this.cbConstants.FLAG_CAPTURE),
 				    this.cbShortRangeGraph(geometry,[[2,1],[-2,1],[1,2],[-1,2]],null,this.cbConstants.FLAG_SPECIAL_CAPTURE)
 				),
 			value : 2.01,
@@ -401,7 +413,14 @@
 				if(piece.t > 5) return [];		// non-Pawns do not promote
 				var r=geometry.R(move.t);		// only Pawns and Warriors left here
 				if(piece.s > 0 ? r < 13 : r > 0) return [];
-				return [6,7,8,9,11,13,14,15,16,17,19,21,22,29,24,25,27];
+				/*
+				 * "Pawns and Warriors promote on reaching the final rank, to
+				 * any piece except King, Pawn, Warrior, Archer, Bat, Raven,
+				 * Eagle or Terror." Type 11 is the Archer, and it was on the
+				 * list: the piece flying pieces cannot jump over is exactly
+				 * the one promotion may not create.
+				 */
+				return [6,7,8,9,13,14,15,16,17,19,21,22,29,24,25,27];
 			},
 
 			castle: { // fast castling: R always to K square, K one step to highlight R for entry
