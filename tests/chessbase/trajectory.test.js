@@ -80,8 +80,11 @@ function trajectory(z0, z2, z1, x0, y0, x2, y2, viaX, viaY) {
 }
 
 function load(model) {
+	// timurid picks its pieces in a prelude, so its model wants that script
 	const sandbox = H.loadModel(["base-model.js", "grid-geo-model.js",
-		"fairy-piece-model.js", model]);
+		"fairy-piece-model.js"]
+		.concat(/timurid/.test(model) ? ["prelude-model.js"] : [])
+		.concat([model]));
 	const game = H.newGame(sandbox);
 	return { sandbox, game, geo: game.cbVar.geometry, types: game.cbVar.pieceTypes };
 }
@@ -139,6 +142,8 @@ console.log("\npieces that bend follow their own path");
   [["griffon", "Eagle"], ["rhino", "Rhinoceros"], ["ship", "Ship"], ["snake", "Snake"]]],
  ["gigachessII", "cazaux/gigachessII-model.js", "h8",
   [["eagle", "Eagle"], ["rhino", "Rhinoceros"]]],
+ ["timurid", "duodecimal/timurid-model.js", "g7",
+  [["griffon", "Griffon"], ["rhino", "Rhinoceros"], ["ship", "Ship"], ["snake", "Snake"]]],
 ].forEach(([label, model, square, pieces]) => {
 	const ctx = load(model);
 	pieces.forEach(([name, pretty]) => {
@@ -202,7 +207,8 @@ t.ok("and comes back down to slide", (() => {
 console.log("\nno view overrides the shared version");
 
 ["cazaux/gigachessII-view.js", "cazaux/bigorra-view.js", "cazaux/fantasticXIII-view.js",
- "cazaux/zanzibar-view.js", "historical/grant-acedrex-view.js"].forEach((file) => {
+ "cazaux/zanzibar-view.js", "historical/grant-acedrex-view.js",
+ "duodecimal/timurid-view.js"].forEach((file) => {
 	const src = fs.readFileSync(path.join(CHESSBASE, file), "utf8");
 	t.ok(path.basename(file) + " has no cbMoveMidZ of its own",
 		!/^\s*View\.Board\.cbMoveMidZ\s*=/m.test(src));

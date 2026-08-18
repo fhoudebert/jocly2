@@ -107,6 +107,10 @@
       abbrev : '',
       fenAbbrev: 'P',
       aspect : 'fr-pawn',
+      // The two-square step is available from ANY square, not only the
+      // Pawn's own rank - twelve ranks are a long way to crawl. Deliberate,
+      // and asserted in tests/chessbase/timurid.test.js so that a reading of
+      // cbInitialPawnGraph as a mistake does not undo it.
       graph : this.cbInitialPawnGraph(geometry,1),
       value : 0.94,
       initial: [{s:1,p:24},{s:1,p:25},{s:1,p:26},{s:1,p:27},{s:1,p:28},{s:1,p:29},{s:1,p:30},{s:1,p:31},{s:1,p:32},{s:1,p:33},{s:1,p:34},{s:1,p:35}],
@@ -119,6 +123,10 @@
       abbrev : '',
       fenAbbrev: 'P',
       aspect : 'fr-pawn',
+      // The two-square step is available from ANY square, not only the
+      // Pawn's own rank - twelve ranks are a long way to crawl. Deliberate,
+      // and asserted in tests/chessbase/timurid.test.js so that a reading of
+      // cbInitialPawnGraph as a mistake does not undo it.
       graph : this.cbInitialPawnGraph(geometry,-1),
       value : 0.94,
       initial: [{s:-1,p:108},{s:-1,p:109},{s:-1,p:110},{s:-1,p:111},{s:-1,p:112},{s:-1,p:113},{s:-1,p:114},{s:-1,p:115},{s:-1,p:116},{s:-1,p:117},{s:-1,p:118},{s:-1,p:119}],
