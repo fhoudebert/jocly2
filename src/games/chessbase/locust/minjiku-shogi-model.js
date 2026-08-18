@@ -388,6 +388,14 @@
 		    31: {
 			name : 'isweeper',
 			abbrev : 'L',
+			// The Lateral Mover that has not moved yet, which may still slide
+			// two squares forward. It needs a FEN letter of its own: sharing
+			// 'L' with the moved one, it lost the tie on import - both types
+			// are side-symmetric, so the first scanned keeps the letter - and
+			// a reloaded position gave back four ordinary Lateral Movers that
+			// had quietly lost that move. "L!" follows the module's
+			// convention for a second piece on a letter.
+			fenAbbrev : 'L!',
 			aspect : 'fr-machine',
 			graph : this.cbMergeGraphs(geometry,
 					this.cbLongRangeGraph(geometry,[[0,1],[0,-1]],area,null,2),
