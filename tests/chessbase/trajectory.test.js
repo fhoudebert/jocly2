@@ -145,6 +145,8 @@ console.log("\npieces that bend follow their own path");
  ["timurid", "duodecimal/timurid-model.js", "g7",
   [["griffon", "Griffon"], ["rhino", "Rhinoceros"], ["ship", "Ship"], ["snake", "Snake"]]],
  ["wild-tamerlane", "cazaux/wild-tamerlane-model.js", "f6", [["gryphon", "Gryphon"]]],
+ ["gigachess", "cazaux/gigachess-model.js", "h8", [["eagle", "Eagle"], ["ship", "Ship"]]],
+ ["terachess", "cazaux/terachess-model.js", "i9", [["eagle", "Eagle"], ["ship", "Ship"]]],
 ].forEach(([label, model, square, pieces]) => {
 	const ctx = load(model);
 	pieces.forEach(([name, pretty]) => {
@@ -209,7 +211,9 @@ console.log("\nno view overrides the shared version");
 
 ["cazaux/gigachessII-view.js", "cazaux/bigorra-view.js", "cazaux/fantasticXIII-view.js",
  "cazaux/zanzibar-view.js", "historical/grant-acedrex-view.js",
- "duodecimal/timurid-view.js", "cazaux/wild-tamerlane-view.js"].forEach((file) => {
+ "duodecimal/timurid-view.js", "cazaux/wild-tamerlane-view.js",
+ "cazaux/gigachess-view.js", "cazaux/terachess-view.js",
+ "cazaux/pemba-view.js"].forEach((file) => {
 	const src = fs.readFileSync(path.join(CHESSBASE, file), "utf8");
 	t.ok(path.basename(file) + " has no cbMoveMidZ of its own",
 		!/^\s*View\.Board\.cbMoveMidZ\s*=/m.test(src));

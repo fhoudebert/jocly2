@@ -221,20 +221,18 @@
 		};
 	}
 
-	/* Make the jumps */
-	View.Board.cbMoveMidZ = function(aGame,aMove,zFrom,zTo) {
-		var geo=aGame.cbVar.geometry;
-		var dx=Math.abs(geo.C(aMove.t)-geo.C(aMove.f));
-		var dy=Math.abs(geo.R(aMove.t)-geo.R(aMove.f));
-		if(("_N_E_D_L_J_T_F_G_S_".indexOf("_"+aMove.a+"_")>=0) && (aGame.g.distGraph[aMove.f][aMove.t]>1))
-			return Math.max(zFrom,zTo)+2000;
-		else if(("_A_C_M_".indexOf("_"+aMove.a+"_")>=0) && dx!=dy && dx!=0 && dy!=0)
-			return Math.max(zFrom,zTo)+2000;
-		else if(("_Z_W_".indexOf("_"+aMove.a+"_")>=0) && aMove.c != null)
-			return Math.max(zFrom,zTo)+2000;
-		else
-			return (zFrom+zTo)/2;
-	}
+	/*
+	 * No cbMoveMidZ here on purpose.
+	 *
+	 * The table this view carried got three pieces wrong, in three different
+	 * ways. The Eagle and the Ship slid straight through paths that bend. The
+	 * Rhinoceros, which leaps as a Knight and then slides on diagonally, slid
+	 * the whole way. And the Star hopped over every move it made, when it
+	 * moves like a Queen and only jumps to capture over a screen.
+	 *
+	 * grid-board-view.js reads all of it off the piece graphs. Compared move
+	 * by move against the old table: every other piece behaves as before.
+	 */
 	/*
 	 * View.Board.xdDisplay overriding to prevent displaying black xtra pieces before setup
 	 */

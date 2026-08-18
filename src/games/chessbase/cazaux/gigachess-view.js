@@ -207,18 +207,17 @@
 		};
 	}
 
-	/* Make the jumps */
-	View.Board.cbMoveMidZ = function(aGame,aMove,zFrom,zTo) {
-		var geo=aGame.cbVar.geometry;
-		var dx=Math.abs(geo.C(aMove.t)-geo.C(aMove.f));
-		var dy=Math.abs(geo.R(aMove.t)-geo.R(aMove.f));
-		if(("_N_E_D_L_J_T_F_G_S_".indexOf("_"+aMove.a+"_")>=0) && (aGame.g.distGraph[aMove.f][aMove.t]>1))
-			return Math.max(zFrom,zTo)+2000;
-		else if(("_A_C_M_".indexOf("_"+aMove.a+"_")>=0) && dx!=dy && dx!=0 && dy!=0)
-			return Math.max(zFrom,zTo)+2000;
-		else if(("_Z_W_".indexOf("_"+aMove.a+"_")>=0) && aMove.c != null)
-			return Math.max(zFrom,zTo)+2000;
-		else
-			return (zFrom+zTo)/2;
-	}
+	/*
+	 * No cbMoveMidZ here on purpose.
+	 *
+	 * The table this view carried could only answer "jump" or "slide
+	 * straight", and it left the Eagle and the Ship out of both: their move
+	 * is a diagonal step followed by a straight ray, so they slid from start
+	 * to finish across squares their path never touches.
+	 *
+	 * grid-board-view.js reads it off the piece graphs instead - leaps jump,
+	 * screen captures jump, and a path whose two legs are not in line gets a
+	 * bent trajectory. Compared move by move against the old table first:
+	 * apart from the Eagle and the Ship, the two agree everywhere.
+	 */
 })();
