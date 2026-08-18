@@ -204,22 +204,6 @@
 		};
 	}
 
-	/*
-	 * No cbMoveMidZ here on purpose.
-	 *
-	 * This view used to override it with a table of piece letters: jump when
-	 * the distance is more than one, jump when the move is oblique, jump when
-	 * a screen piece captures, slide otherwise. grid-board-view.js now derives
-	 * all of that from the piece graphs themselves, and derives more: a
-	 * destination reached as the first step of a path is a leap and jumps,
-	 * a screen capture jumps, and a path whose legs are not in line - the
-	 * Eagle's diagonal step then straight ray, the Rhinoceros' straight step
-	 * then diagonal ray, the Ship, the Snake - gets a BENT trajectory that
-	 * follows the two legs instead of cutting the corner.
-	 *
-	 * The hand-written version cannot express that bend: it only ever answered
-	 * "jump" or "slide straight". Keeping it made those pieces either glide
-	 * through squares they never visit or hop over the whole move.
-	 */
+	/** No customn cbMoveMidZ here on purpose. */
 
 })();
