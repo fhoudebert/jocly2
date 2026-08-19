@@ -72,18 +72,37 @@
 				if((piece.t==0 && r<9) || (piece.t==1 &&  r>2)) {
 					return [];
 				}
+				/*
+				 * How many of each kind the reserve can still supply, counted
+				 * as a ceiling: the count below subtracts the pieces of that
+				 * kind still in play. "The pieces held in reserve not only
+				 * include captured pieces, as they do in Grand Chess, but also
+				 * two Queens, four Rooks, four Knights, and four Bishops" -
+				 * two extra sets, on top of what the game starts with. So the
+				 * ceiling for those four is what is on the board at the start
+				 * plus the reserve: six Bishops, six Knights, six Rooks, three
+				 * Queens. They read 4, 4, 4 and 2 here, which is the reserve
+				 * alone, and a player could never have more of a kind than the
+				 * game hands out.
+				 *
+				 * Everything else has only captured pieces to draw on, so its
+				 * ceiling is the two it starts with - except the Marshall and
+				 * the Archbishop, which the published game caps at one. Taken
+				 * from that implementation rather than from the rules page,
+				 * which does not single them out.
+				 */
 				var considerTypes;
 				if((piece.t==0 && r==9 ) || (piece.t==1 && r==2)) {
 					//T_bishop,T_knight,T_vao,T_wizard : 3,5,9,10
-					considerTypes={ 5:4, 3:4,9:2,10:2};
+					considerTypes={ 5:6, 3:6, 9:2, 10:2};
 
 				}else if((piece.t==0 && r==10 ) || (piece.t==1 && r==1)){
 					//T_cannon,T_champion,T_rook : 11,6,8
-					considerTypes={ 5:4, 3:4,9:2,10:2,11:2,8:4,6:2};
+					considerTypes={ 5:6, 3:6, 9:2, 10:2, 11:2, 8:6, 6:2};
 
 				}else if((piece.t==0 && r==11 ) || (piece.t==1 && r==0)){
 					 //T_marshall,T_archbishop,T_queen : 4,2,7
-					considerTypes={ 5:4, 3:4,9:2,10:2,11:2,8:4,6:2,4:2, 2:2, 7:2};
+					considerTypes={ 5:6, 3:6, 9:2, 10:2, 11:2, 8:6, 6:2, 4:1, 2:1, 7:3};
 				}
 	            if((piece.t==0 && r<=11 && r>=9) || (piece.t==1 && r>=0 && r<=2)) {   
 					for(var i=0;i<this.pieces.length;i++) {
@@ -101,8 +120,13 @@
 	                        promo.push(t);
 					if(r!=0 && r!=11)
 						promo.unshift(piece.t);
-					/*else if(promo.length==0)
-						return null;*/ // last line but no captured piece to promote to: move is not possible
+					else if(promo.length==0)
+						// on the last rank with nothing left in the reserve to
+						// become: the move is not possible at all, as in Grand
+						// Chess. This was commented out, and a Pawn could walk
+						// onto the last rank and stay a Pawn there, unable to
+						// move again.
+						return null;
 					return promo;
 				}
 				return [];

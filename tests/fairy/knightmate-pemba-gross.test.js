@@ -4,18 +4,6 @@
  *
  *   node tests/fairy/knightmate-pemba.test.js
  *
- * Knightmate needed nothing: the royal piece really is the Knight, the two
- * Kings really are ordinary pieces, and a Pawn may promote to a King and not
- * to a Knight - a promotion list that is easy to get backwards, since every
- * other game in the module says the opposite.
- *
- * Pemba does castle - "a simultaneous move of the player's King and one Rook,
- * with the same conditions as at orthodox chess", the King moving two squares
- * towards that Rook. Its English rules page said the opposite, and the
- * Fairy-Stockfish definition behind the Expert level put the King one square
- * away on the queenside instead of two, so the castling move the engine
- * returned had no counterpart on the Jocly side to be recognised as. Both are
- * fixed; the model was right all along.
  */
 
 const H = require("./harness.js");
@@ -304,10 +292,33 @@ const ceiling = (letter, name) => {
 	}
 	return 9;
 };
-[["V", "vao"], ["W", "wizard"], ["O", "champion"], ["M", "marshall"],
- ["A", "archbishop"], ["X", "cannon"]].forEach(([letter, name]) => {
-	t.check("only captured " + name + "s come back", ceiling(letter, name), 2);
+[["B", "bishop", 6], ["N", "knight", 6], ["R", "rook", 6], ["Q", "queen", 3],
+ ["V", "vao", 2], ["W", "wizard", 2], ["O", "champion", 2], ["X", "cannon", 2],
+ ["M", "marshall", 1], ["A", "archbishop", 1]].forEach(([letter, name, most]) => {
+	t.check("at most " + most + " " + name + (most > 1 ? "s" : ""),
+		ceiling(letter, name), most);
 });
+
+/*
+ * And on the last rank with the reserve exhausted, the move itself is not
+ * possible - as in Grand Chess. A Pawn that could walk there and stay a Pawn
+ * would be stuck on a square it can never leave.
+ */
+t.check("a Pawn cannot reach the last rank with nothing to become", (() => {
+	const files = "abcdefghijkl";
+	const pieces = { g2: "wK", g11: "bK" };
+	let square = 0;
+	const fill = (letter, count) => {
+		for(let i = 0; i < count; i++, square++)
+			pieces[files[square % 12] + (4 + Math.floor(square / 12))] = "w" + letter;
+	};
+	fill("B", 6); fill("N", 6); fill("R", 6); fill("Q", 3);
+	fill("V", 2); fill("W", 2); fill("O", 2); fill("X", 2);
+	fill("M", 1); fill("A", 1);
+	const board = H.setup(gross.sandbox, gross.game, pieces, 1);
+	return gross.game.cbVar.promote.call(board, gross.game,
+		{ t: 0, s: 1, p: 10 * 12 + 3 }, { t: 11 * 12 + 3, f: 10 * 12 + 3, c: null });
+})(), null);
 
 /*
  * Castling: "Moves as in usual Chess but castle 2 or 3 squares away with the
@@ -318,6 +329,13 @@ const grossCastle = gross.movesFrom({ g2: "wK*", b2: "wR*", k2: "wR*", g11: "bK*
 	.map((m) => gross.geo.PosName(m.t & 0xffff)).sort();
 t.check("kingside, two or three squares",
 	grossCastle.filter((square) => square > "g"), ["i2", "j2"]);
+/*
+ * Queenside the King may also go four squares, which the rules page does not
+ * describe - but the published implementation offers the same three, so this
+ * records the behaviour rather than calling it a fault.
+ */
+t.check("queenside, two, three or four",
+	grossCastle.filter((square) => square < "g"), ["c2", "d2", "e2"]);
 
 t.check("a game runs", gross.plays(60), 60);
 
