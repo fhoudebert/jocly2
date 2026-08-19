@@ -17,11 +17,11 @@
  * move, the igui, was generated: a piece could pass a turn by eating
  * something, never by stepping out and back.
  *
- * The move is generated now, and the engine plays it. A human still cannot:
- * it ends on the square the piece stands on, which is the gadget bound to
- * "cancel the selection", and no affordance for it fits on the board - see
- * the note in chu-shogi-model.js. What is asserted below is therefore the
- * move itself, not a way of clicking it.
+ * It is entered in two clicks, like any two-leg move: click the square to
+ * step on, then the same square again to stop there, the square the piece came
+ * from to return - which passes the turn - or a further square to go on. The
+ * checks below cover both the moves themselves and that click resolution,
+ * which is replayed here from the move list rather than from a browser.
  */
 
 const H = require("../fairy/khans/harness.js");
@@ -198,11 +198,11 @@ t.ok("and the Prince is the second royal, not a plain King",
 console.log("\nLion power");
 
 /*
- * Twenty-four squares, and one pass on top: "move to an adjacent empty square
- * and back, effectively passing a turn". Which square it steps on changes
- * nothing at all - same position, same turn given away - so only one is kept,
- * rather than eight identical moves in front of the search and eight identical
- * pictures on the choice panel.
+ * Twenty-four squares, and on top of them one pass per adjacent empty square:
+ * "move to an adjacent empty square and back, effectively passing a turn".
+ * They have the same effect, and each is reached by stepping on its own
+ * square, so every one of the eight has to exist for the click on that square
+ * to offer the return.
  */
 const lionMoves = movesFrom({ f7: "wN" }, "f7");
 t.check("on an open board it reaches its whole area",
@@ -210,8 +210,8 @@ t.check("on an open board it reaches its whole area",
 		.map((move) => geo.PosName(move.t))).size, 24);
 t.check("with no square reachable twice",
 	lionMoves.filter((move) => move.t !== move.f).length, 24);
-t.check("and exactly one pass, not one per empty neighbour",
-	lionMoves.filter((move) => move.t === move.f).length, 1);
+t.check("and one pass per adjacent empty square",
+	lionMoves.filter((move) => move.t === move.f).length, 8);
 
 // "capture an adjacent piece, and then go on moving or capturing once more"
 t.ok("it takes two pieces in a row",
@@ -229,26 +229,60 @@ t.ok("or steps out onto an empty square and back, passing the turn",
 t.check("the Falcon passes straight ahead",
 	movesFrom({ f7: "w+H" }, "f7").filter((m) => m.t === m.f).map(engine), ["+DH-f8-f7"]);
 /*
- * A pass must not make the ordinary one-square move ambiguous. multi-leg-view
- * weighs a move at 1 on the square it ends on and at 64 on a square it steps
- * through, and waits for another click above 64: counting the pass on the
- * square it steps through pushed every quiet Lion step to 65, so a plain move
- * of one square no longer played on a single click.
+ * How the clicks resolve, replayed with the arithmetic of multi-leg-view: a
+ * move weighs 1 on the square it ends on and 64 on a square it steps through,
+ * and above 64 the click chooses a leg instead of playing. The second click
+ * then works on that action's own moves, which is where the three options come
+ * from - stop here, go on, or return and pass the turn.
  */
-t.check("a quiet step keeps its single-click weight", (() => {
-	const moves = movesFrom({ f7: "wN" }, "f7");
-	let weight = 0;
+const clickPlan = (pieces, square) => {
+	const moves = movesFrom(pieces, square);
+	const weight = {}, byTarget = {};
 	moves.forEach((move) => {
-		if(move.t === move.f)
-			return;                       // a pass, offered elsewhere
 		const target = move.via !== undefined ? move.via : move.t;
-		if(geo.PosName(target) === "g7")
-			weight += move.via !== undefined ? 64 : 1;
+		weight[target] = (weight[target] || 0) + (move.via !== undefined ? 64 : 1);
+		(byTarget[target] = byTarget[target] || []).push(move);
 	});
-	return weight;
-})(), 1);
-t.check("the Eagle passes too, once",
-	movesFrom({ f7: "w+D" }, "f7").filter((m) => m.t === m.f).length, 1);
+	const plan = {};
+	Object.keys(weight).forEach((target) => {
+		plan[geo.PosName(target)] = {
+			waits: weight[target] > 64,
+			then: byTarget[target].map((move) => geo.PosName(move.t)).sort(),
+		};
+	});
+	return plan;
+};
+
+const lionPlan = clickPlan({ f7: "wN" }, "f7");
+t.check("stepping onto an adjacent square waits for a second click",
+	lionPlan["g7"].waits, true);
+t.check("which then offers stopping there or returning",
+	lionPlan["g7"].then, ["f7", "g7"]);
+t.check("a two-square leap still plays at once", lionPlan["h9"].waits, false);
+t.check("every adjacent square behaves alike",
+	["e6", "f6", "g6", "e7", "g7", "e8", "f8", "g8"]
+		.filter((square) => !lionPlan[square].waits), []);
+/*
+ * With something to take, the same second click covers the three readings -
+ * and, for the Lion, going on means any neighbour of the square it took on,
+ * not just onwards in line: it "goes on moving or capturing once more as a
+ * King".
+ */
+const lionCapture = clickPlan({ f7: "wN", f8: "bP", f9: "bR" }, "f7")["f8"].then;
+t.ok("stop on the square it took", lionCapture.indexOf("f8") >= 0);
+t.ok("or return, passing the turn", lionCapture.indexOf("f7") >= 0);
+t.ok("or take again beyond it", lionCapture.indexOf("f9") >= 0);
+t.check("and it may go on in any direction, as a King would",
+	lionCapture.length, 9);
+t.check("the Falcon's forward square waits too",
+	clickPlan({ f7: "w+H" }, "f7")["f8"].then, ["f7", "f8"]);
+const eaglePlan = clickPlan({ f7: "w+D" }, "f7");
+t.check("both of the Eagle's forward diagonals wait",
+	[eaglePlan["e8"].waits, eaglePlan["g8"].waits], [true, true]);
+t.check("and its sideways move does not", eaglePlan["g7"].waits, false);
+t.check("the Eagle passes on either of its diagonals",
+	movesFrom({ f7: "w+D" }, "f7").filter((m) => m.t === m.f).map(engine).sort(),
+	["+DK-e8-f7", "+DK-g8-f7"]);
 t.check("an enemy on that square turns it into an igui",
 	movesFrom({ f7: "w+H", f8: "bP" }, "f7").filter((m) => m.t === m.f).map(engine),
 	["+DHxf8-f7"]);

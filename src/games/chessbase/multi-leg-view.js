@@ -70,17 +70,6 @@
 					var ambigu = [];
 					if(currentInput.via == null) {
 						moves.forEach(function(move) {
-							/*
-							 * A move that ends where it started is a pass: the
-							 * Lion stepping out and back, the Falcon and the
-							 * Eagle doing the same on their ray. It is offered
-							 * on its own gadget, not by clicking a square, and
-							 * must not weigh on the square it steps through -
-							 * counting it there made every one-square Lion
-							 * move ambiguous, so a plain step needed a second
-							 * click to confirm.
-							 */
-							if(move.t === move.f) return;
 							var weight = 1, target = move.cg===undefined?move.t:move.cg;
 							if(move.via !== undefined) target = move.via, weight = 64;
 							if(ambigu[target] === undefined) ambigu[target] = 0;
@@ -94,16 +83,17 @@
 							if(k[k.length-1]==move.t) target=move.cg;
 						}
 						/*
-						 * A pass - a move that ends where it began - keeps its
-						 * own square as target rather than the one it steps
-						 * through. Keyed under the square stepped through it
-						 * would compete with the ordinary move to that square;
-						 * keyed here it lands on the piece's own square, which
-						 * is the gadget jocly binds to "cancel". So it is
-						 * generated and playable by the engine, and out of the
-						 * player's reach - see the note in chu-shogi-model.js.
+						 * A pass steps through a square and comes back, so like
+						 * any two-leg move its first click lands on the square
+						 * it steps through. That makes the square ambiguous -
+						 * an ordinary move ends there too - and an ambiguous
+						 * square is exactly what noAutoCancel below is for: the
+						 * click chooses the leg instead of playing, and the
+						 * next one decides. Confirm on the same square to stop
+						 * there, click further along to go on, click the square
+						 * the piece came from to return, which passes the turn.
 						 */
-						if(currentInput.via == null && move.via !== undefined && move.t !== move.f)
+						if(currentInput.via == null && move.via !== undefined)
 							target = move.via;
 						if(actions[target]===undefined) {
 							actions[target]={

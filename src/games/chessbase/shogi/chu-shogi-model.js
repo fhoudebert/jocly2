@@ -15,16 +15,13 @@
 		 * passing a turn". Without it a Lion could pass only by capturing
 		 * something and returning (igui).
 		 *
-		 * The engine plays it; a human cannot, yet. A move that ends where it
-		 * began has the piece's own square as its target, and that gadget is
-		 * bound to "cancel the selection", which jocly binds last and which
-		 * therefore wins. The choice panel of the baroque family
-		 * (ultima/baroque-choice-view.js) is built for exactly this and was
-		 * tried here, but it opens as soon as the piece is selected - fine for
-		 * an immobilized Swapper with one option, unusable for a Lion with
-		 * twenty-five, whose move markers it covers - and it fought with the
-		 * two-leg input of multi-leg-view over the hit-and-run moves. Offering
-		 * the pass needs an affordance that does not sit on the board.
+		 * Entered in two clicks: click the square to step on, then either the
+		 * same square again to stop there, the square the piece came from to
+		 * return - which passes the turn - or a further square to go on. The
+		 * square becomes ambiguous, which is what multi-leg-view's noAutoCancel
+		 * is for: an ambiguous click chooses a leg instead of playing, and jocly
+		 * does not bind that square to "cancel", so the next click is free to
+		 * mean any of the three.
 		 */
 		var hitrun=this.cbConstants.FLAG_HITRUN | this.cbConstants.FLAG_SPECIAL;
 		var locust=this.cbConstants.FLAG_CHECKER		// for Falcon & Eagle jump, to empty...

@@ -252,24 +252,7 @@
 			} else Model.Board.customGen(moves, move, $this, aGame);
 		});
 
-		/*
-		 * One pass per piece. A Lion may step out onto any adjacent empty
-		 * square and come back, and the square it touches changes nothing -
-		 * same position, same turn passed. Keeping all eight would put eight
-		 * identical moves in front of the search, and eight identical pictures
-		 * on the choice panel.
-		 */
-		var passed = {};
-		return moves.filter(function(move) {
-			if(move.t !== move.f)
-				return true;
-			if(move.kill != null)
-				return true;   // an igui takes something: those differ
-			if(passed[move.f])
-				return false;
-			passed[move.f] = true;
-			return true;
-		});
+		return moves;
 	}
 
 	var OriginalGetAttackers = Model.Board.cbGetAttackers;
