@@ -91,7 +91,19 @@
 		var size=600;
 		var setups=dialog.setups;
 		if(!setups) return; // should not happen
-		var buttonDim=ButtonSize(aGame,setups[0]);  // assume all buttons equally large
+		/*
+		 * The widest and tallest of the buttons, not just the first. Sizing on
+		 * setups[0] meant every other button was clipped to its shape - two
+		 * buttons whose faces differed only past that width came out looking
+		 * identical.
+		 */
+		var buttonDim={w:0,h:0,s:0};
+		setups.forEach(function(setup) {
+			var dim=ButtonSize(aGame,setup);
+			buttonDim.w=Math.max(buttonDim.w,dim.w);
+			buttonDim.h=Math.max(buttonDim.h,dim.h);
+		});
+		buttonDim.s=buttonDim.w*buttonDim.h;
 		var bg=dialog.panelBackground;
 		/*
 		 * A caption under each button, when the dialog names them. Two rows of
@@ -100,7 +112,7 @@
 		 * The button grows by a third of a cell to make room for it.
 		 */
 		var labels=dialog.labels;
-		var labelH=labels ? 0.34 : 0;
+		var labelH=labels ? 0.5 : 0;
 		var width = dialog.panelWidth || Math.ceil(Math.sqrt((buttonDim.h+1)*setups.length/(buttonDim.w+1)));
 		var w=size*width*(buttonDim.w+1);
 		var h=size*Math.ceil(setups.length/width)*(buttonDim.h+1+labelH);
@@ -157,7 +169,7 @@
 							ctx.restore();
 							if(labels && labels[setup]) {
 								ctx.fillStyle="#202020";
-								ctx.font="bold "+Math.round(size*0.26)+"px sans-serif";
+								ctx.font="bold "+Math.round(size*0.38)+"px sans-serif";
 								ctx.textAlign="center";
 								ctx.textBaseline="middle";
 								ctx.fillText(labels[setup],0,

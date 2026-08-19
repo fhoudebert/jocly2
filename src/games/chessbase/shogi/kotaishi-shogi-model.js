@@ -389,10 +389,10 @@
 				/*
 				 * The two buttons, named underneath because a rule cannot be
 				 * drawn. Both show the King and the Crown Prince the two games
-				 * share; Kōtaishi adds a Pawn, for the captured piece that
+				 * share; Kōtaishi adds an elephant, for the captured piece that
 				 * comes back to be dropped.
 				 */
-				setups: ["K+DE", "K+DEP"],
+				setups: ["K+DE", "K+DEDE"],
 				labels: ["Shō shogi", "Kōtaishi"],
 				squares: { 1: [], '-1': [] },
 				persistent: true,      // keep the choice for the next game too
