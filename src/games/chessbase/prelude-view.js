@@ -10,16 +10,69 @@
 
 (function() {
 
-	function ButtonSize(miniFEN) {
-		var t=miniFEN.split('/');
-		return {w:t[0].length, h:t.length, s:t.length*t[0].length};
+	/*
+	 * A setup string is a row of piece abbrevs, rows separated by '/'. It used
+	 * to be read one character per icon, which is fine for a game whose pieces
+	 * are all called "K", "Q", "R" - and hopeless for a Shogi set, where half
+	 * of them are "+P", "+DE" and the like. So the row is tokenised instead,
+	 * longest abbrev first, the way a FEN is read. A space is an empty cell.
+	 */
+	function Tokens(aGame,row) {
+		var abbrevs=[], types=aGame.cbVar.pieceTypes;
+		for(var t in types) {
+			var abbrev=types[t].abbrev || types[t].fenAbbrev;
+			if(abbrev && abbrevs.indexOf(abbrev)<0)
+				abbrevs.push(abbrev);
+		}
+		abbrevs.sort(function(a,b) { return b.length-a.length; }); // longest first
+		var out=[];
+		for(var i=0; i<row.length; ) {
+			if(row.charAt(i)==' ') { out.push(' '); i++; continue; }
+			var found=null;
+			for(var j=0; j<abbrevs.length; j++)
+				if(row.substr(i,abbrevs[j].length)==abbrevs[j]) { found=abbrevs[j]; break; }
+			if(!found) { out.push(row.charAt(i)); i++; }   // unknown: one character
+			else { out.push(found); i+=found.length; }
+		}
+		return out;
 	}
 
-	function ImageOffset(aGame,id) {
+	function ButtonSize(aGame,miniFEN) {
+		var rows=miniFEN.split('/');
+		var w=0;
+		rows.forEach(function(row) { w=Math.max(w,Tokens(aGame,row).length); });
+		return {w:w, h:rows.length, s:rows.length*w};
+	}
+
+	/*
+	 * The sprite for one piece of a setup button, taken from the game's own
+	 * piece set rather than from a fixed sheet. cbPromoSpec resolves the same
+	 * layered 2D spec the board uses - the sheet from the "default" entry, the
+	 * column from the piece's aspect, the row from the side, and any override
+	 * carried by the selected skin - so a game whose pieces are not on
+	 * wikipedia-fairy-sprites.png, a Shogi set for instance, gets its own.
+	 *
+	 * The id is a piece abbrev, optionally prefixed by "b" to ask for the
+	 * black one: "K" is a white King, "bK" a black one.
+	 */
+	function PieceSprite(aGame,xdv,id) {
+		var who=1;
+		if(id.charAt(0)=='b' && id.length>1)
+			who=-1, id=id.substr(1);
 		var types=aGame.cbVar.pieceTypes;
 		for(var t in types) {
 			var abbrev = types[t].abbrev || types[t].fenAbbrev;
-			if(abbrev==id) return aGame.cbView.pieces[types[t].aspect]['2d'].clipx;
+			if(abbrev==id) {
+				var aspect = types[t].aspect || types[t].name;
+				var spec = aGame.cbPromoSpec(aGame,xdv,aspect,who);
+				return {
+					file: spec.file,
+					x: spec.clipx || 0,
+					y: spec.clipy || 0,
+					w: spec.clipwidth || 100,
+					h: spec.clipheight || 100,
+				};
+			}
 		}
 	}
 	
@@ -38,7 +91,7 @@
 		var size=600;
 		var setups=dialog.setups;
 		if(!setups) return; // should not happen
-		var buttonDim=ButtonSize(setups[0]);  // assume all buttons equally large
+		var buttonDim=ButtonSize(aGame,setups[0]);  // assume all buttons equally large
 		var bg=dialog.panelBackground;
 		var width = dialog.panelWidth || Math.ceil(Math.sqrt((buttonDim.h+1)*setups.length/(buttonDim.w+1)));
 		var w=size*width*(buttonDim.w+1);
@@ -75,14 +128,24 @@
 							ctx.rect(-size*buttonDim.w/2,-size*buttonDim.h/2,size*buttonDim.w,size*buttonDim.h);
 							ctx.fill();
 							ctx.save();
-							this.getResource("image|"+aGame.g.fullPath+"/res/fairy/wikipedia-fairy-sprites.png",function(image) {
-								for(var i=0;i<buttonDim.s;i++) { // layout icons for this setup as 2x2 block
-									var x=i%buttonDim.w, y=Math.floor(i/buttonDim.w), p=setups[setup].charAt(i+y);
-									if(p!=' ') ctx.drawImage(image,ImageOffset(aGame,p),0,100,100,
-											(x-buttonDim.w/2)*size,(y-buttonDim.h/2)*size,size,size);
-								}
-								ctx.restore();
-							});
+							var $gadget=this;
+							var rows=setups[setup].split('/').map(function(row) { return Tokens(aGame,row); });
+							for(var i=0;i<buttonDim.s;i++) { // layout icons for this setup as a block
+								var x=i%buttonDim.w, y=Math.floor(i/buttonDim.w);
+								var p=(rows[y]||[])[x];
+								if(!p || p==' ')
+									continue;
+								var sprite=PieceSprite(aGame,xdv,p);
+								if(!sprite || !sprite.file)
+									continue;
+								(function(sprite,x,y) {
+									$gadget.getResource("image|"+sprite.file,function(image) {
+										ctx.drawImage(image,sprite.x,sprite.y,sprite.w,sprite.h,
+												(x-buttonDim.w/2)*size,(y-buttonDim.h/2)*size,size,size);
+									});
+								})(sprite,x,y);
+							}
+							ctx.restore();
 						}
 					},
 				});				

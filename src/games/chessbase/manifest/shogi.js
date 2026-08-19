@@ -164,6 +164,9 @@ var modelScripts_kotaishi = [
 	"base-model.js",
 	"grid-geo-model.js",
 	"drop-model.js",
+	// the game opens by asking whether to play it with drops (Kotaishi) or
+	// without (Sho Shogi) - see the prelude in the model
+	"prelude-model.js",
 	"shogi/kotaishi-shogi-model.js"
 ]
 
@@ -198,7 +201,9 @@ var config_view_js_chu_seireigi = [
 	"grid-board-view.js",
 	"shogi/kotaishi-shogi-set-view.js",
 	"drop-view.js",
-	"shogi/shogi-view.js"
+	"shogi/shogi-view.js",
+	// draws the opening choice between Kotaishi and Sho Shogi
+	"prelude-view.js"
 ]
 
 var config_view_js_105 = [

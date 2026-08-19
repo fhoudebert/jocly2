@@ -368,9 +368,50 @@
 
 			},
 
+			/*
+			 * Sho Shogi is this same game without drops: same board, same
+			 * pieces, but a captured piece leaves play instead of joining the
+			 * hand of its captor - drops were a later invention. The choice is
+			 * offered once, before the first move.
+			 *
+			 * Nothing is rebuilt for it. A drop here is an ordinary graph move
+			 * from a holding square, so a hand that never receives anything
+			 * produces no drops at all; and Model.Game.hand, the table saying
+			 * which square each captured type goes to, is already consulted
+			 * with "not all types have to go in hand". Emptying it is the
+			 * whole of Sho Shogi.
+			 *
+			 * The setups rewrite no piece - squares are empty on both sides -
+			 * so only the custom hook runs.
+			 */
+			prelude: [{
+				panelWidth: 2,
+				/*
+				 * The two buttons. A panel can only show pieces, and what
+				 * separates these games is a rule, so the faces are a
+				 * convention: the left one carries the Crown Prince the game
+				 * is named after and a Pawn standing for the captured piece
+				 * that comes back, the right one the King alone - the older
+				 * game, where a captured piece is out for good.
+				 */
+				setups: ["+DEP", "K"],   // Kotaishi, and Sho Shogi
+				squares: { 1: [], '-1': [] },
+				persistent: true,      // keep the choice for the next game too
+				custom: function(setup, board, aGame) {
+					if(setup == 1) // Sho Shogi: captured pieces leave play
+						Model.Game.hand = { '-1': [], '1': [] };
+					else
+						Model.Game.hand = Model.Game.kotaishiHand;
+				},
+			}, 0],   // second, empty stage: Black passes, so White still moves first
+
 		};
 
-		return this.cbAddHoldings(geometry, definition);
+		var built = this.cbAddHoldings(geometry, definition);
+		// keep the hand table cbAddHoldings just built, so the prelude can put
+		// it back when Kotaishi is chosen after a game of Sho Shogi
+		Model.Game.kotaishiHand = Model.Game.hand;
+		return built;
 	}
 
 })();

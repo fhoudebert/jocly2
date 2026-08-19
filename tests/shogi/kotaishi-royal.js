@@ -13,13 +13,29 @@ async function strMoves(m){ const M=await m.getPossibleMoves(); const o=[]; for(
 async function byStr(m,str){ const L=await strMoves(m); const f=L.find(x=>x.s===str); if(!f) throw new Error('coup introuvable: '+str+' | '+L.map(x=>x.s).join(' ')); return f.mv; }
 async function byDest(m,dest){ const L=await strMoves(m); return L.find(x=>x.s.endsWith('-'+dest)||x.s.endsWith('x'+dest)); }
 
+/*
+ * Kotaishi opens with a prelude asking whether to play with drops (Kotaishi)
+ * or without (Sho Shogi), so a match has to answer that before it has a
+ * position. Choice 0 is Kotaishi, which is what these suites are about.
+ */
+async function newMatch(choice) {
+  const m = await Jocly.createMatch('kotaishi-shogi');
+  // the prelude has two stages: the choice, then a pass so that White still
+  // moves first. A prelude move has no 'f' field.
+  for (;;) {
+    const moves = await m.getPossibleMoves();
+    if (!moves.length || moves[0].f !== undefined) return m;
+    await m.applyMove(moves[moves.length > 1 ? (choice || 0) : 0]);
+  }
+}
+
 (async()=>{
   // Test 1 : capturer le ROI pendant que le prince vit -> la partie CONTINUE.
   // Roi noir e5 + prince noir c5 ; ors blancs b5,d5 ; roi blanc a1. Blanc joue
   // Gd5xe5 (prend le roi). Il reste un royal noir (le prince) -> non terminé.
   console.log('Test 1 - prise du roi avec prince vivant: la partie continue');
-  let m=await Jocly.createMatch('kotaishi-shogi');
-  await m.load({game:'kotaishi-shogi', initialBoard:'13/13/13/13/3G+eGk3p2/13/13/13/2K10 w - - 0 1', playedMoves:[]});
+  let m=await newMatch();
+  await m.load({game:'kotaishi-shogi', initialBoard:'13/13/13/13/3G+eGk3p2/13/13/13/2K10 w - - 0 1', playedMoves:[{setup:0},{}]});
   let capK=await byStr(m,'Gd5xe5');
   let r1=await m.applyMove(capK);
   ok(r1 && r1.finished===false, 'non terminé après la prise du roi (le prince reste royal)');
@@ -30,8 +46,8 @@ async function byDest(m,dest){ const L=await strMoves(m); return L.find(x=>x.s.e
   // Un coup avant mat : roi noir a9 ; or blanc b7 (->b8 = mat) ; or blanc c8
   // (défend b8, couvre b9/c9) ; roi blanc i1. Blanc au trait.
   console.log('Test 2 - roi seul (dernier royal) matable: gain blanc');
-  m=await Jocly.createMatch('kotaishi-shogi');
-  await m.load({game:'kotaishi-shogi', initialBoard:'2k10/4G8/3G9/13/13/13/13/13/10K2 w - - 0 1', playedMoves:[]});
+  m=await newMatch();
+  await m.load({game:'kotaishi-shogi', initialBoard:'2k10/4G8/3G9/13/13/13/13/13/10K2 w - - 0 1', playedMoves:[{setup:0},{}]});
   let mate=await byStr(m,'Gb7-b8');
   let r2=await m.applyMove(mate);
   ok(r2 && r2.finished===true, 'partie terminée (mat du roi seul)');
@@ -40,8 +56,8 @@ async function byDest(m,dest){ const L=await strMoves(m); return L.find(x=>x.s.e
   // Test 3 : MÊME attaque de mat, mais le camp maté garde un prince ailleurs
   // -> PAS de mat (deux royaux, on peut en abandonner un). Prince noir en e5.
   console.log('Test 3 - roi \u00ab maté \u00bb mais prince en réserve: pas de gain');
-  m=await Jocly.createMatch('kotaishi-shogi');
-  await m.load({game:'kotaishi-shogi', initialBoard:'2k10/4G8/3G9/13/6+e6/13/13/13/10K2 w - - 0 1', playedMoves:[]});
+  m=await newMatch();
+  await m.load({game:'kotaishi-shogi', initialBoard:'2k10/4G8/3G9/13/6+e6/13/13/13/10K2 w - - 0 1', playedMoves:[{setup:0},{}]});
   let sameMove=await byStr(m,'Gb7-b8');
   let r3=await m.applyMove(sameMove);
   ok(r3 && r3.finished===false, 'non terminé: le roi n\'est pas maté tant que le prince vit');
