@@ -204,7 +204,12 @@ var config_model_levels_pemba_expert_ini = [
 	"customPiece5 = w:mBcpB",
 	"castling = true",
 	"castlingKingsideFile = h",
-	"castlingQueensideFile = e",
+	// The King starts on f and moves two squares towards the Rook it castles
+	// with, so it lands on h kingside and on d queenside - which is what the
+	// model generates. This said "e", one square, and the castling move the
+	// engine returned then had no counterpart on the Jocly side to be
+	// recognised as (see tests/fairy/knightmate-pemba.test.js).
+	"castlingQueensideFile = d",
 	"castlingRank = 2",
 	"startFen = cjwzddzwjc/ernbqkbnre/pppppppppp/10/10/10/10/PPPPPPPPPP/ERNBQKBNRE/CJWZDDZWJC w KQkq - 0 1",
 	""

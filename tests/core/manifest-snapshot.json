@@ -1,6 +1,6 @@
 {
 	"bytes": 351736,
-	"digest": "2730756f99a08002",
+	"digest": "f9933bdb057243bf",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -232,7 +232,7 @@
 		},
 		{
 			"name": "pemba-chess",
-			"digest": "0e9e3e14a445782e"
+			"digest": "8b14bac3d1721561"
 		},
 		{
 			"name": "giga-chessII",
