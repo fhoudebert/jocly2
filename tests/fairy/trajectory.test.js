@@ -20,7 +20,7 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 
-const H = require("./khans/harness.js");
+const H = require("./harness.js");
 
 const CHESSBASE = path.join(__dirname, "..", "..", "src", "games", "chessbase");
 const SQUARE = 1000;   // display units between two squares

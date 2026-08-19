@@ -24,7 +24,7 @@
  * which is replayed here from the move list rather than from a browser.
  */
 
-const H = require("../fairy/khans/harness.js");
+const H = require("../fairy/harness.js");
 
 const SCRIPTS = ["base-model.js", "grid-geo-model.js", "locust-move-model.js",
 	"shogi/chu-shogi-model.js"];

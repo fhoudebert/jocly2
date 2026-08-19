@@ -32,7 +32,7 @@ try {
 	process.exit(0);
 }
 
-const H = require("./harness.js");
+const H = require("../harness.js");
 const t = H.runner();
 
 /* ---------------- aspects ---------------- */

@@ -27,7 +27,7 @@
 
 const path = require("path");
 
-const H = require("./khans/harness.js");
+const H = require("./harness.js");
 
 const SCRIPTS = (model) =>
 	["base-model.js", "grid-geo-model.js", "fairy-piece-model.js", model];

@@ -1,22 +1,27 @@
 /*
- * Pure-Node harness for the Khan's Chess model (plain 8x8 grid, pos = rank*8 +
- * file, a1 = 0). Loads the model scripts in a sandbox and drives Model.Board
- * directly - no build needed:
+ * Pure-Node harness for the chessbase models: loads model scripts in a sandbox
+ * and drives Model.Board directly, no build needed.
  *
- *   node tests/khans/rules.test.js
+ *   node tests/fairy/zanzibar-s.test.js
  *
- * Same shape as tests/space-spartan/harness.js, which it is adapted from.
+ * Used by every suite in this folder, by tests/shogi/chu-shogi.test.js and by
+ * two in tests/core/ - anything built on a chessbase model. It started as the
+ * harness of Khan's Chess, which is why loadModel() with no argument still
+ * loads that game; every other caller passes its own script list.
+ *
  * setup() takes a { square: "wK", ... } map, a piece being its side (w/b) plus
  * the FEN abbrev of its type - so "bH" is a kheshig and "bK" the khan. A
  * trailing "*" marks a piece that has not moved yet (castling, pawn double
  * step).
+ *
+ * Same shape as tests/space-spartan/harness.js, which it is adapted from.
  */
 
 const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 
-const SRC = path.join(__dirname, "..", "..", "..", "src");
+const SRC = path.join(__dirname, "..", "..", "src");
 
 const SCRIPTS = ["base-model.js", "grid-geo-model.js", "asymmetric/khans-model.js"];
 

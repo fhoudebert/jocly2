@@ -14,14 +14,14 @@
  * question. Both entries had one, and Black's was out of the board entirely,
  * which crashed move generation for Black on move one.
  *
- * The suite reuses tests/khans/harness.js: same sandbox loader, setup() takes
+ * The suite reuses tests/fairy/harness.js: same sandbox loader, setup() takes
  * a { square: "wK", ... } map where the letter is the FEN abbrev, and a
  * trailing "*" marks a piece that has not moved yet.
  */
 
 const path = require("path");
 
-const H = require("./khans/harness.js");
+const H = require("./harness.js");
 
 const SCRIPTS = ["base-model.js", "grid-geo-model.js", "historical/grant-acedrex-model.js"];
 

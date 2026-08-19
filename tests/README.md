@@ -27,9 +27,11 @@ rather than fail when the build is missing.
 Four files are not tests but the scaffolding the tests share, and each carries
 its own loader for the game family it serves:
 
-- `fairy/khans/harness.js` - loads a chessbase model into a sandbox, builds
-  boards from a `{ square: "wK" }` map, and is used by every suite under
-  `fairy/`, by `shogi/chu-shogi.test.js` and by two suites in `core/`
+- `fairy/harness.js` - loads a chessbase model into a sandbox, builds boards
+  from a `{ square: "wK" }` map, and is used by every suite under `fairy/`, by
+  `shogi/chu-shogi.test.js` and by two suites in `core/`. It began as the
+  harness of Khan's Chess, so `loadModel()` with no argument still loads that
+  game; every other caller passes its own script list
 - `baroque/rococo/harness.js`, `baroque/ultima/harness.js`
 - `space-spartan/harness.js`, also used by `3dchess/fifty.test.js`
 - `cubic/harness.js`

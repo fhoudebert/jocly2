@@ -35,7 +35,7 @@ const ROOT = path.join(__dirname, "..", "..");
 const FAIRY = path.join(ROOT, "third-party", "fairy-stockfish");
 const CUSTOM_VARIANT_PATH = "/jocly-custom-variants.ini";
 
-const H = require("../fairy/khans/harness.js");
+const H = require("../fairy/harness.js");
 const t = H.runner();
 
 /* ---- collect every declaration, exactly as jocly.fairy.js would see it ---- */

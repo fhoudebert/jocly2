@@ -20,7 +20,7 @@
  *     on promotion is not a small thing.
  */
 
-const H = require("./khans/harness.js");
+const H = require("./harness.js");
 
 const SCRIPTS = ["base-model.js", "grid-geo-model.js", "fairy-piece-model.js",
 	"locust-move-model.js", "locust/makromachy-model.js"];

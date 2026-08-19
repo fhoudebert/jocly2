@@ -40,7 +40,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const H = require("./harness.js");
+const H = require("../harness.js");
 
 const ROOT = path.join(__dirname, "..", "..", "..");
 const FAIRY = path.join(ROOT, "third-party", "fairy-stockfish");

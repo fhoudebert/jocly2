@@ -21,7 +21,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const H = require("./harness.js");
+const H = require("../harness.js");
 
 const RULES = path.join(__dirname, "..", "..", "..", "src", "games", "chessbase", "res", "rules", "khans");
 

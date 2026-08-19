@@ -22,7 +22,7 @@ const fs = require("fs");
 const path = require("path");
 const vm = require("vm");
 
-const H = require("../fairy/khans/harness.js");
+const H = require("../fairy/harness.js");
 
 const CHESSBASE = path.join(__dirname, "..", "..", "src", "games", "chessbase");
 const PROMO_SIZE = 2000, FIELD = 12000;

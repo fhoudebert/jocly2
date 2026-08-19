@@ -5,7 +5,7 @@
  *   node tests/chessbase/cazaux-large.test.js
  */
 
-const H = require("./khans/harness.js");
+const H = require("./harness.js");
 
 const SETS = {
 	metamachy: ["base-model.js", "grid-geo-model.js", "cazaux/metamachy-model.js"],

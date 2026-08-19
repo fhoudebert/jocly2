@@ -5,7 +5,7 @@
  *   node tests/khans/rules.test.js
  */
 
-const H = require("./harness.js");
+const H = require("../harness.js");
 
 const sandbox = H.loadModel();
 const game = H.newGame(sandbox);
