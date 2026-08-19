@@ -312,14 +312,75 @@ t.ok("and it changes nothing on the board", (() => {
 // "over an occupied square without disturbing it"
 t.ok("it hops over a piece of its own", reaches({ f7: "wN", f8: "wR" }, "f7", "f9"));
 
+/* ---------------- keeping the Lions on the board ---------------- */
+
+console.log("\nthe restrictions on trading Lions");
+
+// does any move at all take the piece on that square, however it gets there?
+const canTake = (pieces, from, victim) =>
+	movesFrom(pieces, from).some((move) => geo.PosName(move.t) === victim
+		|| (move.via !== undefined && geo.PosName(move.via) === victim));
+
 /*
  * "A Lion cannot capture a Lion if that would expose it to recapture in the
- * next turn" - and that restriction is on Lion taking Lion, not on everyone.
+ * next turn, as if it had become an absolute royal for one turn." Landing on
+ * the protected square is what is forbidden - not the capture itself, which
+ * an adjacent Lion can always make in passing and come home from.
  */
 t.ok("a Lion takes an unprotected Lion", reaches({ f7: "wN", f8: "bN" }, "f7", "f8"));
-t.ok("but not a protected one", !reaches({ f7: "wN", f8: "bN", f9: "bR" }, "f7", "f8"));
+t.ok("it may not stay on a protected square",
+	!reaches({ f7: "wN", f8: "bN", f10: "bR" }, "f7", "f8"));
+t.ok("but it always takes an adjacent Lion, protected or not, in passing",
+	canTake({ f7: "wN", f8: "bN", f10: "bR" }, "f7", "f8"));
+t.check("taking it and coming home is one of the ways",
+	movesFrom({ f7: "wN", f8: "bN", f10: "bR" }, "f7")
+		.filter((move) => move.t === move.f && geo.PosName(move.via) === "f8")
+		.map(engine), ["LNxf8-f7"]);
+
+/*
+ * Two squares away it is another matter: a protected Lion may only be taken
+ * along with something else worth taking. "This additionally captured piece
+ * must not be a Pawn or Go Between, though."
+ */
+t.ok("a Lion two squares off, unprotected, may be taken",
+	canTake({ f7: "wN", f9: "bN" }, "f7", "f9"));
+t.ok("protected, not on its own",
+	!canTake({ f7: "wN", f9: "bN", f11: "bR" }, "f7", "f9"));
+t.ok("protected, yes if a Rook goes with it",
+	canTake({ f7: "wN", f8: "bR", f9: "bN", f11: "bR" }, "f7", "f9"));
+t.ok("but a Pawn is not payment enough",
+	!canTake({ f7: "wN", f8: "bP", f9: "bN", f11: "bR" }, "f7", "f9"));
+t.ok("nor a Go Between",
+	!canTake({ f7: "wN", f8: "bI", f9: "bN", f11: "bR" }, "f7", "f9"));
+
+// and the restriction is on Lion taking Lion, not on everyone
 t.ok("a Rook may take a protected Lion",
 	reaches({ f7: "wR", f9: "bN", f10: "bR" }, "f7", "f9"));
+
+/*
+ * "A non-Lion cannot capture a Lion when on the previous turn a Lion was
+ * captured by a non-Lion on another square" - the counter-strike rule, which
+ * depends on what the previous move did rather than on the position.
+ */
+const afterWhitePlays = (whiteTo, blackTaker) => {
+	const pieces = { l1: "wK", a12: "bK", c1: "wR", c3: "bN", h8: "wN" };
+	pieces[blackTaker === "rook" ? "h12" : "g7"] = blackTaker === "rook" ? "bR" : "bN";
+	const board = H.setup(sandbox, game, pieces, 1);
+	board.mMoves = [];
+	board.GenerateMoves(game);
+	const move = board.mMoves.find((m) => m.f === geo.PosByName("c1")
+		&& geo.PosName(m.t) === whiteTo);
+	board.ApplyMove(game, move);
+	board.mWho = -1;
+	board.mMoves = [];
+	board.GenerateMoves(game);
+	return board.mMoves.filter((m) => m.t === geo.PosByName("h8")).map(engine);
+};
+t.check("after a Rook took a Lion, a Rook may not take one back",
+	afterWhitePlays("c3", "rook"), []);
+t.check("a Lion still may", afterWhitePlays("c3", "lion"), ["g7h8"]);
+t.check("and with no Lion taken, the Rook is free to",
+	afterWhitePlays("d1", "rook"), ["h12h8"]);
 
 /*
  * The Falcon and the Eagle have the same power along one ray only: straight
