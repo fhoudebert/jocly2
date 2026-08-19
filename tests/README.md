@@ -1,9 +1,16 @@
 # Tests
 
-Run any file directly with node; each prints its own tally and exits non-zero
-on failure.
+    npm test                    everything
+    npm test -- fairy           one category
+    node tests/run.js shogi core        the same, without npm
+    node tests/run.js fairy/khans       a subfolder
+    node tests/fairy/khans/rules.test.js    one suite, on its own
 
-    node tests/fairy/khans/rules.test.js
+`tests/run.js` starts each suite in its own process, reads its verdict and adds
+up. A suite counts as failed on a non-zero exit - which every harness here does
+- or when its output carries a failure marker anyway, since a few of the older
+scripts print "N ECHEC" and still exit 0. Failing suites have their last lines
+reprinted at the end, so one command says what broke.
 
 Most suites read the sources under `src/` and need no build. The ones that
 drive a real match - `tests/core/*.mjs`, `tests/core/fairy-fallback.js`,
@@ -40,10 +47,11 @@ A suite that needs a family it does not belong to reaches across rather than
 gaining a second harness: `shogi/chu-shogi.test.js` uses the khans one because
 Chu Shogi is a chessbase model like the rest.
 
-## Two suites that fail for reasons of their own
+## Two suites that fail for a reason of their own
 
-`cubic/*` looks for `src/games/chessbase/cubic-model.js`, which is not where
-that model lives. `shogi/tenjiku.js` reports "Game tenjiku-shogi not found":
-the manifest declares the game but `src/games/chessbase/index.js` never lists
-it, so it is absent from the module. Both predate the move into folders and
-are unrelated to it.
+`shogi/tenjiku.js` reports "Game tenjiku-shogi not found", and
+`shogi/tenjiku-view.js` fails its last check, "the game is in exports.games".
+Same cause: `src/games/chessbase/manifest/shogi.js` declares the game but
+`src/games/chessbase/index.js` never lists it, so it is absent from the module.
+Adding `shogi["tenjiku-shogi"]` to that list is all the two suites are waiting
+for - they pass every other check.
