@@ -69,8 +69,8 @@ const t = H.runner();
 
 console.log("\nthe prelude");
 
-const kotaishi = play(0, 200);
-const sho = play(1, 200);
+const sho = play(0, 200);        // button 0 is Sho shogi now
+const kotaishi = play(1, 200);
 
 t.check("two choices are offered", kotaishi.offered, 2);
 t.check("then a single pass, so White still moves first", kotaishi.afterChoice, 1);
@@ -95,13 +95,13 @@ t.ok("and the game runs its course", sho.played >= 100);
 console.log("\nchoosing again");
 
 t.ok("Kotaishi after Sho Shogi still has its drops", (() => {
-	play(1, 40);                       // a game of Sho Shogi first
-	return play(0, 200).drops > 0;     // then Kotaishi in a fresh sandbox
+	play(0, 40);                       // a game of Sho shogi first
+	return play(1, 200).drops > 0;     // then Kotaishi in a fresh sandbox
 })());
 
 t.ok("and Sho Shogi after Kotaishi still has none", (() => {
-	play(0, 40);
-	return play(1, 200).drops === 0;
+	play(1, 40);
+	return play(0, 200).drops === 0;
 })());
 
 /*
@@ -128,6 +128,8 @@ const tokens = (row) => {
 };
 const setups = game.cbVar.prelude[0].setups;
 t.check("there are two of them", setups.length, 2);
+// a rule cannot be drawn, so each button says which game it is
+t.check("each one is named", game.cbVar.prelude[0].labels, ["Shō shogi", "Kōtaishi"]);
 setups.forEach((setup) => {
 	tokens(setup).forEach((id) => {
 		let piece = null;

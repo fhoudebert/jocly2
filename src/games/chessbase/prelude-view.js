@@ -93,9 +93,17 @@
 		if(!setups) return; // should not happen
 		var buttonDim=ButtonSize(aGame,setups[0]);  // assume all buttons equally large
 		var bg=dialog.panelBackground;
+		/*
+		 * A caption under each button, when the dialog names them. Two rows of
+		 * pieces rarely say by themselves which variant they stand for - and a
+		 * choice of RULES cannot be drawn at all - so the name is written out.
+		 * The button grows by a third of a cell to make room for it.
+		 */
+		var labels=dialog.labels;
+		var labelH=labels ? 0.34 : 0;
 		var width = dialog.panelWidth || Math.ceil(Math.sqrt((buttonDim.h+1)*setups.length/(buttonDim.w+1)));
 		var w=size*width*(buttonDim.w+1);
-		var h=size*Math.ceil(setups.length/width)*(buttonDim.h+1);
+		var h=size*Math.ceil(setups.length/width)*(buttonDim.h+1+labelH);
 		var panelDef={ // selection panel
 			base: {
 				type: (bg ? "image" : "element"),
@@ -114,18 +122,19 @@
 			(function(setup) {
 				var w=width, h=Math.ceil(setups.length/w);
 				var x=((setup%w)-(w-1)/2)*(buttonDim.w+1)*size; // setups layed out in 4x3 pattern of blocks of 3x3 icons
-				var y=(Math.floor(setup/w)-h/2+0.5)*(buttonDim.h+1)*size;
+				var y=(Math.floor(setup/w)-h/2+0.5)*(buttonDim.h+1+labelH)*size;
 				xdv.createGadget("setup"+n+"#"+setup,{	// this creates a clickable block of icons
 					base: {
 						type: "canvas",
 						x: x,
 						y: y,
 						width: buttonDim.w*size,
-						height: buttonDim.h*size,
+						height: (buttonDim.h+labelH)*size,
 						z: 109,
 						draw: function(ctx) {
 							ctx.fillStyle="#c0c0c0";
-							ctx.rect(-size*buttonDim.w/2,-size*buttonDim.h/2,size*buttonDim.w,size*buttonDim.h);
+							ctx.rect(-size*buttonDim.w/2,-size*(buttonDim.h+labelH)/2,
+									size*buttonDim.w,size*(buttonDim.h+labelH));
 							ctx.fill();
 							ctx.save();
 							var $gadget=this;
@@ -146,6 +155,14 @@
 								})(sprite,x,y);
 							}
 							ctx.restore();
+							if(labels && labels[setup]) {
+								ctx.fillStyle="#202020";
+								ctx.font="bold "+Math.round(size*0.26)+"px sans-serif";
+								ctx.textAlign="center";
+								ctx.textBaseline="middle";
+								ctx.fillText(labels[setup],0,
+										size*((buttonDim.h+labelH)/2-labelH/2));
+							}
 						}
 					},
 				});				

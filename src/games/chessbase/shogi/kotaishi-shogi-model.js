@@ -387,20 +387,19 @@
 			prelude: [{
 				panelWidth: 2,
 				/*
-				 * The two buttons. A panel can only show pieces, and what
-				 * separates these games is a rule, so the faces are a
-				 * convention: the left one carries the Crown Prince the game
-				 * is named after and a Pawn standing for the captured piece
-				 * that comes back, the right one the King alone - the older
-				 * game, where a captured piece is out for good.
+				 * The two buttons, named underneath because a rule cannot be
+				 * drawn. Both show the King and the Crown Prince the two games
+				 * share; Kōtaishi adds a Pawn, for the captured piece that
+				 * comes back to be dropped.
 				 */
-				setups: ["+DEP", "K"],   // Kotaishi, and Sho Shogi
+				setups: ["K+DE", "K+DEP"],
+				labels: ["Shō shogi", "Kōtaishi"],
 				squares: { 1: [], '-1': [] },
 				persistent: true,      // keep the choice for the next game too
 				custom: function(setup, board, aGame) {
-					if(setup == 1) // Sho Shogi: captured pieces leave play
+					if(setup == 0) // Shō shogi: a captured piece leaves play
 						Model.Game.hand = { '-1': [], '1': [] };
-					else
+					else           // Kōtaishi: it joins the hand of its captor
 						Model.Game.hand = Model.Game.kotaishiHand;
 				},
 			}, 0],   // second, empty stage: Black passes, so White still moves first
