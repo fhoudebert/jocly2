@@ -7,10 +7,31 @@
 
 	Model.Game.cbDefine=function(){
 
-		var hitrun=this.cbConstants.FLAG_HITRUN;		// for Lion's adjacent enemy, to add 2nd leg
+		/*
+		 * For the Lion's adjacent squares, to add a second leg. FLAG_SPECIAL
+		 * covers the case where the first leg lands on an EMPTY square: the
+		 * only second leg then generated is the one back to the start, which
+		 * is the Lion "moving to an adjacent empty square and back, effectively
+		 * passing a turn". Without it a Lion could pass only by capturing
+		 * something and returning (igui).
+		 *
+		 * Entered in two clicks: click the square to step on, then either the
+		 * same square again to stop there, the square the piece came from to
+		 * return - which passes the turn - or a further square to go on. The
+		 * square becomes ambiguous, which is what multi-leg-view's noAutoCancel
+		 * is for: an ambiguous click chooses a leg instead of playing, and jocly
+		 * does not bind that square to "cancel", so the next click is free to
+		 * mean any of the three.
+		 */
+		var hitrun=this.cbConstants.FLAG_HITRUN | this.cbConstants.FLAG_SPECIAL;
 		var locust=this.cbConstants.FLAG_CHECKER		// for Falcon & Eagle jump, to empty...
 			 | this.cbConstants.FLAG_SPECIAL_CAPTURE;	// ... or occupied
-		var igui=this.cbConstants.FLAG_RIFLE;			// for Falcon & Eagle adjacent enemy, to add igui
+		// For the Falcon's and the Eagle's adjacent square on their own ray:
+		// FLAG_RIFLE adds the igui - take it and come back - and FLAG_SPECIAL
+		// the same move over an empty square, which takes nothing and so
+		// passes the turn. "Returning to the starting square ... needs the
+		// adjacent square either to be empty or contain an opponent."
+		var igui=this.cbConstants.FLAG_RIFLE | this.cbConstants.FLAG_SPECIAL;
 
 		return {
 			geometry:geometry,
@@ -573,12 +594,27 @@
 				if(piece.t>25) // unpromotable or already promoted
 					return [];
 				var rank=geometry.R(move.f);
+				/*
+				 * A piece promotes on ENTERING the zone of the furthest four
+				 * ranks, and - for a move that starts inside it - only when
+				 * that move captures. The move must still end in the zone:
+				 * the modern Shogi rule where any move touching the zone may
+				 * promote, leaving it included, "is apparently a later
+				 * invention ... but was never used in Chu Shogi".
+				 */
 				if(piece.s==1) {
-					if(piece.t==0 && rank==10) return[29]; // last-rank Pawn
+					/*
+					 * "There is a special rule for Pawns: when these reach the
+					 * last rank, they are allowed to promote even on a
+					 * non-capture." Allowed, not forced - promotion in Chu
+					 * Shogi is always the player's choice, and this line used
+					 * to offer the Tokin alone.
+					 */
+					if(piece.t==0 && rank==10) return[0,29]; // last-rank Pawn
 					if(rank>=8 && move.c == null) return []; // was already in zone, and no capture
 					if(geometry.R(move.t) < 8) return []; // did not end in zone
 				} else {
-					if(piece.t==1 && rank==1) return[30];
+					if(piece.t==1 && rank==1) return[1,30];
 					if(rank<=3 && move.c == null) return [];
 					if(geometry.R(move.t)>3) return [];
 				}

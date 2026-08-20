@@ -92,6 +92,7 @@
 				var pieceIDs=dialog.setups[move.setup];
 				var types=aGame.cbVar.pieceTypes;
 				var nrPieces=this.cbPiecesCount;
+				var rewritten=false;
 				for(var who=-1; who<=1; who+=2) { // perform the setup indicated by the move
 					var squares=dialog.squares[who];
 					var j=0;
@@ -102,9 +103,22 @@
 						var pieceIndex=this.board[pos];
 						var piece=this.pieces[pieceIndex];
 						piece.t=abbrev2typeIndex(id,who); // 'promote' the piece to the desired type
+						rewritten=true;
 					}
 				}
-				this.cbPlacePieces(aGame); // this sorts the piece list again, based on the new piece values
+				/*
+				 * Only when a piece actually changed type. cbPlacePieces sorts
+				 * the piece list and lays EVERY piece back on the board from
+				 * it - which undoes any board tidying done at InitialPosition.
+				 * A Shogi game with holdings takes its counter pieces off the
+				 * board there and remembers them; put back, each of them looks
+				 * like a second piece in hand, and the first drop shifts it
+				 * into the hand and decrements its type into a Crown Prince.
+				 * A prelude that only chooses a RULE rewrites nothing, and has
+				 * nothing to sort.
+				 */
+				if(rewritten)
+					this.cbPlacePieces(aGame);
 				if(this.mWho<0) this.zSign^=aGame.wKey(1);
 				if(dialog.castle) aGame.cbVar.castle=dialog.castle[move.setup]; // replace castling rules
 				if(dialog.persistent!==undefined) dialog.persistent=move.setup; // remember choice

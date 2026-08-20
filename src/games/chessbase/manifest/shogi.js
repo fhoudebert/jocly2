@@ -164,6 +164,9 @@ var modelScripts_kotaishi = [
 	"base-model.js",
 	"grid-geo-model.js",
 	"drop-model.js",
+	// the game opens by asking whether to play it with drops (Kotaishi) or
+	// without (Sho Shogi) - see the prelude in the model
+	"prelude-model.js",
 	"shogi/kotaishi-shogi-model.js"
 ]
 
@@ -198,7 +201,9 @@ var config_view_js_chu_seireigi = [
 	"grid-board-view.js",
 	"shogi/kotaishi-shogi-set-view.js",
 	"drop-view.js",
-	"shogi/shogi-view.js"
+	"shogi/shogi-view.js",
+	// draws the opening choice between Kotaishi and Sho Shogi
+	"prelude-view.js"
 ]
 
 var config_view_js_105 = [
@@ -334,10 +339,14 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "Kōtaishi Shogi",
+				// Shō shogi is the better-known name: the 16th-century game
+				// modern Shogi grew out of. Kōtaishi is the same game with
+				// drops, and the two are offered in a prelude - see the model.
+				// The game keeps its id, so saved games and links still work.
+				"title-en": "Shō Shogi",
 				"summary": {
-					"en": "Shogi with a drunk elephant",
-					"fr": "Shogi avec un éléphant ivre"
+					"en": "The ancestor of Shogi, with a drunk elephant - with or without drops",
+					"fr": "L'ancêtre du Shogi, avec un éléphant ivre - avec ou sans parachutage"
 				},
 				"rules": {
 					"en": "res/rules/shogi/kotaishi-rules.html",

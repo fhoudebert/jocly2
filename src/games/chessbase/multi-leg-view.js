@@ -82,7 +82,19 @@
 							var k=aGame.cbVar.castle[move.f+'/'+move.cg].k;
 							if(k[k.length-1]==move.t) target=move.cg;
 						}
-						if(currentInput.via == null && move.via !== undefined) target = move.via;
+						/*
+						 * A pass steps through a square and comes back, so like
+						 * any two-leg move its first click lands on the square
+						 * it steps through. That makes the square ambiguous -
+						 * an ordinary move ends there too - and an ambiguous
+						 * square is exactly what noAutoCancel below is for: the
+						 * click chooses the leg instead of playing, and the
+						 * next one decides. Confirm on the same square to stop
+						 * there, click further along to go on, click the square
+						 * the piece came from to return, which passes the turn.
+						 */
+						if(currentInput.via == null && move.via !== undefined)
+							target = move.via;
 						if(actions[target]===undefined) {
 							actions[target]={
 								t: move.t,
