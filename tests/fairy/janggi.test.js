@@ -268,7 +268,16 @@ check('xiangqi perft(2)', perftOf(xGame, Model.Board, 2), 1920);
 check('xiangqi perft(3)', perftOf(xGame, Model.Board, 3), 79666);
 const tGame = loadGame(['base-model.js', 'grid-geo-model.js', 'locust-move-model.js', 'shogi/tenjiku-shogi-model.js']);
 check('tenjiku perft(1)', perftOf(tGame, Model.Board, 1), 74);
-check('tenjiku perft(2)', perftOf(tGame, Model.Board, 2), 5457);
+/*
+ * 5457 until the Lion, the Lion Hawk, the Free Eagle, the Soaring Eagle and
+ * the Horned Falcon were given the last item of their Lion power - "stay in
+ * place without capturing anything if one of the neighboring squares is
+ * empty". The nine extra moves are exactly those passes: none is available at
+ * the root, where every stinging square is occupied by a friendly piece, and
+ * nine appear once a first move has cleared them. Counted, not assumed - see
+ * tests/shogi/tenjiku-lions.test.js.
+ */
+check('tenjiku perft(2)', perftOf(tGame, Model.Board, 2), 5466);
 
 console.log('\n=== the other reading of bikjang: cbJanggiBikjang = "forbidden" ===');
 const fGame = loadGame(['base-model.js', 'grid-geo-model.js', 'famous/janggi-model.js'],

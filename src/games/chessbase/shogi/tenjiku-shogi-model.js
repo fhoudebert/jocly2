@@ -132,9 +132,30 @@
 
 		var $this = this;
 
-		var hitrun = c.FLAG_HITRUN;                 // Lion: adjacent enemy, then a 2nd leg
+		/*
+		 * Lion power. FLAG_HITRUN gives the second step after a CAPTURE;
+		 * FLAG_SPECIAL adds it after a QUIET first step, whose only useful
+		 * continuation is back where it started - "stay in place without
+		 * capturing anything if one of the neighboring squares is empty
+		 * (effectively passing a turn)". The Lion, the Lion Hawk and the Free
+		 * Eagle all have that, the last one on its diagonals.
+		 */
+		var hitrun = c.FLAG_HITRUN | c.FLAG_SPECIAL;
 		var locust = c.FLAG_CHECKER | c.FLAG_SPECIAL_CAPTURE; // Falcon/Eagle jump
-		var igui   = c.FLAG_RIFLE;                  // capture without moving
+		/*
+		 * The stinging step of the Soaring Eagle and the Horned Falcon, which
+		 * can "annihilate an opponent on the first square without moving" and,
+		 * "when the first square is empty, move there and step back".
+		 */
+		var igui   = c.FLAG_RIFLE | c.FLAG_SPECIAL;
+		/*
+		 * The Tetrarch has the first of those and not the second: it "can
+		 * annihilate any opponent next to it, without moving", full stop. It
+		 * could not step out and back in any case - it skips the first square
+		 * of every direction it slides along, so it can never stand on a
+		 * neighbouring square to come home from.
+		 */
+		var iguiOnly = c.FLAG_RIFLE;
 		var flying = c.FLAG_MOVE | c.FLAG_CAPTURE | c.FLAG_SCREEN_CAPTURE; // jumping generals
 		var burning = c.FLAG_BURN | c.FLAG_SPECIAL | c.FLAG_SPECIAL_CAPTURE | c.FLAG_THREAT;
 		var areaHook = c.FLAG_CAPTURE_SELF;         // [[0,0]] candidate -> customGen
@@ -488,7 +509,7 @@
 					graph: MG(LR(DEMON_SLIDE,burning),AreaHook()) },
 
 				87: { name:'tetrarch', aspect:'sh-promotion-tetrarch', abbrev:'+CS', fenAbbrev:'+C!', value:10,
-					graph: MG(Ski(DIAG,Infinity),Ski(VERT,Infinity),Ski(SIDE,2),SR(ADJ,igui)) },
+					graph: MG(Ski(DIAG,Infinity),Ski(VERT,Infinity),Ski(SIDE,2),SR(ADJ,iguiOnly)) },
 			},
 
 			// Optional promotion in the last 5 ranks: when entering the zone, or
