@@ -8,67 +8,31 @@
 
 const H = require("./harness.js");
 
-// gross builds its pieces from a FEN, which wants the fairy helpers
+/*
+ * Everything these three want of a model is in the shared context, save two
+ * things: a promotion asked from an explicit rank rather than the one before
+ * the arrival, and a look at the back rank - Knightmate stands its Kings where
+ * the Knights belong, which is the whole point of it.
+ *
+ * gross builds its pieces from a FEN, which wants the fairy helpers.
+ */
 function load(model, extra) {
-	const sandbox = H.loadModel(["base-model.js", "grid-geo-model.js"]
+	const ctx = H.context(["base-model.js", "grid-geo-model.js"]
 		.concat(extra || []).concat([model]));
-	const game = H.newGame(sandbox);
-	const ctx = { sandbox, game, geo: game.cbVar.geometry, types: game.cbVar.pieceTypes };
-	ctx.constants = sandbox.Model.Game.cbConstants;
-	ctx.typeNamed = (name) => {
-		for(const t in ctx.types)
-			if(ctx.types[t].name === name)
-				return parseInt(t);
-		throw new Error("no piece named " + name);
-	};
-	ctx.reach = (name, square) => {
-		const from = ctx.geo.PosByName(square), out = new Set();
-		(ctx.types[ctx.typeNamed(name)].graph[from] || []).forEach((line) => {
-			for(const entry of line)
-				if(entry & (ctx.constants.FLAG_MOVE | ctx.constants.FLAG_CAPTURE))
-					out.add(entry & 0xffff);
-		});
-		return out.size;
-	};
-	ctx.engine = (move) =>
-		Object.assign(Object.create(sandbox.Model.Move), move).ToString("engine");
-	ctx.movesFrom = (pieces, square, who) => {
-		const board = H.setup(sandbox, game, pieces, who || 1);
-		board.mMoves = [];
-		board.GenerateMoves(game);
-		return board.mMoves.filter((m) => m.f === ctx.geo.PosByName(square));
-	};
 	ctx.promotions = (name, fromRow, toRow, side) => {
 		const width = ctx.geo.width;
 		const from = fromRow * width + 3, to = toRow * width + 3;
-		return (game.cbVar.promote(game, { t: ctx.typeNamed(name), s: side || 1, p: from },
+		return (ctx.game.cbVar.promote(ctx.game,
+			{ t: ctx.typeNamed(name), s: side || 1, p: from },
 			{ t: to, f: from, c: null }) || []).map((into) => ctx.types[into].name);
 	};
 	ctx.backRank = () => {
-		const board = H.newBoard(sandbox, game), rank = {};
+		const board = H.newBoard(ctx.sandbox, ctx.game), rank = {};
 		board.pieces.forEach((piece) => {
 			if(piece.p >= 0 && piece.s > 0 && ctx.geo.R(piece.p) === 0)
 				rank[ctx.geo.PosName(piece.p)] = ctx.types[piece.t].name;
 		});
 		return rank;
-	};
-	ctx.plays = (plies) => {
-		const board = H.newBoard(sandbox, game);
-		game.mPlayedMoves = [];
-		let seed = 1234, played = 0;
-		const random = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
-		while(played < plies) {
-			board.mMoves = [];
-			board.GenerateMoves(game);
-			if(board.mMoves.length === 0)
-				break;
-			const move = board.mMoves[Math.floor(random() * board.mMoves.length)];
-			board.ApplyMove(game, move);
-			game.mPlayedMoves.push(move);
-			board.mWho = -board.mWho;
-			played++;
-		}
-		return played;
 	};
 	return ctx;
 }

@@ -1,8 +1,15 @@
 /*
- * Metamachy, Terachess and Minjiku Shogi, against the rules pages shipped with
- * them (res/rules/metamachy, res/rules/terachess, res/rules/minjiku-shogi).
+ * Metamachy and Terachess, against the rules pages shipped with them
+ * (res/rules/metamachy, res/rules/terachess). Minjiku Shogi started here too -
+ * same author, same shape of model - and now lives in
+ * tests/shogi/minjiku-shogi.test.js, with the other Shogi variants.
  *
- *   node tests/chessbase/cazaux-large.test.js
+ *   node tests/fairy/cazaux-large.test.js
+ *
+ * Neither needed correcting. The checks are here because both are large - 30
+ * and 64 pieces a side, 12 and 24 kinds - and a piece whose leap is one delta
+ * short, or a promotion pointing at the wrong type, is invisible in play: the
+ * game runs, it just plays a different game.
  */
 
 const H = require("./harness.js");
@@ -10,106 +17,9 @@ const H = require("./harness.js");
 const SETS = {
 	metamachy: ["base-model.js", "grid-geo-model.js", "cazaux/metamachy-model.js"],
 	terachess: ["base-model.js", "grid-geo-model.js", "cazaux/terachess-model.js"],
-	minjiku: ["base-model.js", "grid-geo-model.js", "fairy-piece-model.js",
-		"locust-move-model.js", "locust/minjiku-shogi-model.js"],
 };
 
-function load(name) {
-	const sandbox = H.loadModel(SETS[name]);
-	const game = H.newGame(sandbox);
-	const ctx = {
-		sandbox, game,
-		geo: game.cbVar.geometry,
-		types: game.cbVar.pieceTypes,
-		constants: sandbox.Model.Game.cbConstants,
-	};
-	ctx.typeNamed = (pieceName, letter) => {
-		for(const t in ctx.types)
-			if(ctx.types[t].name === pieceName
-				&& (letter === undefined || (ctx.types[t].fenAbbrev || ctx.types[t].abbrev) === letter))
-				return parseInt(t);
-		throw new Error(name + " has no piece named " + pieceName);
-	};
-	// every square a piece can reach from one square of an empty board
-	ctx.reach = (pieceName, square, letter) => {
-		const from = ctx.geo.PosByName(square), out = new Set();
-		(ctx.types[ctx.typeNamed(pieceName, letter)].graph[from] || []).forEach((line) => {
-			for(const entry of line)
-				if(entry & (ctx.constants.FLAG_MOVE | ctx.constants.FLAG_CAPTURE))
-					out.add(entry & 0xffff);
-		});
-		return out.size;
-	};
-	// which of move / capture / screen-capture apply on a given square
-	ctx.flagsOn = (pieceName, from, to) => {
-		const start = ctx.geo.PosByName(from), target = ctx.geo.PosByName(to);
-		let found = "";
-		(ctx.types[ctx.typeNamed(pieceName)].graph[start] || []).forEach((line) => {
-			for(const entry of line)
-				if((entry & 0xffff) === target) {
-					found = [];
-					if(entry & ctx.constants.FLAG_MOVE) found.push("move");
-					if(entry & ctx.constants.FLAG_CAPTURE) found.push("capture");
-					if(entry & ctx.constants.FLAG_SCREEN_CAPTURE) found.push("screen");
-					found = found.join("+");
-				}
-		});
-		return found;
-	};
-	/*
-	 * The piece arrives on `row` from the row before it. That matters for
-	 * Minjiku, where promotion is offered on ENTERING the zone: a quiet move
-	 * from one zone square to another does not promote, so a test starting
-	 * inside the zone would report no promotion at all.
-	 */
-	ctx.promotesTo = (pieceName, row, letter) => {
-		const type = ctx.typeNamed(pieceName, letter);
-		const to = row * ctx.geo.width + 3;
-		const from = to - ctx.geo.width;
-		const list = ctx.game.cbVar.promote(ctx.game,
-			{ t: type, s: 1, p: from }, { t: to, f: from, c: null }) || [];
-		return list.map((into) => ctx.types[into].name);
-	};
-	ctx.sides = () => {
-		const board = H.newBoard(ctx.sandbox, ctx.game);
-		let white = 0;
-		board.pieces.forEach((piece) => { if(piece.p >= 0 && piece.s > 0) white++; });
-		return white;
-	};
-	// a position saved and reloaded must come back as the same pieces
-	ctx.roundTrip = () => {
-		const board = H.newBoard(ctx.sandbox, ctx.game);
-		const before = {};
-		board.pieces.forEach((piece) => {
-			if(piece.p >= 0) before[piece.p] = ctx.types[piece.t].name + "/" + piece.s;
-		});
-		const back = ctx.sandbox.Model.Game.Import("pjn", board.ExportBoardState(ctx.game)).initial;
-		const after = {};
-		(back.pieces || []).forEach((piece) => {
-			after[piece.p] = ctx.types[piece.t].name + "/" + piece.s;
-		});
-		return Object.keys(before).filter((pos) => before[pos] !== after[pos]).length;
-	};
-	ctx.plays = (plies) => {
-		const board = H.newBoard(ctx.sandbox, ctx.game);
-		ctx.game.mPlayedMoves = [];
-		let seed = 4242, played = 0;
-		const random = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
-		while(played < plies) {
-			board.mMoves = [];
-			board.GenerateMoves(ctx.game);
-			if(board.mMoves.length === 0)
-				break;
-			const move = board.mMoves[Math.floor(random() * board.mMoves.length)];
-			board.ApplyMove(ctx.game, move);
-			ctx.game.mPlayedMoves.push(move);
-			board.mWho = -board.mWho;
-			played++;
-		}
-		return played;
-	};
-	return ctx;
-}
+const load = (name) => H.context(SETS[name]);
 
 const t = H.runner();
 
@@ -274,102 +184,13 @@ t.check("only Pawn and Corporal capture that way",
 // "King: exactly as in usual Chess" - no jump of its own, and no castling
 t.check("no castling", tera.game.cbVar.castle, undefined);
 
-/* ================= Minjiku Shogi ================= */
+/* ================= both ================= */
 
-console.log("\nMinjiku Shogi: 10x10 and four squares that vanish");
+console.log("\nboth of them");
 
-const minjiku = load("minjiku");
-
-t.check("thirty-two pieces a side", minjiku.sides(), 32);
-// the 10x10 board sits inside a 10x12 grid: the extra row at each end holds
-// the two squares the King and the Minister start on
-t.check("ten files", minjiku.geo.width, 10);
-t.check("twelve rows, the outer two being the extra squares", minjiku.geo.height, 12);
-t.check("two pieces on each outer row", (() => {
-	const board = H.newBoard(minjiku.sandbox, minjiku.game);
-	const outer = board.pieces.filter((piece) => piece.p >= 0
-		&& (minjiku.geo.R(piece.p) === 0 || minjiku.geo.R(piece.p) === 11));
-	return outer.length;
-})(), 4);
-
-t.check("no castling", minjiku.game.cbVar.castle, undefined);
-t.check("no en passant",
-	Object.keys(minjiku.types).filter((k) => minjiku.types[k].epCatch
-		|| minjiku.types[k].epTarget), []);
-
-/*
- * The pieces the rules describe with modes no graph can express. Each is
- * checked by what it can actually do on an open board.
- */
-const openBoard = (pieces, who, square) => {
-	const board = H.setup(minjiku.sandbox, minjiku.game, pieces, who);
-	board.mMoves = [];
-	board.GenerateMoves(minjiku.game);
-	return board.mMoves.filter((move) => move.f === minjiku.geo.PosByName(square));
-};
-
-// "The Lion: moves or captures as a King, but if the square thus reached is
-// empty it can optionally move on ... ('area move')"
-t.check("the Lion's area move reaches 24 squares",
-	openBoard({ f7: "w+D", a1: "wK", j12: "bK" }, 1, "f7").length, 24);
-// "The Samurai: ... can capture adjacent enemies in all 8 directions without
-// moving"
-t.ok("the Samurai captures without moving", (() => {
-	const moves = openBoard({ f7: "w+Y", f8: "bP", a1: "wK", j12: "bK" }, 1, "f7");
-	return moves.some((move) => move.t === move.f);
-})());
-/*
- * "The Fire Dragon: moves and captures like Queen, and has an 'area move'" -
- * so on top of the Queen's lines it must reach the squares two King steps
- * away that no Queen line passes through, which are the same squares the
- * Lion's area move adds.
- */
-const squares = (spec, square) => new Set(openBoard(spec, 1, square)
-	.map((move) => minjiku.geo.PosName(move.t)));
-const dragon = squares({ f7: "wF", a1: "wK", j12: "bK" }, "f7");
-const plainQueen = squares({ f7: "wQ", a1: "wK", j12: "bK" }, "f7");
-const lion = squares({ f7: "w+D", a1: "wK", j12: "bK" }, "f7");
-t.check("the Fire Dragon keeps every square a Queen has",
-	[...plainQueen].filter((sq) => !dragon.has(sq)), []);
-t.check("and adds the Lion's area squares",
-	[...lion].filter((sq) => !plainQueen.has(sq)).filter((sq) => !dragon.has(sq)), []);
-t.ok("h8 among them, which no Queen line reaches from f7",
-	dragon.has("h8") && !plainQueen.has("h8"));
-
-// the promotion list of the rules page, every pair of it
-[["pawnw", "goldw"], ["silverw", "bishop"], ["goldw", "rook"],
- ["isweeper", "sweeper"], ["bishop", "pviper"], ["rook", "pcobra"],
- ["diagonal jumper", "lion"], ["minister", "orthogonal jumper"],
- ["kirin", "samurai"], ["phoenix", "queen"], ["queen", "fire dragon"],
- ["viper", "area jumper"], ["cobra", "jumping general"]].forEach(([piece, into]) => {
-	const list = minjiku.promotesTo(piece, 8);   // entering the zone
-	t.ok(piece + " promotes to " + into, list.indexOf(into) >= 0);
-});
-// "This is optional" - the piece is offered unchanged alongside its promotion
-t.check("promotion is optional", minjiku.promotesTo("rook", 8)[0], "rook");
-// "when they enter the promotion zone consisting of the last three ranks"
-t.check("nothing promotes short of the zone", minjiku.promotesTo("rook", 7), []);
-
-/*
- * The Lateral Mover that has not moved yet may still slide two squares
- * forward, and it is a type of its own for that reason. It shared its FEN
- * letter with the moved one and lost it on import, so all four came back
- * having quietly lost the move.
- */
-t.check("the unmoved Lateral Mover has a letter of its own",
-	minjiku.types[minjiku.typeNamed("isweeper")].fenAbbrev,
-	"L!");
-t.check("it may slide two squares forward",
-	minjiku.reach("isweeper", "f7") - minjiku.reach("sweeper", "f7"), 2);
-
-/* ================= all three ================= */
-
-console.log("\nall three");
-
-["metamachy", "terachess", "minjiku"].forEach((name) => {
-	const ctx = name === "metamachy" ? meta : (name === "terachess" ? tera : minjiku);
+[["metamachy", meta], ["terachess", tera]].forEach(([name, ctx]) => {
 	t.check(name + ": a saved position reloads unchanged", ctx.roundTrip(), 0);
 	t.check(name + ": a game runs", ctx.plays(60), 60);
 });
 
-t.done("Metamachy, Terachess and Minjiku");
+t.done("Metamachy and Terachess");

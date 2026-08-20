@@ -214,5 +214,128 @@ function runner() {
 	};
 }
 
-module.exports = { loadModel, newGame, newBoard, setup, at, nameOf, typeOf,
+
+/*
+ * A context around one model: the game, its geometry, its piece table, and the
+ * handful of questions a rules test keeps asking of them - what a piece
+ * reaches, which flags a square carries, what a Pawn promotes to, whether a
+ * saved position reloads unchanged, whether a game plays out. Written for the
+ * large Cazaux variants and used by any suite that wants the same vocabulary.
+ */
+
+function context(scripts) {
+	const sandbox = loadModel(scripts);
+	const game = newGame(sandbox);
+	const ctx = {
+		sandbox, game,
+		geo: game.cbVar.geometry,
+		types: game.cbVar.pieceTypes,
+		constants: sandbox.Model.Game.cbConstants,
+	};
+	ctx.typeNamed = (pieceName, letter) => {
+		for(const t in ctx.types)
+			if(ctx.types[t].name === pieceName
+				&& (letter === undefined || (ctx.types[t].fenAbbrev || ctx.types[t].abbrev) === letter))
+				return parseInt(t);
+		throw new Error(name + " has no piece named " + pieceName);
+	};
+	// every square a piece can reach from one square of an empty board
+	ctx.reach = (pieceName, square, letter) => {
+		const from = ctx.geo.PosByName(square), out = new Set();
+		(ctx.types[ctx.typeNamed(pieceName, letter)].graph[from] || []).forEach((line) => {
+			for(const entry of line)
+				if(entry & (ctx.constants.FLAG_MOVE | ctx.constants.FLAG_CAPTURE))
+					out.add(entry & 0xffff);
+		});
+		return out.size;
+	};
+	// which of move / capture / screen-capture apply on a given square
+	ctx.flagsOn = (pieceName, from, to) => {
+		const start = ctx.geo.PosByName(from), target = ctx.geo.PosByName(to);
+		let found = "";
+		(ctx.types[ctx.typeNamed(pieceName)].graph[start] || []).forEach((line) => {
+			for(const entry of line)
+				if((entry & 0xffff) === target) {
+					found = [];
+					if(entry & ctx.constants.FLAG_MOVE) found.push("move");
+					if(entry & ctx.constants.FLAG_CAPTURE) found.push("capture");
+					if(entry & ctx.constants.FLAG_SCREEN_CAPTURE) found.push("screen");
+					found = found.join("+");
+				}
+		});
+		return found;
+	};
+	/*
+	 * The piece arrives on `row` from the row before it. That matters for
+	 * Minjiku, where promotion is offered on ENTERING the zone: a quiet move
+	 * from one zone square to another does not promote, so a test starting
+	 * inside the zone would report no promotion at all.
+	 */
+	/*
+	 * The moves of the piece standing on one square, on a board holding just
+	 * what is asked for. The caller supplies the Kings: where they may stand
+	 * without being in check is the caller's business, not the harness's.
+	 */
+	ctx.movesFrom = (pieces, square, who) => {
+		const board = setup(sandbox, game, pieces, who || 1);
+		board.mMoves = [];
+		board.GenerateMoves(game);
+		return board.mMoves.filter((move) => move.f === ctx.geo.PosByName(square));
+	};
+	// what the move reads as, for an assertion that names squares
+	ctx.engine = (move) =>
+		Object.assign(Object.create(sandbox.Model.Move), move).ToString("engine");
+	ctx.natural = (move) =>
+		Object.assign(Object.create(sandbox.Model.Move), move).ToString("natural");
+
+	ctx.promotesTo = (pieceName, row, letter) => {
+		const type = ctx.typeNamed(pieceName, letter);
+		const to = row * ctx.geo.width + 3;
+		const from = to - ctx.geo.width;
+		const list = ctx.game.cbVar.promote(ctx.game,
+			{ t: type, s: 1, p: from }, { t: to, f: from, c: null }) || [];
+		return list.map((into) => ctx.types[into].name);
+	};
+	ctx.sides = () => {
+		const board = newBoard(ctx.sandbox, ctx.game);
+		let white = 0;
+		board.pieces.forEach((piece) => { if(piece.p >= 0 && piece.s > 0) white++; });
+		return white;
+	};
+	// a position saved and reloaded must come back as the same pieces
+	ctx.roundTrip = () => {
+		const board = newBoard(ctx.sandbox, ctx.game);
+		const before = {};
+		board.pieces.forEach((piece) => {
+			if(piece.p >= 0) before[piece.p] = ctx.types[piece.t].name + "/" + piece.s;
+		});
+		const back = ctx.sandbox.Model.Game.Import("pjn", board.ExportBoardState(ctx.game)).initial;
+		const after = {};
+		(back.pieces || []).forEach((piece) => {
+			after[piece.p] = ctx.types[piece.t].name + "/" + piece.s;
+		});
+		return Object.keys(before).filter((pos) => before[pos] !== after[pos]).length;
+	};
+	ctx.plays = (plies) => {
+		const board = newBoard(ctx.sandbox, ctx.game);
+		ctx.game.mPlayedMoves = [];
+		let seed = 4242, played = 0;
+		const random = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+		while(played < plies) {
+			board.mMoves = [];
+			board.GenerateMoves(ctx.game);
+			if(board.mMoves.length === 0)
+				break;
+			const move = board.mMoves[Math.floor(random() * board.mMoves.length)];
+			board.ApplyMove(ctx.game, move);
+			ctx.game.mPlayedMoves.push(move);
+			board.mWho = -board.mWho;
+			played++;
+		}
+		return played;
+	};
+	return ctx;
+}
+
+module.exports = { loadModel, newGame, newBoard, setup, at, nameOf, typeOf, context,
                    moves, movesFrom, moveStr, play, outcome, inCheck, census, runner, SCRIPTS };

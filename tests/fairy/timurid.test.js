@@ -11,37 +11,17 @@ const H = require("./harness.js");
 const SCRIPTS = ["base-model.js", "grid-geo-model.js", "fairy-piece-model.js",
 	"prelude-model.js", "duodecimal/timurid-model.js"];
 
-const sandbox = H.loadModel(SCRIPTS);
-const game = H.newGame(sandbox);
-const geo = game.cbVar.geometry;
-const types = game.cbVar.pieceTypes;
-const constants = sandbox.Model.Game.cbConstants;
-
-const engine = (move) =>
-	Object.assign(Object.create(sandbox.Model.Move), move).ToString("engine");
-
-const typeNamed = (name) => {
-	for(const t in types)
-		if(types[t].name === name)
-			return parseInt(t);
-	throw new Error("no piece named " + name);
-};
-
-// every square a piece reaches from one square of an empty board
-function reach(name, square) {
-	const from = geo.PosByName(square), out = new Set();
-	(types[typeNamed(name)].graph[from] || []).forEach((line) => {
-		for(const entry of line)
-			if(entry & (constants.FLAG_MOVE | constants.FLAG_CAPTURE))
-				out.add(entry & 0xffff);
-	});
-	return out.size;
-}
+const timurid = H.context(SCRIPTS);
+const sandbox = timurid.sandbox, game = timurid.game;
+const geo = timurid.geo, types = timurid.types;
+const engine = timurid.engine, typeNamed = timurid.typeNamed, reach = timurid.reach;
 
 /*
- * The game opens with a prelude in which the two players pick their pieces,
- * and GenerateMoves only offers those choices while lastMove.f is -2. A board
- * built by hand has to say the prelude is over.
+ * Not the shared context's movesFrom: this game opens with a prelude in which
+ * the two players pick their pieces, and GenerateMoves only offers those
+ * choices while lastMove.f is -2, so a board built by hand has to say the
+ * prelude is over. It also answers in move strings, which is what the checks
+ * below read.
  */
 function movesFrom(pieces, square, who) {
 	const board = H.setup(sandbox, game,

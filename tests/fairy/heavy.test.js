@@ -11,28 +11,10 @@ const H = require("./harness.js");
 const SCRIPTS = ["base-model.js", "grid-geo-model.js", "fairy-piece-model.js",
 	"decimal/heavy-model.js"];
 
-const sandbox = H.loadModel(SCRIPTS);
-const game = H.newGame(sandbox);
-const geo = game.cbVar.geometry;
-const types = game.cbVar.pieceTypes;
-const constants = sandbox.Model.Game.cbConstants;
-
-const typeNamed = (name) => {
-	for(const t in types)
-		if(types[t].name === name)
-			return parseInt(t);
-	throw new Error("no piece named " + name);
-};
-
-function reach(name, square) {
-	const from = geo.PosByName(square), out = new Set();
-	(types[typeNamed(name)].graph[from] || []).forEach((line) => {
-		for(const entry of line)
-			if(entry & (constants.FLAG_MOVE | constants.FLAG_CAPTURE))
-				out.add(entry & 0xffff);
-	});
-	return out.size;
-}
+const heavy = H.context(SCRIPTS);
+const sandbox = heavy.sandbox, game = heavy.game;
+const geo = heavy.geo, types = heavy.types;
+const typeNamed = heavy.typeNamed, reach = heavy.reach;
 
 // how a position is judged: still a game, or over
 function verdict(pieces, who) {

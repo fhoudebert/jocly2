@@ -24,7 +24,7 @@ rather than fail when the build is missing.
 |---|---|
 | `core/` | the engine rather than a game: position loading, move history, rollback, FEN and move numbering, the manifest and its snapshot, the promotion popup, and the Fairy-Stockfish integration |
 | `fairy/` | the large chess variants - Cazaux's games, Gigachess, Grand Chess, Grant Acedrex, Heavy Chess, Makromachy, Timurid, Zanzibar-S, Janggi, and Khan's Chess in `fairy/khans/` |
-| `shogi/` | Chu Shogi, Sho Shogi and Kotaishi, Tenjiku Shogi |
+| `shogi/` | Chu Shogi, Sho Shogi and Kotaishi, Tenjiku Shogi, Minjiku Shogi |
 | `xiangqi/` | Janggi and Xiangqi |
 | `baroque/` | the Ultima family - `baroque/ultima/`, `baroque/rococo/`, `baroque/rocaille/`, plus the Ghost that is shared |
 | `cubic/` | 3D Cubic Chess |
@@ -36,7 +36,9 @@ Four files are not tests but the scaffolding the tests share, and each carries
 its own loader for the game family it serves:
 
 - `fairy/harness.js` - loads a chessbase model into a sandbox, builds boards
-  from a `{ square: "wK" }` map, and is used by every suite under `fairy/`, by
+  from a `{ square: "wK" }` map, and wraps a model in a `context()` carrying
+  the questions a rules test keeps asking - what a piece reaches, what a Pawn
+  promotes to, whether a saved position reloads unchanged - and is used by every suite under `fairy/`, by
   `shogi/chu-shogi.test.js` and by two suites in `core/`. It began as the
   harness of Khan's Chess, so `loadModel()` with no argument still loads that
   game; every other caller passes its own script list

@@ -21,54 +21,14 @@ const H = require("./harness.js");
 
 const SCRIPTS = ["base-model.js", "grid-geo-model.js", "cazaux/gigachess-model.js"];
 
-const sandbox = H.loadModel(SCRIPTS);
-const game = H.newGame(sandbox);
-const geo = game.cbVar.geometry;
-const types = game.cbVar.pieceTypes;
-const constants = sandbox.Model.Game.cbConstants;
-
-const natural = (move) =>
-	Object.assign(Object.create(sandbox.Model.Move), move).ToString("natural");
-const typeNamed = (name) => {
-	for(const t in types)
-		if(types[t].name === name)
-			return parseInt(t);
-	throw new Error("no piece named " + name);
-};
-
-// every square a piece reaches from one square of an empty board
-function reach(name, square) {
-	const from = geo.PosByName(square), out = new Set();
-	(types[typeNamed(name)].graph[from] || []).forEach((line) => {
-		for(const entry of line)
-			if(entry & (constants.FLAG_MOVE | constants.FLAG_CAPTURE))
-				out.add(entry & 0xffff);
-	});
-	return out.size;
-}
-// which of move / capture / screen-capture apply on one square
-function flagsOn(name, from, to) {
-	const start = geo.PosByName(from), target = geo.PosByName(to);
-	let found = "";
-	(types[typeNamed(name)].graph[start] || []).forEach((line) => {
-		for(const entry of line)
-			if((entry & 0xffff) === target) {
-				const flags = [];
-				if(entry & constants.FLAG_MOVE) flags.push("move");
-				if(entry & constants.FLAG_CAPTURE) flags.push("capture");
-				if(entry & constants.FLAG_SCREEN_CAPTURE) flags.push("screen");
-				found = flags.join("+");
-			}
-	});
-	return found;
-}
-function movesFrom(pieces, square) {
-	const board = H.setup(sandbox, game,
-		Object.assign({ a1: "wK", n14: "bK" }, pieces), 1);
-	board.mMoves = [];
-	board.GenerateMoves(game);
-	return board.mMoves.filter((move) => move.f === geo.PosByName(square));
-}
+const giga = H.context(SCRIPTS);
+const sandbox = giga.sandbox, game = giga.game;
+const geo = giga.geo, types = giga.types;
+const natural = giga.natural;
+const reach = giga.reach, flagsOn = giga.flagsOn, typeNamed = giga.typeNamed;
+// the Kings are put in the corners of every position below
+const movesFrom = (pieces, square) =>
+	giga.movesFrom(Object.assign({ a1: "wK", n14: "bK" }, pieces), square);
 
 const t = H.runner();
 
@@ -77,10 +37,7 @@ const t = H.runner();
 console.log("\nthe board and the army");
 
 t.check("a 14 x 14 board", [geo.width, geo.height], [14, 14]);
-t.check("forty-eight pieces a side", (() => {
-	const board = H.newBoard(sandbox, game);
-	return board.pieces.filter((piece) => piece.p >= 0 && piece.s > 0).length;
-})(), 48);
+t.check("forty-eight pieces a side", giga.sides(), 48);
 
 // the list of the rules page, piece by piece
 [["bow", 2], ["cannon", 2], ["camel", 2], ["ship", 2], ["buffalo", 1], ["lion", 1],
@@ -204,37 +161,7 @@ t.check("and the King has only its eight steps",
 
 console.log("\nthe whole thing");
 
-t.check("a saved position reloads unchanged", (() => {
-	const board = H.newBoard(sandbox, game);
-	const before = {};
-	board.pieces.forEach((piece) => {
-		if(piece.p >= 0) before[piece.p] = types[piece.t].name + "/" + piece.s;
-	});
-	const back = sandbox.Model.Game.Import("pjn", board.ExportBoardState(game)).initial;
-	const after = {};
-	(back.pieces || []).forEach((piece) => {
-		after[piece.p] = types[piece.t].name + "/" + piece.s;
-	});
-	return Object.keys(before).filter((pos) => before[pos] !== after[pos]).length;
-})(), 0);
-
-t.check("a game runs", (() => {
-	const board = H.newBoard(sandbox, game);
-	game.mPlayedMoves = [];
-	let seed = 21, played = 0;
-	const random = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
-	while(played < 80) {
-		board.mMoves = [];
-		board.GenerateMoves(game);
-		if(board.mMoves.length === 0)
-			break;
-		const move = board.mMoves[Math.floor(random() * board.mMoves.length)];
-		board.ApplyMove(game, move);
-		game.mPlayedMoves.push(move);
-		board.mWho = -board.mWho;
-		played++;
-	}
-	return played;
-})(), 80);
+t.check("a saved position reloads unchanged", giga.roundTrip(), 0);
+t.check("a game runs", giga.plays(80), 80);
 
 t.done("Gigachess");
