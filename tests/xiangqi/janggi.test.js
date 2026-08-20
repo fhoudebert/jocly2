@@ -1,16 +1,17 @@
 /*
  * Janggi (Korean chess) model tests - pure Node, no build step:
- *   node tests/chessbase/janggi.test.js
+ *   node tests/xiangqi/janggi.test.js
  *
  * The model files are plain scripts assigning to a global `Model`, so they can
  * be evaluated directly here, without a browser and without dist/. What is
  * exercised is the real engine: InitGame / InitialPosition / GenerateMoves /
  * ApplyMove, not a reimplementation of the rules.
  *
- * The last section re-runs Xiangqi and Tenjiku Shogi perft, because the Janggi
- * cannon needed two additions to the SHARED base-model.js (FLAG_SCREEN_MOVE,
- * and the split between `ranking` and `flying`) and those two games are the
- * ones that use the mechanisms touched.
+ * The last section re-runs Xiangqi perft, because the Janggi cannon needed two
+ * additions to the SHARED base-model.js (FLAG_SCREEN_MOVE, and the split
+ * between `ranking` and `flying`), and Xiangqi is the other game built on the
+ * mechanisms that were touched. Tenjiku Shogi is the third, and guards the
+ * same thing from tests/shogi/tenjiku-perft.test.js.
  */
 
 const fs = require('fs');
@@ -261,23 +262,11 @@ check('janggi perft(1)', perftOf(aGame, Board, 1), 31);
 check('janggi perft(2)', perftOf(aGame, Board, 2), 961);
 check('janggi perft(3)', perftOf(aGame, Board, 3), 30353);
 
-console.log('\n=== no regression on the games sharing the patched mechanisms ===');
+console.log('\n=== no regression on Xiangqi, built on the same mechanisms ===');
 const xGame = loadGame(['base-model.js', 'grid-geo-model.js', 'famous/xiangqi-model.js']);
 check('xiangqi perft(1)', perftOf(xGame, Model.Board, 1), 44);
 check('xiangqi perft(2)', perftOf(xGame, Model.Board, 2), 1920);
 check('xiangqi perft(3)', perftOf(xGame, Model.Board, 3), 79666);
-const tGame = loadGame(['base-model.js', 'grid-geo-model.js', 'locust-move-model.js', 'shogi/tenjiku-shogi-model.js']);
-check('tenjiku perft(1)', perftOf(tGame, Model.Board, 1), 74);
-/*
- * 5457 until the Lion, the Lion Hawk, the Free Eagle, the Soaring Eagle and
- * the Horned Falcon were given the last item of their Lion power - "stay in
- * place without capturing anything if one of the neighboring squares is
- * empty". The nine extra moves are exactly those passes: none is available at
- * the root, where every stinging square is occupied by a friendly piece, and
- * nine appear once a first move has cleared them. Counted, not assumed - see
- * tests/shogi/tenjiku-lions.test.js.
- */
-check('tenjiku perft(2)', perftOf(tGame, Model.Board, 2), 5466);
 
 console.log('\n=== the other reading of bikjang: cbJanggiBikjang = "forbidden" ===');
 const fGame = loadGame(['base-model.js', 'grid-geo-model.js', 'famous/janggi-model.js'],

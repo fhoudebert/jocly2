@@ -24,7 +24,8 @@ rather than fail when the build is missing.
 |---|---|
 | `core/` | the engine rather than a game: position loading, move history, rollback, FEN and move numbering, the manifest and its snapshot, the promotion popup, and the Fairy-Stockfish integration |
 | `fairy/` | the large chess variants - Cazaux's games, Gigachess, Grand Chess, Grant Acedrex, Heavy Chess, Makromachy, Timurid, Zanzibar-S, Janggi, and Khan's Chess in `fairy/khans/` |
-| `shogi/` | Chu Shogi, Kotaishi Shogi, Tenjiku Shogi |
+| `shogi/` | Chu Shogi, Sho Shogi and Kotaishi, Tenjiku Shogi |
+| `xiangqi/` | Janggi and Xiangqi |
 | `baroque/` | the Ultima family - `baroque/ultima/`, `baroque/rococo/`, `baroque/rocaille/`, plus the Ghost that is shared |
 | `cubic/` | 3D Cubic Chess |
 | `3dchess/`, `space-spartan/` | one game each |
