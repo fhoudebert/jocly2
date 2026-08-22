@@ -1,4 +1,4 @@
-const H = require("/home/claude/jocly2/tests/fairy/harness.js");
+const H = require("../fairy/harness.js");
 function check(name, SCRIPTS, plies, trials, seed0){
   const cz = H.context(SCRIPTS);
   const {sandbox, game, geo, types} = cz;

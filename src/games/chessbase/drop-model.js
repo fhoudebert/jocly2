@@ -28,6 +28,9 @@
 		 * The counter stands in for the queue while the FEN is produced; the
 		 * type of the pieces is on the holding square beside it, and the
 		 * count is in the counter's own type.
+		 *
+		 * The counter is looked up on the board being exported, not in any
+		 * table of its own: see counterAt() below for what a shared one cost.
 		 */
 		var superExport = geometry.ExportBoardState;
 		geometry.ExportBoardState = function(board, cbVar, moveCount) {
@@ -35,10 +38,10 @@
 			if(Model.Game.handLayout)
 				[1, -1].forEach(function(side) {
 					Model.Game.handLayout[side].forEach(function(sqr) {
-						var spare = sqr + side;
-						if(board.board[spare] >= 0 && counters[spare] !== undefined) {
+						var spare = sqr + side, ctr = counterAt(board, spare);
+						if(board.board[spare] >= 0 && ctr !== undefined) {
 							swapped.push([spare, board.board[spare]]);
-							board.board[spare] = counters[spare];
+							board.board[spare] = ctr;
 						}
 					});
 				});
@@ -74,28 +77,32 @@
 		return Model.Game.cbMergeGraphs(geometry, drops, leaps, slides);
 	}
 
-	var counters = [];
-
 	/*
-	 * The counter of a spare square, or undefined if this board has none.
+	 * Which piece draws the digit on each spare square, and which squares are
+	 * hands at all - kept ON THE BOARD, as this.cbCounters.
 	 *
-	 * counters[] holds piece INDICES and is module state, shared by every
-	 * board of the game - which is sound, because CopyFrom() preserves
-	 * indices, so a board and the copies a search makes of it agree. What it
-	 * cannot survive is a second position being loaded while the first is
-	 * still in use: cbPlacePieces() numbers the pieces of that position, the
-	 * counters land elsewhere in the list, and the index kept here then points
-	 * at one of the older board's men. Incrementing THAT is how a held Pawn
-	 * turns into a Bishop.
+	 * The table holds piece INDICES, and it used to be module state shared by
+	 * every board. That is sound for the copies a search makes, CopyFrom()
+	 * preserving indices - but not for a second position: cbPlacePieces()
+	 * numbers the pieces of THAT one, its counters land elsewhere in the list,
+	 * and every board still holding the old table now points at the wrong men.
+	 * Writing one into a FEN put a King on a holding square and the position
+	 * came back with two of them; incrementing one turned a held Pawn into a
+	 * Bishop. Both were found by tests/crazyhouse/roundtrip-campaign.js, and
+	 * neither announced itself.
 	 *
-	 * So the index is checked against the board it is about to be used on.
-	 * The worst that a stale one now costs is a digit that fails to appear.
+	 * A board and its copies share one table (the indices agree, and nothing
+	 * writes to it after InitialPosition); two positions no longer share
+	 * anything.
 	 */
 	function counterAt(board, spare) {
-		var ctr = counters[spare], types = Model.Game.cbCounterTypes;
-		if(ctr === undefined || !types) return undefined;
-		var piece = board.pieces[ctr];
-		return piece && piece.t >= types.first ? ctr : undefined;
+		return board.cbCounters ? board.cbCounters[spare] : undefined;
+	}
+
+	var OriginalCopyFrom = Model.Board.CopyFrom;
+	Model.Board.CopyFrom = function(aBoard) {
+		OriginalCopyFrom.apply(this, arguments);
+		this.cbCounters = aBoard.cbCounters; // same indices, same table
 	}
 
 	Model.Game.cbAddHoldings = function(geometry, definition) {
@@ -265,6 +272,7 @@
 		 * generated from, and the next capture into that slot incremented ITS
 		 * type, turning a held Pawn into whatever follows it in the table.
 		 */
+		var table = this.cbCounters = [];
 		var atSpare = {};
 		this.pieces.forEach(function(piece, index) {
 			if(piece.p >= 0) (atSpare[piece.p] = atSpare[piece.p] || []).push(index);
@@ -277,8 +285,8 @@
 				else
 					queue.push(index);
 			});
-			counters[spare] = counter; // undefined for a FEN written without one
-			counters[sqr] = 1;         // ... the square is a hand either way
+			table[spare] = counter;    // undefined for a FEN written without one
+			table[sqr] = 1;            // ... the square is a hand either way
 			for(var i=0; i<queue.length; i++)
 				$this.pieces[queue[i]].i = (i+1 < queue.length ? queue[i+1] : -1);
 			$this.board[spare] = queue.length ? queue[0] : -1;
@@ -292,7 +300,7 @@
 	var OriginalQuickApply = Model.Board.cbQuickApply;
 	function NewQuickApply(aGame,move) {
 		if(move.a == '') { // Pawn, check for illegal drop
-			bad = (counters[move.f] && this.kings[this.mWho*geometry.C(move.t)] >= Model.Game.cbPawnsPerFile);
+			bad = (this.cbCounters[move.f] && this.kings[this.mWho*geometry.C(move.t)] >= Model.Game.cbPawnsPerFile);
 		}
 		return OriginalQuickApply.apply(this, arguments);
 	}
@@ -301,7 +309,18 @@
 	Model.Board.ApplyMove = function(aGame,move) {
 		var ctr;
 		OriginalApplyMove.apply(this, arguments);
-		if(move.pr !== undefined && move.a == '') // pawn promotes
+		/*
+		 * A Pawn that promoted is no longer a Pawn on its file, so the
+		 * per-file count that enforces the one-Pawn rule drops by one.
+		 *
+		 * `pr >= 2` and not merely `pr !== undefined`: promotion is optional
+		 * in Shogi, so both versions of the move are generated, and the one
+		 * that DECLINES carries pr set to the Pawn's own type. Counting that
+		 * as a promotion let the file go to zero with a Pawn still standing
+		 * on it - and a second Pawn could then be dropped there. Types 0 and
+		 * 1 are the Pawns, the same test used on the victim below.
+		 */
+		if(move.pr !== undefined && move.a == '' && move.pr >= 2)
 			this.kings[this.mWho*geometry.C(move.f)]--;
 		if(move.c != null) {
 			var victim = this.pieces[move.c];
@@ -326,7 +345,7 @@
 				victim.p = hand;
 			}
 		} else {
-			if(counters[move.f]) { // drop
+			if(this.cbCounters[move.f]) { // drop
 				var spare = move.f + this.mWho;
 				var second = this.board[spare];
 				if(second >= 0) { // we held more of that type

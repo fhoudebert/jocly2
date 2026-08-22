@@ -790,7 +790,7 @@ exports.games = {
 				"title-en": "Crazyhouse",
 				"summary": {
 					"en": "Chess where captured pieces change sides and are dropped back",
-					"fr": "Les Échecs où les pièces prises changent de camp et sont reparachutées"
+					"fr": "Échecs avec parachutage de ses prisonniers."
 				},
 				"rules": {
 					"en": "res/rules/famous/crazyhouse-rules.html",
