@@ -48,11 +48,16 @@
 
 (function() {
 
-	var geometry; // set at InitGame, like locust-move-model.js does
+	// Both set at InitGame, the hook locust-move-model.js uses for the same
+	// reason: Move.ToString() and Game.ImportSFEN() may be reached from
+	// Model.Game itself rather than from a game, and get no reference either
+	// way. extraInit() runs after cbDefine(), so cbVar is already there.
+	var geometry, variant;
 
 	var OriginalExtraInit = Model.Game.extraInit;
 	Model.Game.extraInit = function(geo) {
 		geometry = geo;
+		variant = this.cbVar;
 		if(OriginalExtraInit)
 			OriginalExtraInit.apply(this, arguments);
 	}
@@ -121,6 +126,28 @@
 	 * holdings (Chu Shogi) the result is the Jocly field, character for
 	 * character; there is a test that says so.
 	 */
+	/*
+	 * A rank of the board, widened to a rank of the grid. The padding is
+	 * MERGED into a leading or trailing digit rather than written beside it:
+	 * "2" before "9" would read as the single number 29, and the rank would
+	 * swallow the board.
+	 */
+	function padRanks(field) {
+		var box = area();
+		var left = box.files[0];
+		var right = geometry.width - 1 - box.files[box.files.length - 1];
+		if(!left && !right) return field;
+		return field.split("/").map(function(row) {
+			var head = /^([0-9]+)/.exec(row);
+			if(left) row = head ? (left + parseInt(head[1], 10)) + row.slice(head[1].length)
+				: left + row;
+			var tail = /([0-9]+)$/.exec(row);
+			if(right) row = tail ? row.slice(0, -tail[1].length) + (right + parseInt(tail[1], 10))
+				: row + right;
+			return row;
+		}).join("/");
+	}
+
 	function boardField(board, cbVar) {
 		var box = area(), rows = [];
 		for(var r = box.ranks.length - 1; r >= 0; r--) {
@@ -147,6 +174,16 @@
 	 * this readable after the fact.
 	 */
 	function lionCaptureField(board, aGame) {
+		/*
+		 * A position that was READ from an SFEN carries the square it named,
+		 * and no move has been played since to deduce it from: it is written
+		 * back rather than dropped. That keeps the string intact through a
+		 * round trip - it does not make the rule enforceable, which needs the
+		 * Lion trade to read the board instead of the previous move.
+		 */
+		if(aGame.mPlayedMoves && aGame.mPlayedMoves.length == 0
+			&& aGame.mInitial && aGame.mInitial.lionCapture)
+			return aGame.mInitial.lionCapture;
 		var last = board.lastMove;
 		if(!last || last.c === null || last.c === undefined || !aGame.minimumBridge)
 			return "-";
@@ -158,23 +195,144 @@
 	}
 
 	/*
-	 * A game whose pieces go in hand writes its holdings in the third field
-	 * ("2Pl", or "-" when both hands are empty), where a Chu Shogi SFEN keeps
-	 * the last Lion capture. Nothing here reads or writes that yet, and a
-	 * silently dropped hand is exactly the kind of loss the FEN of the drop
-	 * games has already cost once - so this says no instead.
+	 * THE THIRD FIELD says two different things depending on the game.
+	 *
+	 * In a game whose pieces go in hand - Shogi itself - it is the holdings:
+	 * the letters of the held pieces, a count in front of any letter held more
+	 * than once, capitals for the side SFEN calls "b", and "-" when both hands
+	 * are empty ("2Pl", "RBGSNLPrbgsnlp", "-"). In Chu Shogi, which has no
+	 * drops, it is the square of the last Lion capture instead.
+	 *
+	 * Jocly keeps a hand as extra COLUMNS of a wider grid (drop-model.js), so
+	 * neither the reading nor the writing is a matter of copying a field
+	 * across: the pieces have to be counted off the board on the way out, and
+	 * put back on their holding squares on the way in.
 	 */
 	function hasHoldings() {
 		return !!Model.Game.handLayout;
 	}
 
+	// which side a held type belongs to: the two Pawns of a Shogi model are
+	// pawn-w and pawn-b, and only one of them is ever in White's hand
+	function affinity(pType) {
+		var name = pType.name || "";
+		if(/-w$/.test(name)) return 1;
+		if(/-b$/.test(name)) return -1;
+		return 0; // Bishop, Rook: one type serves both hands
+	}
+
+	// hand slot -> the type each side holds there, and the SFEN letter
+	function holdings(cbVar) {
+		var slots = {};
+		for(var t in cbVar.pieceTypes) {
+			var pType = cbVar.pieceTypes[t];
+			if(pType.hand === undefined) continue;
+			var slot = slots[pType.hand] = slots[pType.hand] || {};
+			slot.letter = (pType.fenAbbrev || pType.abbrev || "?").toUpperCase();
+			var aff = affinity(pType);
+			if(aff >= 0) slot[1] = parseInt(t, 10);
+			if(aff <= 0) slot[-1] = parseInt(t, 10);
+		}
+		return slots;
+	}
+
+	function handField(board, cbVar) {
+		var slots = holdings(cbVar), counts = {};
+		for(var i = 0; i < board.pieces.length; i++) {
+			var piece = board.pieces[i];
+			if(piece.p < 0 || (geometry.BOARD_AREA && piece.p in geometry.BOARD_AREA))
+				continue;
+			var pType = cbVar.pieceTypes[piece.t];
+			if(!pType || pType.hand === undefined) continue; // drop-model's counters
+			var key = piece.s + ":" + pType.hand;
+			counts[key] = (counts[key] || 0) + 1;
+		}
+		// SFEN lists the strong pieces first - R B G S N L P for Shogi, which
+		// is the slot order reversed - and one side's hand before the other's
+		var order = Object.keys(slots).map(Number).sort(function(a, b) { return b - a; });
+		var out = "";
+		[1, -1].forEach(function(side) {
+			order.forEach(function(slot) {
+				var n = counts[side + ":" + slot];
+				if(!n) return;
+				var letter = slots[slot].letter;
+				out += (n > 1 ? n : "") + (side > 0 ? letter : letter.toLowerCase());
+			});
+		});
+		return out || "-";
+	}
+
+	/*
+	 * Put the held pieces back. They are appended to the piece list Import()
+	 * built from the board field, before InitialPosition() ever sees it: the
+	 * first of a kind on the holding square, the rest on the spare square
+	 * beside it, which is exactly the shape drop-model.js expects and chains
+	 * up. The counter that draws the digit was already created there by
+	 * drop-model.js's own Import wrapper; its TYPE carries the total, so a
+	 * hand of three or more has to move it along.
+	 */
+	function placeHand(initial, field, cbVar) {
+		if(field == "-" || !field) return true;
+		var slots = holdings(cbVar), byLetter = {};
+		for(var slot in slots) byLetter[slots[slot].letter] = parseInt(slot, 10);
+		var counters = Model.Game.cbCounterTypes;
+
+		var re = /([0-9]*)([A-Za-z])/g, m;
+		var seen = 0;
+		while((m = re.exec(field)) !== null) {
+			seen += m[0].length;
+			var count = m[1] ? parseInt(m[1], 10) : 1;
+			var letter = m[2].toUpperCase();
+			var side = (m[2] == letter) ? 1 : -1;
+			var slot = byLetter[letter];
+			if(slot === undefined) return false;
+			var type = slots[slot][side];
+			if(type === undefined) return false;
+			var square = Model.Game.hand[side][type];
+			if(square === undefined) return false;
+			var spare = square + side;
+			initial.pieces.push({ t: type, s: side, p: square, m: true });
+			for(var i = 1; i < count; i++)
+				initial.pieces.push({ t: type, s: side, p: spare, m: true });
+			if(count >= 3 && counters) {
+				var counter = initial.pieces.filter(function(piece) {
+					return piece.p === spare && piece.t >= counters.first
+						&& piece.t < counters.first + counters.count;
+				})[0];
+				if(counter) counter.t = counters.first + (count - 2);
+			}
+		}
+		return seen == field.length; // anything left over was not a hand
+	}
+
+	/*
+	 * SFEN counts MOVES - plies - and names the one about to be played, so
+	 * "1" is the opening position. Jocly's sixth FEN field is the chess FULL
+	 * move number, two plies to the unit, which cbInitialPly() then unwinds:
+	 * ply = (number-1)*2, plus one when it is Black's turn. Feeding an SFEN
+	 * number straight in doubled it - a game at move 42 came back at 84.
+	 */
+	function fullMove(sfenNumber, side) {
+		var plies = (sfenNumber > 0 ? sfenNumber : 1) - 1;
+		return Math.floor((plies - (side == 'w' ? 1 : 0)) / 2) + 1;
+	}
+
 	Model.Board.ExportSFEN = function(aGame) {
-		if(hasHoldings())
-			throw new Error("SFEN: holdings are not written yet (the third field would be a hand)");
-		var moveNumber = this.cbInitialPly(aGame) + aGame.mPlayedMoves.length + 1;
+		/*
+		 * The number read from the SFEN is kept and counted on from, rather
+		 * than recovered through cbInitialPly(): that encoding takes the
+		 * parity of the ply from the side to move, so "16 moves played, and
+		 * it is Black's turn" - a normal thing for a tsume position to say -
+		 * cannot be written in it, and came back as 17.
+		 */
+		var start = (aGame.mInitial && aGame.mInitial.sfenMoveNumber > 0)
+			? aGame.mInitial.sfenMoveNumber
+			: this.cbInitialPly(aGame) + 1;
+		var moveNumber = start + aGame.mPlayedMoves.length;
 		return boardField(this, aGame.cbVar)
 			+ " " + (this.mWho > 0 ? "b" : "w")   // Jocly's "w" is SFEN's "b"
-			+ " " + lionCaptureField(this, aGame)
+			+ " " + (hasHoldings() ? handField(this, aGame.cbVar)
+				: lionCaptureField(this, aGame))
 			+ " " + moveNumber;
 	}
 
@@ -196,8 +354,6 @@
 			console.warn("SFEN:", why);
 			return { status: false, error: 'parse' };
 		};
-		if(hasHoldings())
-			return bad("holdings are not read yet (the third field would be a hand)");
 		var parts = String(data || "").trim().split(/\s+/);
 		if(parts.length < 2)
 			return bad("needs at least a board and a side to move");
@@ -226,12 +382,26 @@
 					+ box.files.length);
 		}
 
-		// ... and now the six-field form the Jocly importer speaks. The board
-		// field is passed through untouched: it is the same string.
-		var result = this.Import('pjn', parts[0]
+		/*
+		 * ... and now the six-field form the Jocly importer speaks.
+		 *
+		 * The board field is passed through untouched for a game without
+		 * holdings, because it IS the same string. For a game with them it is
+		 * not: Jocly's grid is four columns wider than the board, and the
+		 * importer fills it from column zero - which is how a genuine 9x9
+		 * Shogi SFEN used to land two files to the left with its lances in
+		 * hand. The empty holding columns are added to each rank first.
+		 */
+		var result = this.Import('pjn', padRanks(parts[0])
 			+ " " + (parts[1] == 'b' ? 'w' : 'b')
-			+ " - - 0 " + (parseInt(parts[3], 10) > 0 ? parseInt(parts[3], 10) : 1));
-		if(result.status !== false)
+			+ " - - 0 " + fullMove(parseInt(parts[3], 10), parts[1]));
+		if(result.status === false)
+			return result;
+		result.initial.sfenMoveNumber = parseInt(parts[3], 10) > 0 ? parseInt(parts[3], 10) : 1;
+		if(hasHoldings()) {
+			if(!placeHand(result.initial, parts[2], variant))
+				return bad("third field is not a hand: " + parts[2]);
+		} else
 			// carried, not applied: see the header
 			result.initial.lionCapture = (parts[2] && parts[2] != '-') ? parts[2] : null;
 		return result;
@@ -249,16 +419,36 @@
 	 * what Tabulon writes into a saved game, and a game saved yesterday has to
 	 * still load tomorrow.
 	 */
+	/*
+	 * Whether a promotion actually promotes. Shogi makes promotion OPTIONAL,
+	 * so both versions of the move are generated and the one that DECLINES
+	 * carries `pr` set to the piece's own, unpromoted type - marking that one
+	 * with a "+" would name the wrong move. Promoted types are the ones whose
+	 * abbreviation starts with "+", which is the module's own convention.
+	 */
+	function promoted(type) {
+		var pType = variant && variant.pieceTypes[type];
+		return !!(pType && /^\+/.test(pType.abbrev || ""));
+	}
+
 	var OriginalToString = Model.Move.ToString;
 	Model.Move.ToString = function(format) {
 		if(format != "usi")
 			return OriginalToString.apply(this, arguments);
 		var name = Model.Game.cbToUSISquare;
+		var to = name(this.t & 0xffff);
+
+		// A drop comes from a holding square, which is not a square USI can
+		// name: it writes the piece's own letter, a star, and the destination
+		// ("P*5e"). The empty abbrev is the Pawn's, as in drop-model.js.
+		if(name(this.f) === null)
+			return (this.a === "" ? "P" : this.a).toUpperCase() + "*" + to;
+
 		var usi = name(this.f);
 		if(this.via !== undefined)
 			usi += name(this.via);
-		usi += name(this.t & 0xffff);
-		if(this.pr !== undefined)
+		usi += to;
+		if(this.pr !== undefined && promoted(this.pr))
 			usi += "+";
 		return usi;
 	}

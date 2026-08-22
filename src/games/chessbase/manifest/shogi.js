@@ -36,21 +36,24 @@ var modelScripts_105 = [
 	"base-model.js",
 	"grid-geo-model.js",
 	"drop-model.js",
-	"shogi/shogi-model.js"
+	"shogi/shogi-model.js",
+	"shogi/sfen-model.js"
 ]
 
 var modelScripts_106 = [
 	"base-model.js",
 	"grid-geo-model.js",
 	"drop-model.js",
-	"shogi/tori-shogi-model.js"
+	"shogi/tori-shogi-model.js",
+	"shogi/sfen-model.js"
 ]
 
 var modelScripts_107 = [
 	"base-model.js",
 	"grid-geo-model.js",
 	"drop-model.js",
-	"shogi/mini-shogi-model.js"
+	"shogi/mini-shogi-model.js",
+	"shogi/sfen-model.js"
 ]
 
 var modelScripts_108 = [

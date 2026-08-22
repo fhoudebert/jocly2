@@ -93,7 +93,12 @@ t.check("and so is a board of the wrong width",
 console.log("\nthe move number");
 
 (() => {
-	t.check("is read", Game.ImportSFEN(CSL_START.replace(" 1", " 42")).initial.moveNumber, 42);
+	// SFEN counts plies; the Jocly field it is translated into counts full
+	// moves, so the two numbers are not the same one. The SFEN's own is kept
+	// beside it, which is what ExportSFEN() counts on from.
+	const read = Game.ImportSFEN(CSL_START.replace(" 1", " 42")).initial;
+	t.check("is read", read.sfenMoveNumber, 42);
+	t.check("and translated for the Jocly side", read.moveNumber, 21);
 	const b = board(CSL_START);
 	game.mPlayedMoves = [];
 	t.check("and counts from one at the start", b.ExportSFEN(game).split(" ")[3], "1");
@@ -209,6 +214,19 @@ console.log("\nChuShogiLite's own positions");
 	}
 	t.check("every position is read", refused, []);
 	t.check("and comes back the same board", changed, []);
+
+	// the whole string, not just the board: the side to move, the move number
+	// and the last-Lion-capture square have to survive too
+	const whole = [];
+	for(const sfen of lines) {
+		const result = Game.ImportSFEN(sfen);
+		game.mInitial = result.initial;
+		const b = H.newBoard(sandbox, game);
+		game.mPlayedMoves = [];
+		if(b.ExportSFEN(game) !== sfen) whole.push(sfen);
+		delete game.mInitial;
+	}
+	t.check("character for character", whole, []);
 })();
 
 /* ------------------------------------------------------------------ *
@@ -228,6 +246,97 @@ console.log("\nthe last Lion capture");
 		Game.ImportSFEN(withCapture).initial.lionCapture, "6f");
 	t.check("and an empty one reads as nothing",
 		Game.ImportSFEN(CSL_START).initial.lionCapture, null);
+})();
+
+/* ------------------------------------------------------------------ *
+ * Shogi itself: the third field is a hand
+ * ------------------------------------------------------------------ */
+
+const sh = H.context(["base-model.js", "grid-geo-model.js", "drop-model.js",
+	"shogi/shogi-model.js", "shogi/sfen-model.js"]);
+const shGame = sh.game, shModel = sh.sandbox.Model;
+const shUSI = (move) => Object.assign(Object.create(shModel.Move), move).ToString("usi");
+
+function shBoard(sfen) {
+	const result = shModel.Game.ImportSFEN(sfen);
+	if(result.status === false) throw new Error("refused: " + sfen);
+	shGame.mInitial = result.initial;
+	const fresh = H.newBoard(sh.sandbox, shGame);
+	shGame.mPlayedMoves = [];
+	return fresh;
+}
+
+console.log("\nShogi: the board, nine files wide");
+
+(() => {
+	const b = H.newBoard(sh.sandbox, shGame);
+	shGame.mPlayedMoves = [];
+	// Jocly stores a Shogi board on a thirteen-column grid, the outer two
+	// columns each side being the hands: the SFEN has to be the nine
+	t.check("the opening position is the standard SFEN",
+		b.ExportSFEN(shGame),
+		"lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1");
+	t.check("where the Jocly FEN is thirteen wide",
+		b.ExportBoardState(shGame).split(" ")[0].split("/")[0], "2lnsgkgsnl2");
+	t.check("and the first moves are named as Shogi names them",
+		(b.mMoves = [], b.GenerateMoves(shGame), b.mMoves.slice(0, 3).map(shUSI)),
+		["9g9f", "8g8f", "7g7f"]);
+})();
+
+console.log("\nShogi: hands");
+
+(() => {
+	// 1.P-7f P-3d 2.Bx2b+ Sx2b, the opening bishop trade: one Bishop in each
+	// hand, which is what the third field is for
+	const b = H.newBoard(sh.sandbox, shGame);
+	shGame.mPlayedMoves = [];
+	["7g7f", "3c3d", "8h2b+", "3a2b"].forEach((usi) => {
+		b.mMoves = [];
+		const move = shGame.MoveFromUSI(b, usi);
+		if(!move) throw new Error("no " + usi);
+		b.ApplyMove(shGame, move);
+		shGame.mPlayedMoves.push(move);
+		b.mWho = -b.mWho;
+	});
+	t.check("a hand of one each is written",
+		b.ExportSFEN(shGame),
+		"lnsgkg1nl/1r5s1/pppppp1pp/6p2/9/2P6/PP1PPPPPP/7R1/LNSGKGSNL b Bb 5");
+
+	// a drop is written the way USI writes it, with a star
+	b.mMoves = [];
+	const drop = shGame.MoveFromUSI(b, "B*4e");
+	t.check("and the piece can be dropped back", !!drop, true);
+	t.check("under its USI name", shUSI(drop), "B*4e");
+})();
+
+(() => {
+	// counts, and the order SFEN puts them in: the strong pieces first,
+	// R B G S N L P, one side's hand before the other's
+	const deep = "9/9/9/9/4k4/9/9/9/4K4 w 2L3Prbg 42";
+	const b = shBoard(deep);
+	t.check("a deeper hand survives the trip", b.ExportSFEN(shGame), deep);
+	b.mWho = 1;
+	b.mMoves = [];
+	b.GenerateMoves(shGame);
+	const drops = b.mMoves.filter((m) => /\*/.test(shUSI(m)));
+	t.check("and every held kind can be dropped",
+		[...new Set(drops.map((m) => shUSI(m)[0]))].sort(), ["L", "P"]);
+})();
+
+console.log("\nShogi: the move number");
+
+(() => {
+	// SFEN counts plies and names the next one; the Jocly FEN counts full
+	// moves, so feeding one into the other used to double it
+	const b = shBoard("9/9/9/9/4k4/9/9/9/4K4 w - 42");
+	t.check("is read and written back unchanged",
+		b.ExportSFEN(shGame).split(" ")[3], "42");
+	const move = (b.mMoves = [], b.GenerateMoves(shGame), b.mMoves[0]);
+	b.ApplyMove(shGame, move);
+	shGame.mPlayedMoves.push(move);
+	b.mWho = -b.mWho;
+	t.check("and counts one per move played",
+		b.ExportSFEN(shGame).split(" ")[3], "43");
 })();
 
 t.done("SFEN and USI");
