@@ -627,6 +627,32 @@ var config_model_levels_shogi_expert = {
 	"evalFile": "nnue/shogi.nnue"
 }
 
+// Crazyhouse: a built-in Fairy-Stockfish variant ("crazyhouse" appears in
+// its own UCI_Variant list, alongside bughouse/capahouse/shouse), so no
+// customVariantIni is needed - the engine plays the real game rather than
+// an approximation of it, which is what blocked Kotaishi Shogi.
+//
+// "pocketGeometry": true for the same reason as the Shogi levels: Jocly
+// keeps the pieces in hand on extra board COLUMNS (drop-model.js's
+// cbDropGeometry()), so the generic ExportBoardState() would hand the
+// engine a 12-file board and no "[...]" pocket. BuildShogiStyleFen() in
+// jocly.fairy.js builds the right one, and also renames the en-passant
+// square out of the wide grid's own file letters - a field no other
+// pocketGeometry game ever fills, Shogi having no double step.
+//
+// No pieceMap: the model's letters are already the engine's (P N B R Q K),
+// and a promoted piece is written with the trailing '~' Fairy-Stockfish
+// uses for exactly that, so its FEN needs no translation either.
+var config_model_levels_crazyhouse_expert = {
+	"name": "expert",
+	"label": "Expert",
+	"ai": "fairy-stockfish",
+	"variant": "crazyhouse",
+	"skillLevel": 20,
+	"moveTimeMs": 1000,
+	"pocketGeometry": true
+}
+
 // Mini-shogi: same rules and starting position as Fairy-Stockfish's
 // "minishogi" (startFen matches byte-for-byte once the hand columns are
 // converted, same as base shogi above). No pieceMap or other
@@ -1756,5 +1782,6 @@ module.exports = {
 	config_view_skins_preload_7, config_view_skins_7, config_view_skins_preload_8,
 	config_view_skins_camera_4, config_view_skins_camera_target, config_view_skins_preload_9,
 	config_view_skins_9, config_view_skins_preload_10, config_view_skins_10, config_view_skins_11,
-	config_view_js_30, config_view_skins_preload_11, config_view_skins_12, config_view_js_31
+	config_view_js_30, config_view_skins_preload_11, config_view_skins_12, config_view_js_31,
+	config_model_levels_crazyhouse_expert
 };

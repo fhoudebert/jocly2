@@ -1,6 +1,6 @@
 {
-	"bytes": 351869,
-	"digest": "20bbef2bdcbd46c1",
+	"bytes": 356201,
+	"digest": "1f17ee4f85627b97",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -329,6 +329,10 @@
 		{
 			"name": "acedrex-chess",
 			"digest": "951da0b0b3c63995"
+		},
+		{
+			"name": "crazyhouse",
+			"digest": "ff297cf75babbd05"
 		}
 	]
 }

@@ -1129,12 +1129,36 @@
 					var pos1=tg1 & MASK;
 					var index1=this.board[pos1];
 					var nonCapt=(index1<0);
-					if(nonCapt && pType.epCatch && this.epTarget) { // destination empty, but could be e.p. capture
+					// An empty destination reads as an e.p. capture only where
+					// the graph says this piece could capture there. Without
+					// the FLAG_CAPTURE test, a NON-capturing entry landing on
+					// the e.p. square is turned into a capture it cannot make,
+					// and the move is then dropped entirely (the branch below
+					// needs FLAG_CAPTURE to emit anything). In orthodox chess
+					// nothing reaches that square except the diagonal capture
+					// entries, so it never showed; in a drop game the Pawn
+					// DROPS are FLAG_MOVE entries onto every empty square, and
+					// the one square a Pawn could not be dropped on was the
+					// one an enemy Pawn had just stepped over.
+					if(nonCapt && (tg1 & FLAG_CAPTURE) && pType.epCatch && this.epTarget) { // destination empty, but could be e.p. capture
 						var ept=this.epTarget.p;
+						// The retrace walks back along the double (or longer)
+						// step, so that every square the Pawn crossed can be
+						// captured on. It needs the move that made it: a
+						// position read from a FEN has an e.p. square but no
+						// lastMove, and the default one ({f:-1,t:0}) sends the
+						// walk off by epTarget.p a step towards a square it
+						// can never reach - GenerateMoves() never returns.
+						// With no move to retrace, the square the FEN names is
+						// the only e.p. target there is, which is also all a
+						// FEN can express.
+						var step=(this.lastMove && this.lastMove.f>=0)
+							? this.epTarget.p-this.lastMove.t : 0;
 						do {
 							if(ept==pos1) { nonCapt=false; break; }
 							if(cbVar.geometry.cube) break; // cube surface: the skipped square is the only e.p. target; index-arithmetic retrace doesn't apply across faces
-							ept+=this.epTarget.p-this.lastMove.t;
+							if(!step) break;
+							ept+=step;
 						} while(ept!=this.lastMove.f);
 					}
 					if(nonCapt) {
