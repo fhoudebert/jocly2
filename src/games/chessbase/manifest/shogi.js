@@ -57,7 +57,8 @@ var modelScripts_108 = [
 	"base-model.js",
 	"grid-geo-model.js",
 	"locust-move-model.js",
-	"shogi/chu-shogi-model.js"
+	"shogi/chu-shogi-model.js",
+	"shogi/sfen-model.js"
 ]
 
 var config_model_gameOptions_tenjiku = {
