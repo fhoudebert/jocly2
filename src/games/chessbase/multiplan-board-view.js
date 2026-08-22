@@ -287,9 +287,22 @@
 			var getCoords=spec.coordsFn(spec);
 			for(var row=0;row<NBROWS;row++) {
 				for(var col=0;col<NBCOLS;col++) {
+					/*
+					 * The floor is added outside the test, as paintNotation()
+					 * does: coordsFn() reads it back out of the position
+					 * (f = pos / NBCOLS*NBROWS) and, on a flat board, uses it
+					 * to pick the floor's own place on the canvas. Left inside
+					 * the mViewAs==1 branch, every floor came out as floor 0
+					 * when the board was viewed from the other side: the
+					 * bottom board was painted three times and the two above
+					 * it were never painted at all, which showed as their
+					 * losing their checkering. In 3D the floor only sets z,
+					 * which is why nothing looked wrong there.
+					 */
 					var pos = this.mViewAs==1 ?
-						col+row*NBCOLS+floor*NBCOLS*NBROWS :
+						col+row*NBCOLS :
 						NBCOLS*NBROWS-(1+col+row*NBCOLS);
+					pos += floor*NBCOLS*NBROWS;
 					var coords=getCoords.call(this,pos,floor);
 					var cellType=this.cbView.boardLayout[floor][NBROWS-row-1][col];
 					var xCenter=coords.x;
