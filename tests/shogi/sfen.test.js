@@ -339,4 +339,57 @@ console.log("\nShogi: the move number");
 		b.ExportSFEN(shGame).split(" ")[3], "43");
 })();
 
+/* ------------------------------------------------------------------ *
+ * a whole game on one line
+ * ------------------------------------------------------------------ */
+
+console.log("\nthe Game Export string");
+
+(() => {
+	// what ChuShogiLite's Export/Import boxes exchange, and what its
+	// startGame setting takes: the SFEN, then the moves in USI
+	const b = board(CSL_START);
+	game.mPlayedMoves = [];
+	["7i7h", "7d7e", "7h7g"].forEach((usi) => {
+		b.mMoves = [];
+		const move = game.MoveFromUSI(b, usi);
+		b.ApplyMove(game, move);
+		game.mPlayedMoves.push(move);
+		b.mWho = -b.mWho;
+	});
+	const line = game.ExportGameString();
+	t.check("starts from the position the game began at, not the one reached",
+		line.split(" ").slice(0, 4).join(" "), CSL_START);
+	t.check("and lists the moves after it",
+		line.split(" ").slice(4), ["7i7h", "7d7e", "7h7g"]);
+
+	const read = Game.ImportGameString(line);
+	t.check("which reads back", read.status !== false, true);
+	t.check("with its moves", read.moves, ["7i7h", "7d7e", "7h7g"]);
+	t.check("and its position", (() => {
+		game.mInitial = read.initial;
+		const fresh = H.newBoard(sandbox, game);
+		game.mPlayedMoves = [];
+		const sfen = fresh.ExportSFEN(game);
+		delete game.mInitial;
+		return sfen;
+	})(), CSL_START);
+})();
+
+console.log("\nan SFEN where a position is expected");
+
+(() => {
+	// Jocly hands a saved position to Import("pjn", …) - Tabulon's
+	// initialBoard, a PGN's [FEN] tag, the "Load board state" box. A Jocly FEN
+	// has six fields and an SFEN four, so the importer can tell them apart and
+	// a position copied out of ChuShogiLite can be pasted in as it stands.
+	t.check("an SFEN is recognised", Game.Import("pjn", CSL_START).status !== false, true);
+	t.check("a Jocly FEN still is too",
+		Game.Import("pjn", CSL_START.split(" ")[0] + " w - - 0 1").status !== false, true);
+	t.check("and they give the same position",
+		JSON.stringify(Game.Import("pjn", CSL_START).initial.pieces),
+		JSON.stringify(Game.Import("pjn", CSL_START.split(" ")[0] + " w - - 0 1").initial.pieces));
+	t.check("nonsense is still refused", Game.Import("pjn", "not a position").status, false);
+})();
+
 t.done("SFEN and USI");

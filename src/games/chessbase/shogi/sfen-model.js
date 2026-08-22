@@ -488,4 +488,76 @@
 		return found;
 	}
 
+	/*
+	 * Reading an SFEN wherever a position is expected.
+	 *
+	 * Jocly passes a saved position around as a string and hands it to
+	 * Import("pjn", …) - Tabulon's `initialBoard`, the [FEN] tag of a PGN, the
+	 * "Load board state" box all end up there. Rather than teach each of those
+	 * about SFEN, the importer recognises one: a Jocly FEN always has six
+	 * fields and an SFEN has four (or three, the move number being optional),
+	 * so there is nothing to disambiguate.
+	 *
+	 * This is what lets a position copied out of ChuShogiLite be pasted into
+	 * Tabulon with no change on either side.
+	 */
+	var OriginalImport = Model.Game.Import;
+	Model.Game.Import = function(format, data) {
+		if(format == 'pjn' && typeof data == 'string') {
+			var fields = data.trim().split(/\s+/);
+			if(fields.length == 3 || fields.length == 4)
+				return this.ImportSFEN(data);
+		}
+		return OriginalImport.apply(this, arguments);
+	}
+
+	/*
+	 * A whole game on one line: the SFEN of the starting position, then the
+	 * moves in USI, separated by spaces - what ChuShogiLite's Game Export and
+	 * Game Import boxes exchange, and what its `startGame` setting takes.
+	 *
+	 * Returned rather than applied: a game is the caller's to run, and the
+	 * caller is the one that knows whether to play the moves out or to keep
+	 * them as a solution to be found.
+	 */
+	Model.Game.ImportGameString = function(text) {
+		var tokens = String(text || "").trim().split(/\s+/);
+		if(tokens.length < 3)
+			return { status: false, error: 'parse' };
+		// the SFEN is the first three or four tokens: the fourth is the move
+		// number, which a move never looks like
+		var fields = /^[0-9]+$/.test(tokens[3] || "") ? 4 : 3;
+		var result = this.ImportSFEN(tokens.slice(0, fields).join(" "));
+		if(result.status === false)
+			return result;
+		result.moves = tokens.slice(fields);
+		return result;
+	}
+
+	/*
+	 * ... and the same line, written: the position the game STARTED from,
+	 * then its moves in USI.
+	 *
+	 * A fresh board is built and exported rather than the one in play, the
+	 * way ExportInitialBoardState() in jocly.game.js does it - and the played
+	 * moves are put aside while it happens, because ExportSFEN() counts them
+	 * and would otherwise number the opening position at the current move.
+	 */
+	Model.Game.ExportGameString = function() {
+		// Object.create rather than GetBoardClass(): the latter belongs to the
+		// jocly.game.js wrapper and is not there when a model is driven
+		// directly, which the tests do
+		var board = Object.create(Model.Board);
+		if(board.Init) board.Init(this);
+		board.InitialPosition(this);
+		var played = this.mPlayedMoves || [];
+		this.mPlayedMoves = [];
+		var start;
+		try { start = board.ExportSFEN(this); }
+		finally { this.mPlayedMoves = played; }
+		return [start].concat(played.map(function(move) {
+			return Model.Move.ToString.call(move, "usi");
+		})).join(" ");
+	}
+
 })();
