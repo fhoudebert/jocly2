@@ -18,6 +18,18 @@
  * boardLayout is the 8x8 checkering with two blank columns each side. The
  * holding squares are drawn by the board, not by the layout, which only says
  * which squares are dark.
+ *
+ * SIZES. The holdings make the grid 12 wide for 8 of playing area, and
+ * cbCSize() fits the WHOLE grid into a field of fixed size - so every square
+ * comes out smaller than a classic-chess square, and pieces carrying
+ * classic-chess scales stand taller than the squares they are on.
+ *
+ * The factor is the ratio of the two cell sizes, and it differs between the
+ * dimensions because their margins do: in 3D, (8+2*.67)/(12+2*.67) = .70; in
+ * 2D, where cbGridBoardClassic2DNoMargin has none, 8/12 = .67. Every number
+ * below is classic-view.js's multiplied by one of those two - which lands on
+ * what duodecimal/reformed-courier-view.js already uses for its own 12x8
+ * board, arrived at from the other end.
  */
 
 (function() {
@@ -27,22 +39,22 @@
 		var pieceSet = this.cbStauntonPieceStyle({
 			"default": {
 				"3d": {
-					scale: [.6,.6,.6],
+					scale: [.42,.42,.42],   // .6 * .70
 				},
 				"skin3dflat": {
-					scale: [.6,.6,1],
+					scale: [.42,.42,1],
 					rotate: 0,
 					display: this.cbExtrudedPieceStyle()["default"]["3d"].display,
 				},
 				"skin2dwood": $.extend(true,
 					{
-						width: 1600,
-						height: 1600
+						width: 1070,        // 1600 * .67
+						height: 1070
 					},
 					this.cbStauntonWoodenPieceStyle()["default"]["2d"]),
 				"skin2dfull": {
-					width: 1400,
-					height: 1400,
+					width: 930,             // 1400 * .67
+					height: 930,
 				},
 			},
 		});
@@ -88,15 +100,15 @@
 			},
 			clicker: {
 				"skin2dwood": {
-					width: 1600,
-					height: 1600,
+					width: 1070,
+					height: 1070,
 				},
 				"skin2dfull": {
-					width: 1600,
-					height: 1600,
+					width: 1070,
+					height: 1070,
 				},
 				"3d": {
-					scale: [.9,.9,.9],
+					scale: [.65,.65,.65],   // .9 * .70, and what Courier uses
 				},
 			},
 			pieces: pieceSet,

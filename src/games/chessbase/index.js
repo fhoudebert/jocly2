@@ -116,6 +116,7 @@ exports.games = [
 	shogi["kyoto-shogi"],
 	shogi["tori-shogi"],
 	shogi["chu-shogi"],
+	shogi["tenjiku-shogi"],
 	locust["makromachy"],
 	locust["minjiku-shogi"],
 	historical["acedrex-chess"],

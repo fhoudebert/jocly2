@@ -139,17 +139,6 @@ var config_view_js_crazyhouse = [
 var config_model_levels_5_crazyhouse_expert =
 	config_model_levels_5.concat([config_model_levels_crazyhouse_expert]);
 
-// the board is 12 squares wide for 8 of playing area, so the 3D camera has
-// to stand further back than the classic one and look down more steeply -
-// the same adjustment Shogi's own skin makes for its holdings
-var config_view_skins_camera_crazyhouse = {
-	"fov": 45,
-	"distMax": 50,
-	"radius": 24,
-	"elevationAngle": 65,
-	"elevationMin": 0
-}
-
 var config_view_js_28 = [
 	"base-view.js",
 	"grid-board-view.js",
@@ -819,7 +808,7 @@ exports.games = {
 				"title-en": "Chessbase view",
 				"xdView": true,
 				"css": config_view_css,
-				"preferredRatio": 1.4,
+				"preferredRatio": 1,
 				"useShowMoves": true,
 				"useNotation": true,
 				"module": "chessbase",
@@ -835,7 +824,7 @@ exports.games = {
 							"image|/res/images/counters-sprites.png"
 						]),
 						"world": config_view_skins_world,
-						"camera": config_view_skins_camera_crazyhouse
+						"camera": config_view_skins_camera
 					},
 					{
 						"name": "skin2dfull",

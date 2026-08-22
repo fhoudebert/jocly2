@@ -1,6 +1,6 @@
 {
-	"bytes": 356201,
-	"digest": "1f17ee4f85627b97",
+	"bytes": 359766,
+	"digest": "bb8724d6e365f049",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -319,6 +319,10 @@
 			"digest": "dfa6c5ba288b5e05"
 		},
 		{
+			"name": "tenjiku-shogi",
+			"digest": "278ac822d8a3fcef"
+		},
+		{
 			"name": "makromachy",
 			"digest": "de6d2826bed0422a"
 		},
@@ -332,7 +336,7 @@
 		},
 		{
 			"name": "crazyhouse",
-			"digest": "ff297cf75babbd05"
+			"digest": "323cef4134cc6adc"
 		}
 	]
 }
