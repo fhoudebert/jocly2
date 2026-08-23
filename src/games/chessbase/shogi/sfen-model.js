@@ -175,23 +175,15 @@
 	 */
 	function lionCaptureField(board, aGame) {
 		/*
-		 * A position that was READ from an SFEN carries the square it named,
-		 * and no move has been played since to deduce it from: it is written
-		 * back rather than dropped. That keeps the string intact through a
-		 * round trip - it does not make the rule enforceable, which needs the
-		 * Lion trade to read the board instead of the previous move.
+		 * One source now, and it is the board: locust-move-model.js records
+		 * every Lion capture in `board.lionCapture` and seeds it from an
+		 * imported position. Deducing the square from `lastMove` here as
+		 * well would give two answers that could disagree - and the one
+		 * from lastMove would be the wrong one after a load, which is
+		 * precisely the case this whole field exists for.
 		 */
-		if(aGame.mPlayedMoves && aGame.mPlayedMoves.length == 0
-			&& aGame.mInitial && aGame.mInitial.lionCapture)
-			return aGame.mInitial.lionCapture;
-		var last = board.lastMove;
-		if(!last || last.c === null || last.c === undefined || !aGame.minimumBridge)
-			return "-";
-		var victim = board.pieces[last.c];
-		if(!victim) return "-";
-		var pType = aGame.g ? aGame.g.pTypes[victim.t] : null;
-		if(!pType || !(pType.antiTrade & 1)) return "-";
-		return Model.Game.cbToUSISquare(last.t & 0xffff) || "-";
+		if(!aGame.minimumBridge || !board.lionCapture) return "-";
+		return Model.Game.cbToUSISquare(board.lionCapture.at) || "-";
 	}
 
 	/*
@@ -424,7 +416,21 @@
 				return bad("third field is not a hand: " + parts[2]);
 		} else
 			// carried, not applied: see the header
-			result.initial.lionCapture = (parts[2] && parts[2] != '-') ? parts[2] : null;
+			/*
+			 * The third field, now ACTUALLY applied. locust-move-model.js
+			 * keeps the anti-trade state on the board (`board.lionCapture`)
+			 * instead of digging it out of the previous move, so a position
+			 * arriving as a string can seed it - which is what makes the
+			 * field readable back and not merely writable.
+			 *
+			 * The group is the one the rule compares against: Chu Shogi's
+			 * Lion is the only anti-trade piece, and its `antiTrade` is -1
+			 * (see chu-shogi-model.js). A variant with several groups would
+			 * need the SFEN to carry the group too, which it does not.
+			 */
+			var square = (parts[2] && parts[2] != '-') ? parts[2] : null;
+			var at = square !== null ? Model.Game.cbFromUSISquare(square) : -1;
+			result.initial.lionCapture = at >= 0 ? { at: at, group: -1 } : null;
 		return result;
 	}
 

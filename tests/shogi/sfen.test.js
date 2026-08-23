@@ -239,13 +239,25 @@ console.log("\nthe last Lion capture");
 	const b = board(CSL_START);
 	game.mPlayedMoves = [];
 	t.check("nothing to remember at the start", b.ExportSFEN(game).split(" ")[2], "-");
-	// carried through the import for whoever needs it, but NOT applied: the
-	// Lion-trade rule reads the previous move, not a field (locust-move-model.js)
+	// The field is now APPLIED, not merely handed on: locust-move-model.js
+	// keeps the anti-trade state on the board, so an imported position can
+	// seed it. It comes back as the square the rule works with (a board
+	// index) plus the anti-trade group, rather than as the raw string.
 	const withCapture = CSL_START.replace(" - ", " 6f ");
-	t.check("a field that is there is handed on",
-		Game.ImportSFEN(withCapture).initial.lionCapture, "6f");
+	const imported = Game.ImportSFEN(withCapture).initial.lionCapture;
+	t.check("a field that is there becomes board state",
+		imported && Game.cbToUSISquare(imported.at), "6f");
+	t.check("with the anti-trade group the rule compares against",
+		imported && imported.group, -1);
 	t.check("and an empty one reads as nothing",
 		Game.ImportSFEN(CSL_START).initial.lionCapture, null);
+
+	// The point of applying it: the string survives a round trip, which it
+	// could not do while the exporter had to deduce the square from a
+	// previous move that a loaded position does not have.
+	const loaded = board(withCapture);
+	game.mPlayedMoves = [];
+	t.check("and the square is written back out", loaded.ExportSFEN(game).split(" ")[2], "6f");
 })();
 
 /* ------------------------------------------------------------------ *
