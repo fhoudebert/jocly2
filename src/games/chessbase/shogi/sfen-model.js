@@ -317,6 +317,27 @@
 		return Math.floor((plies - (side == 'w' ? 1 : 0)) / 2) + 1;
 	}
 
+	/*
+	 * SFEN out, through the format argument that was already plumbed all the
+	 * way down and then ignored.
+	 *
+	 * GameProxy.getBoardState(format) has always passed its argument to
+	 * ExportBoardState(aGame), whose signature stops at aGame - so
+	 * getBoardState("sfen") quietly returned a Jocly FEN. Honouring it here
+	 * costs four lines and breaks nothing: every existing caller passes no
+	 * format at all and keeps the six-field FEN it has always received.
+	 *
+	 * This is what lets a front end offer the position in the notation the
+	 * rest of the Shogi world uses, without a translation table of its own and
+	 * without changing what any other game exports.
+	 */
+	var OriginalExportBoardState = Model.Board.ExportBoardState;
+	Model.Board.ExportBoardState = function(aGame, format) {
+		if(format == "sfen")
+			return this.ExportSFEN(aGame);
+		return OriginalExportBoardState.apply(this, arguments);
+	}
+
 	Model.Board.ExportSFEN = function(aGame) {
 		/*
 		 * The number read from the SFEN is kept and counted on from, rather
