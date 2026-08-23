@@ -261,6 +261,48 @@ console.log("\nthe last Lion capture");
 })();
 
 /* ------------------------------------------------------------------ *
+ * the third field, ENFORCED
+ *
+ * Carrying the square is only worth something if the Lion-trade rule
+ * acts on it. A crafted position, small enough to reason about:
+ *
+ *   White Lion on f8, Black Gold on f7, both Kings parked in opposite
+ *   corners so the position is legal and nothing else is in reach.
+ *
+ * Black to move. Gxf8 - an ORDINARY piece taking a Lion - is the move the
+ * counterstrike rule governs: it is forbidden when a Lion was just taken
+ * somewhere else, and allowed otherwise. Nothing but the third field
+ * changes between the three strings below, so any difference in the legal
+ * moves is the field being read.
+ *
+ * (A Lion taking a Lion goes down the other branch of the rule and is not
+ * what this exercises.)
+ * ------------------------------------------------------------------ */
+
+console.log("\nthe last Lion capture, enforced");
+
+(() => {
+	const TRADE = "K11/12/12/12/5N6/5g6/12/12/12/12/12/k11";
+	const golds = (third) => {
+		const b = board(TRADE + " w " + third + " 1");
+		b.GenerateMoves(game);
+		const NAT = (m) => Object.assign(Object.create(sandbox.Model.Move), m).ToString();
+		return b.mMoves.some((m) => /^G.*xf8/.test(NAT(m)));
+	};
+
+	t.check("no Lion taken yet: the Gold may take the Lion", golds("-"), true);
+	// f7 is where the Gold stands; in USI that square is "7f". A Lion taken
+	// THERE is the "somewhere else" the rule means, relative to f8.
+	t.check("a Lion was just taken elsewhere: the counterstrike is refused",
+		golds("7f"), false);
+	// "7e" is Jocly's f8 - the very square being captured. The rule only
+	// forbids taking back at a DIFFERENT square, so this one is allowed
+	// again: proof that it is the square that is read, not merely the
+	// presence of a field.
+	t.check("a Lion taken on that same square: allowed again", golds("7e"), true);
+})();
+
+/* ------------------------------------------------------------------ *
  * Shogi itself: the third field is a hand
  * ------------------------------------------------------------------ */
 
