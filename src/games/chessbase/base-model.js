@@ -871,6 +871,14 @@
 		//this.cbIntegrity(aGame);
 	}
 
+	// Cached: one array per board size, shared by every evaluation.
+	var noKingDist = null;
+	function NO_KING_DIST(g) {
+		if(!noKingDist || noKingDist.length !== g.boardSize)
+			noKingDist = new Array(g.boardSize).fill(0);
+		return noKingDist;
+	}
+
 	Model.Board.Evaluate = function(aGame) {
 		var debug=arguments[3]=="debug";
 		var $this=this;
@@ -925,8 +933,13 @@
 		
 		var pieceValue={ '1': 0, '-1': 0 };
 		var distKingGraph={
-			'1': g.distGraph[this.kings[-1]],
-			'-1': g.distGraph[this.kings[1]],
+			// "distance to the enemy King" has no meaning when there is no
+			// enemy King, which is exactly the attacker's situation in a
+			// tsume. A row of zeroes keeps the accumulator arithmetic honest
+			// - the term simply contributes nothing - where the missing row
+			// used to crash the evaluation on its first piece.
+			'1': g.distGraph[this.kings[-1]] || NO_KING_DIST(g),
+			'-1': g.distGraph[this.kings[1]] || NO_KING_DIST(g),
 		}
 		var distKing={ '1': 0, '-1': 0 };
 		var pieceCount={ '1': 0, '-1': 0 };
@@ -984,7 +997,10 @@
 		posValue['1']=accW.pos;             posValue['-1']=accB.pos;
 		kingMoved['1']=accW.moved;          kingMoved['-1']=accB.moved;
 
-		if(kingMoved[who]===0 && this.kings[who]!==undefined) { // no King found, but had one before
+		// Same verdict as cbInLosingCheck, reached from the evaluation: a side
+		// whose King has vanished has lost. Tsume mode exempts the attacker,
+		// which never had one - see JocGame.Load.
+		if(kingMoved[who]===0 && this.kings[who]!==undefined && !aGame.mTsume) {
 			this.mWinner=-who; this.mFinished=true; // opponent wins
 			return;
 		}
@@ -1399,7 +1415,11 @@
 			if(pc.s!==who || !pT[pc.t].isKing) continue;
 			prev=pos; count++; sole=pos;
 		}
-		if(count===0) return true;      // no royal left: lost
+		// No royal piece at all. In tsume mode that is the attacker's normal
+		// state, not a loss: it has no King to lose and no King to expose,
+		// so nothing can put it in check. Outside tsume mode the verdict is
+		// unchanged.
+		if(count===0) return !aGame.mTsume;
 		if(count>=2) return false;      // two royals: cannot be checked
 		return this.cbGetAttackers(aGame,sole,who,100).length>0;
 	}
