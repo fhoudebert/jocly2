@@ -119,4 +119,5 @@ exports.games = [
 	locust["makromachy"],
 	locust["minjiku-shogi"],
 	historical["acedrex-chess"],
+	famous["crazyhouse"],
 ];

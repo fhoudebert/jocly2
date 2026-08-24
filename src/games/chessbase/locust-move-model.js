@@ -89,7 +89,48 @@
 				this.noCaptCount=0;
 			}
 		}
+		/*
+		 * The anti-trade state, kept ON THE BOARD.
+		 *
+		 * The rule below used to read it out of `lastMove`, which works
+		 * while a game is played move by move and not at all when a
+		 * position arrives as a string: a loaded board has no previous
+		 * move, so the Lion just captured is invisible and the counter
+		 * capture that should be forbidden is offered. That is what made
+		 * an SFEN's third field - the square of the last Lion capture -
+		 * exportable but not importable.
+		 *
+		 * Two values are needed, and both are recorded here rather than
+		 * rediscovered: the square, and the anti-trade group of the piece
+		 * that was taken. The group matters because the rule only forbids
+		 * the counterstrike between Lions of the SAME group; deducing it
+		 * later would mean looking up a piece that no longer exists.
+		 */
+		var captured = move.c !== null ? this.pieces[move.c] : null;
+		var group = captured && aGame.g.pTypes[captured.t].antiTrade;
+		if(group & 1) {
+			this.lionCapture = { at: move.t & 0xffff, group: group };
+		} else
+			this.lionCapture = null;
 		OriginalApplyMove.apply(this, arguments);
+	}
+
+	/*
+	 * Seeded from the imported position, and carried across board copies.
+	 * `CopyFrom` is the search's hot path: it copies every field it needs by
+	 * hand rather than cloning, so a new one has to be added there too or it
+	 * silently keeps the previous board's value.
+	 */
+	var OriginalInitialPosition = Model.Board.InitialPosition;
+	Model.Board.InitialPosition = function(aGame) {
+		OriginalInitialPosition.apply(this, arguments);
+		this.lionCapture = (aGame.mInitial && aGame.mInitial.lionCapture) || null;
+	}
+
+	var OriginalCopyFrom = Model.Board.CopyFrom;
+	Model.Board.CopyFrom = function(aBoard) {
+		OriginalCopyFrom.apply(this, arguments);
+		this.lionCapture = aBoard.lionCapture || null;
 	}
 
 	var lionxlion; // 'tunnel parameter' to cbGetAttackers (Yeghh!)
@@ -104,8 +145,12 @@
 				var dat = at ^ aGame.g.pTypes[tmp[0].ty].antiTrade;
 				if(!(dat&~1)) lionxlion = (at*at > 10000 ? -3 : move.t); // remember location of LxL capture
 				else if(at < 0) {
-					if(this.lastMove && this.lastMove.c!==null && this.lastMove.t != move.t // also test for counterstrike
-						&& aGame.g.pTypes[this.pieces[this.lastMove.c].t].antiTrade == at) { // same anti-trade group
+					// Read from the board, not from the previous move: see
+					// the note on `lionCapture` above. Same three conditions
+					// as before - a Lion was taken, somewhere else, and in
+					// this same anti-trade group.
+					if(this.lionCapture && this.lionCapture.at != (move.t & 0xffff)
+						&& this.lionCapture.group == at) {
 						lionxlion = -3; // flags 'iron Lion'
 					}
 				}

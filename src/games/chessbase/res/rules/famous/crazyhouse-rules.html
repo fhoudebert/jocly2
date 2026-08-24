@@ -1,0 +1,69 @@
+<style>
+	table.psymbs {
+		text-align: center;
+	}
+	.psymb {
+		background-image: url({GAME}/res/images/wikipedia.png);
+		width: 100px;
+		height: 200px;
+	}
+	.psymbs td {
+		padding: 0 10px 0 10px;
+	}
+	.psymb-bold {
+		font-weight: bold;
+	}
+	.side {
+		float: right;
+		max-width: 100%;
+	}
+	@media screen and (max-width: 520px) {
+		.side {
+			float: none;
+			display: block;
+			max-width: 100%;
+			margin-right: auto;
+			margin-left: auto;
+		}		
+	}
+	h1,h2,h3,h4 {
+		clear: both;
+	}
+<h2>Chess, with the captured pieces coming back</h2>
+<p>Crazyhouse is Orthodox Chess in every respect but one: a captured piece is
+not out of the game. It changes sides, and its captor may later place it back
+on the board, anywhere, as a whole move. Nothing else changes - the pieces move
+as they always did, castling and <i>en passant</i> are unchanged, and the game
+is won by checkmate.</p>
+
+<p>The pieces waiting to be played sit in the two holdings, one column on each
+side of the board. A number on a holding square says how many of that kind are
+held.</p>
+
+<h2>Dropping</h2>
+<p>A drop is a move like any other: instead of moving a piece, the player takes
+one from the holding and places it on any empty square. Four rules govern it:</p>
+<ul>
+	<li>A Pawn may not be dropped on the first or on the eighth rank.</li>
+	<li>A Pawn dropped on its own second rank may advance two squares on a
+		later move, exactly as a Pawn that had never moved.</li>
+	<li>A drop may give check, and may give checkmate - including a Pawn drop,
+		which Shogi forbids.</li>
+	<li>Doubled Pawns from a drop are legal: there is no limit on how many
+		Pawns a player may have on one file.</li>
+</ul>
+<p>A Rook that has been dropped on its corner square may not castle: castling
+asks for a Rook that has never left home, and this one has.</p>
+
+<h2>Promotion</h2>
+<p>A Pawn reaching the last rank promotes as usual. But a promoted piece
+remembers what it was: captured, it returns to the holding as a Pawn, not as
+the Queen or Rook it had become.</p>
+
+<h2>How it plays</h2>
+<p>The pieces are not worth what they are worth in Chess. Material is never
+gone, only lent, so an exchange that wins a Pawn also arms the opponent with
+one. Attacks are far quicker and far harder to answer: a hole near the King is
+not a long-term weakness but an immediate one, since a piece can appear on it
+without having to travel there. Pawns and Knights gain in value; Rooks, Bishops
+and the Queen lose some, having less open board to work with.</p>

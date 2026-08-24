@@ -378,6 +378,33 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		var firstSpace = genericFen.indexOf(" ");
 		var rest = firstSpace < 0 ? "" : genericFen.substring(firstSpace);
 
+		// ... with one exception: the en-passant square. ExportBoardState()
+		// names it with the geometry's own PosName(), which counts the hand
+		// columns as files, so the square a Pawn skipped over comes out two
+		// files to the right ("g3" for e3) - a square the engine cannot make
+		// sense of. No Shogi variant has en passant, so this only shows on a
+		// drop game that also has Pawns with a double step (Crazyhouse). The
+		// square is renamed here from its position, against the same
+		// BOARD_AREA the placement above is built from.
+		if (board.epTarget && board.epTarget.p >= 0) {
+			var files = {}, ranks = {};
+			for (var square in boardArea) {
+				files[geometry.C(square)] = 1;
+				ranks[geometry.R(square)] = 1;
+			}
+			var order = function (set) {
+				return Object.keys(set).map(Number).sort(function (a, b) { return a - b; });
+			};
+			var file = order(files).indexOf(geometry.C(board.epTarget.p));
+			var rank = order(ranks).indexOf(geometry.R(board.epTarget.p));
+			if (file >= 0 && rank >= 0) {
+				var fields = rest.split(" "); // rest starts with "", hence 1..
+				if (fields.length > 3 && fields[3] !== "-")
+					fields[3] = String.fromCharCode(97 + file) + (rank + 1);
+				rest = fields.join(" ");
+			}
+		}
+
 		return placement + "[" + pocket + "]" + rest;
 	}
 

@@ -1,6 +1,6 @@
 {
-	"bytes": 351869,
-	"digest": "20bbef2bdcbd46c1",
+	"bytes": 359937,
+	"digest": "5952e4b7f4df5364",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -288,7 +288,7 @@
 		},
 		{
 			"name": "shogi",
-			"digest": "7de4c4179aa0222d"
+			"digest": "2e5faa69bdec2235"
 		},
 		{
 			"name": "kotaishi-shogi",
@@ -304,19 +304,23 @@
 		},
 		{
 			"name": "mini-shogi",
-			"digest": "e02578bb4d128c69"
+			"digest": "80e4f7fa3a9e2fb8"
 		},
 		{
 			"name": "kyoto-shogi",
-			"digest": "a0a9ed574b572918"
+			"digest": "2dfa03aa5fc6beee"
 		},
 		{
 			"name": "tori-shogi",
-			"digest": "2f8bf168ac8d3275"
+			"digest": "1a6f375a147edfc8"
 		},
 		{
 			"name": "chu-shogi",
-			"digest": "dfa6c5ba288b5e05"
+			"digest": "0e9cac0bbf994490"
+		},
+		{
+			"name": "tenjiku-shogi",
+			"digest": "278ac822d8a3fcef"
 		},
 		{
 			"name": "makromachy",
@@ -329,6 +333,10 @@
 		{
 			"name": "acedrex-chess",
 			"digest": "951da0b0b3c63995"
+		},
+		{
+			"name": "crazyhouse",
+			"digest": "25d4f1b2809d97f8"
 		}
 	]
 }

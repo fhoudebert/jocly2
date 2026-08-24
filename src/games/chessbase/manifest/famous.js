@@ -17,7 +17,8 @@ const {
 	config_view_skins, config_view_skins_camera_2, config_view_skins_preload_2,
 	config_view_sounds, config_view_js, config_model_gameOptions_2,
 	config_view_skins_world_lightPosition_2, config_view_skins_2, config_view_skins_3,
-	config_view_skins_world_3, config_model_levels_15, config_model_gameOptions_3
+	config_view_skins_world_3, config_model_levels_15, config_model_gameOptions_3,
+	config_model_levels_crazyhouse_expert, config_view_skins_preload
 } = require("./shared.js");
 
 // declarations only this family uses, lifted out of shared.js
@@ -117,6 +118,26 @@ var modelScripts_28 = [
 	"grid-geo-model.js",
 	"famous/chess960-model.js"
 ]
+
+var modelScripts_crazyhouse = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"drop-model.js",
+	"famous/crazyhouse-model.js"
+]
+
+// drop-view.js draws the holdings counters; the rest is the classic set
+var config_view_js_crazyhouse = [
+	"base-view.js",
+	"grid-board-view.js",
+	"staunton-set-view.js",
+	"extruded-set-view.js",
+	"drop-view.js",
+	"famous/crazyhouse-view.js"
+]
+
+var config_model_levels_5_crazyhouse_expert =
+	config_model_levels_5.concat([config_model_levels_crazyhouse_expert]);
 
 var config_view_js_28 = [
 	"base-view.js",
@@ -758,6 +779,70 @@ exports.games = {
 			}
 		},
 		"viewScripts": config_view_js_28
+	},
+
+	"crazyhouse": {
+		"name": "crazyhouse",
+		"modelScripts": modelScripts_crazyhouse,
+		"config": {
+			"status": true,
+			"model": {
+				"title-en": "Crazyhouse",
+				"summary": {
+					"en": "Chess where captured pieces change sides and are dropped back",
+					"fr": "Échecs avec parachutage de ses prisonniers."
+				},
+				"rules": {
+					"en": "res/rules/famous/crazyhouse-rules.html",
+					"fr": "res/rules/famous/crazyhouse-rules_fr.html"
+				},
+				"module": "chessbase",
+				"plazza": "true",
+				"thumbnail": "res/rules/famous/knight-thumbnail.png",
+				"released": 1755648000,
+				"gameOptions": config_model_gameOptions,
+				"js": modelScripts_crazyhouse,
+				"levels": config_model_levels_5_crazyhouse_expert
+			},
+			"view": {
+				"title-en": "Chessbase view",
+				"xdView": true,
+				"css": config_view_css,
+				"preferredRatio": 1,
+				"useShowMoves": true,
+				"useNotation": true,
+				"module": "chessbase",
+				"defaultOptions": config_view_defaultOptions,
+				"skins": [
+					{
+						"name": "skin3d",
+						"title": "3D Classic",
+						"3d": true,
+						"preload": config_view_skins_preload.concat([
+							"smoothedfilegeo|0|/res/counters/counter.js",
+							"image|/res/counters/counter-normalmap.jpg",
+							"image|/res/images/counters-sprites.png"
+						]),
+						"world": config_view_skins_world,
+						"camera": config_view_skins_camera
+					},
+					{
+						"name": "skin2dfull",
+						"title": "2D Classic",
+						"3d": false,
+						"preload": config_view_skins_preload_2.concat([
+							"image|/res/images/counters-sprites.png"
+						])
+					}
+				],
+				"animateSelfMoves": false,
+				"switchable": true,
+				"sounds": config_view_sounds,
+				"js": config_view_js_crazyhouse,
+				"useAutoComplete": true
+			}
+		},
+		"viewScripts": config_view_js_crazyhouse
 	},
 
 

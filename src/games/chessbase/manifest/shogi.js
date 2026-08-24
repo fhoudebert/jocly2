@@ -36,28 +36,32 @@ var modelScripts_105 = [
 	"base-model.js",
 	"grid-geo-model.js",
 	"drop-model.js",
-	"shogi/shogi-model.js"
+	"shogi/shogi-model.js",
+	"shogi/sfen-model.js"
 ]
 
 var modelScripts_106 = [
 	"base-model.js",
 	"grid-geo-model.js",
 	"drop-model.js",
-	"shogi/tori-shogi-model.js"
+	"shogi/tori-shogi-model.js",
+	"shogi/sfen-model.js"
 ]
 
 var modelScripts_107 = [
 	"base-model.js",
 	"grid-geo-model.js",
 	"drop-model.js",
-	"shogi/mini-shogi-model.js"
+	"shogi/mini-shogi-model.js",
+	"shogi/sfen-model.js"
 ]
 
 var modelScripts_108 = [
 	"base-model.js",
 	"grid-geo-model.js",
 	"locust-move-model.js",
-	"shogi/chu-shogi-model.js"
+	"shogi/chu-shogi-model.js",
+	"shogi/sfen-model.js"
 ]
 
 var config_model_gameOptions_tenjiku = {

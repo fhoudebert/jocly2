@@ -1169,6 +1169,24 @@ JocGame.prototype.Load = function(gameData) {
 			this.mWho = this.mInitial.turn;
 		this.mInitialString=gameData.initialBoard;
 	}
+	/*
+	 * Tsume mode.
+	 *
+	 * A mate problem gives the attacker its attacking pieces and nothing
+	 * else - no King. Every ruleset here declares a side without a royal
+	 * piece lost on the spot, so such a position generates no move at all
+	 * and cannot be played, however correct it is as a problem.
+	 *
+	 * `tsume: true` suspends that single verdict for the side that has no
+	 * royal piece. Everything else - check, mate, the Lion trade, promotion
+	 * zones - is untouched: the DEFENDER still has a King and is still
+	 * mated in the ordinary way, which is the whole point of the exercise.
+	 *
+	 * It is an explicit option rather than something inferred from a missing
+	 * King, because a position with no King is far more often a mistake than
+	 * a tsume, and silently playing on would hide it.
+	 */
+	this.mTsume = !!gameData.tsume;
 	if(this.mBoard.InitialPosition)
 		this.mBoard.InitialPosition(this);
 	this.mBoard.mWho = this.mWho;
