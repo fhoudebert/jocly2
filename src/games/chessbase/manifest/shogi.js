@@ -161,7 +161,12 @@ var modelScripts_kyoto = [
 	"base-model.js",
 	"grid-geo-model.js",
 	"drop-model.js",
-	"shogi/kyoto-shogi-model.js"
+	"shogi/kyoto-shogi-model.js",
+	// Kyoto Shogi keeps pieces in hand like the other Shogi here, so it reads
+	// and writes SFEN the same way. Without this line its FEN parser is the
+	// generic six-field one, and a four-field SFEN - which is what every other
+	// Shogi tool exports - is rejected outright ("FEN should have 6 parts").
+	"shogi/sfen-model.js"
 ]
 
 var modelScripts_kotaishi = [
