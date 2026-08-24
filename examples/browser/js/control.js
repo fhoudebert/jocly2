@@ -54,6 +54,8 @@ var TRANSLATIONS = {
         "Medium": "Moyen",
         "Strong": "Fort",
         "Expert": "Expert",
+        "Loading\u2026": "Chargement\u2026",
+        "No rules available for this game.": "Pas de règles disponibles pour ce jeu.",
     },
 };
 
@@ -75,6 +77,47 @@ function T(text) {
     if(timed && table[timed[1]])
         return table[timed[1]] + timed[2];
     return text;
+}
+
+/*
+ * Shows the rules of the game being played.
+ *
+ * The manifest gives the rules as a path per language, relative to the game's
+ * MODULE - "res/rules/shogi/chu-shogi-rules.html" - and config.view.fullPath
+ * is where jocly.core.js says that module was served from. Localized() picks
+ * the reader's language, falling back to English.
+ *
+ * The file is fetched and injected rather than opened in a tab, because the
+ * rules pages address their own images through a {GAME} token that jocly
+ * replaces with the module path - 153 of them do. Opened directly they would
+ * render with every illustration broken.
+ */
+function LoadRules(config, container) {
+    var rel = Localized(config.model.rules);
+    if(!rel) {
+        container.text(T("No rules available for this game."));
+        return Promise.resolve(false);
+    }
+    var base = (config.view && config.view.fullPath) ||
+        (config.baseURL || "") + "games/" + config.model.module;
+    base = base.replace(/\/$/, "");
+    container.text(T("Loading\u2026"));
+    return fetch(base + "/" + rel.replace(/^\//, ""))
+        .then((response) => {
+            if(!response.ok)
+                throw new Error("HTTP " + response.status);
+            return response.text();
+        })
+        .then((html) => {
+            container.html(html.replace(/\{GAME\}/gi, base));
+            container.scrollTop(0);
+            return true;
+        })
+        .catch((err) => {
+            container.text(T("No rules available for this game."));
+            console.warn("rules unavailable", config.model.module, rel, err);
+            return false;
+        });
 }
 
 /*
@@ -231,6 +274,23 @@ $(document).ready(function () {
                     .append($("<div>").text(config.model["title-en"]))
                     .append($("<div>").addClass("game-title-summary").text(Localized(config.model.summary)));
                 $("#close-games span").show();
+
+                // the rules link, and the panel it opens: same show/hide as
+                // the game list, which owns the same slot beside the board
+                if(config.model.rules) {
+                    $("#game-rules").show().off("click").on("click", () => {
+                        $("#controls").hide();
+                        $("#games").hide();
+                        $("#rules").show();
+                        LoadRules(config, $("#rules-content"));
+                    });
+                    $("#close-rules").off("click").on("click", () => {
+                        $("#rules").hide();
+                        $("#controls").show();
+                    });
+                } else
+                    $("#game-rules").hide();
+
                 $("#game-status").show();
 
                 var viewOptions = config.view;
