@@ -531,8 +531,12 @@ $(document).ready(function () {
                     });
                 }
 
-                $("#links").on("click",()=>{
+                // bound on the link, not on the #links box that holds it: the
+                // rules link lives in that box too, and a click on it bubbled
+                // up to here and opened the game list underneath the rules
+                $("#other-games").on("click",()=>{
                     $("#controls").hide();
+                    $("#rules").hide();
                     $("#games").show();
                 });
 
