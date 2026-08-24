@@ -13,7 +13,32 @@
 	var SuperModelBoardInitialPosition=Model.Board.InitialPosition;
 	Model.Board.InitialPosition = function(aGame) {
 		SuperModelBoardInitialPosition.apply(this,arguments);
-		if(aGame.cbVar.prelude) this.lastMove.f=-2; // request prelude
+		/*
+		 * The prelude is what SETS UP the board: Capablanca Chess opens with a
+		 * choice between ten 10x8 arrangements, and that choice counts as a
+		 * move. Asking for it makes no sense once a position has been handed
+		 * to us - the arrangement is already there, in the FEN.
+		 *
+		 * Before this, loading a Capablanca game from its PGN gave a board
+		 * whose only legal "moves" were the ten setup choices (#0..#9), so the
+		 * first real move of the file was rejected. Any game with a prelude
+		 * was unloadable from a position, which is the normal way a recorded
+		 * game arrives.
+		 *
+		 * `mInitialString` is the position as it was given to Load(); it is
+		 * null for a game started from scratch, which is exactly when the
+		 * prelude is still to be played.
+		 *
+		 * Games opt in with `cbPreludeFromBoard`, and not every prelude
+		 * should: this one only holds when the choice is READABLE from the
+		 * board. Capablanca's is - the ten arrangements differ by where the
+		 * pieces stand. A prelude that picks a RULE rewrites nothing, so a
+		 * position tells us nothing about what was chosen and the question
+		 * must still be asked. Kotaishi Shogi is in that case, and its tests
+		 * load a board and then answer the prelude - which stays legal.
+		 */
+		if(aGame.cbVar.prelude && !(aGame.mInitialString && aGame.cbPreludeFromBoard))
+			this.lastMove.f=-2; // request prelude
 	}
 
 	var SuperModelBoardGenerateMoves=Model.Board.GenerateMoves;
