@@ -202,6 +202,7 @@ exports.games = {
 				"released": 1389887778,
 				"rules": {
 					"en": "res/rules/standard/knightmate.html",
+                    "fr": "res/rules/standard/knightmate_fr.html",
 				},
 				"credits": config_model_credits,
 				"gameOptions": config_model_gameOptions,
