@@ -31,6 +31,53 @@ function Localized(field) {
 }
 
 /*
+ * The handful of strings this page builds itself.
+ *
+ * Everything else it displays comes from the manifests, which carry their own
+ * translations and are read through Localized() below. These do not: they are
+ * written here, so they are translated here.
+ *
+ * Keyed by the English string, the way mogichex/lang/fr.json does it, and
+ * with its wording - "Partie nulle", "Facile", "Moyen", "Fort", "Rapide" - so
+ * that a player moving between the two reads the same words.
+ */
+var TRANSLATIONS = {
+    fr: {
+        "A playing": "A joue",
+        "B playing": "B joue",
+        "A wins": "A gagne",
+        "B wins": "B gagne",
+        "Draw": "Partie nulle",
+        "Random": "Aléatoire",
+        "Easy": "Facile",
+        "Fast": "Rapide",
+        "Medium": "Moyen",
+        "Strong": "Fort",
+        "Expert": "Expert",
+    },
+};
+
+/*
+ * Translates one of them, or gives it back untouched.
+ *
+ * A level label may carry a timing - "Fast [1sec]" - which is not a word and
+ * must not be translated away, so the bracketed part is set aside and put
+ * back. A label with no entry (a game with levels of its own) also comes back
+ * as it was: showing English is better than showing nothing.
+ */
+function T(text) {
+    var table = TRANSLATIONS[PageLang()];
+    if(!table || text == null)
+        return text;
+    if(table[text])
+        return table[text];
+    var timed = /^(.*?)(\s*\[[^\]]*\])$/.exec(text);
+    if(timed && table[timed[1]])
+        return table[timed[1]] + timed[2];
+    return text;
+}
+
+/*
  * Displays winner
  */
 function NotifyWinner(winner) {
@@ -39,7 +86,7 @@ function NotifyWinner(winner) {
         text = "A wins";
     else if(winner==Jocly.PLAYER_B)
         text = "B wins";
-    $("#game-status").text(text);
+    $("#game-status").text(T(text));
 }
 
 /*
@@ -65,7 +112,7 @@ function RunMatch(match, progressBar) {
         match.getTurn()
             .then((player) => {
                 // display whose turn
-                $("#game-status").text(player==Jocly.PLAYER_A?"A playing":"B playing");
+                $("#game-status").text(T(player==Jocly.PLAYER_A?"A playing":"B playing"));
                 var mode = $("#mode").val();
                 var promise = Promise.resolve();
                 if((player==Jocly.PLAYER_A && (mode=="self-self" || mode=="self-comp")) ||
@@ -298,9 +345,9 @@ $(document).ready(function () {
                         if(window.localStorage)
                             window.localStorage.setItem(gameName+".level-"+which,$("#select-level-"+which).val());
                     });
-                    $("<option/>").attr("value","-1").text("Random").appendTo($("#select-level-"+which));
+                    $("<option/>").attr("value","-1").text(T("Random")).appendTo($("#select-level-"+which));
                     config.model.levels.forEach( (level, index) => {
-                        $("<option/>").attr("value",index).text(level.label).appendTo($("#select-level-"+which));
+                        $("<option/>").attr("value",index).text(T(level.label)).appendTo($("#select-level-"+which));
                     });
                     var level = window.localStorage && window.localStorage[gameName+".level-"+which] || 0;
                     $("#select-level-"+which).val(level);
