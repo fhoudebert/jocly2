@@ -37,7 +37,11 @@
 		 * must still be asked. Kotaishi Shogi is in that case, and its tests
 		 * load a board and then answer the prelude - which stays legal.
 		 */
-		if(aGame.cbVar.prelude && !(aGame.mInitialString && aGame.cbPreludeFromBoard))
+		// `cbVar` and not `aGame`: the flag is declared in cbDefine(), whose
+		// return value IS cbVar. Reading it off the game object found
+		// undefined every time, so the opt-in never took effect and a
+		// Capablanca position still opened on the ten setup buttons.
+		if(aGame.cbVar.prelude && !(aGame.mInitialString && aGame.cbVar.cbPreludeFromBoard))
 			this.lastMove.f=-2; // request prelude
 	}
 
