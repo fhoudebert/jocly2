@@ -1409,9 +1409,19 @@
 		for(var k=1;k<=maxRank;k++) {
 			var pos=this.kings[who*k];
 			if(pos===undefined || pos===prev) continue;
+			/*
+			 * `>= 0` and not `< 0`: board[pos] can be UNDEFINED, and
+			 * `undefined < 0` is false, so the old guard let it through and
+			 * pieces[undefined].s threw. It happens with several royals - a
+			 * King captured earlier leaves its square in `kings`, and that
+			 * entry is never cleared. Spartan Chess has two Kings per side,
+			 * so it hits this as soon as one of them is taken; the crash
+			 * surfaces in the view (jocly-xdview) but is thrown here.
+			 */
 			var idx=this.board[pos];
-			if(idx<0) continue;
+			if(!(idx>=0)) continue;
 			var pc=this.pieces[idx];
+			if(pc===undefined) continue;
 			if(pc.s!==who || !pT[pc.t].isKing) continue;
 			prev=pos; count++; sole=pos;
 		}
