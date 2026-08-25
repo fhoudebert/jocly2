@@ -1835,6 +1835,53 @@
 					}
 				}
 			});
+			/*
+			 * Several royals sharing one FEN letter.
+			 *
+			 * Spartan Chess gives Black two Kings, declared as two piece types
+			 * (isKing 1 and isKing 2) because the engine files royals under
+			 * kings[side * isKing]. Both write "k" - every FEN producer does,
+			 * PyChess included - so the letter table maps both to the FIRST
+			 * type, the second royal slot is never filled, and kings[-2] stays
+			 * undefined. What follows reads a board that has one King where
+			 * the position has two: the second is royal in name only, and
+			 * `cbGetAttackers` crashes on the missing entry.
+			 *
+			 * So we spread them: the royals of one side, in board order, take
+			 * the successive royal types that share their letter. A single
+			 * King is untouched, and a game whose royals have distinct letters
+			 * never enters the loop.
+			 */
+			var royalTypes = { 1: {}, '-1': {} };
+			for(var typeId in cbVar.pieceTypes) {
+				var pt = cbVar.pieceTypes[typeId];
+				if(!pt.isKing) continue;
+				var letter = (pt.fenAbbrev || pt.abbrev || 'X').toUpperCase();
+				var side = sideAffinity(pt);
+				[1, -1].forEach(function(s) {
+					if(s > 0 ? side < 0 : side > 0) return;
+					var group = royalTypes[s];
+					(group[letter] = group[letter] || []).push({ t: parseInt(typeId), rank: pt.isKing });
+				});
+			}
+			[1, -1].forEach(function(side) {
+				var groups = royalTypes[side];
+				for(var letter in groups) {
+					var slots = groups[letter];
+					// Une seule case royale pour cette lettre : rien a etaler.
+					// C'est le cas general, et celui du chu shogi, dont le Roi
+					// et le Prince heritier ont des lettres distinctes et
+					// doivent garder chacun son type.
+					if(slots.length < 2) continue;
+					slots.sort(function(a, b) { return a.rank - b.rank; });
+					var mine = {};
+					slots.forEach(function(sl) { mine[sl.t] = true; });
+					var found = pieces.filter(function(pc) { return pc.s == side && mine[pc.t]; });
+					if(found.length < 2 || found.length > slots.length) continue;
+					found.forEach(function(pc, k) { pc.t = slots[k].t; });
+				}
+			});
+
 			pieces.sort(function(p1,p2) {
 				return p2.s-p1.s;
 			});
