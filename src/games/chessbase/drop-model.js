@@ -3,6 +3,7 @@
 
 	var geometry, gameState;
 	var promotedTypes = {}; // type index -> true when its abbrev starts with '+'
+	var dropNames = {};     // type index -> the letter a drop of it is written with
 
 	Model.Game.cbDropGeometry = function(files, ranks, v) {
 		geometry = Model.Game.cbBoardGeometryGrid(files+4, ranks+2*v);
@@ -135,6 +136,15 @@
 			// remember which types are a promoted form, so the move
 			// notation can mark a promotion with a trailing '+'
 			promotedTypes[n] = /^\+/.test(pType.abbrev || '');
+			// The letter a DROP of this type is written with. `abbrev` is
+			// empty for the piece a game treats as its Pawn, and the notation
+			// used to fall back to a hard-coded 'P' - which collides as soon
+			// as ANOTHER piece is abbreviated 'P'. Tori Shogi is exactly that
+			// case: the Swallow has no abbrev and the Pheasant is 'P', so
+			// both drops printed "P@e6" and two distinct legal moves became
+			// indistinguishable. `fenAbbrev` gives the Swallow its own 'S',
+			// which is also what every other Shogi tool writes.
+			dropNames[n] = pType.abbrev || pType.fenAbbrev || 'P';
 		}
 
 		var holdings = []; // collect set of 'spare' holdings squares
@@ -381,7 +391,28 @@
 		var result = 'fail';
 		if(f < 2 || f >= w - 2) { // drop
 			f = geometry.C(this.t);
-			result = (this.a == '' ? 'P' : this.a) + '@' + String.fromCharCode(95+f) + (geometry.R(this.t)+1-v);
+			var name = this.a;
+			if(name == '') { // fall back to the FEN letter, not to a fixed 'P'
+				// The move carries the hand square, not the side; both hands
+				// are scanned rather than guessing which one it belongs to.
+				for(var side = -1; side <= 1 && name == ''; side += 2)
+					for(var t in dropNames)
+						if(Model.Game.hand[side][t] === this.f)
+							{ name = dropNames[t]; break; }
+				if(name == '') name = 'P';
+			}
+			result = name + '@' + String.fromCharCode(95+f) + (geometry.R(this.t)+1-v);
+			/*
+			 * A drop can also CHOOSE a face. In Kyoto Shogi every piece has
+			 * two, and the player picks one when dropping - jocly asks in a
+			 * popup. The choice was absent from the notation, so the two drops
+			 * printed the same string and neither could be told from the
+			 * other, in the move list as much as in a saved game.
+			 *
+			 * Marked the same way as a promotion on the board: a trailing '+'.
+			 */
+			if(this.pr!==undefined && promotedTypes[this.pr])
+				result += '+';
 		} else {
 			var move = { f:this.f - 2 - v*w, t:this.t - 2 - v*w, c:this.c, a:this.a }; // offset coords
 			result = OriginalToString.apply(move, arguments);
