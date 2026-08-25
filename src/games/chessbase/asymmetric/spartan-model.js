@@ -311,10 +311,17 @@
 	}
 
 	var OriginalGetAttackers = Model.Board.cbGetAttackers;
-	Model.Board.cbGetAttackers = function(aGame,pos,who,isKing) {
+	/*
+ * `>= 0` and not `< 0`, for the same reason as in cbInLosingCheck: a King
+ * that was never placed leaves its entry UNDEFINED, and `undefined < 0` is
+ * false. The test fell through and the threat graph was indexed with
+ * undefined. A position with a single Black King - one was captured, which
+ * the rules allow - crashed on its first move generation.
+ */
+Model.Board.cbGetAttackers = function(aGame,pos,who,isKing) {
 		if(isKing == 100 && who == -1) { // called to see if Spartans in check
-			if(this.kings[-2] < 0) return OriginalGetAttackers.call(this, aGame, this.kings[-1], -1, true);
-			if(this.kings[-1] < 0) return OriginalGetAttackers.call(this, aGame, this.kings[-2], -1, true);
+			if(!(this.kings[-2] >= 0)) return OriginalGetAttackers.call(this, aGame, this.kings[-1], -1, true);
+			if(!(this.kings[-1] >= 0)) return OriginalGetAttackers.call(this, aGame, this.kings[-2], -1, true);
 			var checkers = OriginalGetAttackers.call(this, aGame, this.kings[-1], -1, true);
 			if(checkers.length <= 0) return checkers; // King #1 not attacked => OK
 			return OriginalGetAttackers.call(this, aGame, this.kings[-2], -1, true);
