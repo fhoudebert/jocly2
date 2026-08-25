@@ -176,7 +176,11 @@ var modelScripts_kotaishi = [
 	// the game opens by asking whether to play it with drops (Kotaishi) or
 	// without (Sho Shogi) - see the prelude in the model
 	"prelude-model.js",
-	"shogi/kotaishi-shogi-model.js"
+	"shogi/kotaishi-shogi-model.js",
+	// Shō Shogi keeps pieces in hand like the other Shogi here, so it reads and
+	// writes SFEN the same way. Without this line a four-field SFEN - what
+	// every other Shogi tool exports - is rejected outright.
+	"shogi/sfen-model.js"
 ]
 
 var config_model_levels_15_shogi_expert = config_model_levels_15.concat([config_model_levels_shogi_expert]);

@@ -1,6 +1,6 @@
 {
-	"bytes": 360004,
-	"digest": "6393f74354558dd7",
+	"bytes": 360048,
+	"digest": "0d774bd8ebeaff28",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -292,7 +292,7 @@
 		},
 		{
 			"name": "kotaishi-shogi",
-			"digest": "bfd263f496454885"
+			"digest": "31aa168f52652b1e"
 		},
 		{
 			"name": "seireigi",
