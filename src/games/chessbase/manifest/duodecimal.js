@@ -422,8 +422,8 @@ exports.games = {
  					"title-en": "Timurid",
 
  					"summary": {
- 						"en": "Tamerlan II on 12x12 with fairy pieces",
- 						"fr": "Tamerlan II en 12x12 avec des pièces féeriques"
+ 						"en": "Tamerlan II on 12x10 with fairy pieces",
+ 						"fr": "Tamerlan II en 12x10 avec des pièces féeriques"
  					},
  					"rules": {
  						"en": "res/rules/duodecimal/timurid-rules.html",
