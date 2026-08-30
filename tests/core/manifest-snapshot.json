@@ -1,6 +1,6 @@
 {
-	"bytes": 359937,
-	"digest": "5952e4b7f4df5364",
+	"bytes": 360052,
+	"digest": "605e2880a0bcad6c",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -68,7 +68,7 @@
 		},
 		{
 			"name": "knightmate-chess",
-			"digest": "42e7099e7a49bd80"
+			"digest": "806007d8e6c838a2"
 		},
 		{
 			"name": "raumschach",
@@ -292,7 +292,7 @@
 		},
 		{
 			"name": "kotaishi-shogi",
-			"digest": "bfd263f496454885"
+			"digest": "31aa168f52652b1e"
 		},
 		{
 			"name": "seireigi",
@@ -308,7 +308,7 @@
 		},
 		{
 			"name": "kyoto-shogi",
-			"digest": "2dfa03aa5fc6beee"
+			"digest": "e5c3c634e3dd18fc"
 		},
 		{
 			"name": "tori-shogi",
@@ -336,7 +336,7 @@
 		},
 		{
 			"name": "crazyhouse",
-			"digest": "25d4f1b2809d97f8"
+			"digest": "8da5b49677d780d8"
 		}
 	]
 }

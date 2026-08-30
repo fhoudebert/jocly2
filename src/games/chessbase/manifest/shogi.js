@@ -161,7 +161,12 @@ var modelScripts_kyoto = [
 	"base-model.js",
 	"grid-geo-model.js",
 	"drop-model.js",
-	"shogi/kyoto-shogi-model.js"
+	"shogi/kyoto-shogi-model.js",
+	// Kyoto Shogi keeps pieces in hand like the other Shogi here, so it reads
+	// and writes SFEN the same way. Without this line its FEN parser is the
+	// generic six-field one, and a four-field SFEN - which is what every other
+	// Shogi tool exports - is rejected outright ("FEN should have 6 parts").
+	"shogi/sfen-model.js"
 ]
 
 var modelScripts_kotaishi = [
@@ -171,7 +176,11 @@ var modelScripts_kotaishi = [
 	// the game opens by asking whether to play it with drops (Kotaishi) or
 	// without (Sho Shogi) - see the prelude in the model
 	"prelude-model.js",
-	"shogi/kotaishi-shogi-model.js"
+	"shogi/kotaishi-shogi-model.js",
+	// Shō Shogi keeps pieces in hand like the other Shogi here, so it reads and
+	// writes SFEN the same way. Without this line a four-field SFEN - what
+	// every other Shogi tool exports - is rejected outright.
+	"shogi/sfen-model.js"
 ]
 
 var config_model_levels_15_shogi_expert = config_model_levels_15.concat([config_model_levels_shogi_expert]);

@@ -60,18 +60,18 @@ html,body {
 #links {
     text-align: center;
 }
-#games {
+#games, #rules {
 	display: table-cell;
 	width: 300px;
 	vertical-align: top;
 	padding: 0;
 }
-#games > div {
+#games > div, #rules > div {
     position: relative;
     height: 100%;
     width: 100%;
 }
-#games > div > div {
+#games > div > div, #rules > div > div {
     overflow-y: auto;
     position: absolute;
     top: 0;
@@ -79,11 +79,11 @@ html,body {
     bottom: 0;
     left: 0;
 }
-#close-games {
+#close-games, #close-rules {
     text-align: right;
     border-bottom: 1px solid #eee;
 }
-#close-games span {
+#close-games span, #close-rules span {
     font-size: 16pt;
     padding: 6px;
     cursor: pointer;
@@ -121,4 +121,17 @@ html,body {
     font-weight: normal;
     font-size: 0.85em;
     opacity: 0.8;
+}
+
+/* The rules pages are full documents with tables and diagrams: they need more
+   room than the game list, and their own images must not overflow it. */
+#rules {
+	width: 460px;
+}
+#rules-content {
+	padding: 8px;
+}
+#rules-content img {
+	max-width: 100%;
+	height: auto;
 }

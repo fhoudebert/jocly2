@@ -25,7 +25,9 @@ Simple human vs computer: [Classic chess](https://fhoudebert.github.io/jocly/exa
 [Spartan chess](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=spartan-chess),
 [Minjiku Shogi](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=minjiku-shogi),
 [Ultima](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=ultima),
-[Rococo](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=rococo)
+[Rococo](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=rococo),
+[Janggi](https://fhoudebert.github.io/jocly/examples/browser/control_fr.html?game=janggi),
+[Crazyhouse](https://fhoudebert.github.io/jocly/examples/browser/control_fr.html?game=crazyhouse)
 
 Or see and try [all available games](https://fhoudebert.github.io/jocly/examples/browser/multiple.html)
 

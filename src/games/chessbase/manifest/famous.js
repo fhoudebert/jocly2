@@ -798,7 +798,7 @@ exports.games = {
 				},
 				"module": "chessbase",
 				"plazza": "true",
-				"thumbnail": "res/rules/famous/knight-thumbnail.png",
+				"thumbnail": "res/rules/famous/crazyhouse-thumbnail.png",
 				"released": 1755648000,
 				"gameOptions": config_model_gameOptions,
 				"js": modelScripts_crazyhouse,

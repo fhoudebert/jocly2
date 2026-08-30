@@ -31,6 +31,96 @@ function Localized(field) {
 }
 
 /*
+ * The handful of strings this page builds itself.
+ *
+ * Everything else it displays comes from the manifests, which carry their own
+ * translations and are read through Localized() below. These do not: they are
+ * written here, so they are translated here.
+ *
+ * Keyed by the English string, the way mogichex/lang/fr.json does it, and
+ * with its wording - "Partie nulle", "Facile", "Moyen", "Fort", "Rapide" - so
+ * that a player moving between the two reads the same words.
+ */
+var TRANSLATIONS = {
+    fr: {
+        "A playing": "A joue",
+        "B playing": "B joue",
+        "A wins": "A gagne",
+        "B wins": "B gagne",
+        "Draw": "Partie nulle",
+        "Random": "Aléatoire",
+        "Easy": "Facile",
+        "Fast": "Rapide",
+        "Medium": "Moyen",
+        "Strong": "Fort",
+        "Expert": "Expert",
+        "Loading\u2026": "Chargement\u2026",
+        "No rules available for this game.": "Pas de règles disponibles pour ce jeu.",
+    },
+};
+
+/*
+ * Translates one of them, or gives it back untouched.
+ *
+ * A level label may carry a timing - "Fast [1sec]" - which is not a word and
+ * must not be translated away, so the bracketed part is set aside and put
+ * back. A label with no entry (a game with levels of its own) also comes back
+ * as it was: showing English is better than showing nothing.
+ */
+function T(text) {
+    var table = TRANSLATIONS[PageLang()];
+    if(!table || text == null)
+        return text;
+    if(table[text])
+        return table[text];
+    var timed = /^(.*?)(\s*\[[^\]]*\])$/.exec(text);
+    if(timed && table[timed[1]])
+        return table[timed[1]] + timed[2];
+    return text;
+}
+
+/*
+ * Shows the rules of the game being played.
+ *
+ * The manifest gives the rules as a path per language, relative to the game's
+ * MODULE - "res/rules/shogi/chu-shogi-rules.html" - and config.view.fullPath
+ * is where jocly.core.js says that module was served from. Localized() picks
+ * the reader's language, falling back to English.
+ *
+ * The file is fetched and injected rather than opened in a tab, because the
+ * rules pages address their own images through a {GAME} token that jocly
+ * replaces with the module path - 153 of them do. Opened directly they would
+ * render with every illustration broken.
+ */
+function LoadRules(config, container) {
+    var rel = Localized(config.model.rules);
+    if(!rel) {
+        container.text(T("No rules available for this game."));
+        return Promise.resolve(false);
+    }
+    var base = (config.view && config.view.fullPath) ||
+        (config.baseURL || "") + "games/" + config.model.module;
+    base = base.replace(/\/$/, "");
+    container.text(T("Loading\u2026"));
+    return fetch(base + "/" + rel.replace(/^\//, ""))
+        .then((response) => {
+            if(!response.ok)
+                throw new Error("HTTP " + response.status);
+            return response.text();
+        })
+        .then((html) => {
+            container.html(html.replace(/\{GAME\}/gi, base));
+            container.scrollTop(0);
+            return true;
+        })
+        .catch((err) => {
+            container.text(T("No rules available for this game."));
+            console.warn("rules unavailable", config.model.module, rel, err);
+            return false;
+        });
+}
+
+/*
  * Displays winner
  */
 function NotifyWinner(winner) {
@@ -39,7 +129,7 @@ function NotifyWinner(winner) {
         text = "A wins";
     else if(winner==Jocly.PLAYER_B)
         text = "B wins";
-    $("#game-status").text(text);
+    $("#game-status").text(T(text));
 }
 
 /*
@@ -65,7 +155,7 @@ function RunMatch(match, progressBar) {
         match.getTurn()
             .then((player) => {
                 // display whose turn
-                $("#game-status").text(player==Jocly.PLAYER_A?"A playing":"B playing");
+                $("#game-status").text(T(player==Jocly.PLAYER_A?"A playing":"B playing"));
                 var mode = $("#mode").val();
                 var promise = Promise.resolve();
                 if((player==Jocly.PLAYER_A && (mode=="self-self" || mode=="self-comp")) ||
@@ -184,6 +274,23 @@ $(document).ready(function () {
                     .append($("<div>").text(config.model["title-en"]))
                     .append($("<div>").addClass("game-title-summary").text(Localized(config.model.summary)));
                 $("#close-games span").show();
+
+                // the rules link, and the panel it opens: same show/hide as
+                // the game list, which owns the same slot beside the board
+                if(config.model.rules) {
+                    $("#game-rules").show().off("click").on("click", () => {
+                        $("#controls").hide();
+                        $("#games").hide();
+                        $("#rules").show();
+                        LoadRules(config, $("#rules-content"));
+                    });
+                    $("#close-rules").off("click").on("click", () => {
+                        $("#rules").hide();
+                        $("#controls").show();
+                    });
+                } else
+                    $("#game-rules").hide();
+
                 $("#game-status").show();
 
                 var viewOptions = config.view;
@@ -298,9 +405,9 @@ $(document).ready(function () {
                         if(window.localStorage)
                             window.localStorage.setItem(gameName+".level-"+which,$("#select-level-"+which).val());
                     });
-                    $("<option/>").attr("value","-1").text("Random").appendTo($("#select-level-"+which));
+                    $("<option/>").attr("value","-1").text(T("Random")).appendTo($("#select-level-"+which));
                     config.model.levels.forEach( (level, index) => {
-                        $("<option/>").attr("value",index).text(level.label).appendTo($("#select-level-"+which));
+                        $("<option/>").attr("value",index).text(T(level.label)).appendTo($("#select-level-"+which));
                     });
                     var level = window.localStorage && window.localStorage[gameName+".level-"+which] || 0;
                     $("#select-level-"+which).val(level);
@@ -424,8 +531,12 @@ $(document).ready(function () {
                     });
                 }
 
-                $("#links").on("click",()=>{
+                // bound on the link, not on the #links box that holds it: the
+                // rules link lives in that box too, and a click on it bubbled
+                // up to here and opened the game list underneath the rules
+                $("#other-games").on("click",()=>{
                     $("#controls").hide();
+                    $("#rules").hide();
                     $("#games").show();
                 });
 

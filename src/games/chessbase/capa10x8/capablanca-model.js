@@ -57,6 +57,14 @@
 
         // short syntax for castling (kingOrigin, shortKingDesination, shortRook, longKingDestination, longRook)
         
+		/*
+		 * The ten arrangements differ by where the pieces stand, so a position
+		 * handed to Load() already answers the prelude: asking again would
+		 * leave a recorded game unplayable, its first real move rejected in
+		 * favour of ten setup buttons. See prelude-model.js.
+		 */
+		p.cbPreludeFromBoard = true;
+
 		p.prelude=[{
 			panelWidth: 2, // two buttons per row
 			panelBackground: "/res/rules/capa10x8/capablanca-panel.png",
