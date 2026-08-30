@@ -202,6 +202,40 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 	var workersByGame = (typeof WeakMap != "undefined") ? new WeakMap() : null;
 	var fallbackWorkerSlot = null; // used in environments without WeakMap (legacy browsers)
 
+	/*
+	 * Engine transport.
+	 *
+	 * In the browser the engine is the wasm build running in a dedicated
+	 * Worker (jocly.fairyworker.js). Native hosts - Tabulon
+	 * (https://biscandine.fr/variantes/tabulon/), Electron, plain Node -
+	 * have no Worker and no reason to pay for wasm when a real
+	 * Fairy-Stockfish binary is available locally, so they can install
+	 * their own transport instead:
+	 *
+	 *   JoclyFairy.setEngineProvider(function (baseURL, aGame, aOptions) {
+	 *     return <Worker-shaped object>;
+	 *   });
+	 *
+	 * "Worker-shaped" means exactly what this file already uses and
+	 * nothing more: a postMessage(message) method, and assignable
+	 * onmessage / onerror properties (both are reassigned per search by
+	 * startMachine below, so the transport must read them at dispatch
+	 * time rather than capturing them once). The message protocol is the
+	 * one jocly.fairyworker.js implements - in: Init / Search / Stop,
+	 * out: Ready / Progress / Done / Aborted / Error - so a provider is a
+	 * drop-in replacement, not a second code path through this file.
+	 *
+	 * jocly.fairynative.js is such a provider, driving a native
+	 * fairy-stockfish binary over stdio.
+	 *
+	 * Setting it to null restores the built-in Worker behaviour.
+	 */
+	var engineProvider = null;
+
+	JoclyFairy.setEngineProvider = function (provider) {
+		engineProvider = provider || null;
+	};
+
 	function GetOrCreateWorker(aGame, aOptions) {
 		var existing = workersByGame ? workersByGame.get(aGame) : (fallbackWorkerSlot && fallbackWorkerSlot.game === aGame ? fallbackWorkerSlot.worker : null);
 		if (existing)
@@ -213,9 +247,16 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		// process, tests...), so aOptions.baseURL lets callers override it
 		// explicitly there.
 		var baseURL = (aOptions && aOptions.baseURL) || (aGame.config && aGame.config.baseURL) || "";
-		if (typeof Worker == "undefined")
-			throw new Error("fairy-stockfish: no Worker available in this environment (browser-only feature)");
-		var worker = new Worker(baseURL + "jocly.fairyworker.js");
+		var worker;
+		if (engineProvider) {
+			worker = engineProvider(baseURL, aGame, aOptions);
+			if (!worker)
+				throw new Error("fairy-stockfish: engine provider returned no engine");
+		} else {
+			if (typeof Worker == "undefined")
+				throw new Error("fairy-stockfish: no Worker available in this environment, and no engine provider installed (see JoclyFairy.setEngineProvider)");
+			worker = new Worker(baseURL + "jocly.fairyworker.js");
+		}
 		var readyPromise = new Promise(function (resolve, reject) {
 			worker.onmessage = function (e) {
 				var message = e.data;

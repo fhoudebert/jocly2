@@ -460,20 +460,20 @@ exports.games = {
 					"fr": "Variante 10x10 avec des pièces faibles mais promouvables"
 				},
 				"rules": {
-					"en": "res/rules/decimal/scirocco-rules.html",
-                        "fr": "res/rules/decimal/scirocco-rules_fr.html"
+					"en": "res/rules/scirocco/scirocco-rules.html",
+                        "fr": "res/rules/scirocco/scirocco-rules_fr.html"
 				},
 				"module": "chessbase",
 				"plazza": "true",
 				"thumbnail": "res/rules/scirocco/scirocco-thumb.png",
 				"released": 1396536978,
 				"credits": {
-					"en": "res/rules/decimal/scirocco-credits.html"
+					"en": "res/rules/scirocco/scirocco-credits.html"
 				},
 				"gameOptions": config_model_gameOptions,
 				"js": modelScripts_104,
 				"description": {
-					"en": "res/rules/decimal/scirocco-description.html"
+					"en": "res/rules/scirocco/scirocco-description.html"
 				},
 				"levels": config_model_levels_15
 			},
