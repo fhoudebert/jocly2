@@ -549,6 +549,75 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		var engineStrings = candidates.map(function (m) {
 			return (typeof m.ToString == "function") ? m.ToString(moveFormat) : aGame.CreateMove(m).ToString(moveFormat);
 		});
+		/*
+		 * Fairy-Stockfish spells a *piece* promotion shogi-style, with a
+		 * trailing "+" (c9d10+), where Jocly names the piece it turns into
+		 * (c9d10H). Pawn promotions agree - both write the letter - so this
+		 * only concerns games declaring promotedPieceType, i.e. currently
+		 * Timurid. Such a promotion is mandatory and has a single target, so
+		 * the from/to pair identifies the move on its own; match on it
+		 * exactly rather than leaving a systematic notation difference to be
+		 * settled by edit distance below. If it turns out ambiguous, fall
+		 * through to the fuzzy match rather than guessing.
+		 */
+		if (uciMove.charAt(uciMove.length - 1) === "+") {
+			var prefix = uciMove.slice(0, -1);
+			var promotions = [];
+			engineStrings.forEach(function (str, index) {
+				var s = str.toLowerCase();
+				if (s === prefix || (s.length === prefix.length + 1 && s.indexOf(prefix) === 0))
+					promotions.push(index);
+			});
+			if (promotions.length === 1)
+				return candidates[promotions[0]];
+		}
+
+		/*
+		 * Fairy-Stockfish spells a *piece* promotion shogi-style, with a
+		 * trailing "+" (c9d10+), where Jocly names the piece it turns into
+		 * (c9d10H). Pawn promotions agree - both write the letter - so this
+		 * only concerns games declaring promotedPieceType, i.e. currently
+		 * Timurid. Such a promotion is mandatory and has a single target, so
+		 * the from/to pair identifies the move on its own; match on it
+		 * exactly rather than leaving a systematic notation difference to be
+		 * settled by edit distance below. If it turns out ambiguous, fall
+		 * through to the fuzzy match rather than guessing.
+		 */
+		if (uciMove.charAt(uciMove.length - 1) === "+") {
+			var prefix = uciMove.slice(0, -1);
+			var promotions = [];
+			engineStrings.forEach(function (str, index) {
+				var s = str.toLowerCase();
+				if (s === prefix || (s.length === prefix.length + 1 && s.indexOf(prefix) === 0))
+					promotions.push(index);
+			});
+			if (promotions.length === 1)
+				return candidates[promotions[0]];
+		}
+
+		/*
+		 * Fairy-Stockfish spells a *piece* promotion shogi-style, with a
+		 * trailing "+" (c9d10+), where Jocly names the piece it turns into
+		 * (c9d10H). Pawn promotions agree - both write the letter - so this
+		 * only concerns games declaring promotedPieceType, i.e. currently
+		 * Timurid. Such a promotion is mandatory and has a single target, so
+		 * the from/to pair identifies the move on its own; match on it
+		 * exactly rather than leaving a systematic notation difference to be
+		 * settled by edit distance below. If it turns out ambiguous, fall
+		 * through to the fuzzy match rather than guessing.
+		 */
+		if (uciMove.charAt(uciMove.length - 1) === "+") {
+			var prefix = uciMove.slice(0, -1);
+			var promotions = [];
+			engineStrings.forEach(function (str, index) {
+				var s = str.toLowerCase();
+				if (s === prefix || (s.length === prefix.length + 1 && s.indexOf(prefix) === 0))
+					promotions.push(index);
+			});
+			if (promotions.length === 1)
+				return candidates[promotions[0]];
+		}
+
 		var bestIndex = -1, bestDist = Infinity;
 		engineStrings.forEach(function (str, index) {
 			var str0 = str.toLowerCase();
