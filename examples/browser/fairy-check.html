@@ -21,6 +21,21 @@
 	read the log. Defaults to Khan's Chess, which is defined at run time
 	through a customVariantIni - use the dropdown to compare with a variant
 	the engine has built in.
+
+	"Check capabilities" answers a different question: not whether the engine
+	runs, but whether it is the *right build*. An engine without the bent
+	rider patch does not complain about "yF" - it ignores the y and quietly
+	gives you a plain ferz - so a Timurid level on an old wasm looks like it
+	works while playing nonsense. The probes below turn that into a number:
+	24 legal moves for a griffon on d4 against 4 for a ferz.
+
+	The version line the engine prints is a build date, ddmmyy, whenever
+	Version is left empty in misc.cpp. "Fairy-Stockfish 230726 LB" means a
+	binary built on 23 July 2026 - if that predates your rebuild, the file
+	being served is not the one you built. Note also that a host application
+	may load the engine from somewhere else entirely (Tabulon has its own
+	engine directory), in which case this page and the app are not testing
+	the same file at all.
 -->
 <style>
 	body { font: 14px/1.5 system-ui, sans-serif; margin: 20px; max-width: 900px; }
@@ -47,10 +62,10 @@
 		<option value="khans">khans (custom variant, defined by the ini)</option>
 		<option value="chess">chess (built in - isolates the ini)</option>
 		<option value="crazyhouse">crazyhouse (built in)</option>
-
-
+		<option value="timurid">timurid (custom, needs the bent rider patch)</option>
 	</select>
 	<button id="run">Run</button>
+	<button id="caps">Check capabilities</button>
 </p>
 
 <div id="log"></div>
@@ -83,11 +98,58 @@ var KHANS_INI = [
 	""
 ].join("\n");
 
+// Timurid, base section only, copied from config_model_levels_timurid_ini in
+// src/games/chessbase/manifest/duodecimal.js. One prelude setup is enough to
+// tell a patched engine from an old one; the other seven differ by three
+// squares. Needs the "y" Betza prefix (griffon, rhino, ship, snake) and
+// enPassantTargetTypes, so it is the end-to-end check.
+var TIMURID_INI = [
+	"[timurid-xax]",
+	"maxRank = 10",
+	"maxFile = 12",
+	"pawn = p",
+	"rook = r",
+	"knight = n",
+	"bishop = b",
+	"queen = q",
+	"king = k",
+	"fersAlfil = e",
+	"cannon = z",
+	"bers = a",
+	"customPiece1 = i:KmfR2",
+	"customPiece2 = j:C",
+	"customPiece3 = w:FC",
+	"customPiece4 = c:FNC",
+	"customPiece5 = y:NAD",
+	"customPiece6 = l:KNAD",
+	"customPiece7 = h:yF",
+	"customPiece8 = u:yW",
+	"customPiece9 = x:yvF",
+	"customPiece10 = s:vyW",
+	"startFen = e1j1z2z1j1e/rnbxikaixbnr/pppppppppppp/12/12/12/12/PPPPPPPPPPPP/RNBXIKAIXBNR/E1J1Z2Z1J1E w - - 0 1",
+	"castling = false",
+	"doubleStepRegionWhite = *1 *2 *3 *4 *5 *6 *7 *8 *9 *10",
+	"doubleStepRegionBlack = *1 *2 *3 *4 *5 *6 *7 *8 *9 *10",
+	"promotionRegionWhite = *10",
+	"promotionRegionBlack = *1",
+	"promotionPieceTypes = q",
+	"promotedPieceType = i:q x:h s:u w:c y:l a:q",
+	"mandatoryPiecePromotion = true",
+	"enPassantTargetTypes = i",
+	"pieceValueMg = r:1276 b:960 n:760 q:2481 a:1836 h:2097 u:1804 x:1082 s:820 c:2090 w:1175 y:1651 l:1767 e:761 j:672 z:859 i:917",
+	"pieceValueEg = r:1380 b:1038 n:822 q:2683 a:1985 h:2268 u:1951 x:1170 s:887 c:2261 w:1270 y:1786 l:1911 e:823 j:727 z:929 i:992",
+	""
+].join("\n");
+
 var START_FEN = {
 	khans: "lhatkahl/ssssssss/8/8/8/8/PPPPPPPP/RNBQKBNR w KQ - 0 1",
 	chess: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-	crazyhouse: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1"
+	crazyhouse: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[] w KQkq - 0 1",
+	timurid: "e1j1z2z1j1e/rnbxikaixbnr/pppppppppppp/12/12/12/12/PPPPPPPPPPPP/RNBXIKAIXBNR/E1J1Z2Z1J1E w - - 0 1"
 };
+
+var CUSTOM_INI = { khans: KHANS_INI, timurid: TIMURID_INI };
+var VARIANT_NAME = { timurid: "timurid-xax" };
 
 var logEl = document.getElementById("log");
 function log(text, cls) {
@@ -142,9 +204,7 @@ function loadEngine() {
 			Stockfish({ locateFile: function(file) { return ENGINE_DIR + file; } })
 				.then(function(sf) {
 					engine = sf;
-					sf.addMessageListener(function(line) {
-						log(line, /^(info string )?(error|unknown|No such|Unrecognized)/i.test(line) ? "err" : null);
-					});
+					sf.addMessageListener(onLine);
 					resolve(sf);
 				}, reject);
 		};
@@ -157,20 +217,74 @@ function send(cmd) {
 	engine.postMessage(cmd);
 }
 
+/*
+ * Every line the engine says goes to the log, and, while a probe is running,
+ * into its collector as well. The engine answers asynchronously and has no
+ * request ids, so a probe is simply "send these commands, gather lines until
+ * one of them looks like the end of the answer".
+ */
+var pending = null;
+
+function onLine(line) {
+	log(line, /^(info string )?(error|unknown|No such|Unrecognized)/i.test(line) ? "err" : null);
+	if(!pending) return;
+	pending.lines.push(line);
+	if(pending.isLast(line)) {
+		var probe = pending;
+		pending = null;
+		probe.finish(probe.lines);
+	}
+}
+
+function ask(cmds, isLast) {
+	return new Promise(function(resolve, reject) {
+		if(pending) return reject(new Error("a probe is already running"));
+		var timer = setTimeout(function() {
+			if(pending) { pending = null; reject(new Error("no answer to '" + cmds[cmds.length - 1] + "' after 20s - the engine most likely died")); }
+		}, 20000);
+		pending = {
+			lines: [],
+			isLast: isLast,
+			finish: function(lines) { clearTimeout(timer); resolve(lines); }
+		};
+		cmds.forEach(send);
+	});
+}
+
+var untilPerft = function(line) { return /^Nodes searched/.test(line); };
+var untilUciok = function(line) { return /^uciok/.test(line); };
+
+// how many of the listed moves start on a given square. Squares are compared
+// with the separator included, so that a1 is not read out of a10 on a board
+// with ten ranks.
+function movesFrom(lines, square) {
+	return lines.filter(function(line) {
+		return line.indexOf(square) === 0 && /^[a-l][0-9]+[a-l][0-9]+\+?:/.test(line);
+	}).length;
+}
+
+function nodeCount(lines) {
+	for(var i = 0; i < lines.length; i++) {
+		var m = /^Nodes searched:\s*(\d+)/.exec(lines[i]);
+		if(m) return parseInt(m[1], 10);
+	}
+	return -1;
+}
+
 document.getElementById("run").addEventListener("click", function() {
 	var variant = document.getElementById("variant").value;
 	logEl.innerHTML = "";
 	log("engine directory: " + ENGINE_DIR);
 	loadEngine().then(function() {
 		log("engine started");
-		if(variant === "khans") {
+		if(CUSTOM_INI[variant]) {
 			// Same two steps as jocly.fairyworker.js: write the definition
 			// into the engine's virtual filesystem, point VariantPath at it,
 			// and only then select the variant.
-			engine.FS.writeFile("/jocly-custom-variants.ini", KHANS_INI);
+			engine.FS.writeFile("/jocly-custom-variants.ini", CUSTOM_INI[variant]);
 			send("setoption name VariantPath value /jocly-custom-variants.ini");
 		}
-		send("setoption name UCI_Variant value " + variant);
+		send("setoption name UCI_Variant value " + (VARIANT_NAME[variant] || variant));
 		send("position fen " + START_FEN[variant]);
 		send("d");            // the engine echoes the board it actually has
 		send("go depth 10");  // and then plays a move
@@ -179,6 +293,131 @@ document.getElementById("run").addEventListener("click", function() {
 		log(String(error && error.message || error), "err");
 	});
 });
+
+/* ---- is this the right build? ---- */
+
+/*
+ * One variant carrying every piece shape the patched engine adds, so a single
+ * ini covers all the probes. The expected counts are on an empty 8x8 board
+ * with the piece on d4, and were checked against an independent
+ * implementation as well as against the engine.
+ */
+var PROBE_INI = [
+	"[joclycheck:chess]",
+	"customPiece1 = g:yF",       // griffon: diagonal step, then an orthogonal ride out
+	"customPiece2 = h:yW",       // rhino: orthogonal step, then a diagonal ride out
+	"customPiece3 = s:vyW",      // snake: the rhino, stepping only along a file first
+	"customPiece4 = x:yvF",      // ship: the griffon, keeping only the file-wise ride
+	"customPiece5 = i:KmfR2",    // prince: king plus a quiet second step forward
+	"enPassantTargetTypes = i",
+	""
+].join("\n");
+
+// letter, name, expected on d4 with the patch, what an unpatched engine gives
+var BENT_PROBES = [
+	["G", "griffon  yF", 24, 4],
+	["H", "rhino    yW", 24, 4],
+	["S", "snake   vyW", 12, 2],
+	["X", "ship    yvF", 14, 4]
+];
+
+function probeCapabilities() {
+	logEl.innerHTML = "";
+	envEl.innerHTML = "";
+	var verdict = { ok: 0, ko: 0 };
+	function verdictReport(label, good, detail) {
+		report(label, good, detail);
+		if(good) verdict.ok++; else verdict.ko++;
+	}
+
+	return loadEngine().then(function() {
+		return ask(["uci"], untilUciok);
+	}).then(function(lines) {
+		var name = "";
+		lines.forEach(function(line) {
+			if(line.indexOf("id name ") === 0) name = line.slice(8).trim();
+		});
+		// "Fairy-Stockfish 230726 LB" - the number is a build date, ddmmyy,
+		// produced from __DATE__ when Version is empty in misc.cpp.
+		var stamp = /(\d{2})(\d{2})(\d{2})/.exec(name);
+		var built = stamp ? stamp[1] + "/" + stamp[2] + "/20" + stamp[3] : "unreadable";
+		report("engine: " + name, true, "built " + built);
+		verdictReport("large boards (12x10)", / LB\b/.test(name),
+			/ LB\b/.test(name) ? "" : "built without largeboards=yes - Timurid needs it");
+
+		engine.FS.writeFile("/jocly-probe.ini", PROBE_INI);
+		send("setoption name VariantPath value /jocly-probe.ini");
+		send("setoption name UCI_Variant value joclycheck");
+
+		return BENT_PROBES.reduce(function(chain, probe) {
+			return chain.then(function() {
+				return ask([
+					"position fen 7k/8/8/8/3" + probe[0] + "4/8/8/K7 w - - 0 1",
+					"go perft 1"
+				], untilPerft).then(function(out) {
+					var got = movesFrom(out, "d4");
+					verdictReport("bent rider " + probe[1], got === probe[2],
+						got + " moves from d4, expected " + probe[2] +
+						(got === probe[3] ? " - this is what an engine without the patch gives: it ignores the y and reads the atom alone" : ""));
+				});
+			});
+		}, Promise.resolve());
+	}).then(function() {
+		// the prince steps two squares and must be capturable en passant on it
+		return ask([
+			"position fen 4k3/8/3p4/8/4I3/8/8/4K3 w - - 0 1 moves e4e6",
+			"go perft 1"
+		], untilPerft);
+	}).then(function(out) {
+		var hasEp = out.some(function(line) { return line.indexOf("d6e5:") === 0; });
+		verdictReport("enPassantTargetTypes", hasEp,
+			hasEp ? "the prince's double step leaves an en passant square"
+			      : "d6e5 is missing - this option is not in this build, and Timurid's prince " +
+			        "would not be capturable en passant");
+	}).then(function() {
+		engine.FS.writeFile("/jocly-custom-variants.ini", TIMURID_INI);
+		return ask([
+			"setoption name VariantPath value /jocly-custom-variants.ini",
+			"setoption name UCI_Variant value timurid-xax",
+			"position startpos",
+			"go perft 1"
+		], untilPerft);
+	}).then(function(out) {
+		var n = nodeCount(out);
+		// Note what this does and does not prove: the ini parses, the 12x10
+		// board is right and the pieces are placed. It says nothing about the
+		// bent riders, because both ships start boxed in - an unpatched engine
+		// answers 52 here too. The next probe is the one that separates them.
+		verdictReport("timurid-xax ini parses, board and setup", n === 52,
+			n + " legal moves in the starting position, expected 52");
+	}).then(function() {
+		// A ship with room to move, inside the real variant rather than the
+		// probe one: 4 diagonal steps plus the four file rides they open onto.
+		return ask([
+			"position fen 11k/12/12/12/12/3X8/12/12/12/K11 w - - 0 1",
+			"go perft 1"
+		], untilPerft);
+	}).then(function(out) {
+		var got = movesFrom(out, "d5");
+		verdictReport("timurid ship actually rides", got === 18,
+			got + " moves from d5, expected 18" +
+			(got === 4 ? " - 4 is the bare ferz an unpatched engine sees" : ""));
+		log("");
+		if(verdict.ko === 0)
+			log("all " + verdict.ok + " checks passed: this build has the bent riders and the en passant option.");
+		else
+			log(verdict.ko + " check(s) failed. An engine without the patch does not report an " +
+				"error - it parses yF as a plain ferz - so a failure here means the file being " +
+				"served predates the patch. Compare the build date above with your rebuild, then " +
+				"copy src/emscripten/public/{stockfish.js,stockfish.wasm,stockfish.worker.js} into " +
+				ENGINE_DIR + " and hard-reload. If a host application still misbehaves after this " +
+				"page passes, it is loading the engine from its own directory, not from here.", "err");
+	}).catch(function(error) {
+		log(String(error && error.message || error), "err");
+	});
+}
+
+document.getElementById("caps").addEventListener("click", probeCapabilities);
 
 })();
 </script>
