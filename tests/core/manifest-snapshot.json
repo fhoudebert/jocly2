@@ -1,6 +1,6 @@
 {
-	"bytes": 360052,
-	"digest": "605e2880a0bcad6c",
+	"bytes": 362484,
+	"digest": "7989dbe7668e9415",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -244,7 +244,7 @@
 		},
 		{
 			"name": "timurid-chess",
-			"digest": "bcaa830d307d73a0"
+			"digest": "afdbb97bec78fca1"
 		},
 		{
 			"name": "zanzibar-s-chess",
@@ -284,7 +284,7 @@
 		},
 		{
 			"name": "scirocco-chess",
-			"digest": "e935430e74de54dd"
+			"digest": "baa49517bd001410"
 		},
 		{
 			"name": "shogi",

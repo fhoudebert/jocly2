@@ -74,9 +74,12 @@ t.check("Admiral: Rook and a King's step",
 t.check("Elephant: Ferz and Alfil", reach("elephant", "g5"), 8);
 // "Camel: it jumps to the opposite case of a 2x4 rectangle"
 t.check("Camel: the 8 (3,1) squares", reach("camel", "g5"), 8);
-// "Prince: ... Like the Pawn, he can also move without capturing to the
-// second square straight ahead"
-t.check("Prince: eight neighbours and the second square ahead", reach("princew", "g5"), 9);
+// The rules page gives the Prince a Pawn-like second step forward. It is
+// dropped here: ten ranks are short enough that the head start is not needed,
+// and it was the only reason any piece but a Pawn had to be capturable en
+// passant. What is left is a King's move.
+t.check("Prince: a King's move, no second step", reach("princew", "g5"), 8);
+t.check("Prince: and it is the same for Black", reach("princeb", "g5"), 8);
 
 /* ---------------- the Pawn ---------------- */
 
@@ -97,15 +100,16 @@ t.check("it cannot jump the square in front", movesFrom({ g3: "wP", g4: "bN" }, 
 t.check("blocked two ahead, it still steps one",
 	movesFrom({ g3: "wP", g5: "bN" }, "g3"), ["g3g4"]);
 
-// "Pawn: exactly as in usual Chess" - which includes en passant, and the
-// Prince's double step is caught the same way
+// "Pawn: exactly as in usual Chess" - which includes en passant. Now that the
+// Prince has lost its double step, Pawns are the only pieces on either side of
+// it, which is what lets the Fairy-Stockfish variant drop enPassantTargetTypes.
 t.check("Pawns capture en passant",
 	Object.keys(types).filter((k) => types[k].epCatch).map((k) => types[k].name).sort(),
 	["ipawnb", "ipawnw"]);
-t.check("Pawns and Princes can be caught by it",
+t.check("and only Pawns can be caught by it",
 	[...new Set(Object.keys(types).filter((k) => types[k].epTarget)
 		.map((k) => types[k].name.replace(/[wb]$/, "").replace(/^i/, "")))].sort(),
-	["pawn", "prince"]);
+	["pawn"]);
 
 /* ---------------- promotion ---------------- */
 

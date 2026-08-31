@@ -87,13 +87,13 @@ var modelScripts_gross = [
  * agrees with Jocly to depth 3 on all eight - so no pieceMap is needed, the
  * letters are the ones Jocly already writes.
  *
- * Two points worth knowing. The piece values are seeded from Jocly's own,
- * anchored on the rook and corrected by each piece's mobility ratio between
- * 12x12 and 12x10; they are a starting point, not a tuned set. And
- * enPassantTargetTypes is what keeps the Prince capturable en passant on its
- * two-square step: Fairy-Stockfish otherwise only marks a non-pawn as an en
- * passant target on a move that its *initial* move set alone could make,
- * which never happens here since the Prince keeps that step all game.
+ * The piece values are seeded from Jocly's own, anchored on the rook and
+ * corrected by each piece's mobility ratio between 12x12 and 12x10; they are a
+ * starting point, not a tuned set.
+ *
+ * Note that no piece here needs en passant machinery of its own: the Prince
+ * lost its two-square step with the move to ten ranks, so Pawns are the only
+ * en passant targets, which is the default.
  */
 var config_model_levels_timurid_ini = [
 	"[timurid-xax]",
@@ -108,16 +108,16 @@ var config_model_levels_timurid_ini = [
 	"fersAlfil = e",
 	"cannon = z",
 	"bers = a",
-	"customPiece1 = i:KmfR2",
-	"customPiece2 = j:C",
-	"customPiece3 = d:WD",
-	"customPiece4 = c:[D?B]",
-	"customPiece5 = y:NAD",
-	"customPiece6 = l:KNAD",
-	"customPiece7 = h:[F?R]",
-	"customPiece8 = u:[W?B]",
-	"customPiece9 = x:v[F?R]",
-	"customPiece10 = s:[vW?B]",
+	"commoner = i",
+	"customPiece1 = j:C",
+	"customPiece2 = d:WD",
+	"customPiece3 = c:[D?B]",
+	"customPiece4 = y:NAD",
+	"customPiece5 = l:KNAD",
+	"customPiece6 = h:[F?R]",
+	"customPiece7 = u:[W?B]",
+	"customPiece8 = x:v[F?R]",
+	"customPiece9 = s:[vW?B]",
 	"startFen = e1j1z2z1j1e/rnbxikaixbnr/pppppppppppp/12/12/12/12/PPPPPPPPPPPP/RNBXIKAIXBNR/E1J1Z2Z1J1E w - - 0 1",
 	"castling = false",
 	"doubleStepRegionWhite = *1 *2 *3 *4 *5 *6 *7 *8 *9 *10",
@@ -127,7 +127,6 @@ var config_model_levels_timurid_ini = [
 	"promotionPieceTypes = q",
 	"promotedPieceType = i:q x:h s:u d:c y:l a:q",
 	"mandatoryPiecePromotion = true",
-	"enPassantTargetTypes = i",
 	"pieceValueMg = r:1276 b:960 n:760 q:2481 a:1836 h:2097 u:1804 x:1082 s:820 c:1830 d:900 y:1651 l:1767 e:761 j:672 z:859 i:917",
 	"pieceValueEg = r:1380 b:1038 n:822 q:2683 a:1985 h:2268 u:1951 x:1170 s:887 c:1979 d:973 y:1786 l:1911 e:823 j:727 z:929 i:992",
 	"[timurid-hqh:timurid-xax]",
