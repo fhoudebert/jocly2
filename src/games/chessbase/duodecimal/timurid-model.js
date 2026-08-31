@@ -133,7 +133,7 @@
       3: {
       name : 'princeb',
       abbrev : 'I',
-      aspect : 'fr-prince',
+      aspect : 'fr-man',
       graph : this.cbKingGraph(geometry,confine),
       value : 3.5,
       initial: [{s:-1,p:100},{s:-1,p:103}],
