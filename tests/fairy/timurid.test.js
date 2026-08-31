@@ -55,10 +55,18 @@ t.check("Snake: a vertical step then a diagonal ray", reach("snake", "g5"), 16);
 t.check("Lion: everything one or two squares away", reach("lion", "g5"), 24);
 // "Squirrel: jumps at 2 squares"
 t.check("Squirrel: the ring two squares out", reach("squirrel", "g5"), 16);
-// "Wizard: a compound of the Ferz and the Camel"
-t.check("Wizard: Ferz and Camel", reach("wizard", "g5"), 12);
-// "Emir: combines the move of the Camel, the Knight and the ferz"
-t.check("Emir: Camel, Knight and Ferz", reach("emir", "g5"), 20);
+// The Machine of the other Cazaux games, in the Samarkand setups where the
+// Wizard used to stand: Wazir plus Dabbaba, so eight squares in the open.
+t.check("Machine: Wazir and Dabbaba", reach("machine", "g5"), 8);
+// The Emir keeps its name, letter and appearance but moves as an Osprey now:
+// a two-square orthogonal leap, then a diagonal ride away from the start.
+t.check("Emir: an Osprey, leap then diagonal ride", reach("emir", "g5"), 28);
+// It leaps, so a piece on the square in between changes nothing: g7 is still
+// reachable, and so is the diagonal ride that starts there.
+t.check("Emir: the square leapt over is irrelevant",
+	movesFrom({ g5: "wC", g6: "wP" }, "g5").indexOf("g5g7") >= 0, true);
+t.check("Emir: but the square it lands on does block the ride",
+	movesFrom({ g5: "wC", g7: "bP" }, "g5").filter((m) => /^g5[hf]8$/.test(m)), []);
 // "Admiral: a Rook that can also step one space diagonally"
 t.check("Admiral: Rook and a King's step",
 	reach("amiral", "g5"), reach("rook", "g5") + 4);
@@ -109,7 +117,7 @@ const promotesTo = (name) => {
 		{ t: to, f: to - geo.width, c: null }) || []).map((into) => types[into].name);
 };
 [["ipawnw", "queen"], ["ship", "griffon"], ["snake", "rhino"],
- ["squirrel", "lion"], ["wizard", "emir"], ["princew", "queen"]].forEach(([piece, into]) => {
+ ["squirrel", "lion"], ["machine", "emir"], ["princew", "queen"]].forEach(([piece, into]) => {
 	t.check(piece + " promotes to " + into, promotesTo(piece), [into]);
 });
 /*
@@ -121,7 +129,7 @@ t.check("the Admiral promotes to a Queen as well", promotesTo("amiral"), ["queen
 // and nothing else does
 t.check("no other piece promotes",
 	Object.keys(types).filter((k) => promotesTo(types[k].name).length
-		&& ["ipawnw", "ipawnb", "ship", "snake", "squirrel", "wizard",
+		&& ["ipawnw", "ipawnb", "ship", "snake", "squirrel", "machine",
 			"princew", "princeb", "amiral"].indexOf(types[k].name) < 0)
 		.map((k) => types[k].name), []);
 

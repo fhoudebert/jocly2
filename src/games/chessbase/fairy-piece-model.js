@@ -19,7 +19,10 @@
 		var graph = {};
 		var $this=this;
 
-		function SkiSlide(start, vec, flags, bend, iflags, range) { // trace out bent trajectory
+		// 'again' marks the second fork of a bent move: the corner square has
+		// already been offered as a destination by the first fork, so here it is
+		// only passed through - it still blocks the ride when occupied.
+		function SkiSlide(start, vec, flags, bend, iflags, range, again) { // trace out bent trajectory
 			var path = [], f = iflags, corner = geometry.Graph(start, vec), brouhaha=0;
 			while(f < -1 && corner) corner = geometry.Graph(corner, vec), f++; // negative iflags jump to corner
 			if(corner != null) {
@@ -29,7 +32,7 @@
 					if(confine[corner]=='b') f &= ~(brouhaha=c.FLAG_MOVE|c.FLAG_SPECIAL); // not to empty brouhaha squares
 				}
 				var vec2 = Rotate(vec, bend);
-				if(f>=0 && iflags != c.FLAG_STOP) // defer adding stop until something follows it
+				if(f>=0 && iflags != c.FLAG_STOP && !again) // defer adding stop until something follows it
 					path.push(corner | f);    // use iflags on 1st square if it did not indicate skipping
 				if(brouhaha) return; // never past occupied brouhaha square
 				for(var n=1; n<range; n++) {
@@ -40,7 +43,7 @@
 						if(confine[pos]=='b') flags &= ~(brouhaha=c.FLAG_MOVE|c.FLAG_SPECIAL);
 						if(!flags) break;
 					}
-					if(n == 1 && iflags == c.FLAG_STOP) path.push(corner | c.FLAG_STOP);
+					if(n == 1 && (iflags == c.FLAG_STOP || again)) path.push(corner | c.FLAG_STOP);
 					path.push(pos | flags);
 					if(brouhaha) break; // never past occupied brouhaha square
 			}	}
@@ -56,7 +59,7 @@
 			graph[pos] = [];
 			stepSet.forEach(function(vec){
 				SkiSlide(pos, vec, flags2, bend, flags1, range);
-				if(bend&3 && bend>0) SkiSlide(pos, vec, flags2, -bend, (flags1<0 ? flags1 : c.FLAG_STOP), range); // for bent: both forks
+				if(bend&3 && bend>0) SkiSlide(pos, vec, flags2, -bend, flags1, range, true); // for bent: both forks
 			});
 		}
 		return graph;
@@ -143,6 +146,13 @@
 
 	Model.Game.cbRhinoGraph = function(geometry,confine) {
 		return this.cbSkiGraph(geometry,[[1,0],[0,1],[-1,0],[0,-1]],1);
+	}
+
+	// Osprey: leaps two squares orthogonally, jumping whatever stands in
+	// between, then rides out diagonally. The -2 tells SkiSlide to take the
+	// first leg twice before turning.
+	Model.Game.cbOspreyGraph = function(geometry,confine) {
+		return this.cbSkiGraph(geometry,[[1,0],[0,1],[-1,0],[0,-1]],1,-2);
 	}
 
 	Model.Game.cbLionGraph = function(geometry,confine) {

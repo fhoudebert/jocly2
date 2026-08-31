@@ -110,8 +110,8 @@ var config_model_levels_timurid_ini = [
 	"bers = a",
 	"customPiece1 = i:KmfR2",
 	"customPiece2 = j:C",
-	"customPiece3 = w:FC",
-	"customPiece4 = c:FNC",
+	"customPiece3 = d:WD",
+	"customPiece4 = c:yD",
 	"customPiece5 = y:NAD",
 	"customPiece6 = l:KNAD",
 	"customPiece7 = h:yF",
@@ -125,11 +125,11 @@ var config_model_levels_timurid_ini = [
 	"promotionRegionWhite = *10",
 	"promotionRegionBlack = *1",
 	"promotionPieceTypes = q",
-	"promotedPieceType = i:q x:h s:u w:c y:l a:q",
+	"promotedPieceType = i:q x:h s:u d:c y:l a:q",
 	"mandatoryPiecePromotion = true",
 	"enPassantTargetTypes = i",
-	"pieceValueMg = r:1276 b:960 n:760 q:2481 a:1836 h:2097 u:1804 x:1082 s:820 c:2090 w:1175 y:1651 l:1767 e:761 j:672 z:859 i:917",
-	"pieceValueEg = r:1380 b:1038 n:822 q:2683 a:1985 h:2268 u:1951 x:1170 s:887 c:2261 w:1270 y:1786 l:1911 e:823 j:727 z:929 i:992",
+	"pieceValueMg = r:1276 b:960 n:760 q:2481 a:1836 h:2097 u:1804 x:1082 s:820 c:1830 d:900 y:1651 l:1767 e:761 j:672 z:859 i:917",
+	"pieceValueEg = r:1380 b:1038 n:822 q:2683 a:1985 h:2268 u:1951 x:1170 s:887 c:1979 d:973 y:1786 l:1911 e:823 j:727 z:929 i:992",
 	"[timurid-hqh:timurid-xax]",
 	"startFen = e1j1z2z1j1e/rnbhikqihbnr/pppppppppppp/12/12/12/12/PPPPPPPPPPPP/RNBHIKQIHBNR/E1J1Z2Z1J1E w - - 0 1",
 	"[timurid-xyx:timurid-xax]",
@@ -140,8 +140,8 @@ var config_model_levels_timurid_ini = [
 	"startFen = e1j1z2z1j1e/rnbxiksixbnr/pppppppppppp/12/12/12/12/PPPPPPPPPPPP/RNBXIKSIXBNR/E1J1Z2Z1J1E w - - 0 1",
 	"[timurid-huh:timurid-xax]",
 	"startFen = e1j1z2z1j1e/rnbhikuihbnr/pppppppppppp/12/12/12/12/PPPPPPPPPPPP/RNBHIKUIHBNR/E1J1Z2Z1J1E w - - 0 1",
-	"[timurid-xwx:timurid-xax]",
-	"startFen = e1j1z2z1j1e/rnbxikwixbnr/pppppppppppp/12/12/12/12/PPPPPPPPPPPP/RNBXIKWIXBNR/E1J1Z2Z1J1E w - - 0 1",
+	"[timurid-xdx:timurid-xax]",
+	"startFen = e1j1z2z1j1e/rnbxikdixbnr/pppppppppppp/12/12/12/12/PPPPPPPPPPPP/RNBXIKDIXBNR/E1J1Z2Z1J1E w - - 0 1",
 	"[timurid-hch:timurid-xax]",
 	"startFen = e1j1z2z1j1e/rnbhikcihbnr/pppppppppppp/12/12/12/12/PPPPPPPPPPPP/RNBHIKCIHBNR/E1J1Z2Z1J1E w - - 0 1"
 ].join("\n");
@@ -163,8 +163,8 @@ var config_model_levels_timurid_expert = {
 		{ "setup": 3, "variant": "timurid-hlh" },   // HLH: griffon, lion, griffon
 		{ "setup": 4, "variant": "timurid-xsx" },   // XSX: ship, snake, ship
 		{ "setup": 5, "variant": "timurid-huh" },   // HUH: griffon, rhino, griffon
-		{ "setup": 6, "variant": "timurid-xwx" },   // XWX: ship, wizard, ship
-		{ "setup": 7, "variant": "timurid-hch" }    // HCH: griffon, emir, griffon
+		{ "setup": 6, "variant": "timurid-xdx" },   // XDX: ship, machine, ship
+		{ "setup": 7, "variant": "timurid-hch" }    // HCH: griffon, emir (osprey), griffon
 	]
 }
 

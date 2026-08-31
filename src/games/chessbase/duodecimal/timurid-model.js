@@ -270,22 +270,27 @@
       initial: [],
       },
       17: {
+      // Same piece as before - name, letter and appearance unchanged - but it
+      // now moves as an Osprey: a two-square orthogonal leap, jumping over
+      // whatever stands in between, then an unlimited diagonal ride away from
+      // where it started. It may also stop on the square it leapt to.
       name : 'emir',
       abbrev : 'C',
       aspect : 'fr-caliph',
-      graph : this.cbMergeGraphs(geometry,
-                  this.cbShortRangeGraph(geometry,[[-1,-1],[1,1],[1,-1],[-1,1]]),
-                  this.cbKnightGraph(geometry),
-                  this.cbCamelGraph(geometry)),
-      value : 8,
+      graph : this.cbOspreyGraph(geometry,confine),
+      value : 7,
       initial: [],
       },
       18: {
-      name : 'wizard',
-      abbrev : 'W',
-      aspect : 'fr-wizard',
-      graph : this.cbWizardGraph(geometry,confine),
-      value : 4.5,
+      // The Machine of the other Cazaux games (Zanzibar-S, Gigachess,
+      // Terachess, Bigorra): Wazir plus Dabbaba, one or two squares
+      // orthogonally, the two-square version jumping. It replaces the Wizard
+      // as the piece that promotes into the Emir.
+      name : 'machine',
+      abbrev : 'D',
+      aspect : 'fr-machine',
+      graph : this.cbShortRangeGraph(geometry,[[-1,0],[-2,0],[1,0],[2,0],[0,1],[0,2],[0,-1],[0,-2]],confine),
+      value : 3.5,
       initial: [],
       },
       19: {
@@ -329,7 +334,7 @@
         var T_snake=15
         var T_rhino=16
         var T_emir=17
-        var T_wizard=18
+        var T_machine=18
         var T_squirrel=19
         var T_amiral=20
 		return {
@@ -348,7 +353,7 @@
 					return [T_eagle];
                 if (piece.t==T_snake && ((geometry.R(move.t)==lastRow && piece.s > 0) || (geometry.R(move.t)==firstRow && piece.s < 0)) ) 
 					return [T_rhino];
-                if (piece.t==T_wizard && ((geometry.R(move.t)==lastRow && piece.s > 0) || (geometry.R(move.t)==firstRow && piece.s < 0)) ) 
+                if (piece.t==T_machine && ((geometry.R(move.t)==lastRow && piece.s > 0) || (geometry.R(move.t)==firstRow && piece.s < 0)) ) 
 					return [T_emir];
                 if (piece.t==T_squirrel && ((geometry.R(move.t)==lastRow && piece.s > 0) || (geometry.R(move.t)==firstRow && piece.s < 0)) ) 
 					return [T_lion];
@@ -362,7 +367,7 @@
 			prelude: [{
 				panelWidth: 2, // two buttons per row 
 				panelBackground: "/res/rules/duodecimal/timurid-parameter-panel.png",
-				setups: ["XAX","HQH","XYX","HLH","XSX","HUH","XWX","HCH"], 
+				setups: ["XAX","HQH","XYX","HLH","XSX","HUH","XDX","HCH"], 
 				castle: [ undefined, undefined, undefined, undefined, undefined, undefined, undefined],
 				squares: { 1:[15,18,20], '-1':[99,102,104] },
 				//participants: promoChoice, // adapt the auto-generated promotion choice to the selected variant
