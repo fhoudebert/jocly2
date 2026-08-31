@@ -308,6 +308,7 @@ var PROBE_INI = [
 	"customPiece2 = h:yW",       // rhino: orthogonal step, then a diagonal ride out
 	"customPiece3 = s:vyW",      // snake: the rhino, stepping only along a file first
 	"customPiece4 = x:yvF",      // ship: the griffon, keeping only the file-wise ride
+	"customPiece6 = o:yD",       // osprey: a two-square orthogonal leap, then a diagonal ride
 	"customPiece5 = i:KmfR2",    // prince: king plus a quiet second step forward
 	"enPassantTargetTypes = i",
 	""
@@ -318,7 +319,8 @@ var BENT_PROBES = [
 	["G", "griffon  yF", 24, 4],
 	["H", "rhino    yW", 24, 4],
 	["S", "snake   vyW", 12, 2],
-	["X", "ship    yvF", 14, 4]
+	["X", "ship    yvF", 14, 4],
+	["O", "osprey   yD", 16, 4]
 ];
 
 function probeCapabilities() {
