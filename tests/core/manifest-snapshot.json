@@ -1,6 +1,6 @@
 {
-	"bytes": 362484,
-	"digest": "7989dbe7668e9415",
+	"bytes": 362447,
+	"digest": "7ca9f802b023bef9",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -244,7 +244,7 @@
 		},
 		{
 			"name": "timurid-chess",
-			"digest": "afdbb97bec78fca1"
+			"digest": "0af186c4b504a7b1"
 		},
 		{
 			"name": "zanzibar-s-chess",

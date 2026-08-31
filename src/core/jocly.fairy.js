@@ -287,6 +287,41 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 	}
 
 	/*
+	 * Releases the engine held for a game. Called from JocGame.GameDestroyGame.
+	 *
+	 * A WeakMap frees its ENTRY once the game is collected; it does not stop
+	 * whatever the entry refers to. That is harmless for a wasm Worker - the
+	 * page takes it down on unload - but an engine provider may hand back a
+	 * child process, and the garbage collector knows nothing about processes.
+	 * On a long-running host that opens and closes games, one Fairy-Stockfish
+	 * process would survive every game, each with its own threads and hash.
+	 *
+	 * So the engine is released explicitly, like aiWorker already is, rather
+	 * than left to a collector that cannot do it.
+	 */
+	JoclyFairy.releaseEngine = function (aGame) {
+		var entry = null;
+		if (workersByGame) {
+			entry = workersByGame.get(aGame);
+			workersByGame.delete(aGame);
+		} else if (fallbackWorkerSlot && fallbackWorkerSlot.game === aGame) {
+			entry = fallbackWorkerSlot.worker;
+			fallbackWorkerSlot = null;
+		}
+		if (!entry || !entry.worker)
+			return;
+		// A rejected ready promise with no handler left would surface as an
+		// unhandled rejection once we drop the entry.
+		if (entry.ready && entry.ready.catch)
+			entry.ready.catch(function () { });
+		try {
+			entry.worker.terminate();
+		} catch (e) {
+			console.warn("Cannot terminate fairy-stockfish engine", e);
+		}
+	};
+
+	/*
 	 * Builds a standard FEN (board placement + "[...]" pocket section) for
 	 * games whose pieces-in-hand are represented by Jocly as extra board
 	 * columns (drop-model.js's cbDropGeometry()/cbAddHoldings() - currently
