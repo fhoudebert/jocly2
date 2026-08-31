@@ -47,14 +47,16 @@ games.forEach((game) => {
 	levels.forEach((level) => {
 		if(!level || level.ai !== "fairy-stockfish")
 			return;
-		// a level either carries its own variant, or one per prelude setup
-		[level].concat(level.variants || []).forEach((spec) => {
-			if(spec.customVariantIni)
-				declarations.push({
-					game: game.name,
-					variant: spec.variant,
-					ini: spec.customVariantIni,
-				});
+		// A level either names one variant, or one per prelude setup. In the
+		// second case the ini is usually written once on the level and shared
+		// by every setup - ResolveLevel() merges the level's own fields into
+		// the chosen entry - so both have to be read to get the pair.
+		const specs = (level.variants && level.variants.length) ? level.variants : [level];
+		specs.forEach((spec) => {
+			const ini = spec.customVariantIni || level.customVariantIni;
+			const variant = spec.variant || level.variant;
+			if(ini)
+				declarations.push({ game: game.name, variant: variant, ini: ini });
 		});
 	});
 });
@@ -109,8 +111,11 @@ const position = (fen) => fen.trim().split(/\s+/).slice(0, 2).join(" ");
 		// One ini may define several variants - the Capablanca preludes share
 		// a single multi-section file - so the variant the level names has to
 		// be one of the sections, not necessarily the first.
-		const sections = (declaration.ini.match(/^\s*\[\s*([A-Za-z0-9_]+)/gm) || [])
-			.map((header) => /([A-Za-z0-9_]+)$/.exec(header.trim())[1]);
+		// Section names may carry a hyphen (timurid-xax), and a section that
+		// inherits is written [child:parent] - the name is what precedes the
+		// colon.
+		const sections = (declaration.ini.match(/^\s*\[\s*([A-Za-z0-9_-]+)/gm) || [])
+			.map((header) => /([A-Za-z0-9_-]+)$/.exec(header.trim())[1]);
 		if(sections.indexOf(declaration.variant) < 0) {
 			t.check(label + " is defined by its own ini",
 				sections.join(", ") || "(no section header)", declaration.variant);

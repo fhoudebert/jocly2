@@ -310,6 +310,12 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		}
 		if (!entry || !entry.worker)
 			return;
+		// A search may still be running. Ending it here rather than letting
+		// terminate() cut the worker off mid-answer is what lets its promise
+		// settle: an unsettled one would hold aGame through its own closure,
+		// long after the WeakMap entry has gone.
+		if (entry.cancelSearch)
+			try { entry.cancelSearch(); } catch (e) { /* already settled */ }
 		// A rejected ready promise with no handler left would surface as an
 		// unhandled rejection once we drop the entry.
 		if (entry.ready && entry.ready.catch)
@@ -815,6 +821,13 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 			})
 			.then(function () {
 				return new Promise(function (resolve, reject) {
+					// releaseEngine() terminates the worker, so a search still
+					// running at that moment would never hear back from it and
+					// this promise would never settle - which keeps its closure,
+					// and aGame with it, alive for good. That is the very leak
+					// the WeakMap was meant to avoid, so leave a way to end it
+					// the same way a user-requested stop does.
+					entry.cancelSearch = function () { reject({ aborted: true }); };
 					entry.worker.onmessage = function (e) {
 						var message = e.data;
 						switch (message.type) {
@@ -847,6 +860,7 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 				});
 			})
 			.then(function (data) {
+				delete entry.cancelSearch;
 				if (!data.bestMoveUci || data.bestMoveUci === "(none)") {
 					// no legal move: position is actually terminal: let the
 					// generic engine confirm finished/winner state with an
@@ -861,6 +875,7 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 				aGame.Done();
 			})
 			.catch(function (err) {
+				delete entry.cancelSearch;
 				delete aGame.mFairyAbort;
 				if (err && err.aborted) {
 					aGame.mBestMoves = [];
