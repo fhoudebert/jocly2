@@ -4,10 +4,8 @@ This directory contains the pre-compiled WebAssembly/Emscripten build of
 [Fairy-Stockfish](https://github.com/ianfab/Fairy-Stockfish), a chess variant
 engine by Fabian Fichter derived from Stockfish, with NNUE support.
 
-Files in this directory are taken verbatim from the npm package
-[`fairy-stockfish-nnue.wasm`](https://www.npmjs.com/package/fairy-stockfish-nnue.wasm)
-(version 1.1.11), published from the
-[fairy-stockfish/fairy-stockfish.wasm](https://github.com/fairy-stockfish/fairy-stockfish.wasm)
+These files are a custom compilation that add bent rider (see pull request)
+[fairy-stockfish/fairy-stockfish.wasm](https://github.com/fhoudebert/fairy-stockfish.wasm/releases/tag/PR-1035)
 repository:
 
 - `stockfish.js` — Emscripten-generated loader/module (UCI protocol over
@@ -17,8 +15,6 @@ repository:
 - `stockfish.worker.js` — internal Emscripten pthread worker, loaded
   automatically by `stockfish.js` when needed; not meant to be used directly
 
-These files are **not** modified and are kept as a separate, easily
-updatable unit, distinct from Jocly's own source code.
 
 ## License
 
