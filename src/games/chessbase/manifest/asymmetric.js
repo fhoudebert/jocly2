@@ -90,10 +90,10 @@ var config_view_js_khans = [
  * export writes a generic "KQkq" castling field; the engine drops the "kq"
  * itself, the Horde having no rook to castle with.
  *
- * No "evalFile": Fairy-Stockfish publishes a khans NNUE network, but it is not
- * bundled here (see third-party/fairy-stockfish/nnue/README.md). Dropping
- * khans.nnue in that directory and adding "evalFile": "nnue/khans.nnue" is all
- * it takes.
+ * "evalFile" points at the khans network Fairy-Stockfish publishes. It is
+ * optional, like every network here: none is bundled in the repository, and a
+ * missing one costs nothing but the handcrafted evaluation - the worker logs
+ * it once and carries on (see third-party/fairy-stockfish/nnue/README.md).
  */
 var config_model_levels_khans_expert_ini = [
 	"[khans:chess]",
@@ -120,7 +120,8 @@ var config_model_levels_khans_expert = {
 	"variant": "khans",
 	"skillLevel": 20,
 	"moveTimeMs": 1000,
-	"customVariantIni": config_model_levels_khans_expert_ini
+	"customVariantIni": config_model_levels_khans_expert_ini,
+	"evalFile": "nnue/khans.nnue"
 }
 
 var config_model_levels_15_khans_expert = config_model_levels_15.concat([config_model_levels_khans_expert]);

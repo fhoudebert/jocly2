@@ -288,7 +288,8 @@ var config_model_levels_grand_expert = {
 	"variant": "grand",
 	"skillLevel": 20,
 	"moveTimeMs": 1000,
-	"pieceMap": { "M": "C" }
+	"pieceMap": { "M": "C" },
+	"evalFile": "nnue/grand.nnue"
 }
 
 // Capablanca-chess module (capa10x8/capablanca-model.js): a single
@@ -454,7 +455,8 @@ var config_model_levels_makruk_expert = {
 	"variant": "makruk",
 	"skillLevel": 20,
 	"moveTimeMs": 1000,
-	"pieceMap": { "B": "S", "Q": "M" }
+	"pieceMap": { "B": "S", "Q": "M" },
+	"evalFile": "nnue/makruk.nnue"
 }
 
 // Wildebeest: 11x10 board, already declared as an official example
@@ -664,7 +666,8 @@ var config_model_levels_minishogi_expert = {
 	"variant": "minishogi",
 	"skillLevel": 20,
 	"moveTimeMs": 1000,
-	"pocketGeometry": true
+	"pocketGeometry": true,
+	"evalFile": "nnue/minishogi.nnue"
 }
 
 // Kyoto Shogi: same starting position as Fairy-Stockfish's

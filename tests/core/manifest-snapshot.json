@@ -1,6 +1,6 @@
 {
-	"bytes": 362447,
-	"digest": "75086c7b37fd3770",
+	"bytes": 362568,
+	"digest": "eb41db87bb05b299",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -56,7 +56,7 @@
 		},
 		{
 			"name": "makruk",
-			"digest": "b3b6d82919fc0cf6"
+			"digest": "bf27af90c3e4a1b4"
 		},
 		{
 			"name": "shako-chess",
@@ -136,7 +136,7 @@
 		},
 		{
 			"name": "grand-chess",
-			"digest": "118af6423b4500a8"
+			"digest": "a8b9c69a3c207521"
 		},
 		{
 			"name": "hectochess",
@@ -280,7 +280,7 @@
 		},
 		{
 			"name": "khans-chess",
-			"digest": "108549260473b865"
+			"digest": "efed232c6ffd9925"
 		},
 		{
 			"name": "scirocco-chess",
@@ -304,7 +304,7 @@
 		},
 		{
 			"name": "mini-shogi",
-			"digest": "80e4f7fa3a9e2fb8"
+			"digest": "5704c14109f0bc79"
 		},
 		{
 			"name": "kyoto-shogi",
