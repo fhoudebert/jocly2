@@ -257,10 +257,40 @@ function RunMatch(match, progressBar) {
         });
 }
 
+/*
+ * Resolves the "level" query parameter against a game's level list. A name is
+ * what belongs in a shared link - ?level=expert keeps working when a level is
+ * inserted before it, an index does not - but an index is accepted too, as is
+ * the label shown in the dropdown. Returns null when there is nothing to
+ * match, so the caller can leave the stored preference alone.
+ */
+function ResolveLevelParam(levels, wanted) {
+    if (!wanted)
+        return null;
+    var needle = String(wanted).trim().toLowerCase();
+    if (needle === "random" || needle === "-1")
+        return -1;
+    for (var i = 0; i < levels.length; i++) {
+        var level = levels[i] || {};
+        if (String(level.name || "").toLowerCase() === needle
+         || String(level.label || "").toLowerCase() === needle)
+            return i;
+    }
+    if (/^\d+$/.test(needle) && Number(needle) < levels.length)
+        return Number(needle);
+    console.warn("unknown level '" + wanted + "', keeping the stored one."
+        + " Available: " + levels.map(function (l) { return l.name || l.label; }).join(", "));
+    return null;
+}
+
 $(document).ready(function () {
     var progressBar = document.getElementById("progress-bar");
-    var m = /\?game=([^&]+)/.exec(window.location.href);
-    var gameName = m && m[1] || "classic-chess";
+    // URLSearchParams rather than a regexp on the whole href: with a second
+    // parameter in play the order stops being predictable, and ?level=expert
+    // written before ?game= used to leave the game at its default.
+    var params = new URLSearchParams(window.location.search);
+    var gameName = params.get("game") || "classic-chess";
+    var levelParam = params.get("level");
     var elementId = "applet";
     var area = document.getElementById(elementId);
 
@@ -409,7 +439,14 @@ $(document).ready(function () {
                     config.model.levels.forEach( (level, index) => {
                         $("<option/>").attr("value",index).text(T(level.label)).appendTo($("#select-level-"+which));
                     });
-                    var level = window.localStorage && window.localStorage[gameName+".level-"+which] || 0;
+                    // An explicit ?level= wins over whatever this browser last
+                    // chose, so that a shared link opens on the level its
+                    // sender meant. It is deliberately not written back to
+                    // localStorage: the link is an instruction for this visit,
+                    // not a change to the visitor's own preference.
+                    var fromUrl = ResolveLevelParam(config.model.levels, levelParam);
+                    var level = fromUrl !== null ? fromUrl
+                              : (window.localStorage && window.localStorage[gameName+".level-"+which] || 0);
                     $("#select-level-"+which).val(level);
                 });
 

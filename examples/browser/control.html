@@ -119,7 +119,15 @@
         crossorigin="anonymous"></script>
     <!-- control.js is shared by control.html and control_fr.html: it picks the
          translation of the game summaries from here (falling back to the lang
-         attribute of <html>, then to English) -->
+         attribute of <html>, then to English)
+
+         Query parameters:
+           game   game to open, default classic-chess
+           level  computer level, by name as listed in the game's manifest
+                  ("expert"), by the label shown in the dropdown, by index, or
+                  "random". Unknown values are ignored and the level stored for
+                  this browser is kept.
+         e.g. control.html?game=timurid-chess&level=expert -->
     <script>window.JOCLY_LANG = "en";</script>
     <script src="js/control.js"></script>
 </body>
