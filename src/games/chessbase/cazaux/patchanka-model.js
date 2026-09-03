@@ -271,4 +271,42 @@
 		};
 	}
 
+	/*
+	 * The Medusa is the only piece here whose ride and whose leap can land on
+	 * the same square: e5-c7 is both a Bishop slide and an Alfil leap, and the
+	 * merged graph offers each of them, so the move is generated twice on an
+	 * open board. Harmless in the interface - the two are identical - but it
+	 * doubles those branches in the search, and it makes every move count
+	 * disagree with Fairy-Stockfish, which is what the Expert level is checked
+	 * against.
+	 *
+	 * It cannot be fixed in the graph: the leap that duplicates a ride on an
+	 * open board is exactly the one needed when the ride is blocked. So the
+	 * duplicates are dropped after generation, and only for the Medusa - no
+	 * other piece can produce one.
+	 */
+	var MEDUSA = 13;
+	var cbGeneratePseudoLegalMoves = Model.Board.cbGeneratePseudoLegalMoves;
+	Model.Board.cbGeneratePseudoLegalMoves = function(aGame) {
+		var moves = cbGeneratePseudoLegalMoves.call(this,aGame);
+		var seen = null, kept = null;
+		for(var i=0;i<moves.length;i++) {
+			var index = this.board[moves[i].f];
+			if(index<0 || this.pieces[index].t!=MEDUSA) {
+				if(kept) kept.push(moves[i]);
+				continue;
+			}
+			if(!seen) { // first Medusa move: everything so far was unique
+				seen = {};
+				kept = moves.slice(0,i);
+			}
+			var key = moves[i].f+"-"+moves[i].t;
+			if(seen[key])
+				continue;
+			seen[key] = true;
+			kept.push(moves[i]);
+		}
+		return kept || moves;
+	}
+
 })();
