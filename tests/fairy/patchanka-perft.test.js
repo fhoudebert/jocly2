@@ -78,13 +78,17 @@ function perft(board, depth) {
 // come out of the model, so the test never hardcodes a number the model could
 // silently drift away from.
 const cases = [];
-function add(label, pieces, who, prelude, depth) {
-	let board = H.setup(sandbox, mGame, pieces, who);
-	if(prelude)
-		board = H.play(board, mGame, prelude);
+function add(label, pieces, who, prelude, depth, uci) {
+	const before = H.setup(sandbox, mGame, pieces, who);
+	const board = prelude ? H.play(before, mGame, prelude) : before;
 	cases.push({
 		label: label,
-		fen: board.ExportBoardState(mGame),
+		// with uci, the engine is given the position BEFORE the prelude and
+		// plays it itself, so that whatever state that move leaves behind is
+		// the engine's own and not something the FEN told it
+		fen: uci ? H.setup(sandbox, mGame, pieces, who).ExportBoardState(mGame)
+		         : board.ExportBoardState(mGame),
+		uci: uci,
 		depth: depth,
 		expect: perft(copy(board), depth),
 	});
@@ -97,13 +101,22 @@ function add(label, pieces, who, prelude, depth) {
 		depth: 3, expect: perft(copy(board), 3) });
 }
 
-// The Soldier steps two squares from anywhere, so a Pawn that has not moved
-// yet can be the one capturing en passant - which needs the Soldier declared
-// as a pawn type on the engine side, not just as a custom piece.
+/*
+ * The Soldier steps two squares from anywhere, so a Pawn that has not moved
+ * yet can be the one capturing en passant.
+ *
+ * These two cases have to reach the engine as a position plus the double step
+ * played as a MOVE, not as a FEN with the en passant square already filled in.
+ * Handed the square, the engine will generate the capture whatever its build -
+ * it is only reading a FEN field. What matters is whether it sets that square
+ * itself when the Soldier steps, because that is what happens inside its
+ * search, and a build that does not leaves the engine playing a Patchanka
+ * where the Soldier's double step is safe.
+ */
 add("a Soldier's double step, answered en passant",
-	{ b3: "wP*", c5: "bS", h1: "wK", h10: "bK" }, -1, "Sc5-c3", 1);
+	{ b3: "wP*", c5: "bS", h1: "wK", h10: "bK" }, -1, "Sc5-c3", 1, "c5c3");
 add("a Soldier catching a Soldier en passant",
-	{ b3: "wS", c5: "bS", h1: "wK", h10: "bK" }, -1, "Sc5-c3", 1);
+	{ b3: "wS", c5: "bS", h1: "wK", h10: "bK" }, -1, "Sc5-c3", 1, "c5c3");
 // forward one or two, sideways one, and no step backwards
 add("a Soldier in the open", { e5: "wS", a1: "wK", j10: "bK" }, 1, null, 1);
 // and no second double step handed to it by the Pawns' own machinery
@@ -134,7 +147,50 @@ add("Medusa, Kirins, Phoenix and a Bison on the board",
 
 /* ---- the engine side ---- */
 
+/*
+ * By default the engine is the wasm build this repository ships. Point
+ * PATCHANKA_ENGINE at a native Fairy-Stockfish binary to run the same
+ * comparison against another build - which is how to tell a disagreement in
+ * the ini apart from one in the build:
+ *
+ *   PATCHANKA_ENGINE=../Fairy-Stockfish/src/stockfish node tests/fairy/patchanka-perft.test.js
+ */
+function startNativeEngine(binary) {
+	const child = require("child_process").spawn(binary, [], { stdio: ["pipe", "pipe", "ignore"] });
+	let lines = [], waiter = null, buffer = "";
+	child.stdout.on("data", (chunk) => {
+		buffer += chunk.toString();
+		const parts = buffer.split("\n");
+		buffer = parts.pop();
+		parts.forEach((line) => {
+			line = line.replace(/\r$/, "");
+			lines.push(line);
+			if(waiter && waiter.done(line)) {
+				const resolve = waiter.resolve, collected = lines;
+				waiter = null; lines = [];
+				resolve(collected);
+			}
+		});
+	});
+	const send = (cmd) => child.stdin.write(cmd + "\n");
+	return Promise.resolve({
+		send: send,
+		write: (text) => fs.writeFileSync("/tmp/jocly-patchanka.ini", text),
+		ask: (cmd, done) => new Promise((resolve, reject) => {
+			lines = [];
+			waiter = { done, resolve };
+			const timer = setTimeout(() => reject(new Error("engine timeout on: " + cmd)), 120000);
+			const original = resolve;
+			waiter.resolve = (value) => { clearTimeout(timer); original(value); };
+			send(cmd);
+		}),
+		iniPath: "/tmp/jocly-patchanka.ini",
+	});
+}
+
 function startEngine() {
+	if(process.env.PATCHANKA_ENGINE)
+		return startNativeEngine(process.env.PATCHANKA_ENGINE);
 	const Stockfish = require(path.join(FAIRY, "stockfish.js"));
 	return Stockfish({ wasmBinary: fs.readFileSync(path.join(FAIRY, "stockfish.wasm")) })
 		.then((engine) => {
@@ -158,6 +214,7 @@ function startEngine() {
 					waiter.resolve = (value) => { clearTimeout(timer); original(value); };
 					engine.postMessage(cmd);
 				}),
+				iniPath: CUSTOM_VARIANT_PATH,
 			};
 		});
 }
@@ -166,14 +223,14 @@ function startEngine() {
 	const engine = await startEngine();
 	await engine.ask("uci", (line) => line === "uciok");
 	engine.write(expert.customVariantIni);
-	engine.send("setoption name VariantPath value " + CUSTOM_VARIANT_PATH);
+	engine.send("setoption name VariantPath value " + engine.iniPath);
 	await engine.ask("setoption name UCI_Variant value " + expert.variant,
 		(line) => line.indexOf("info string variant " + expert.variant) === 0);
 
 	console.log("\n" + cases.length + " positions, model against the bundled engine");
 
 	for(const one of cases) {
-		engine.send("position fen " + one.fen);
+		engine.send("position fen " + one.fen + (one.uci ? " moves " + one.uci : ""));
 		const output = await engine.ask("go perft " + one.depth,
 			(line) => line.indexOf("Nodes searched") === 0);
 		const nodes = parseInt(output.filter((line) => line.indexOf("Nodes searched") === 0)[0]
@@ -187,6 +244,25 @@ function startEngine() {
 			console.log("    " + output.filter((line) => /^[a-z]\d+[a-z]\d+/.test(line.trim()))
 				.map((line) => line.trim()).join("  "));
 		}
+	}
+
+	/*
+	 * A key the engine does not know is skipped without a word - the "Invalid
+	 * option" line goes to stderr, which the wasm build never surfaces - so a
+	 * build older than the ini fails here as a plain move-count difference
+	 * with nothing pointing at the cause. Name it.
+	 */
+	if(!process.env.PATCHANKA_ENGINE) {
+		const binary = fs.readFileSync(path.join(FAIRY, "stockfish.wasm"));
+		expert.customVariantIni.split("\n")
+			.map((line) => (/^\s*([A-Za-z]+)\s*=/.exec(line) || [])[1])
+			.filter((key) => key && binary.indexOf(key) < 0)
+			.filter((key, index, all) => all.indexOf(key) === index)
+			.forEach((key) => console.log("\n  the bundled engine does not know \"" + key
+				+ "\" - it is in the ini but not in the build, so it is being"
+				+ "\n  ignored. Rebuilding stockfish.wasm from a source tree that has it"
+				+ "\n  is what makes the cases above agree; PATCHANKA_ENGINE=<binary>"
+				+ "\n  runs this same comparison against another build."));
 	}
 
 	t.done("Patchanka perft");

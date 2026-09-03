@@ -228,6 +228,20 @@ var config_model_levels_patchanka_expert_ini = [
 	// out redundant with it set. Removing it costs the Soldier its promotion,
 	// which is what "a promotion race" in patchanka-perft.test.js catches.
 	"pawnTypes = ps",
+	/*
+	 * The Soldier keeps its double step all game, so it never makes a move
+	 * that "only its initial move set could reach" - which is the test
+	 * Fairy-Stockfish applies to decide whether a non-pawn leaves an en
+	 * passant square behind it. Without this key it steps two squares and
+	 * nothing can answer, and the engine plays a Patchanka where that is
+	 * always safe. See tests/fairy/patchanka-perft.test.js, whose two en
+	 * passant cases play the double step as a move rather than handing the
+	 * square over in a FEN, which is the only way to see the difference.
+	 *
+	 * enPassantTypes is not needed alongside it: pawnTypes already lets the
+	 * Soldier be the piece doing the capturing.
+	 */
+	"enPassantTargetTypes = s",
 	// Pawns stand on the third rank here, not the second
 	"doubleStepRegionWhite = *3",
 	"doubleStepRegionBlack = *8",
