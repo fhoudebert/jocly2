@@ -1,6 +1,6 @@
 {
-	"bytes": 367464,
-	"digest": "15a62ab1ea945cca",
+	"bytes": 368184,
+	"digest": "2920e3fd6dd055dd",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -252,7 +252,7 @@
 		},
 		{
 			"name": "patchanka-chess",
-			"digest": "2212fd6052a9714e"
+			"digest": "01eccca51e442a1e"
 		},
 		{
 			"name": "team-mate-chess",

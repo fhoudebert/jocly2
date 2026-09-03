@@ -180,6 +180,74 @@ var config_view_js_patchanka = [
 	"cazaux/patchanka-view.js"
 ]
 
+/*
+ * Patchanka as a Fairy-Stockfish custom variant. Every piece here is a
+ * compound, and the engine takes each one as its Betza notation, so the
+ * definitions below read the same as the graphs in patchanka-model.js.
+ *
+ * No pieceMap: mBoard.ExportBoardState() already produces the startFen
+ * character for character.
+ *
+ * Checked against the bundled engine by tests/fairy/patchanka-perft.test.js,
+ * which compares move counts with the model's own to depth 4. That test is
+ * what the ini needs rather than a reading of the documentation: a key the
+ * engine does not recognise is skipped in silence, and several of the ones
+ * below change nothing at all at depth 1.
+ */
+var config_model_levels_patchanka_expert_ini = [
+	"[patchanka]",
+	"maxRank = 10",
+	"maxFile = 10",
+	"pawn = p",
+	"king = k",
+	// fsmWfceFfmnD - the Soldier. "nD" is the lame Dabbaba: the double step
+	// needs the crossed square empty. Unlike the Pawn's it carries no "i", so
+	// it is available from every rank, which is the whole point of the piece.
+	"customPiece1 = s:fsmWfceFfmnD",
+	"customPiece2 = h:WA",
+	"customPiece3 = i:FD",
+	"customPiece4 = b:BD",
+	"customPiece5 = r:RA",
+	"customPiece6 = z:CZ",
+	"customPiece7 = o:NZ",
+	"customPiece8 = w:NC",
+	"customPiece9 = q:QAD",
+	"startFen = 3okzw3/rhibssbihr/pppppppppp/10/10/10/10/PPPPPPPPPP/RHIBSSBIHR/3OKZW3 w - - 0 1",
+	"promotionRegionWhite = *10",
+	"promotionRegionBlack = *1",
+	// a Pawn or a Soldier promotes to a Medusa and to nothing else
+	"promotionPieceTypes = q",
+	// Kirin -> Badger, Phoenix -> Ram. Leaving this out costs nothing at
+	// depth 1 - the promotion is mandatory, so it is the same single move
+	// either way - and the engine then plays on with unpromoted Kirins.
+	"promotedPieceType = i:b h:r",
+	"mandatoryPiecePromotion = true",
+	// The Soldier counts as a Pawn for promotion, en passant and the n-move
+	// rule. This one key stands in for promotionPawnTypes, enPassantTypes and
+	// enPassantTargetTypes: each of those was tried explicitly and each turned
+	// out redundant with it set. Removing it costs the Soldier its promotion,
+	// which is what "a promotion race" in patchanka-perft.test.js catches.
+	"pawnTypes = ps",
+	// Pawns stand on the third rank here, not the second
+	"doubleStepRegionWhite = *3",
+	"doubleStepRegionBlack = *8",
+	"castling = false",
+	""
+].join("\n");
+
+var config_model_levels_patchanka_expert = {
+	"name": "expert",
+	"label": "Expert",
+	"ai": "fairy-stockfish",
+	"variant": "patchanka",
+	"skillLevel": 20,
+	"moveTimeMs": 1000,
+	"customVariantIni": config_model_levels_patchanka_expert_ini
+}
+
+var config_model_levels_15_patchanka_expert =
+	config_model_levels_15.concat([config_model_levels_patchanka_expert]);
+
 // the eleven meshes Patchanka puts on the board, and nothing else
 var config_view_skins_preload_patchanka = [
 	"smoothedfilegeo|0|/res/ring-target.js",
@@ -1521,7 +1589,7 @@ exports.games = {
 					"en": "res/rules/patchanka/patchanka-description.html",
 					"fr": "res/rules/patchanka/patchanka-description-fr.html"
 				},
-				"levels": config_model_levels_15
+				"levels": config_model_levels_15_patchanka_expert
 			},
 			"view": {
 				"title-en": "Chessbase view",
