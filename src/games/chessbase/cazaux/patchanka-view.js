@@ -16,8 +16,8 @@
 
 		var patchankaBoardDelta3d = $.extend(true,{},patchankaBoardDelta,{
 			'colorFill' : {
-				"#": "rgba(207,137,72,1)",
-				".": "rgba(255,204,156,1)",
+				"#": "rgba(94,54,27,0.95)",
+				".": "rgba(196,150,110,0.85)",
 			},
 		});
 
