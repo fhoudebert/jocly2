@@ -1,6 +1,6 @@
 {
-	"bytes": 362568,
-	"digest": "eb41db87bb05b299",
+	"bytes": 367464,
+	"digest": "15a62ab1ea945cca",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -249,6 +249,10 @@
 		{
 			"name": "zanzibar-s-chess",
 			"digest": "dde028c32715a9b0"
+		},
+		{
+			"name": "patchanka-chess",
+			"digest": "2212fd6052a9714e"
 		},
 		{
 			"name": "team-mate-chess",

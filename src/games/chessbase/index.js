@@ -99,6 +99,7 @@ exports.games = [
 	duodecimal["gross-chess"],
 	duodecimal["timurid-chess"],
 	cazaux["zanzibar-s-chess"],
+	cazaux["patchanka-chess"],
 	misc["team-mate-chess"],
 	ultima["ultima"],
 	ultima["rococo"],

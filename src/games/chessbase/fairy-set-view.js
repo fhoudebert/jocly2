@@ -493,6 +493,11 @@
 					clipx: 7700,
 					},
 			},
+			"fr-badger": {
+				"2d": {
+					clipx: 7800,
+					},
+			},
 		},modifier);
 	}
 
@@ -2501,6 +2506,27 @@
 						normal: {
 							texturesImg: {
 								normalImg: "/res/fairy/fortress/fortress-normalmap.jpg",
+							}
+						}
+					}
+				}
+			},
+		},
+		"fr-badger": {
+			mesh: {
+				jsFile:"/res/fairy/badger/badger.js"
+			},
+			materials: {
+				mat0: {
+					channels: {
+						diffuse: {
+							texturesImg: {
+								diffImg : "/res/fairy/badger/badger-diffusemap.jpg",
+							}
+						},
+						normal: {
+							texturesImg: {
+								normalImg: "/res/fairy/badger/badger-normalmap.jpg",
 							}
 						}
 					}

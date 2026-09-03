@@ -167,6 +167,59 @@ var config_view_js_zanzibars = [
 	"cazaux/zanzibar-view.js"
 ]
 
+var modelScripts_patchanka = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"cazaux/patchanka-model.js"
+]
+
+var config_view_js_patchanka = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"cazaux/patchanka-view.js"
+]
+
+// the eleven meshes Patchanka puts on the board, and nothing else
+var config_view_skins_preload_patchanka = [
+	"smoothedfilegeo|0|/res/ring-target.js",
+	"image|/res/images/cancel.png",
+	"image|/res/images/wikipedia.png",
+	"smoothedfilegeo|0|/res/fairy/pawn/pawn.js",
+	"image|/res/fairy/pawn/pawn-diffusemap.jpg",
+	"image|/res/fairy/pawn/pawn-normalmap.jpg",
+	"smoothedfilegeo|0|/res/fairy/corporal/corporal.js",
+	"image|/res/fairy/corporal/corporal-diffusemap.jpg",
+	"image|/res/fairy/corporal/corporal-normalmap.jpg",
+	"smoothedfilegeo|0|/res/fairy/birds/phoenix.js",
+	"image|/res/fairy/birds/phoenix-diffusemap.jpg",
+	"image|/res/fairy/birds/phoenix-normalmap.jpg",
+	"smoothedfilegeo|0|/res/fairy/giraffe/giraffe.js",
+	"image|/res/fairy/giraffe/giraffe-diffusemap.jpg",
+	"image|/res/fairy/giraffe/giraffe-normalmap.jpg",
+	"smoothedfilegeo|0|/res/fairy/badger/badger.js",
+	"image|/res/fairy/badger/badger-diffusemap.jpg",
+	"image|/res/fairy/badger/badger-normalmap.jpg",
+	"smoothedfilegeo|0|/res/fairy/farm/ram.js",
+	"image|/res/fairy/farm/ram-diffusemap.jpg",
+	"image|/res/fairy/farm/ram-normalmap.jpg",
+	"smoothedfilegeo|0|/res/fairy/buffalo/buffalo.js",
+	"image|/res/fairy/buffalo/buffalo-diffusemap.jpg",
+	"image|/res/fairy/buffalo/buffalo-normalmap.jpg",
+	"smoothedfilegeo|0|/res/fairy/antelope/antelope.js",
+	"image|/res/fairy/antelope/antelope-diffusemap.jpg",
+	"image|/res/fairy/antelope/antelope-normalmap.jpg",
+	"smoothedfilegeo|0|/res/fairy/dragon/dragon.js",
+	"image|/res/fairy/dragon/dragon-diffusemap.jpg",
+	"image|/res/fairy/dragon/dragon-normalmap.jpg",
+	"smoothedfilegeo|0|/res/fairy/lighthouse/lighthouse.js",
+	"image|/res/fairy/lighthouse/lighthouse-diffusemap.jpg",
+	"image|/res/fairy/lighthouse/lighthouse-normalmap.jpg",
+	"smoothedfilegeo|0|/res/fairy/king/king.js",
+	"image|/res/fairy/king/king-diffusemap.jpg",
+	"image|/res/fairy/king/king-normalmap.jpg"
+]
+
 exports.games = {
 
 	"shako-chess": {
@@ -1436,6 +1489,73 @@ exports.games = {
 			}
 		},
 		"viewScripts": config_view_js_zanzibars
+	},
+
+	"patchanka-chess": {
+		"name": "patchanka-chess",
+		"modelScripts": modelScripts_patchanka,
+		"config": {
+			"status": true,
+			"model": {
+				"title-en": "Patchanka",
+				"summary": {
+					"en": "10x10 chess of compound pieces",
+					"fr": "Échecs en 10x10 aux pièces composées"
+				},
+				"rules": {
+					"en": "res/rules/patchanka/patchanka-rules.html",
+					"fr": "res/rules/patchanka/patchanka-rules-fr.html"
+				},
+				"module": "chessbase",
+				"plazza": "true",
+				"thumbnail": "res/rules/patchanka/patchanka-thumb.png",
+				"released": 1788393600,
+				"credits": {
+					"en": "res/rules/patchanka/patchanka-credits.html",
+					"fr": "res/rules/patchanka/patchanka-credits-fr.html"
+				},
+				"gameOptions": config_model_gameOptions,
+				"obsolete": false,
+				"js": modelScripts_patchanka,
+				"description": {
+					"en": "res/rules/patchanka/patchanka-description.html",
+					"fr": "res/rules/patchanka/patchanka-description-fr.html"
+				},
+				"levels": config_model_levels_15
+			},
+			"view": {
+				"title-en": "Chessbase view",
+				"visuals": {
+					"600x600": [
+						"res/visuals/patchanka-600x600-2d.jpg"
+					]
+				},
+				"xdView": true,
+				"css": config_view_css,
+				"preferredRatio": 1,
+				"useShowMoves": true,
+				"useNotation": true,
+				"module": "chessbase",
+				"defaultOptions": config_view_defaultOptions,
+				"skins": [
+					{
+						"name": "skin3d",
+						"title": "3D Classic",
+						"3d": true,
+						"preload": config_view_skins_preload_patchanka,
+						"world": config_view_skins_world,
+						"camera": config_view_skins_camera
+					},
+					config_view_skins_9
+				],
+				"animateSelfMoves": false,
+				"switchable": true,
+				"sounds": config_view_sounds,
+				"js": config_view_js_patchanka,
+				"useAutoComplete": true
+			}
+		},
+		"viewScripts": config_view_js_patchanka
 	},
 
 };
