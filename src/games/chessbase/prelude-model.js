@@ -175,6 +175,32 @@
 	}
 
 	/*
+	 * Model.Move.Equals overriding so the setups can be told apart
+	 *
+	 * The chessbase Equals compares f, t and pr - which a prelude move has
+	 * none of. Every setup therefore compared equal to every other, and to the
+	 * turn-pass as well: {setup:2}.Equals({setup:0}) was true. Anything that
+	 * resolves a move to the generated list by Equals - a transcript reader
+	 * matching a parsed "#2", a click handler matching what the user picked -
+	 * came back with the FIRST prelude move whatever it was asked for. The
+	 * game then started from the wrong arrangement and the next recorded move
+	 * was illegal, which is where a load gave up.
+	 *
+	 * JocGame.Load() escaped it because it applies the move it read rather
+	 * than the one it matched, so the failure only showed on the paths that
+	 * go through the list.
+	 */
+	var SuperModelMoveEquals = Model.Move.Equals;
+	Model.Move.Equals = function(move) {
+		// a setup on either side makes this a prelude move, and then the setup
+		// is the whole of its identity - undefined on one side and a number on
+		// the other is the turn-pass against a choice, which must not match
+		if(this.setup!==undefined || move.setup!==undefined)
+			return this.setup===move.setup;
+		return SuperModelMoveEquals.apply(this,arguments);
+	}
+
+	/*
 	 * Model.Board.CompactMoveString overriding to help reading PJN game transcripts
 	 */
 	var SuperModelBoardCompactMoveString = Model.Board.CompactMoveString; 

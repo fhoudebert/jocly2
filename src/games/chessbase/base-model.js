@@ -1518,8 +1518,20 @@
 				this[f]=args[f];
 	}
 
+	/*
+	 * Two moves are the same move when they start and end on the same square
+	 * and promote to the same thing - and, for castling, move the same rook.
+	 *
+	 * That last clause is not decoration. On a small board the castling King
+	 * travels one square, so it lands where its ordinary step would: Malett's
+	 * 5x5 King castles c1-b1 and can also just walk c1-b1. Without cg the two
+	 * compare equal, and anything resolving a recorded or clicked move against
+	 * the generated list - a transcript reader, a click handler - gets
+	 * whichever comes first. Loading a game that castled then quietly replayed
+	 * a King step instead, and the position drifted from the record.
+	 */
 	Model.Move.Equals = function(move) {
-		return this.f==move.f && this.t==move.t && this.pr==move.pr;
+		return this.f==move.f && this.t==move.t && this.pr==move.pr && this.cg==move.cg;
 	}
 	
 	Model.Move.CopyFrom=function(move) {
