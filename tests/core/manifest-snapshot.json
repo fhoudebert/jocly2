@@ -1,6 +1,6 @@
 {
-	"bytes": 368210,
-	"digest": "ebb33a001816f453",
+	"bytes": 360399,
+	"digest": "101cd73c13bfb36c",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -19,8 +19,8 @@
 			"digest": "2098c4159848c160"
 		},
 		{
-			"name": "gardner-chess",
-			"digest": "fe57210934d712e1"
+			"name": "minichess5x5-chess",
+			"digest": "5dc30b30c9de9251"
 		},
 		{
 			"name": "mini4x4-chess",
@@ -33,14 +33,6 @@
 		{
 			"name": "micro4x5-chess",
 			"digest": "973b008104acc45f"
-		},
-		{
-			"name": "baby-chess",
-			"digest": "58117085564329dd"
-		},
-		{
-			"name": "malett-chess",
-			"digest": "45b20ac15169d796"
 		},
 		{
 			"name": "los-alamos-chess",
