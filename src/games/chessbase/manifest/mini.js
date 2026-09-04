@@ -74,6 +74,10 @@ var config_view_js_minichess5x5 = [
 	"base-view.js",
 	"grid-board-view.js",
 	"staunton-set-view.js",
+	// draws the three buttons: it overrides View.Game.xdInit, and without it
+	// the model asks for the prelude, the panel is never built, and the game
+	// opens on a board that answers no click - no error anywhere
+	"prelude-view.js",
 	"mini/minichess5x5-view.js"
 ]
 

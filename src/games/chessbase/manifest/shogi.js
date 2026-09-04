@@ -429,7 +429,7 @@ exports.games = {
 				"animateSelfMoves": false,
 				"switchable": true,
 				"sounds": config_view_sounds,
-				"js": config_view_js_105,
+				"js": config_view_js_kotaishi,
 				"useAutoComplete": true
 			}
 		},
@@ -711,7 +711,7 @@ exports.games = {
 					"en": "res/rules/shogi/kyoto-credits.html"
 				},
 				"gameOptions": config_model_gameOptions_2,
-				"js": modelScripts_107,
+				"js": modelScripts_kyoto,
 				"description": {
 					"en": "res/rules/shogi/kyoto-shogi-description.html"
 				},

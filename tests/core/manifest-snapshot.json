@@ -1,6 +1,6 @@
 {
-	"bytes": 360399,
-	"digest": "101cd73c13bfb36c",
+	"bytes": 360463,
+	"digest": "34fce48f332c8b06",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -20,7 +20,7 @@
 		},
 		{
 			"name": "minichess5x5-chess",
-			"digest": "5dc30b30c9de9251"
+			"digest": "3e3414ba14198cd5"
 		},
 		{
 			"name": "mini4x4-chess",
@@ -288,7 +288,7 @@
 		},
 		{
 			"name": "kotaishi-shogi",
-			"digest": "31aa168f52652b1e"
+			"digest": "8a861438fce01f95"
 		},
 		{
 			"name": "seireigi",
@@ -304,7 +304,7 @@
 		},
 		{
 			"name": "kyoto-shogi",
-			"digest": "e5c3c634e3dd18fc"
+			"digest": "d5b170cfb575d588"
 		},
 		{
 			"name": "tori-shogi",
