@@ -117,4 +117,34 @@ const resolved = position.mMoves.filter((m) => asMove(c.sandbox, castling).Equal
 t.check("looking up the castling finds the castling",
 	resolved.length === 1 && resolved[0].cg === castling.cg, true);
 
+/* ================= naming a castling under another table ================= */
+
+/*
+ * A prelude that swaps the castling table leaves a window where a recorded
+ * castling belongs to one arrangement and cbVar.castle holds another s. That
+ * happens whenever a move list is rendered away from the position that
+ * produced it - a history panel drawn before the prelude has been replayed.
+ * Naming the move used to throw there, which took down the whole list.
+ */
+const arrangements = ["Gardner", "Baby", "Malett"];
+const malettCastling = c.game.cbVar.geometry.PosByName("c1") + "/" + c.game.cbVar.geometry.PosByName("a1");
+const whiteCastling = asMove(c.sandbox, {
+	f: c.game.cbVar.geometry.PosByName("c1"),
+	t: c.game.cbVar.geometry.PosByName("b1"),
+	cg: c.game.cbVar.geometry.PosByName("a1"),
+});
+
+// before any choice at all: cbVar.castle is whatever cbDefine declared
+t.check("a Malett castling can be named before the prelude is answered",
+	whiteCastling.ToString(), "O-O");
+
+for(let setup = 0; setup < arrangements.length; setup++) {
+	let board = H.newBoard(c.sandbox, c.game);
+	board = play(board, { setup: setup });
+	board.GenerateMoves(c.game);
+	play(board, board.mMoves[0]);
+	t.check("and under " + arrangements[setup] + "'s table too",
+		whiteCastling.ToString(), "O-O");
+}
+
 t.done("move identity");

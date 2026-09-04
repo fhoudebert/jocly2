@@ -1538,6 +1538,37 @@
 		this.Init(move);
 	}
 
+	/*
+	 * The name of a castling ("O-O", "O-O-O"), taken from the table entry that
+	 * describes it.
+	 *
+	 * cbVar.castle is not fixed for a game whose prelude swaps arrangements.
+	 * MiniChess 5x5 castles e1-c1 under Gardner and c1-b1 under Malett, and
+	 * Capablanca's ten setups fall into two key sets. Rendering a move list
+	 * while the other table is in force - a history panel drawn before the
+	 * prelude has been replayed, a recorded game stringified from a fresh
+	 * match - looked up a key that was not there and threw on `.n`, which took
+	 * the whole history down rather than one move.
+	 *
+	 * The prelude's own tables are consulted before giving up, so the name
+	 * comes out right whichever setup is currently loaded. Giving up means
+	 * naming the King's move instead of failing to name it: still wrong, but
+	 * wrong in one move rather than fatal.
+	 */
+	function CastleName(move) {
+		var key=move.f+"/"+move.cg;
+		var spec=cbVar.castle && cbVar.castle[key];
+		for(var i=0; !spec && cbVar.prelude && i<cbVar.prelude.length; i++) {
+			var tables=cbVar.prelude[i] && cbVar.prelude[i].castle;
+			for(var j=0; !spec && tables && j<tables.length; j++)
+				if(tables[j])
+					spec=tables[j][key];
+		}
+		if(spec)
+			return spec.n;
+		return (move.a||'')+cbVar.geometry.PosName(move.f)+'-'+cbVar.geometry.PosName(move.t);
+	}
+
 	Model.Move.ToString = function(format) {
 
 		var self = this;
@@ -1550,7 +1581,7 @@
 			var str;
 			if(self.cg!==undefined) {
 				if(self.t>>16) str=self.a+cbVar.geometry.PosName(self.f)+'~'+cbVar.geometry.PosName(self.t&0xffff);
-				else str=cbVar.castle[self.f+"/"+self.cg].n;
+				else str=CastleName(self);
 			} else {
 				str=self.a || '';
 				str+=cbVar.geometry.PosName(self.f);
