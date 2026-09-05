@@ -48,6 +48,42 @@ var config_model_levels_5_malett_expert = config_model_levels_5.concat([config_m
  * its ten arrangements. The three definitions themselves are untouched; only
  * the way they are attached changes.
  */
+/*
+ * The two 4x5 variants are one game with a prelude
+ * (mini/minichess4x5-model.js), so their two engine definitions become one
+ * level with a `variants` list keyed by the prelude's setup index, the same
+ * shape capablanca-chess uses. The definitions themselves are untouched.
+ */
+var config_model_levels_5_minichess4x5_expert = config_model_levels_5.concat([{
+	"name": "expert",
+	"label": "Expert",
+	"ai": "fairy-stockfish",
+	"skillLevel": 20,
+	"moveTimeMs": 1000,
+	"variants": [
+		{ "setup": 0, "variant": config_model_levels_mini4x5_expert.variant,
+		  "customVariantIni": config_model_levels_mini4x5_expert.customVariantIni },
+		{ "setup": 1, "variant": config_model_levels_micro4x5_expert.variant,
+		  "customVariantIni": config_model_levels_micro4x5_expert.customVariantIni },
+	]
+}]);
+
+var modelScripts_minichess4x5 = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"prelude-model.js",
+	"mini/minichess4x5-model.js"
+]
+
+var config_view_js_minichess4x5 = [
+	"base-view.js",
+	"grid-board-view.js",
+	"staunton-set-view.js",
+	// draws the two buttons - see tests/core/script-lists.test.js
+	"prelude-view.js",
+	"mini/minichess4x5-view.js"
+]
+
 var config_model_levels_5_minichess5x5_expert = config_model_levels_5.concat([{
 	"name": "expert",
 	"label": "Expert",
@@ -299,33 +335,33 @@ exports.games = {
 		"viewScripts": config_view_js_4
 	},
 
-	"mini4x5-chess": {
-		"name": "mini4x5-chess",
-		"modelScripts": modelScripts_5,
+	"minichess4x5-chess": {
+		"name": "minichess4x5-chess",
+		"modelScripts": modelScripts_minichess4x5,
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "Mini Chess 4x5",
+				"title-en": "MiniChess 4x5",
 				"summary": {
-					"en": "4x5 mini chess variant",
-					"fr": "Variante d’échecs miniature en 4x5"
+					"en": "Mini and Micro chess on 4x5",
+					"fr": "Mini et Micro échecs en 4x5"
 				},
 				"rules": {
-					"en": "res/rules/mini/mini4x5-rules.html"
+					"en": "res/rules/mini/minichess4x5-rules.html"
 				},
 				"module": "chessbase",
 				"plazza": "true",
-				"thumbnail": "res/rules/mini/mini4x5-thumb.png",
+				"thumbnail": "res/rules/mini/minichess4x5-thumb.png",
 				"released": 1398178576,
 				"credits": {
-					"en": "res/rules/mini/mini4x5-credits.html"
+					"en": "res/rules/mini/minichess4x5-credits.html"
 				},
 				"gameOptions": config_model_gameOptions_2,
 				"obsolete": false,
-				"js": modelScripts_5,
-				"levels": config_model_levels_5_mini4x5_expert,
+				"js": modelScripts_minichess4x5,
+				"levels": config_model_levels_5_minichess4x5_expert,
 				"description": {
-					"en": "res/rules/mini/mini4x5-description.html"
+					"en": "res/rules/mini/minichess4x5-description.html"
 				}
 			},
 			"view": {
@@ -347,67 +383,13 @@ exports.games = {
 				"animateSelfMoves": false,
 				"switchable": true,
 				"sounds": config_view_sounds,
-				"js": config_view_js_5,
+				"js": config_view_js_minichess4x5,
 				"useAutoComplete": true
 			}
 		},
-		"viewScripts": config_view_js_5
+		"viewScripts": config_view_js_minichess4x5
 	},
 
-	"micro4x5-chess": {
-		"name": "micro4x5-chess",
-		"modelScripts": modelScripts_6,
-		"config": {
-			"status": true,
-			"model": {
-				"title-en": "Micro Chess",
-				"summary": {
-					"en": "4x5 chess variant by Glimne (1997)",
-					"fr": "Variante d’échecs 4x5 de Glimne (1997)"
-				},
-				"rules": {
-					"en": "res/rules/mini/micro4x5-rules.html"
-				},
-				"module": "chessbase",
-				"plazza": "true",
-				"thumbnail": "res/rules/mini/micro4x5-thumb.png",
-				"released": 1398178575,
-				"credits": {
-					"en": "res/rules/mini/micro4x5-credits.html"
-				},
-				"gameOptions": config_model_gameOptions_2,
-				"obsolete": false,
-				"js": modelScripts_6,
-				"levels": config_model_levels_5_micro4x5_expert,
-				"description": {
-					"en": "res/rules/mini/micro4x5-description.html"
-				}
-			},
-			"view": {
-				"title-en": "Chessbase view",
-				"visuals": {
-					"600x600": [
-						"res/visuals/micro4x5-600x600-3d.jpg",
-						"res/visuals/micro4x5-600x600-2d.jpg"
-					]
-				},
-				"xdView": true,
-				"css": config_view_css,
-				"preferredRatio": 1,
-				"useShowMoves": true,
-				"useNotation": true,
-				"module": "chessbase",
-				"defaultOptions": config_view_defaultOptions,
-				"skins": config_view_skins_3,
-				"animateSelfMoves": false,
-				"switchable": true,
-				"sounds": config_view_sounds,
-				"js": config_view_js_6,
-				"useAutoComplete": true
-			}
-		},
-		"viewScripts": config_view_js_6
-	},
 
 
 

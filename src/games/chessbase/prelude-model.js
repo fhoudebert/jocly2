@@ -151,9 +151,20 @@
 				if(this.mWho<0) this.zSign^=aGame.wKey(1);
 				if(dialog.castle) aGame.cbVar.castle=dialog.castle[move.setup]; // replace castling rules
 				if(dialog.persistent!==undefined) dialog.persistent=move.setup; // remember choice
+				/*
+				 * The custom hook runs BEFORE the promotion lists are built,
+				 * because those lists are read off the board - the pieces a
+				 * side actually owns in the chosen arrangement - and a hook
+				 * that changes which pieces those are has to have run first.
+				 * MiniChess 4x5 is the case: Mini has Rooks and a Queen, Micro
+				 * a Knight, a Bishop and a Rook, and the hook is what turns
+				 * one array into the other. Computed the other way round, a
+				 * Micro Pawn was offered a promotion to Queen it could not
+				 * have.
+				 */
+				if(dialog.custom && typeof(dialog.custom)=='function') dialog.custom(move.setup,this,aGame);
 				AdjustPromoChoice(dialog.participants,1);
 				AdjustPromoChoice(dialog.blackParticipants,-1);
-				if(dialog.custom && typeof(dialog.custom)=='function') dialog.custom(move.setup,this,aGame);
 			} // turn pass doesn't change game state other than going to the next stage
 			if(++this.lastMove.t==aGame.cbVar.prelude.length) this.lastMove.f=-1; // next stage of prelude, or done with it
 		} else

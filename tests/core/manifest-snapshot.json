@@ -1,6 +1,6 @@
 {
-	"bytes": 360463,
-	"digest": "34fce48f332c8b06",
+	"bytes": 356586,
+	"digest": "9f21ec2a77d9799e",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -27,12 +27,8 @@
 			"digest": "b7a9b10df170a959"
 		},
 		{
-			"name": "mini4x5-chess",
-			"digest": "f528db1ac6e86fa7"
-		},
-		{
-			"name": "micro4x5-chess",
-			"digest": "973b008104acc45f"
+			"name": "minichess4x5-chess",
+			"digest": "0c8bb884b725461d"
 		},
 		{
 			"name": "los-alamos-chess",
