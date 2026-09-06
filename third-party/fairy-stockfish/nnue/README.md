@@ -27,18 +27,30 @@ directory, and rebuild (`gulp build`). The build copies `*.nnue` from here
 into `dist/browser/fairy-stockfish/nnue/` — zero, some, or all files, it
 doesn't matter which are present.
 
-File names expected by the level configs currently declared in
-`src/games/chessbase/index.js` (rename the downloaded files accordingly):
+File names expected by the level configs, which live in
+`src/games/chessbase/manifest/*.js` (rename the downloaded files
+accordingly). This table is generated from those configs - if it disagrees
+with them, they are right and it is stale:
 
-| file                    | used by (Jocly game)  | Fairy-Stockfish variant |
-|-------------------------|-----------------------|-------------------------|
-| `shogi.nnue`            | shogi                 | shogi                   |
-| `xiangqi.nnue`          | xiangqi               | xiangqi                 |
-| `shako.nnue`            | shako                 | shako                   |
-| `spartan.nnue`          | spartan-chess         | spartan                 |
-| `antichess.nnue`        | losing-chess          | antichess               |
-| `kyotoshogi.nnue`       | kyoto-shogi           | kyotoshogi              |
-| `capablanca-chess.nnue` | capablanca-chess      | capablanca (& setups)   |
+| file                    | used by (Jocly game) | Fairy-Stockfish variant         |
+|-------------------------|----------------------|---------------------------------|
+| `antichess.nnue`        | losing-chess         | antichess                       |
+| `capablanca-chess.nnue` | capablanca-chess     | capablanca (& 8 prelude setups) |
+| `crazyhouse.nnue`       | crazyhouse           | crazyhouse                      |
+| `grand.nnue`            | grand-chess          | grand                           |
+| `khans.nnue`            | khans-chess          | khans                           |
+| `kyotoshogi.nnue`       | kyoto-shogi          | kyotoshogi                      |
+| `makruk.nnue`           | makruk               | makruk                          |
+| `minishogi.nnue`        | mini-shogi           | minishogi                       |
+| `shako.nnue`            | shako-chess          | shako                           |
+| `shogi.nnue`            | shogi                | shogi                           |
+| `spartan.nnue`          | spartan-chess        | spartan                         |
+| `xiangqi.nnue`          | xiangqi              | xiangqi                         |
+
+Declaring an `evalFile` costs nothing when the file is absent, so a level may
+name a network the upstream list does not (yet) publish - `antichess.nnue` is
+one such at the time of writing. The level keeps working on classical
+evaluation and picks the network up the day it is dropped in here.
 
 The on-disk names here are free-form: Fairy-Stockfish itself only accepts a
 network whose *file name* starts with the current variant's name, but
@@ -52,11 +64,11 @@ which share Capablanca's exact piece set on the same 10x8 board: the same
 downloaded file is re-written as `/gothic.nnue`, `/joclybird.nnue`, etc. as
 needed. It also means you can keep the upstream hash-suffixed name
 (e.g. `shogi-878ca61334a7.nnue`) if you update the matching `evalFile`
-entry in `index.js` instead of renaming the file.
+entry in the manifest instead of renaming the file.
 
 To wire a network up for another game's Expert level, add an
 `"evalFile": "nnue/<file>.nnue"` field to that level's config in
-`src/games/chessbase/index.js` (path relative to the `fairy-stockfish/`
+`src/games/chessbase/manifest/` (path relative to the `fairy-stockfish/`
 asset directory). Only do this where the network's variant matches the
 level's `variant` (or shares its exact piece set and board size) — a
 network with mismatched feature dimensions will fail Fairy-Stockfish's own

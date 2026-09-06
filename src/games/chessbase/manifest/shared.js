@@ -652,7 +652,12 @@ var config_model_levels_crazyhouse_expert = {
 	"variant": "crazyhouse",
 	"skillLevel": 20,
 	"moveTimeMs": 1000,
-	"pocketGeometry": true
+	"pocketGeometry": true,
+	// Crazyhouse is the variant where the classical evaluation is furthest
+	// out of its depth: material means little when everything captured comes
+	// back. The net is optional like every other one here - absent, the
+	// engine keeps its handcrafted evaluation and nothing breaks.
+	"evalFile": "nnue/crazyhouse.nnue"
 }
 
 // Mini-shogi: same rules and starting position as Fairy-Stockfish's
