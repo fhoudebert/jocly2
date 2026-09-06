@@ -3,19 +3,6 @@ exports.games = (function() {
 		"mills-model.js",
 		"9-men-morris-model.js"
 	]
-	// Nine and Twelve Men's Morris shipped twice each, with and without
-	// flying, differing by one line of options. They are one entry apiece now,
-	// and the rule is chosen by a prelude - see mills-prelude-model.js.
-	var modelScripts_9_prelude = [
-		"mills-model.js",
-		"9-men-morris-model.js",
-		"mills-prelude-model.js"
-	]
-	var modelScripts_12_prelude = [
-		"mills-model.js",
-		"12-men-morris-model.js",
-		"mills-prelude-model.js"
-	]
 	var config_model_levels = {
 		"label": "Easy",
 		"maxDepth": 2,
@@ -47,18 +34,6 @@ exports.games = (function() {
 	var config_view_js = [
 		"mills-xd-view.js",
 		"9-men-morris-view.js"
-	]
-	// the buttons the prelude asks with - without them the game opens on a
-	// question nothing can answer
-	var config_view_js_9_prelude = [
-		"mills-xd-view.js",
-		"9-men-morris-view.js",
-		"mills-prelude-view.js"
-	]
-	var config_view_js_12_prelude = [
-		"mills-xd-view.js",
-		"12-men-morris-view.js",
-		"mills-prelude-view.js"
 	]
 	var config_view_visuals_600x600 = [
 		"res/visuals/ninemen-600x600-3d.jpg",
@@ -166,7 +141,7 @@ exports.games = (function() {
 		"switchable": true,
 		"xdView": true,
 		"css": config_view_css_2,
-		"js": config_view_js_12_prelude,
+		"js": config_view_js_2,
 		"module": "mills",
 		"preferredRatio": 1.2857142857143,
 		"visuals": config_view_visuals_2,
@@ -204,14 +179,14 @@ exports.games = (function() {
 	return [
 		{
 			"name": "9-men-morris",
-			"modelScripts": modelScripts_9_prelude,
+			"modelScripts": modelScripts,
 			"config": {
 				"status": true,
 				"model": {
 					"title-en": "9 Men´s Morris",
 					"summary": {
-						"en": "An old board game, standard or flying",
-						"fr": "Jeu de marelle (x9), standard ou volante"
+						"en":"An old board game",
+						"fr": "Jeu de marelle(x9)"
 					},
 					"rules": config_model_rules,
 					"maxLevel": 7,
@@ -220,13 +195,13 @@ exports.games = (function() {
 					"module": "mills",
 					"description": "description.html",
 					"credits": "credits.html",
-					"js": modelScripts_9_prelude,
+					"js": modelScripts,
 					"gameOptions": {
 						"preventRepeat": true,
 						"width": 7,
 						"height": 7,
 						"mencount": 9,
-						"prelude": true
+						"poundInMill": false
 					},
 					"levels": config_model_levels_4
 				},
@@ -235,7 +210,7 @@ exports.games = (function() {
 					"switchable": true,
 					"xdView": true,
 					"css": config_view_css,
-					"js": config_view_js_9_prelude,
+					"js": config_view_js,
 					"module": "mills",
 					"preferredRatio": 1.2857142857143,
 					"visuals": config_view_visuals,
@@ -247,18 +222,65 @@ exports.games = (function() {
 					"skins": config_view_skins_5
 				}
 			},
-			"viewScripts": config_view_js_9_prelude
+			"viewScripts": config_view_js
+		},
+		{
+			"name": "9-men-morris-fly",
+			"modelScripts": modelScripts,
+			"config": {
+				"status": true,
+				"model": {
+					"title-en": "9 Men´s Morris Fly",
+					"summary": {
+						"en":"An old board game",
+						"fr": "Jeu de marelle volante (x9)"
+					},
+					"rules": config_model_rules,
+					"maxLevel": 7,
+					"plazza": "true",
+					"thumbnail": "mensmorris9-thumb3d.png",
+					"module": "mills",
+					"description": "description.html",
+					"credits": "credits.html",
+					"js": modelScripts,
+					"gameOptions": {
+						"preventRepeat": true,
+						"width": 7,
+						"height": 7,
+						"mencount": 9,
+						"canFly": true
+					},
+					"levels": config_model_levels_4
+				},
+				"view": {
+					"title-en": "9 Men´s Morris View",
+					"switchable": true,
+					"xdView": true,
+					"css": config_view_css,
+					"js": config_view_js,
+					"module": "mills",
+					"preferredRatio": 1.2857142857143,
+					"visuals": config_view_visuals,
+					"animateSelfMoves": false,
+					"useNotation": true,
+					"useShowMoves": true,
+					"defaultOptions": config_view_defaultOptions,
+					"sounds": config_view_sounds,
+					"skins": config_view_skins_5
+				}
+			},
+			"viewScripts": config_view_js
 		},
 		{
 			"name": "12-men-morris",
-			"modelScripts": modelScripts_12_prelude,
+			"modelScripts": modelScripts_2,
 			"config": {
 				"status": true,
 				"model": {
 					"title-en": "12 Men´s Morris",
 					"summary": {
-						"en": "An old board game, standard or flying",
-						"fr": "Jeu de marelle (x12), standard ou volante"
+						"en":"An old board game",
+						"fr": "Jeu de marelle (x12)"
 					},
 					"rules": config_model_rules,
 					"maxLevel": 7,
@@ -267,19 +289,51 @@ exports.games = (function() {
 					"module": "mills",
 					"description": "description.html",
 					"credits": "credits.html",
-					"js": modelScripts_12_prelude,
+					"js": modelScripts_2,
 					"gameOptions": {
 						"preventRepeat": true,
 						"width": 7,
 						"height": 7,
 						"mencount": 12,
-						"prelude": true
+						"poundInMill": false
 					},
 					"levels": config_model_levels_4
 				},
 				"view": config_view
 			},
-			"viewScripts": config_view_js_12_prelude
+			"viewScripts": config_view_js_2
+		},
+		{
+			"name": "12-men-morris-fly",
+			"modelScripts": modelScripts_2,
+			"config": {
+				"status": true,
+				"model": {
+					"title-en": "12 Men´s Morris Fly",
+					"summary": {
+						"en":"An old board game",
+						"fr": "Jeu de marelle volante (x12)"
+					},
+					"rules": config_model_rules,
+					"maxLevel": 7,
+					"plazza": "true",
+					"thumbnail": "mensmorris12-thumb3d.png",
+					"module": "mills",
+					"description": "description.html",
+					"credits": "credits.html",
+					"js": modelScripts_2,
+					"gameOptions": {
+						"preventRepeat": true,
+						"width": 7,
+						"height": 7,
+						"mencount": 12,
+						"canFly": true
+					},
+					"levels": config_model_levels_4
+				},
+				"view": config_view
+			},
+			"viewScripts": config_view_js_2
 		},
 		{
 			"name": "6-men-morris",

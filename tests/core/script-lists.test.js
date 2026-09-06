@@ -24,19 +24,7 @@ const ROOT = path.join(__dirname, "..", "..");
 const H = require("../fairy/harness.js");
 const t = H.runner();
 
-/*
- * Both families now have a prelude: chessbase's is prelude-model.js /
- * prelude-view.js, mills' is its own pair. The pairing rule is the same, so
- * they are checked together rather than once per module - a third family
- * growing a prelude should only have to add its file names here.
- */
-const PRELUDES = [
-	{ module: "chessbase", model: "prelude-model.js", view: "prelude-view.js" },
-	{ module: "mills", model: "mills-prelude-model.js", view: "mills-prelude-view.js" },
-];
-const games = [].concat.apply([], PRELUDES.map((p) =>
-	require(path.join(ROOT, "src", "games", p.module, "index.js")).games
-		.map((g) => Object.assign({ __module: p.module }, g))));
+const games = require(path.join(ROOT, "src", "games", "chessbase", "index.js")).games;
 
 console.log("\nscript lists across " + games.length + " games");
 
@@ -48,11 +36,10 @@ console.log("\nscript lists across " + games.length + " games");
  * it is an unplayable one, so they are required together rather than merely
  * recommended.
  */
-const preludeOf = (name) => PRELUDES.filter((p) => p.module === name)[0];
 const withPreludeModel = games.filter((g) =>
-	(g.modelScripts || []).some((s) => s.split("/").pop() === preludeOf(g.__module).model));
+	(g.modelScripts || []).some((s) => /(^|\/)prelude-model\.js$/.test(s)));
 const withPreludeView = games.filter((g) =>
-	(g.viewScripts || []).some((s) => s.split("/").pop() === preludeOf(g.__module).view));
+	(g.viewScripts || []).some((s) => /(^|\/)prelude-view\.js$/.test(s)));
 
 t.check("some game does use the prelude, or these checks prove nothing",
 	withPreludeModel.length > 0, true);
@@ -79,29 +66,10 @@ t.check("config.model.js and config.view.js match what is bundled", drifted, [])
 const missing = [];
 games.forEach((game) => {
 	(game.modelScripts || []).concat(game.viewScripts || []).forEach((script) => {
-		if(!fs.existsSync(path.join(ROOT, "src", "games", game.__module, script)))
+		if(!fs.existsSync(path.join(ROOT, "src", "games", "chessbase", script)))
 			missing.push(game.name + ": " + script);
 	});
 });
 t.check("every script a game names exists", missing, []);
-
-/* ================= the mills prelude sizes itself from the board ================= */
-
-/*
- * The mills buttons are drawn in the board's own unit - a cell is about one
- * millsSize across, roughly 1333 on a 7x7 - and the first version of that file
- * used the 600-ish numbers the chessbase prelude works in. The panel came out
- * about a fifth of its size, unreadable and awkward to hit. The coupling is
- * one property published by one file and read by the other, so it is worth a
- * line here: broken, the buttons are sized NaN and never appear at all.
- */
-const millsView = path.join(ROOT, "src", "games", "mills", "mills-xd-view.js");
-const millsPrelude = path.join(ROOT, "src", "games", "mills", "mills-prelude-view.js");
-if(fs.existsSync(millsPrelude)) {
-	t.check("mills-xd-view.js publishes the board scale",
-		/this\.millsSize\s*=/.test(fs.readFileSync(millsView, "utf8")), true);
-	t.check("and the prelude sizes its buttons from it",
-		/millsSize/.test(fs.readFileSync(millsPrelude, "utf8")), true);
-}
 
 t.done("script lists");

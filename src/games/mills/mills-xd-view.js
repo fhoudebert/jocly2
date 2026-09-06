@@ -156,16 +156,6 @@
 		SWIDTH=this.mOptions.width+2;
 		HEIGHT=this.mOptions.height;
 		SIZE=Math.floor(Math.min(12000/SWIDTH,12000/HEIGHT));
-		/*
-		 * The scale everything on this board is drawn at - a cell is about one
-		 * SIZE across - published so that gadgets created outside this file
-		 * can size themselves to the same board. mills-prelude-view.js is the
-		 * one that needs it: its buttons were written in bare numbers first
-		 * and came out about a fifth of the size they should be, unreadable
-		 * and barely clickable, because a mills unit is nothing like the 600
-		 * the chessbase prelude works in.
-		 */
-		this.millsSize=SIZE;
 		
 		xdv.createGadget("board", {
 			"2d" : {
