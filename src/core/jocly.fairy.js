@@ -659,6 +659,25 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 				return candidates[promotions[0]];
 		}
 
+		/*
+		 * An exact match first. The fuzzy pass below exists for notation
+		 * differences, not for disagreements about the position, and it cannot
+		 * tell the two apart: asked for a move Jocly does not have, it returns
+		 * the nearest string it does have, which is a DIFFERENT legal move,
+		 * played without a word. The engine and Jocly then drift a move apart
+		 * and the next one is rejected somewhere else entirely, with nothing
+		 * pointing back here.
+		 *
+		 * So when nothing matches exactly, say what the engine asked for and
+		 * what was on offer. The fuzzy pick still happens - it is right often
+		 * enough that refusing to move would be worse - but it is no longer
+		 * silent.
+		 */
+		var exact = engineStrings.map(function (str) { return str.toLowerCase(); })
+			.indexOf(uciMove.toLowerCase());
+		if (exact >= 0)
+			return candidates[exact];
+
 		var bestIndex = -1, bestDist = Infinity;
 		engineStrings.forEach(function (str, index) {
 			var str0 = str.toLowerCase();
@@ -670,6 +689,12 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		});
 		if (bestIndex < 0)
 			throw new Error("fairy-stockfish: could not match engine move '" + uciMove + "' to any legal move");
+		console.error("fairy-stockfish: the engine played '" + uciMove
+			+ "', which is not among Jocly's legal moves for this position - "
+			+ "the two are not looking at the same board. Playing the closest one, '"
+			+ engineStrings[bestIndex] + "'."
+			+ "\n  position: " + (aGame.mBoard.ExportBoardState ? aGame.mBoard.ExportBoardState(aGame) : "?")
+			+ "\n  legal:    " + engineStrings.join(" "));
 		return candidates[bestIndex];
 	}
 
