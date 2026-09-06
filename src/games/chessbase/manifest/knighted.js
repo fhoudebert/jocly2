@@ -54,7 +54,8 @@ exports.games = {
 					"fr": "Échecs en 9x9 (1968)"
 				},
 				"rules": {
-					"en": "res/rules/knighted/modern-rules.html"
+					"en": "res/rules/knighted/modern-rules.html",
+                    "fr": "res/rules/knighted/modern-rules_fr.html"
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -109,7 +110,8 @@ exports.games = {
 					"fr": "Échecs en 9x9 (1887)"
 				},
 				"rules": {
-					"en": "res/rules/knighted/chancellor-rules.html"
+					"en": "res/rules/knighted/chancellor-rules.html",
+                    "fr": "res/rules/knighted/chancellor-rules_fr.html"
 				},
 				"module": "chessbase",
 				"plazza": "true",
