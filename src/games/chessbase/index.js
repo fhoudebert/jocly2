@@ -39,6 +39,7 @@ const ultima = require("./manifest/ultima.js").games;
 exports.games = [
 	famous["classic-chess"],
 	standard["losing-chess"],
+	standard["three-check-chess"],
 	famous["xiangqi"],
 	famous["janggi"],
 	mini["minichess5x5-chess"],

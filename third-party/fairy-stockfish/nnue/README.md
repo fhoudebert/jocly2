@@ -34,6 +34,7 @@ with them, they are right and it is stale:
 
 | file                    | used by (Jocly game) | Fairy-Stockfish variant         |
 |-------------------------|----------------------|---------------------------------|
+| `3check.nnue`           | three-check-chess    | 3check                          |
 | `antichess.nnue`        | losing-chess         | antichess                       |
 | `capablanca-chess.nnue` | capablanca-chess     | capablanca (& 8 prelude setups) |
 | `crazyhouse.nnue`       | crazyhouse           | crazyhouse                      |

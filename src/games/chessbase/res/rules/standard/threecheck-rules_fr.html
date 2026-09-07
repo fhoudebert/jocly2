@@ -1,0 +1,57 @@
+<style>
+	.side {
+		float: right;
+		max-width: 100%;
+	}
+	@media screen and (max-width: 520px) {
+		.side {
+			float: none;
+			display: block;
+			max-width: 100%;
+			margin-right: auto;
+			margin-left: auto;
+		}
+	}
+
+	h1,h2,h3,h4 {
+		clear: both;
+	}
+</style>
+
+<p>Le jeu des trois échecs se joue comme les échecs ordinaires, avec une façon de
+gagner en plus : le premier joueur qui donne échec trois fois remporte
+immédiatement la partie.</p>
+
+<p>Tout le reste suit les
+<a href="http://fr.wikipedia.org/wiki/R%C3%A8gles_du_jeu_d%27%C3%A9checs" target="_blank">règles habituelles</a>.
+Les pièces sont les mêmes et se déplacent de la même façon, le roque, la
+promotion et la prise <i>en passant</i> ne changent pas, et l'échec et mat met
+fin à la partie comme d'ordinaire.</p>
+
+<h3>Le décompte</h3>
+
+<ul>
+	<li>tout coup qui laisse le roi adverse attaqué compte pour un échec, quelle que
+		soit la pièce qui le donne</li>
+	<li>l'échec double - deux pièces attaquant le roi après le même coup - compte
+		pour un seul échec, puisqu'il s'agit d'un seul coup</li>
+	<li>chaque joueur a son propre compteur : donner échec n'efface pas un échec
+		reçu auparavant</li>
+	<li>le coup qui mate est aussi un échec, et il est donc compté, même si la
+		partie est déjà terminée</li>
+</ul>
+
+<h3>Les nulles</h3>
+
+<p>Le pat et la règle des cinquante coups sont nuls, comme d'habitude. Le matériel
+insuffisant ne l'est pas : un roi seul peut encore donner échec, et une position
+morte aux échecs ordinaires peut donc encore se gagner ici. Seul roi contre roi
+est nul.</p>
+
+<h3>Stratégie</h3>
+
+<p>Le matériel compte beaucoup moins que d'ordinaire. Une pièce sacrifiée pour un
+échec auquel on ne peut pas répondre à bon compte est souvent un bon marché, et
+un roi contraint de sortir d'échec perd la partie coup après coup, fût-il une
+pièce devant. À l'inverse, un abri pour le roi payé d'un pion vaut bien plus que
+ce pion : le roi le plus sûr est celui qu'on n'a jamais à compter.</p>
