@@ -799,6 +799,30 @@
 			var self = this;
 
 			var promise = new Promise(function (resolve, reject) {
+				/*
+				 * Changing a view option tears the view down and builds it
+				 * again, and the input state machine does not survive that:
+				 * its click handlers live on the gadgets, and a skin change
+				 * additionally runs xdv.unbuildGadgets(), which destroys every
+				 * gadget's representation. Only View.Board.HumanTurn binds
+				 * them, and it is not called from here.
+				 *
+				 * So a user whose turn it was lost the board on any option
+				 * change until something restarted the turn: the sample app
+				 * happens to call RunMatch() after every setViewOptions(),
+				 * which aborts the pending turn and starts a fresh one. An
+				 * embedder that does not know to do that gets a board that
+				 * ignores clicks - and the symptom is confusing, because
+				 * toggling a second option puts it right.
+				 *
+				 * Ending the turn and starting it again around the rebuild
+				 * keeps the promise userTurn() is waiting on: HumanMove is
+				 * still the closure it installed, so the move resolves the
+				 * original call.
+				 */
+				var userTurnPending = !!self.userTurnReject;
+				if (userTurnPending)
+					self.game.HumanTurnEnd();
 				self.game.GameDestroyView();
 				const optDefs = {
 					"mSkin": "skin",
@@ -815,6 +839,8 @@
 					self.game.mViewAs = options.viewAs;
 				self.game.GameInitView();
 				self.game.DisplayBoard();
+				if (userTurnPending)
+					self.game.HumanTurn();
 				resolve();
 			});
 			return promise;

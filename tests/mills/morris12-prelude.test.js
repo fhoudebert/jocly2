@@ -96,8 +96,11 @@ board.GenerateMoves(m12.game);
 t.check("one move per rule set", board.mMoves.map((m) => m.setup), [0, 1]);
 t.check("the panel names both",
 	m12.game.mOptions.prelude[0].labels, ["12 Men´s Morris", "12 Men´s Morris Fly"]);
-t.check("and says what each does",
-	(m12.game.mOptions.prelude[0].hints || []).length, 2);
+// The button is the name and nothing else. A second line explaining the
+// difference was tried and dropped: it has to be translated, and it says less
+// than the rules page it duplicates.
+t.check("a button carries only the name",
+	(m12.game.mOptions.prelude[0].hints || []).length, 0);
 
 // mills spells out all four Move methods and every one of them handles exactly
 // f, t and c. A setup dropped by Init or CopyFrom makes every button choose
@@ -365,12 +368,15 @@ t.check("after mills-xd-view.js, which publishes the cell size",
 t.check("the dialog survives JSON",
 	JSON.parse(JSON.stringify(m.config.model.gameOptions.prelude))[0].rules.length, 2);
 
-// the view is the plain 12-men one with the overlay appended, not a copy
-{
-	const plain = entry("12-men-morris").config.view, merged = m.config.view;
-	t.check("the view differs from the plain game only in its scripts",
-		Object.keys(plain).filter((k) => k != "js" && JSON.stringify(plain[k]) != JSON.stringify(merged[k])), []);
-}
+// The view is the 12-men one with the overlay appended. The plain entry it was
+// derived from is gone, so what is left to check is that the overlay is the
+// only difference from what the module's other 12-men view scripts expect: the
+// board and the set are unchanged, and only the script list grew.
+t.check("the view adds the overlay and nothing else",
+	m.config.view.js, ["mills-xd-view.js", "12-men-morris-view.js", "prelude-view.js"]);
+t.check("on the module's own 12-men board and set",
+	[m.config.view.css, m.config.model.gameOptions.width, m.config.model.gameOptions.mencount],
+	[["mills.css", "12-men-morris.css"], 7, 12]);
 
 ["rules-morris12.html", "rules-morris12-fr.html"].forEach((file) => {
 	t.check(file + " exists", fs.existsSync(path.join(MILLS, file)), true);

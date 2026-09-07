@@ -117,10 +117,6 @@ exports.games = (function() {
 		config_view_skins_3,
 		config_view_skins_4
 	]
-	var modelScripts_2 = [
-		"mills-model.js",
-		"12-men-morris-model.js"
-	]
 	var config_view_css_2 = [
 		"mills.css",
 		"12-men-morris.css"
@@ -162,10 +158,6 @@ exports.games = (function() {
 			"labels": [
 				"12 Men´s Morris",
 				"12 Men´s Morris Fly"
-			],
-			"hints": [
-				"A man in a mill is safe",
-				"Down to three men, they fly"
 			],
 			"persistent": true,
 			"rules": [
@@ -364,70 +356,6 @@ exports.games = (function() {
 				"view": config_view_morris12
 			},
 			"viewScripts": config_view_js_morris12
-		},
-		{
-			"name": "12-men-morris",
-			"modelScripts": modelScripts_2,
-			"config": {
-				"status": true,
-				"model": {
-					"title-en": "12 Men´s Morris",
-					"summary": {
-						"en":"An old board game",
-						"fr": "Jeu de marelle (x12)"
-					},
-					"rules": config_model_rules,
-					"maxLevel": 7,
-					"plazza": "true",
-					"thumbnail": "mensmorris12-thumb3d.png",
-					"module": "mills",
-					"description": "description.html",
-					"credits": "credits.html",
-					"js": modelScripts_2,
-					"gameOptions": {
-						"preventRepeat": true,
-						"width": 7,
-						"height": 7,
-						"mencount": 12,
-						"poundInMill": false
-					},
-					"levels": config_model_levels_4
-				},
-				"view": config_view
-			},
-			"viewScripts": config_view_js_2
-		},
-		{
-			"name": "12-men-morris-fly",
-			"modelScripts": modelScripts_2,
-			"config": {
-				"status": true,
-				"model": {
-					"title-en": "12 Men´s Morris Fly",
-					"summary": {
-						"en":"An old board game",
-						"fr": "Jeu de marelle volante (x12)"
-					},
-					"rules": config_model_rules,
-					"maxLevel": 7,
-					"plazza": "true",
-					"thumbnail": "mensmorris12-thumb3d.png",
-					"module": "mills",
-					"description": "description.html",
-					"credits": "credits.html",
-					"js": modelScripts_2,
-					"gameOptions": {
-						"preventRepeat": true,
-						"width": 7,
-						"height": 7,
-						"mencount": 12,
-						"canFly": true
-					},
-					"levels": config_model_levels_4
-				},
-				"view": config_view
-			},
-			"viewScripts": config_view_js_2
 		},
 		{
 			"name": "6-men-morris",

@@ -40,11 +40,10 @@
 	 * came out unreadable.
 	 *
 	 * At 1333: a button is 2933 x 1333, the panel 7065 x 2133 - a little under
-	 * three fifths of the board's width - and the two type sizes are 400 and
-	 * 200.
+	 * three fifths of the board's width - and the name is set at 400.
 	 */
 	var BUTTON_W = 2.2, BUTTON_H = 1.0, GAP = 0.3;
-	var NAME_SIZE = 0.3, HINT_SIZE = 0.15;
+	var NAME_SIZE = 0.3;
 
 	function Layout(dialog) {
 		var n = dialog.labels.length;
@@ -103,7 +102,6 @@
 
 		dialog.labels.forEach(function(label, setup) {
 			var col = setup % box.cols, row = Math.floor(setup / box.cols);
-			var hint = (dialog.hints || [])[setup];
 			xdv.createGadget("setup" + n + "#" + setup, {
 				base: {
 					type: "canvas",
@@ -121,12 +119,7 @@
 						ctx.textBaseline = "middle";
 						ctx.fillStyle = "#202020";
 						FitFont(ctx, label, bw * 0.9, NAME_SIZE * size, "bold");
-						ctx.fillText(label, 0, hint ? -bh * 0.15 : 0);
-						if(hint) {
-							ctx.fillStyle = "#505050";
-							FitFont(ctx, hint, bw * 0.92, HINT_SIZE * size, "normal");
-							ctx.fillText(hint, 0, bh * 0.22);
-						}
+						ctx.fillText(label, 0, 0);
 					},
 				},
 			});
