@@ -85,7 +85,9 @@ const RULE_FLAGS = (() => {
 	while((m = re.exec(src)) !== null)
 		if(found.indexOf(m[1]) < 0)
 			found.push(m[1]);
-	return found;
+	// Graph and Coord are written into the same object by BuildGraphCoord but
+	// are the board's geometry, not rules: no dialog can touch them.
+	return found.filter((f) => f != "Graph" && f != "Coord");
 })();
 
 t.check("the rule flags were found in checkersbase-model", RULE_FLAGS.length > 12, true);
@@ -151,25 +153,122 @@ t.check("and the opening moves are real moves",
 
 /* ------------------------------------------------------ the merge itself */
 
-const LEGACY = ["english-draughts", "brazilian-draughts", "spanish-draughts", "german-draughts"];
-
-const flagsOf = (game) => {
-	const out = {};
-	RULE_FLAGS.forEach((f) => { out[f] = game.g[f]; });
-	out.invertNotation = game.g.invertNotation;
-	return out;
+/*
+ * What the four standalone games produced, captured from their manifests on
+ * the commit that removed them (checkers/index.js, entries english-draughts,
+ * brazilian-draughts, spanish-draughts and german-draughts) by running their
+ * InitGame and reading aGame.g.
+ *
+ * Comparing against the live games would say more, and did until they were
+ * deleted; a merge is only proven by reproducing what it replaces. Frozen,
+ * this still holds the prelude to the four rule sets it claims to offer - it
+ * just no longer notices if the base defaults move underneath them, which is
+ * what the RULE_FLAGS check below is for.
+ */
+const LEGACY_FLAGS = {
+	"english-draughts": {
+		compulsoryCatch: true,
+		canStepBack: true,
+		mustMoveForward: false,
+		mustMoveForwardStrict: true,
+		lastRowFreeze: false,
+		lastRowCrown: true,
+		captureLongestLine: true,
+		noMove: "lose",
+		kingCaptureShort: true,
+		kingValue: 2,
+		lastRowFactor: 0.001,
+		canCaptureBackward: false,
+		captureInstantRemove: false,
+		longRangeKing: false,
+		drawKvsK: true,
+		drawKvs2K: true,
+		whiteStarts: false,
+		king180deg: false,
+		suicide: false,
+		invertNotation: true,
+	},
+	"brazilian-draughts": {
+		compulsoryCatch: true,
+		canStepBack: true,
+		mustMoveForward: false,
+		mustMoveForwardStrict: true,
+		lastRowFreeze: false,
+		lastRowCrown: true,
+		captureLongestLine: true,
+		noMove: "lose",
+		kingCaptureShort: false,
+		kingValue: 5,
+		lastRowFactor: 0.001,
+		canCaptureBackward: true,
+		captureInstantRemove: false,
+		longRangeKing: true,
+		drawKvsK: true,
+		drawKvs2K: true,
+		whiteStarts: true,
+		king180deg: false,
+		suicide: false,
+		invertNotation: false,
+	},
+	"spanish-draughts": {
+		compulsoryCatch: true,
+		canStepBack: true,
+		mustMoveForward: false,
+		mustMoveForwardStrict: true,
+		lastRowFreeze: false,
+		lastRowCrown: true,
+		captureLongestLine: true,
+		noMove: "lose",
+		kingCaptureShort: false,
+		kingValue: 5,
+		lastRowFactor: 0.001,
+		canCaptureBackward: false,
+		captureInstantRemove: false,
+		longRangeKing: true,
+		drawKvsK: true,
+		drawKvs2K: true,
+		whiteStarts: true,
+		king180deg: false,
+		suicide: false,
+		invertNotation: false,
+	},
+	"german-draughts": {
+		compulsoryCatch: true,
+		canStepBack: true,
+		mustMoveForward: false,
+		mustMoveForwardStrict: true,
+		lastRowFreeze: false,
+		lastRowCrown: true,
+		captureLongestLine: false,
+		noMove: "lose",
+		kingCaptureShort: false,
+		kingValue: 4,
+		lastRowFactor: 0.001,
+		canCaptureBackward: true,
+		captureInstantRemove: false,
+		longRangeKing: true,
+		drawKvsK: true,
+		drawKvs2K: true,
+		whiteStarts: true,
+		king180deg: false,
+		suicide: false,
+		invertNotation: false,
+	},
 };
 
+t.check("the frozen table covers every rule flag the base sets",
+	RULE_FLAGS.filter((f) => LEGACY_FLAGS["english-draughts"][f] === undefined), []);
+
+const LEGACY = ["english-draughts", "brazilian-draughts", "spanish-draughts", "german-draughts"];
+
 LEGACY.forEach((name, setup) => {
-	const legacy = newGame(name);
 	const merged = newGame("draughts8");
 	choose(merged.game, merged.sandbox, setup);
-	const want = flagsOf(legacy.game);
-	// the standalone games carry invertNotation as a top-level option, the
-	// merged one through the prelude, so compare the effective value
-	want.invertNotation = !!legacy.game.mOptions.invertNotation;
-	const got = flagsOf(merged.game);
-	got.invertNotation = !!got.invertNotation;
+	const want = LEGACY_FLAGS[name];
+	const got = {};
+	Object.keys(want).forEach((f) => {
+		got[f] = f == "invertNotation" ? !!merged.game.g[f] : merged.game.g[f];
+	});
 	t.check("button " + setup + " reproduces " + name, got, want);
 });
 
