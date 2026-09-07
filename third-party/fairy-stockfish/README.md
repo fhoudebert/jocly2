@@ -5,7 +5,7 @@ This directory contains the pre-compiled WebAssembly/Emscripten build of
 engine by Fabian Fichter derived from Stockfish, with NNUE support.
 
 These files are a custom compilation that add bent rider (see pull request)
-[fairy-stockfish/fairy-stockfish.wasm](https://github.com/fhoudebert/fairy-stockfish.wasm/releases/tag/PR-1035)
+[fairy-stockfish for jocly](https://github.com/fhoudebert/Fairy-Stockfish/releases/)
 repository:
 
 - `stockfish.js` — Emscripten-generated loader/module (UCI protocol over
