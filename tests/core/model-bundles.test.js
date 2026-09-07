@@ -108,8 +108,10 @@ function build(moduleDir, entry) {
 }
 
 // Modules whose model scripts are pure JavaScript with no browser globals.
-// Others are not excluded on principle, only untested here.
-const MODULES = ["checkers"];
+// Others are not excluded on principle, only untested here. mills joined when
+// its prelude was added: that game appends a third script to lists whose last
+// file ends in a bare "}", the exact shape this catches.
+const MODULES = ["checkers", "mills"];
 
 let checked = 0;
 MODULES.forEach((moduleName) => {

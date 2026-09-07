@@ -129,6 +129,58 @@ exports.games = (function() {
 		"mills-xd-view.js",
 		"12-men-morris-view.js"
 	]
+	// The merged 12-men game: the prelude asks which rule set before the first
+	// move. prelude-model.js must come after mills-model.js, whose InitGame,
+	// board methods and all four Move methods it wraps; prelude-view.js after
+	// mills-xd-view.js, whose xdInit publishes the cell size it measures in
+	// and whose state machine it stands in for.
+	var modelScripts_morris12 = [
+		"mills-model.js",
+		"12-men-morris-model.js",
+		"prelude-model.js"
+	]
+	var config_view_js_morris12 = [
+		"mills-xd-view.js",
+		"12-men-morris-view.js",
+		"prelude-view.js"
+	]
+	/*
+	 * The two rule sets, as the differences from the manifest's own options.
+	 *
+	 * Each names every option it needs even when the value matches the
+	 * default, because prelude-model.js restores the defaults before applying
+	 * a set. Without that, picking the plain game after the flying one would
+	 * keep canFly and play a third game that is neither.
+	 *
+	 * Note poundInMill is tested as "== false" in mills-model.js, so leaving
+	 * it out is not the same as setting it true: undefined allows a man in a
+	 * mill to be taken, which is what the flying variant does.
+	 */
+	var config_model_prelude_morris12 = [
+		{
+			"panelWidth": 2,
+			"labels": [
+				"12 Men´s Morris",
+				"12 Men´s Morris Fly"
+			],
+			"hints": [
+				"A man in a mill is safe",
+				"Down to three men, they fly"
+			],
+			"persistent": true,
+			"rules": [
+				{
+					"poundInMill": false,
+					"canFly": false
+				},
+				{
+					"poundInMill": true,
+					"canFly": true
+				}
+			]
+		},
+		0
+	]
 	var config_view_visuals_600x600_2 = [
 		"res/visuals/twelvemen-600x600-3d.jpg",
 		"res/visuals/twelvemen-600x600-2d.jpg"
@@ -152,6 +204,12 @@ exports.games = (function() {
 		"sounds": config_view_sounds,
 		"skins": config_view_skins_5
 	}
+	// The board and the set are the plain 12-men ones; only the script list
+	// differs, so the view is that one with the overlay appended rather than a
+	// copy that could drift from it.
+	var config_view_morris12 = Object.assign({}, config_view, {
+		"js": config_view_js_morris12
+	})
 	var modelScripts_3 = [
 		"mills-model.js",
 		"6-men-morris-model.js"
@@ -270,6 +328,42 @@ exports.games = (function() {
 				}
 			},
 			"viewScripts": config_view_js
+		},
+		{
+			"name": "morris12",
+			"modelScripts": modelScripts_morris12,
+			"config": {
+				"status": true,
+				"model": {
+					"title-en": "12 Men´s Morris",
+					"summary": {
+						"en": "An old board game, plain or flying",
+						"fr": "Jeu de marelle (x12), simple ou volante"
+					},
+					"rules": {
+						"en": "rules-morris12.html",
+						"fr": "rules-morris12-fr.html"
+					},
+					"maxLevel": 7,
+					"plazza": "true",
+					"thumbnail": "mensmorris12-thumb3d.png",
+					"module": "mills",
+					"description": "description.html",
+					"credits": "credits.html",
+					"js": modelScripts_morris12,
+					"gameOptions": {
+						"preventRepeat": true,
+						"width": 7,
+						"height": 7,
+						"mencount": 12,
+						"poundInMill": false,
+						"prelude": config_model_prelude_morris12
+					},
+					"levels": config_model_levels_4
+				},
+				"view": config_view_morris12
+			},
+			"viewScripts": config_view_js_morris12
 		},
 		{
 			"name": "12-men-morris",
