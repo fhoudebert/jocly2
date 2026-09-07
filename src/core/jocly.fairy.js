@@ -202,6 +202,40 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 	var workersByGame = (typeof WeakMap != "undefined") ? new WeakMap() : null;
 	var fallbackWorkerSlot = null; // used in environments without WeakMap (legacy browsers)
 
+	/*
+	 * Engine transport.
+	 *
+	 * In the browser the engine is the wasm build running in a dedicated
+	 * Worker (jocly.fairyworker.js). Native hosts - Tabulon
+	 * (https://biscandine.fr/variantes/tabulon/), Electron, plain Node -
+	 * have no Worker and no reason to pay for wasm when a real
+	 * Fairy-Stockfish binary is available locally, so they can install
+	 * their own transport instead:
+	 *
+	 *   JoclyFairy.setEngineProvider(function (baseURL, aGame, aOptions) {
+	 *     return <Worker-shaped object>;
+	 *   });
+	 *
+	 * "Worker-shaped" means exactly what this file already uses and
+	 * nothing more: a postMessage(message) method, and assignable
+	 * onmessage / onerror properties (both are reassigned per search by
+	 * startMachine below, so the transport must read them at dispatch
+	 * time rather than capturing them once). The message protocol is the
+	 * one jocly.fairyworker.js implements - in: Init / Search / Stop,
+	 * out: Ready / Progress / Done / Aborted / Error - so a provider is a
+	 * drop-in replacement, not a second code path through this file.
+	 *
+	 * jocly.fairynative.js is such a provider, driving a native
+	 * fairy-stockfish binary over stdio.
+	 *
+	 * Setting it to null restores the built-in Worker behaviour.
+	 */
+	var engineProvider = null;
+
+	JoclyFairy.setEngineProvider = function (provider) {
+		engineProvider = provider || null;
+	};
+
 	function GetOrCreateWorker(aGame, aOptions) {
 		var existing = workersByGame ? workersByGame.get(aGame) : (fallbackWorkerSlot && fallbackWorkerSlot.game === aGame ? fallbackWorkerSlot.worker : null);
 		if (existing)
@@ -213,9 +247,16 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		// process, tests...), so aOptions.baseURL lets callers override it
 		// explicitly there.
 		var baseURL = (aOptions && aOptions.baseURL) || (aGame.config && aGame.config.baseURL) || "";
-		if (typeof Worker == "undefined")
-			throw new Error("fairy-stockfish: no Worker available in this environment (browser-only feature)");
-		var worker = new Worker(baseURL + "jocly.fairyworker.js");
+		var worker;
+		if (engineProvider) {
+			worker = engineProvider(baseURL, aGame, aOptions);
+			if (!worker)
+				throw new Error("fairy-stockfish: engine provider returned no engine");
+		} else {
+			if (typeof Worker == "undefined")
+				throw new Error("fairy-stockfish: no Worker available in this environment, and no engine provider installed (see JoclyFairy.setEngineProvider)");
+			worker = new Worker(baseURL + "jocly.fairyworker.js");
+		}
 		var readyPromise = new Promise(function (resolve, reject) {
 			worker.onmessage = function (e) {
 				var message = e.data;
@@ -244,6 +285,47 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 			fallbackWorkerSlot = { game: aGame, worker: entry };
 		return entry;
 	}
+
+	/*
+	 * Releases the engine held for a game. Called from JocGame.GameDestroyGame.
+	 *
+	 * A WeakMap frees its ENTRY once the game is collected; it does not stop
+	 * whatever the entry refers to. That is harmless for a wasm Worker - the
+	 * page takes it down on unload - but an engine provider may hand back a
+	 * child process, and the garbage collector knows nothing about processes.
+	 * On a long-running host that opens and closes games, one Fairy-Stockfish
+	 * process would survive every game, each with its own threads and hash.
+	 *
+	 * So the engine is released explicitly, like aiWorker already is, rather
+	 * than left to a collector that cannot do it.
+	 */
+	JoclyFairy.releaseEngine = function (aGame) {
+		var entry = null;
+		if (workersByGame) {
+			entry = workersByGame.get(aGame);
+			workersByGame.delete(aGame);
+		} else if (fallbackWorkerSlot && fallbackWorkerSlot.game === aGame) {
+			entry = fallbackWorkerSlot.worker;
+			fallbackWorkerSlot = null;
+		}
+		if (!entry || !entry.worker)
+			return;
+		// A search may still be running. Ending it here rather than letting
+		// terminate() cut the worker off mid-answer is what lets its promise
+		// settle: an unsettled one would hold aGame through its own closure,
+		// long after the WeakMap entry has gone.
+		if (entry.cancelSearch)
+			try { entry.cancelSearch(); } catch (e) { /* already settled */ }
+		// A rejected ready promise with no handler left would surface as an
+		// unhandled rejection once we drop the entry.
+		if (entry.ready && entry.ready.catch)
+			entry.ready.catch(function () { });
+		try {
+			entry.worker.terminate();
+		} catch (e) {
+			console.warn("Cannot terminate fairy-stockfish engine", e);
+		}
+	};
 
 	/*
 	 * Builds a standard FEN (board placement + "[...]" pocket section) for
@@ -508,6 +590,94 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		var engineStrings = candidates.map(function (m) {
 			return (typeof m.ToString == "function") ? m.ToString(moveFormat) : aGame.CreateMove(m).ToString(moveFormat);
 		});
+		/*
+		 * Fairy-Stockfish spells a *piece* promotion shogi-style, with a
+		 * trailing "+" (c9d10+), where Jocly names the piece it turns into
+		 * (c9d10H). Pawn promotions agree - both write the letter - so this
+		 * only concerns games declaring promotedPieceType, i.e. currently
+		 * Timurid. Such a promotion is mandatory and has a single target, so
+		 * the from/to pair identifies the move on its own; match on it
+		 * exactly rather than leaving a systematic notation difference to be
+		 * settled by edit distance below. If it turns out ambiguous, fall
+		 * through to the fuzzy match rather than guessing.
+		 */
+		if (uciMove.charAt(uciMove.length - 1) === "+") {
+			var prefix = uciMove.slice(0, -1);
+			var promotions = [];
+			engineStrings.forEach(function (str, index) {
+				var s = str.toLowerCase();
+				if (s === prefix || (s.length === prefix.length + 1 && s.indexOf(prefix) === 0))
+					promotions.push(index);
+			});
+			if (promotions.length === 1)
+				return candidates[promotions[0]];
+		}
+
+		/*
+		 * Fairy-Stockfish spells a *piece* promotion shogi-style, with a
+		 * trailing "+" (c9d10+), where Jocly names the piece it turns into
+		 * (c9d10H). Pawn promotions agree - both write the letter - so this
+		 * only concerns games declaring promotedPieceType, i.e. currently
+		 * Timurid. Such a promotion is mandatory and has a single target, so
+		 * the from/to pair identifies the move on its own; match on it
+		 * exactly rather than leaving a systematic notation difference to be
+		 * settled by edit distance below. If it turns out ambiguous, fall
+		 * through to the fuzzy match rather than guessing.
+		 */
+		if (uciMove.charAt(uciMove.length - 1) === "+") {
+			var prefix = uciMove.slice(0, -1);
+			var promotions = [];
+			engineStrings.forEach(function (str, index) {
+				var s = str.toLowerCase();
+				if (s === prefix || (s.length === prefix.length + 1 && s.indexOf(prefix) === 0))
+					promotions.push(index);
+			});
+			if (promotions.length === 1)
+				return candidates[promotions[0]];
+		}
+
+		/*
+		 * Fairy-Stockfish spells a *piece* promotion shogi-style, with a
+		 * trailing "+" (c9d10+), where Jocly names the piece it turns into
+		 * (c9d10H). Pawn promotions agree - both write the letter - so this
+		 * only concerns games declaring promotedPieceType, i.e. currently
+		 * Timurid. Such a promotion is mandatory and has a single target, so
+		 * the from/to pair identifies the move on its own; match on it
+		 * exactly rather than leaving a systematic notation difference to be
+		 * settled by edit distance below. If it turns out ambiguous, fall
+		 * through to the fuzzy match rather than guessing.
+		 */
+		if (uciMove.charAt(uciMove.length - 1) === "+") {
+			var prefix = uciMove.slice(0, -1);
+			var promotions = [];
+			engineStrings.forEach(function (str, index) {
+				var s = str.toLowerCase();
+				if (s === prefix || (s.length === prefix.length + 1 && s.indexOf(prefix) === 0))
+					promotions.push(index);
+			});
+			if (promotions.length === 1)
+				return candidates[promotions[0]];
+		}
+
+		/*
+		 * An exact match first. The fuzzy pass below exists for notation
+		 * differences, not for disagreements about the position, and it cannot
+		 * tell the two apart: asked for a move Jocly does not have, it returns
+		 * the nearest string it does have, which is a DIFFERENT legal move,
+		 * played without a word. The engine and Jocly then drift a move apart
+		 * and the next one is rejected somewhere else entirely, with nothing
+		 * pointing back here.
+		 *
+		 * So when nothing matches exactly, say what the engine asked for and
+		 * what was on offer. The fuzzy pick still happens - it is right often
+		 * enough that refusing to move would be worse - but it is no longer
+		 * silent.
+		 */
+		var exact = engineStrings.map(function (str) { return str.toLowerCase(); })
+			.indexOf(uciMove.toLowerCase());
+		if (exact >= 0)
+			return candidates[exact];
+
 		var bestIndex = -1, bestDist = Infinity;
 		engineStrings.forEach(function (str, index) {
 			var str0 = str.toLowerCase();
@@ -519,6 +689,12 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		});
 		if (bestIndex < 0)
 			throw new Error("fairy-stockfish: could not match engine move '" + uciMove + "' to any legal move");
+		console.error("fairy-stockfish: the engine played '" + uciMove
+			+ "', which is not among Jocly's legal moves for this position - "
+			+ "the two are not looking at the same board. Playing the closest one, '"
+			+ engineStrings[bestIndex] + "'."
+			+ "\n  position: " + (aGame.mBoard.ExportBoardState ? aGame.mBoard.ExportBoardState(aGame) : "?")
+			+ "\n  legal:    " + engineStrings.join(" "));
 		return candidates[bestIndex];
 	}
 
@@ -670,6 +846,13 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 			})
 			.then(function () {
 				return new Promise(function (resolve, reject) {
+					// releaseEngine() terminates the worker, so a search still
+					// running at that moment would never hear back from it and
+					// this promise would never settle - which keeps its closure,
+					// and aGame with it, alive for good. That is the very leak
+					// the WeakMap was meant to avoid, so leave a way to end it
+					// the same way a user-requested stop does.
+					entry.cancelSearch = function () { reject({ aborted: true }); };
 					entry.worker.onmessage = function (e) {
 						var message = e.data;
 						switch (message.type) {
@@ -702,6 +885,7 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 				});
 			})
 			.then(function (data) {
+				delete entry.cancelSearch;
 				if (!data.bestMoveUci || data.bestMoveUci === "(none)") {
 					// no legal move: position is actually terminal: let the
 					// generic engine confirm finished/winner state with an
@@ -716,6 +900,7 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 				aGame.Done();
 			})
 			.catch(function (err) {
+				delete entry.cancelSearch;
 				delete aGame.mFairyAbort;
 				if (err && err.aborted) {
 					aGame.mBestMoves = [];

@@ -1,6 +1,6 @@
 {
-	"bytes": 360052,
-	"digest": "605e2880a0bcad6c",
+	"bytes": 362273,
+	"digest": "6b0c446981650664",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -11,6 +11,10 @@
 			"digest": "6678c3c104fa25ae"
 		},
 		{
+			"name": "three-check-chess",
+			"digest": "ab97cc0200264ca6"
+		},
+		{
 			"name": "xiangqi",
 			"digest": "24ee14c345e224c5"
 		},
@@ -19,28 +23,16 @@
 			"digest": "2098c4159848c160"
 		},
 		{
-			"name": "gardner-chess",
-			"digest": "fe57210934d712e1"
+			"name": "minichess5x5-chess",
+			"digest": "3e3414ba14198cd5"
 		},
 		{
 			"name": "mini4x4-chess",
 			"digest": "b7a9b10df170a959"
 		},
 		{
-			"name": "mini4x5-chess",
-			"digest": "f528db1ac6e86fa7"
-		},
-		{
-			"name": "micro4x5-chess",
-			"digest": "973b008104acc45f"
-		},
-		{
-			"name": "baby-chess",
-			"digest": "58117085564329dd"
-		},
-		{
-			"name": "malett-chess",
-			"digest": "45b20ac15169d796"
+			"name": "minichess4x5-chess",
+			"digest": "0c8bb884b725461d"
 		},
 		{
 			"name": "los-alamos-chess",
@@ -56,7 +48,7 @@
 		},
 		{
 			"name": "makruk",
-			"digest": "b3b6d82919fc0cf6"
+			"digest": "bf27af90c3e4a1b4"
 		},
 		{
 			"name": "shako-chess",
@@ -136,7 +128,7 @@
 		},
 		{
 			"name": "grand-chess",
-			"digest": "118af6423b4500a8"
+			"digest": "a8b9c69a3c207521"
 		},
 		{
 			"name": "hectochess",
@@ -148,11 +140,11 @@
 		},
 		{
 			"name": "modern-chess",
-			"digest": "4142fbf52bf6b7b9"
+			"digest": "f1872f5c3d83bf88"
 		},
 		{
 			"name": "chancellor-chess",
-			"digest": "0fdc1dbddea5398d"
+			"digest": "f41dd19bb87c2800"
 		},
 		{
 			"name": "wildebeest-chess",
@@ -244,11 +236,15 @@
 		},
 		{
 			"name": "timurid-chess",
-			"digest": "bcaa830d307d73a0"
+			"digest": "b9122e1bd3fd8afb"
 		},
 		{
 			"name": "zanzibar-s-chess",
 			"digest": "dde028c32715a9b0"
+		},
+		{
+			"name": "patchanka-chess",
+			"digest": "f47b7213f49924c8"
 		},
 		{
 			"name": "team-mate-chess",
@@ -280,11 +276,11 @@
 		},
 		{
 			"name": "khans-chess",
-			"digest": "108549260473b865"
+			"digest": "efed232c6ffd9925"
 		},
 		{
 			"name": "scirocco-chess",
-			"digest": "e935430e74de54dd"
+			"digest": "baa49517bd001410"
 		},
 		{
 			"name": "shogi",
@@ -292,7 +288,7 @@
 		},
 		{
 			"name": "kotaishi-shogi",
-			"digest": "31aa168f52652b1e"
+			"digest": "8a861438fce01f95"
 		},
 		{
 			"name": "seireigi",
@@ -304,11 +300,11 @@
 		},
 		{
 			"name": "mini-shogi",
-			"digest": "80e4f7fa3a9e2fb8"
+			"digest": "5704c14109f0bc79"
 		},
 		{
 			"name": "kyoto-shogi",
-			"digest": "e5c3c634e3dd18fc"
+			"digest": "d5b170cfb575d588"
 		},
 		{
 			"name": "tori-shogi",
@@ -336,7 +332,7 @@
 		},
 		{
 			"name": "crazyhouse",
-			"digest": "8da5b49677d780d8"
+			"digest": "1d93123061b0c977"
 		}
 	]
 }

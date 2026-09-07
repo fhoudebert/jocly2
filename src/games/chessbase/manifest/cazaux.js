@@ -167,6 +167,141 @@ var config_view_js_zanzibars = [
 	"cazaux/zanzibar-view.js"
 ]
 
+var modelScripts_patchanka = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"cazaux/patchanka-model.js"
+]
+
+var config_view_js_patchanka = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"cazaux/patchanka-view.js"
+]
+
+/*
+ * Patchanka as a Fairy-Stockfish custom variant. Every piece here is a
+ * compound, and the engine takes each one as its Betza notation, so the
+ * definitions below read the same as the graphs in patchanka-model.js.
+ *
+ * No pieceMap: mBoard.ExportBoardState() already produces the startFen
+ * character for character.
+ *
+ * Checked against the bundled engine by tests/fairy/patchanka-perft.test.js,
+ * which compares move counts with the model's own to depth 4. That test is
+ * what the ini needs rather than a reading of the documentation: a key the
+ * engine does not recognise is skipped in silence, and several of the ones
+ * below change nothing at all at depth 1.
+ */
+var config_model_levels_patchanka_expert_ini = [
+	"[patchanka]",
+	"maxRank = 10",
+	"maxFile = 10",
+	"pawn = p",
+	"king = k",
+	// fsmWfceFfmnD - the Soldier. "nD" is the lame Dabbaba: the double step
+	// needs the crossed square empty. Unlike the Pawn's it carries no "i", so
+	// it is available from every rank, which is the whole point of the piece.
+	"customPiece1 = s:fsmWfceFfmnD",
+	"customPiece2 = h:WA",
+	"customPiece3 = i:FD",
+	"customPiece4 = b:BD",
+	"customPiece5 = r:RA",
+	"customPiece6 = z:CZ",
+	"customPiece7 = o:NZ",
+	"customPiece8 = w:NC",
+	"customPiece9 = q:QAD",
+	"startFen = 3okzw3/rhibssbihr/pppppppppp/10/10/10/10/PPPPPPPPPP/RHIBSSBIHR/3OKZW3 w - - 0 1",
+	"promotionRegionWhite = *10",
+	"promotionRegionBlack = *1",
+	// a Pawn or a Soldier promotes to a Medusa and to nothing else
+	"promotionPieceTypes = q",
+	// Kirin -> Badger, Phoenix -> Ram. Leaving this out costs nothing at
+	// depth 1 - the promotion is mandatory, so it is the same single move
+	// either way - and the engine then plays on with unpromoted Kirins.
+	"promotedPieceType = i:b h:r",
+	"mandatoryPiecePromotion = true",
+	// The Soldier counts as a Pawn for promotion, en passant and the n-move
+	// rule. This one key stands in for promotionPawnTypes, enPassantTypes and
+	// enPassantTargetTypes: each of those was tried explicitly and each turned
+	// out redundant with it set. Removing it costs the Soldier its promotion,
+	// which is what "a promotion race" in patchanka-perft.test.js catches.
+	"pawnTypes = ps",
+	/*
+	 * The Soldier keeps its double step all game, so it never makes a move
+	 * that "only its initial move set could reach" - which is the test
+	 * Fairy-Stockfish applies to decide whether a non-pawn leaves an en
+	 * passant square behind it. Without this key it steps two squares and
+	 * nothing can answer, and the engine plays a Patchanka where that is
+	 * always safe. See tests/fairy/patchanka-perft.test.js, whose two en
+	 * passant cases play the double step as a move rather than handing the
+	 * square over in a FEN, which is the only way to see the difference.
+	 *
+	 * enPassantTypes is not needed alongside it: pawnTypes already lets the
+	 * Soldier be the piece doing the capturing.
+	 */
+	"enPassantTargetTypes = s",
+	// Pawns stand on the third rank here, not the second
+	"doubleStepRegionWhite = *3",
+	"doubleStepRegionBlack = *8",
+	"castling = false",
+	""
+].join("\n");
+
+var config_model_levels_patchanka_expert = {
+	"name": "expert",
+	"label": "Expert",
+	"ai": "fairy-stockfish",
+	"variant": "patchanka",
+	"skillLevel": 20,
+	"moveTimeMs": 1000,
+	"customVariantIni": config_model_levels_patchanka_expert_ini
+}
+
+var config_model_levels_15_patchanka_expert =
+	config_model_levels_15.concat([config_model_levels_patchanka_expert]);
+
+// the eleven meshes Patchanka puts on the board, and nothing else
+var config_view_skins_preload_patchanka = [
+	"smoothedfilegeo|0|/res/ring-target.js",
+	"image|/res/images/cancel.png",
+	"image|/res/images/wikipedia.png",
+	"smoothedfilegeo|0|/res/fairy/pawn/pawn.js",
+	"image|/res/fairy/pawn/pawn-diffusemap.jpg",
+	"image|/res/fairy/pawn/pawn-normalmap.jpg",
+	"smoothedfilegeo|0|/res/fairy/corporal/corporal.js",
+	"image|/res/fairy/corporal/corporal-diffusemap.jpg",
+	"image|/res/fairy/corporal/corporal-normalmap.jpg",
+	"smoothedfilegeo|0|/res/fairy/birds/phoenix.js",
+	"image|/res/fairy/birds/phoenix-diffusemap.jpg",
+	"image|/res/fairy/birds/phoenix-normalmap.jpg",
+	"smoothedfilegeo|0|/res/fairy/giraffe/giraffe.js",
+	"image|/res/fairy/giraffe/giraffe-diffusemap.jpg",
+	"image|/res/fairy/giraffe/giraffe-normalmap.jpg",
+	"smoothedfilegeo|0|/res/fairy/badger/badger.js",
+	"image|/res/fairy/badger/badger-diffusemap.jpg",
+	"image|/res/fairy/badger/badger-normalmap.jpg",
+	"smoothedfilegeo|0|/res/fairy/farm/ram.js",
+	"image|/res/fairy/farm/ram-diffusemap.jpg",
+	"image|/res/fairy/farm/ram-normalmap.jpg",
+	"smoothedfilegeo|0|/res/fairy/buffalo/buffalo.js",
+	"image|/res/fairy/buffalo/buffalo-diffusemap.jpg",
+	"image|/res/fairy/buffalo/buffalo-normalmap.jpg",
+	"smoothedfilegeo|0|/res/fairy/antelope/antelope.js",
+	"image|/res/fairy/antelope/antelope-diffusemap.jpg",
+	"image|/res/fairy/antelope/antelope-normalmap.jpg",
+	"smoothedfilegeo|0|/res/fairy/dragon/dragon.js",
+	"image|/res/fairy/dragon/dragon-diffusemap.jpg",
+	"image|/res/fairy/dragon/dragon-normalmap.jpg",
+	"smoothedfilegeo|0|/res/fairy/lighthouse/lighthouse.js",
+	"image|/res/fairy/lighthouse/lighthouse-diffusemap.jpg",
+	"image|/res/fairy/lighthouse/lighthouse-normalmap.jpg",
+	"smoothedfilegeo|0|/res/fairy/king/king.js",
+	"image|/res/fairy/king/king-diffusemap.jpg",
+	"image|/res/fairy/king/king-normalmap.jpg"
+]
+
 exports.games = {
 
 	"shako-chess": {
@@ -1436,6 +1571,73 @@ exports.games = {
 			}
 		},
 		"viewScripts": config_view_js_zanzibars
+	},
+
+	"patchanka-chess": {
+		"name": "patchanka-chess",
+		"modelScripts": modelScripts_patchanka,
+		"config": {
+			"status": true,
+			"model": {
+				"title-en": "Patchanka",
+				"summary": {
+					"en": "10x10 chess of compound pieces",
+					"fr": "Échecs en 10x10 aux pièces composées"
+				},
+				"rules": {
+					"en": "res/rules/patchanka/patchanka-rules.html",
+					"fr": "res/rules/patchanka/patchanka-rules-fr.html"
+				},
+				"module": "chessbase",
+				"plazza": "true",
+				"thumbnail": "res/rules/patchanka/patchanka-thumb.png",
+				"released": 1788393600,
+				"credits": {
+					"en": "res/rules/patchanka/patchanka-credits.html",
+					"fr": "res/rules/patchanka/patchanka-credits-fr.html"
+				},
+				"gameOptions": config_model_gameOptions,
+				"obsolete": false,
+				"js": modelScripts_patchanka,
+				"description": {
+					"en": "res/rules/patchanka/patchanka-description.html",
+					"fr": "res/rules/patchanka/patchanka-description-fr.html"
+				},
+				"levels": config_model_levels_15_patchanka_expert
+			},
+			"view": {
+				"title-en": "Chessbase view",
+				"visuals": {
+					"600x600": [
+						"res/visuals/patchanka-600x600-2d.jpg"
+					]
+				},
+				"xdView": true,
+				"css": config_view_css,
+				"preferredRatio": 1,
+				"useShowMoves": true,
+				"useNotation": true,
+				"module": "chessbase",
+				"defaultOptions": config_view_defaultOptions,
+				"skins": [
+					{
+						"name": "skin3d",
+						"title": "3D Classic",
+						"3d": true,
+						"preload": config_view_skins_preload_patchanka,
+						"world": config_view_skins_world,
+						"camera": config_view_skins_camera
+					},
+					config_view_skins_9
+				],
+				"animateSelfMoves": false,
+				"switchable": true,
+				"sounds": config_view_sounds,
+				"js": config_view_js_patchanka,
+				"useAutoComplete": true
+			}
+		},
+		"viewScripts": config_view_js_patchanka
 	},
 
 };

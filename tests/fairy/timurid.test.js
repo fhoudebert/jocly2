@@ -25,7 +25,7 @@ const engine = timurid.engine, typeNamed = timurid.typeNamed, reach = timurid.re
  */
 function movesFrom(pieces, square, who) {
 	const board = H.setup(sandbox, game,
-		Object.assign({ a1: "wK", l12: "bK" }, pieces), who || 1);
+		Object.assign({ a1: "wK", l10: "bK" }, pieces), who || 1);
 	board.lastMove = { f: -1, t: -1 };
 	board.mMoves = [];
 	board.GenerateMoves(game);
@@ -38,51 +38,60 @@ const t = H.runner();
 
 console.log("\nthe pieces");
 
-t.check("a 12 x 12 board", [geo.width, geo.height], [12, 12]);
+t.check("a 12 x 10 board", [geo.width, geo.height], [12, 10]);
 
 // "Griffon: moves one square diagonally and then, goes away ... vertically or
 // horizontally"
-t.check("Griffon: a diagonal step then a straight ray", reach("griffon", "g7"), 40);
+t.check("Griffon: a diagonal step then a straight ray", reach("griffon", "g5"), 36);
 // "Rhinoceros: it moves one square vertically or horizontally and then,
 // slides away ... diagonally"
-t.check("Rhinoceros: a straight step then a diagonal ray", reach("rhino", "g7"), 40);
+t.check("Rhinoceros: a straight step then a diagonal ray", reach("rhino", "g5"), 35);
 // "Ship: moves one square diagonally and then, goes away ... vertically,
 // never horizontally"
-t.check("Ship: a diagonal step then a vertical ray", reach("ship", "g7"), 22);
+t.check("Ship: a diagonal step then a vertical ray", reach("ship", "g5"), 18);
 // "Snake: moves one square vertically and then, slides away ... diagonally"
-t.check("Snake: a vertical step then a diagonal ray", reach("snake", "g7"), 20);
+t.check("Snake: a vertical step then a diagonal ray", reach("snake", "g5"), 16);
 // "Lion: it jumps on any square situated at 1 or 2 squares distance"
-t.check("Lion: everything one or two squares away", reach("lion", "g7"), 24);
+t.check("Lion: everything one or two squares away", reach("lion", "g5"), 24);
 // "Squirrel: jumps at 2 squares"
-t.check("Squirrel: the ring two squares out", reach("squirrel", "g7"), 16);
-// "Wizard: a compound of the Ferz and the Camel"
-t.check("Wizard: Ferz and Camel", reach("wizard", "g7"), 12);
-// "Emir: combines the move of the Camel, the Knight and the ferz"
-t.check("Emir: Camel, Knight and Ferz", reach("emir", "g7"), 20);
+t.check("Squirrel: the ring two squares out", reach("squirrel", "g5"), 16);
+// The Machine of the other Cazaux games, in the Samarkand setups where the
+// Wizard used to stand: Wazir plus Dabbaba, so eight squares in the open.
+t.check("Machine: Wazir and Dabbaba", reach("machine", "g5"), 8);
+// The Emir keeps its name, letter and appearance but moves as an Osprey now:
+// a two-square orthogonal leap, then a diagonal ride away from the start.
+t.check("Emir: an Osprey, leap then diagonal ride", reach("emir", "g5"), 28);
+// It leaps, so a piece on the square in between changes nothing: g7 is still
+// reachable, and so is the diagonal ride that starts there.
+t.check("Emir: the square leapt over is irrelevant",
+	movesFrom({ g5: "wC", g6: "wP" }, "g5").indexOf("g5g7") >= 0, true);
+t.check("Emir: but the square it lands on does block the ride",
+	movesFrom({ g5: "wC", g7: "bP" }, "g5").filter((m) => /^g5[hf]8$/.test(m)), []);
 // "Admiral: a Rook that can also step one space diagonally"
 t.check("Admiral: Rook and a King's step",
-	reach("amiral", "g7"), reach("rook", "g7") + 4);
+	reach("amiral", "g5"), reach("rook", "g5") + 4);
 // "Elephant: moves one or two squares diagonally", jumping
-t.check("Elephant: Ferz and Alfil", reach("elephant", "g7"), 8);
+t.check("Elephant: Ferz and Alfil", reach("elephant", "g5"), 8);
 // "Camel: it jumps to the opposite case of a 2x4 rectangle"
-t.check("Camel: the 8 (3,1) squares", reach("camel", "g7"), 8);
+t.check("Camel: the 8 (3,1) squares", reach("camel", "g5"), 8);
 // "Prince: ... Like the Pawn, he can also move without capturing to the
-// second square straight ahead"
-t.check("Prince: eight neighbours and the second square ahead", reach("princew", "g7"), 9);
+// second square straight ahead". Eight neighbours plus that second square.
+t.check("Prince: eight neighbours and the second square ahead", reach("princew", "g5"), 9);
+t.check("Prince: and it is the same for Black", reach("princeb", "g5"), 9);
 
 /* ---------------- the Pawn ---------------- */
 
 console.log("\nthe Pawn keeps its double step, wherever it stands");
 
 /*
- * Twelve ranks to cross: a Pawn restricted to the orthodox two-step-from-home
- * would take eleven moves to promote. Here it may always step twice, which is
+ * Ten ranks to cross: a Pawn restricted to the orthodox two-step-from-home
+ * would take nine moves to promote. Here it may always step twice, which is
  * a deliberate departure from the "exactly as in usual Chess" of the rules
  * page - and it stays non-jumping, so a piece in front still stops it dead.
  */
 t.check("two steps from its own rank", movesFrom({ g3: "wP" }, "g3"), ["g3g4", "g3g5"]);
-t.check("two steps further up the board too", movesFrom({ g7: "wP" }, "g7"), ["g7g8", "g7g9"]);
-t.check("and for Black", movesFrom({ g10: "bP" }, "g10", -1), ["g10g8", "g10g9"]);
+t.check("two steps further up the board too", movesFrom({ g6: "wP" }, "g6"), ["g6g7", "g6g8"]);
+t.check("and for Black", movesFrom({ g9: "bP" }, "g9", -1), ["g9g7", "g9g8"]);
 t.check("Black too, once it has left its rank",
 	movesFrom({ g6: "bP" }, "g6", -1), ["g6g4", "g6g5"]);
 t.check("it cannot jump the square in front", movesFrom({ g3: "wP", g4: "bN" }, "g3"), []);
@@ -90,7 +99,9 @@ t.check("blocked two ahead, it still steps one",
 	movesFrom({ g3: "wP", g5: "bN" }, "g3"), ["g3g4"]);
 
 // "Pawn: exactly as in usual Chess" - which includes en passant, and the
-// Prince's double step is caught the same way
+// Prince's double step is caught the same way. On the engine side that needs
+// enPassantTargetTypes, since Fairy-Stockfish otherwise only marks a non-pawn
+// as an en passant target on a move its *initial* move set alone could make.
 t.check("Pawns capture en passant",
 	Object.keys(types).filter((k) => types[k].epCatch).map((k) => types[k].name).sort(),
 	["ipawnb", "ipawnw"]);
@@ -109,7 +120,7 @@ const promotesTo = (name) => {
 		{ t: to, f: to - geo.width, c: null }) || []).map((into) => types[into].name);
 };
 [["ipawnw", "queen"], ["ship", "griffon"], ["snake", "rhino"],
- ["squirrel", "lion"], ["wizard", "emir"], ["princew", "queen"]].forEach(([piece, into]) => {
+ ["squirrel", "lion"], ["machine", "emir"], ["princew", "queen"]].forEach(([piece, into]) => {
 	t.check(piece + " promotes to " + into, promotesTo(piece), [into]);
 });
 /*
@@ -121,7 +132,7 @@ t.check("the Admiral promotes to a Queen as well", promotesTo("amiral"), ["queen
 // and nothing else does
 t.check("no other piece promotes",
 	Object.keys(types).filter((k) => promotesTo(types[k].name).length
-		&& ["ipawnw", "ipawnb", "ship", "snake", "squirrel", "wizard",
+		&& ["ipawnw", "ipawnb", "ship", "snake", "squirrel", "machine",
 			"princew", "princeb", "amiral"].indexOf(types[k].name) < 0)
 		.map((k) => types[k].name), []);
 

@@ -262,6 +262,11 @@ gulp.task("build-node-core", function () {
 			"src/core/jocly.util.js",
 			"src/core/jocly.uct.js",
 			"src/core/jocly.fairy.js",
+			// Node build only: drives a native Fairy-Stockfish binary over
+			// stdio for hosts with no Worker (Tabulon, Electron). It uses
+			// require("child_process"), so it must stay out of the browser
+			// bundle below.
+			"src/core/jocly.fairynative.js",
 			"src/core/jocly.game.js"
 		]));
 

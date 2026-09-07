@@ -1,0 +1,55 @@
+<style>
+	.side {
+		float: right;
+		max-width: 100%;
+	}
+	@media screen and (max-width: 520px) {
+		.side {
+			float: none;
+			display: block;
+			max-width: 100%;
+			margin-right: auto;
+			margin-left: auto;
+		}
+	}
+
+	h1,h2,h3,h4 {
+		clear: both;
+	}
+</style>
+
+<p>Three-check Chess is ordinary chess with one extra way to win: the first player
+to give check three times wins the game immediately.</p>
+
+<p>Everything else follows the normal
+<a href="http://en.wikipedia.org/wiki/Rules_of_chess" target="_blank">Chess rules</a>.
+The pieces are the same and move the same way, castling, promotion and
+<i>en passant</i> capture are unchanged, and checkmate still ends the game at once.</p>
+
+<h3>Counting the checks</h3>
+
+<ul>
+	<li>a move that leaves the opposing king attacked counts as one check, whatever
+		piece delivers it</li>
+	<li>double check - two pieces attacking the king after the same move - counts
+		as one check, not two, because it is one move</li>
+	<li>each player has their own count: giving check does not undo a check
+		received earlier</li>
+	<li>a checkmating move is a check as well, so it is counted too, though the
+		game is already over</li>
+</ul>
+
+<h3>Draws</h3>
+
+<p>Stalemate and the fifty-move rule are draws, as usual. Insufficient material is
+not: a lone king can still give check, so a position that would be dead in
+ordinary chess may still be won here. Only bare king against bare king is a
+draw.</p>
+
+<h3>Strategy</h3>
+
+<p>Material matters much less than usual. A piece sacrificed for a check that
+cannot be answered cheaply is often a good trade, and a king that has to keep
+stepping out of check is losing the game one move at a time even while a piece
+ahead. Conversely, a king shelter that costs a pawn is worth far more than the
+pawn: the safest king is the one that never has to be counted.</p>

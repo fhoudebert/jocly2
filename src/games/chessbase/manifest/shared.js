@@ -288,7 +288,8 @@ var config_model_levels_grand_expert = {
 	"variant": "grand",
 	"skillLevel": 20,
 	"moveTimeMs": 1000,
-	"pieceMap": { "M": "C" }
+	"pieceMap": { "M": "C" },
+	"evalFile": "nnue/grand.nnue"
 }
 
 // Capablanca-chess module (capa10x8/capablanca-model.js): a single
@@ -407,6 +408,24 @@ var config_model_levels_antichess_expert = {
 	"evalFile": "nnue/antichess.nnue"
 }
 
+// Three-check: same board, same pieces and same FEN as plain chess, plus one
+// extra field carrying the checks still to be given. standard/threecheck-model.js
+// writes that field itself in its ExportBoardState() override, in the exact
+// place and sense Fairy-Stockfish's threecheck_variant() startFen uses
+// ("rnbqkbnr/... w KQkq - 3+3 0 1": remaining checks, White first, fifth
+// field) - so nothing is needed here beyond naming the variant. Fairy-
+// Stockfish's own "5check" is the same variant with those numbers at 5; it
+// would pair with a TC_MAX of 5 in the model.
+var config_model_levels_threecheck_expert = {
+	"name": "expert",
+	"label": "Expert",
+	"ai": "fairy-stockfish",
+	"variant": "3check",
+	"skillLevel": 20,
+	"moveTimeMs": 1000,
+	"evalFile": "nnue/3check.nnue"
+}
+
 // Chess960 (Fischer Random): same rules/position-randomization as
 // Fairy-Stockfish's "fischerandom", no pieceMap needed - but, unlike
 // every other level above, this one *requires* "chess960": true. Without
@@ -454,7 +473,8 @@ var config_model_levels_makruk_expert = {
 	"variant": "makruk",
 	"skillLevel": 20,
 	"moveTimeMs": 1000,
-	"pieceMap": { "B": "S", "Q": "M" }
+	"pieceMap": { "B": "S", "Q": "M" },
+	"evalFile": "nnue/makruk.nnue"
 }
 
 // Wildebeest: 11x10 board, already declared as an official example
@@ -650,7 +670,12 @@ var config_model_levels_crazyhouse_expert = {
 	"variant": "crazyhouse",
 	"skillLevel": 20,
 	"moveTimeMs": 1000,
-	"pocketGeometry": true
+	"pocketGeometry": true,
+	// Crazyhouse is the variant where the classical evaluation is furthest
+	// out of its depth: material means little when everything captured comes
+	// back. The net is optional like every other one here - absent, the
+	// engine keeps its handcrafted evaluation and nothing breaks.
+	"evalFile": "nnue/crazyhouse.nnue"
 }
 
 // Mini-shogi: same rules and starting position as Fairy-Stockfish's
@@ -664,7 +689,8 @@ var config_model_levels_minishogi_expert = {
 	"variant": "minishogi",
 	"skillLevel": 20,
 	"moveTimeMs": 1000,
-	"pocketGeometry": true
+	"pocketGeometry": true,
+	"evalFile": "nnue/minishogi.nnue"
 }
 
 // Kyoto Shogi: same starting position as Fairy-Stockfish's
@@ -1746,7 +1772,8 @@ module.exports = {
 	config_model_levels_xiangqi_expert, config_model_levels_shatranj_expert,
 	config_model_levels_knightmate_expert, config_model_levels_grand_expert,
 	config_model_levels_capablanca_missing_setups_ini, config_model_levels_capablanca_expert,
-	config_model_levels_antichess_expert, config_model_levels_chess960_expert,
+	config_model_levels_antichess_expert, config_model_levels_threecheck_expert,
+	config_model_levels_chess960_expert,
 	config_model_levels_makruk_expert, config_model_levels_wildebeest_expert_ini,
 	config_model_levels_wildebeest_expert, config_model_levels_heavychess_expert_ini,
 	config_model_levels_heavychess_expert, config_model_levels_shogi_expert,

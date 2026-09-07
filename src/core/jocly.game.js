@@ -473,6 +473,20 @@ JocGame.prototype.GameDestroyGame = function() {
 		this.DestroyGame();
 		this.mGameInited=false;
 	}
+	/*
+	 * The Fairy-Stockfish engine is held in a WeakMap keyed by this game (see
+	 * jocly.fairy.js). A WeakMap frees its entry, not what the entry holds:
+	 * with a native engine provider that is a child process, and no collector
+	 * kills a process. Release it here, where aiWorker is already released.
+	 */
+	try {
+		// Meme test que StartThreadedMachine plus bas : JoclyFairy peut ne
+		// pas etre charge du tout (voir le chargement en tete de fichier).
+		if(typeof JoclyFairy!="undefined" && JoclyFairy.releaseEngine)
+			JoclyFairy.releaseEngine(this);
+	} catch(e) {
+		console.warn("Cannot release fairy-stockfish engine",e);
+	}
 	if(this.aiWorker) {
 		try {
 			this.aiWorker.terminate();

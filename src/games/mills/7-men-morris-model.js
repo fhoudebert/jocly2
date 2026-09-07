@@ -86,4 +86,4 @@ Model.Board.StaticGenerateMoves = function(aGame) {
 		return [{f:-1,t:16,c:-1}];
 	}
 	return null;
-}
+};

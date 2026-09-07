@@ -151,9 +151,20 @@
 				if(this.mWho<0) this.zSign^=aGame.wKey(1);
 				if(dialog.castle) aGame.cbVar.castle=dialog.castle[move.setup]; // replace castling rules
 				if(dialog.persistent!==undefined) dialog.persistent=move.setup; // remember choice
+				/*
+				 * The custom hook runs BEFORE the promotion lists are built,
+				 * because those lists are read off the board - the pieces a
+				 * side actually owns in the chosen arrangement - and a hook
+				 * that changes which pieces those are has to have run first.
+				 * MiniChess 4x5 is the case: Mini has Rooks and a Queen, Micro
+				 * a Knight, a Bishop and a Rook, and the hook is what turns
+				 * one array into the other. Computed the other way round, a
+				 * Micro Pawn was offered a promotion to Queen it could not
+				 * have.
+				 */
+				if(dialog.custom && typeof(dialog.custom)=='function') dialog.custom(move.setup,this,aGame);
 				AdjustPromoChoice(dialog.participants,1);
 				AdjustPromoChoice(dialog.blackParticipants,-1);
-				if(dialog.custom && typeof(dialog.custom)=='function') dialog.custom(move.setup,this,aGame);
 			} // turn pass doesn't change game state other than going to the next stage
 			if(++this.lastMove.t==aGame.cbVar.prelude.length) this.lastMove.f=-1; // next stage of prelude, or done with it
 		} else
@@ -172,6 +183,32 @@
 				return "#"+this.setup;
 		}
 		return SuperModelMoveToString.apply(this,arguments);
+	}
+
+	/*
+	 * Model.Move.Equals overriding so the setups can be told apart
+	 *
+	 * The chessbase Equals compares f, t and pr - which a prelude move has
+	 * none of. Every setup therefore compared equal to every other, and to the
+	 * turn-pass as well: {setup:2}.Equals({setup:0}) was true. Anything that
+	 * resolves a move to the generated list by Equals - a transcript reader
+	 * matching a parsed "#2", a click handler matching what the user picked -
+	 * came back with the FIRST prelude move whatever it was asked for. The
+	 * game then started from the wrong arrangement and the next recorded move
+	 * was illegal, which is where a load gave up.
+	 *
+	 * JocGame.Load() escaped it because it applies the move it read rather
+	 * than the one it matched, so the failure only showed on the paths that
+	 * go through the list.
+	 */
+	var SuperModelMoveEquals = Model.Move.Equals;
+	Model.Move.Equals = function(move) {
+		// a setup on either side makes this a prelude move, and then the setup
+		// is the whole of its identity - undefined on one side and a number on
+		// the other is the turn-pass against a choice, which must not match
+		if(this.setup!==undefined || move.setup!==undefined)
+			return this.setup===move.setup;
+		return SuperModelMoveEquals.apply(this,arguments);
 	}
 
 	/*

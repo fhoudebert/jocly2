@@ -1,0 +1,28 @@
+/*
+ * Three-check: the pips marking how many checks a king has received.
+ *
+ * Drawn with gradients rather than an image so the game ships no extra asset,
+ * and sized in percentages so they scale with the square whatever the board
+ * size or skin. The colours match TC_COLORS in standard/threecheck-view.js,
+ * which paints the 3D ring.
+ */
+
+.cb-tc-pips {
+	pointer-events: none;
+	background-repeat: no-repeat;
+}
+
+.cb-tc-1 {
+	background-image:
+		radial-gradient(circle, #e8a33d 0, #e8a33d 38%, rgba(0,0,0,0) 44%);
+	background-size: 26% 26%;
+	background-position: 8% 8%;
+}
+
+.cb-tc-2 {
+	background-image:
+		radial-gradient(circle, #d0342c 0, #d0342c 38%, rgba(0,0,0,0) 44%),
+		radial-gradient(circle, #d0342c 0, #d0342c 38%, rgba(0,0,0,0) 44%);
+	background-size: 26% 26%, 26% 26%;
+	background-position: 8% 8%, 32% 8%;
+}

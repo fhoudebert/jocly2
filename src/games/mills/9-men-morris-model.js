@@ -94,4 +94,4 @@ Model.Game.BuildGraphCoord = function() {
 	                 [5,13,20],
 	                 [2,14,23],
     ];
-}
+};
