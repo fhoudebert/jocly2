@@ -1,6 +1,6 @@
 {
-	"bytes": 356620,
-	"digest": "471902cfcdee8f1d",
+	"bytes": 356755,
+	"digest": "b93986f05860816b",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -136,11 +136,11 @@
 		},
 		{
 			"name": "modern-chess",
-			"digest": "4142fbf52bf6b7b9"
+			"digest": "f1872f5c3d83bf88"
 		},
 		{
 			"name": "chancellor-chess",
-			"digest": "0fdc1dbddea5398d"
+			"digest": "f41dd19bb87c2800"
 		},
 		{
 			"name": "wildebeest-chess",
@@ -232,7 +232,7 @@
 		},
 		{
 			"name": "timurid-chess",
-			"digest": "310339be570bd422"
+			"digest": "b9122e1bd3fd8afb"
 		},
 		{
 			"name": "zanzibar-s-chess",

@@ -23,6 +23,38 @@
 
 	// graphs
 
+	// The Prince moves as a King, plus a Pawn-like second step straight ahead
+	// that cannot capture - which is what makes it capturable en passant. It
+	// was dropped when Timurid moved to ten ranks, because Fairy-Stockfish
+	// could only mark a non-pawn as an en passant target on a move that its
+	// *initial* move set alone could reach, and the Prince keeps its double
+	// step all game. The engine now has enPassantTargetTypes, so the piece can
+	// go back to its own rules.
+	Model.Game.cbPrinceGraph = function(geometry,side,confine) {
+		var $this=this;
+		var graph={};
+		for(var pos=0;pos<geometry.boardSize;pos++) {
+			if(confine && !(pos in confine)){
+				graph[pos]=[];
+				continue;
+			}
+			graph[pos]=[];
+			var forward=[]; // hold the pos line in front of the piece
+			var pos1=geometry.Graph(pos,[0,side]);
+			if(pos1!=null && (!confine || (pos1 in confine))) {
+				forward.push(pos1 | $this.cbConstants.FLAG_MOVE | $this.cbConstants.FLAG_CAPTURE); // capture and move allowed at first forward position
+				pos1=geometry.Graph(pos1,[0,side]);
+				if(pos1!=null && (!confine || (pos1 in confine)))
+					forward.push(pos1 | $this.cbConstants.FLAG_MOVE); // move to second forward only, no capture
+				graph[pos].push($this.cbTypedArray(forward));
+			}
+		}
+		return $this.cbMergeGraphs(geometry,
+			$this.cbShortRangeGraph(geometry,[[-1,-1],[-1,1],[-1,0],[1,0],[1,-1],[1,1],[0,-side]]), // direction other than forward
+			graph // forward direction
+		);
+	}
+
 	// graphs
 	/** Move graph for the Snake */
 	Model.Game.cbSnakeGraph = function(geometry,confine){
@@ -120,23 +152,20 @@
       2: {
       name : 'princew',
       abbrev : 'I',
-      aspect : 'fr-man',
-      // The Prince used to step two squares forward without capturing, which
-      // made it capturable en passant like a Pawn. On twelve ranks that head
-      // start was worth having; on ten it is not, and dropping it removes the
-      // only piece in the game that needed en passant machinery of its own.
-      // What is left is exactly a King's move.
-      graph : this.cbKingGraph(geometry,confine),
+      aspect : 'fr-prince',
+      graph : this.cbPrinceGraph(geometry,1,confine),
       value : 3.5,
        initial: [{s:1,p:16},{s:1,p:19}],
+      epTarget : true,
       },
       3: {
       name : 'princeb',
       abbrev : 'I',
-      aspect : 'fr-man',
-      graph : this.cbKingGraph(geometry,confine),
+      aspect : 'fr-prince',
+      graph : this.cbPrinceGraph(geometry,-1,confine),
       value : 3.5,
       initial: [{s:-1,p:100},{s:-1,p:103}],
+      epTarget : true,
       },
       4: {
       name : 'rook',
