@@ -308,6 +308,8 @@ var PROBE_INI = [
 	"customPiece3 = s:v[W?B]",   // snake: the rhino, stepping only along a file first
 	"customPiece4 = x:v[F?R]",   // ship: the griffon, keeping only the file-wise ride
 	"customPiece6 = o:[D?B]",    // osprey: a two-square orthogonal leap, then a diagonal ride
+	"customPiece5 = i:KmfR2",    // prince: king plus a quiet second step forward
+	"enPassantTargetTypes = i",  // ... and that step is catchable en passant
 	""
 ].join("\n");
 
@@ -362,6 +364,24 @@ function probeCapabilities() {
 			});
 		}, Promise.resolve());
 	}).then(function() {
+		// enPassantTargetTypes: a non-pawn that keeps a two-square step all game
+		// is only catchable en passant if the variant says so. Fairy-Stockfish
+		// otherwise marks a non-pawn as an en passant target only on a move its
+		// *initial* move set alone could reach, which never happens for the
+		// Timurid Prince. Without the option the engine plays Timurid with
+		// slightly different rules than Jocly shows, and says nothing about it:
+		// an unknown key in an ini is skipped in silence.
+		return ask([
+			"position fen 4k3/8/3p4/8/4I3/8/8/4K3 w - - 0 1 moves e4e6",
+			"go perft 1"
+		], untilPerft);
+	}).then(function(out) {
+		// The Prince has just stepped e4-e6 past the black pawn on d6.
+		var caught = out.some(function(line) { return line.indexOf("d6e5:") === 0; });
+		verdictReport("enPassantTargetTypes", caught,
+			caught ? "the pawn can take the prince en passant (d6e5)"
+			       : "d6e5 is missing - this build ignores enPassantTargetTypes");
+	}).then(function() {
 		engine.FS.writeFile("/jocly-custom-variants.ini", TIMURID_INI);
 		return ask([
 			"setoption name VariantPath value /jocly-custom-variants.ini",
@@ -391,7 +411,7 @@ function probeCapabilities() {
 			(got === 4 ? " - 4 is the bare ferz an unpatched engine sees" : ""));
 		log("");
 		if(verdict.ko === 0)
-			log("all " + verdict.ok + " checks passed: this build has the bent riders.");
+			log("all " + verdict.ok + " checks passed: this build has the bent riders and en passant on non-pawns.");
 		else
 			log(verdict.ko + " check(s) failed. An engine without the patch does not report an " +
 				"error - it parses [F?R] as a plain ferz - so a failure here means the file being " +
