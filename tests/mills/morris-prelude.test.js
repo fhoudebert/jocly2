@@ -1,7 +1,11 @@
 /*
- * The 12 Men's Morris merge, and the prelude that drives it.
+ * The Men's Morris merges, and the prelude that drives them.
  *
- *   node tests/mills/morris12-prelude.test.js
+ *   node tests/mills/morris-prelude.test.js
+ *
+ * 9 and 12 Men's Morris offer the same choice on the same board, so the same
+ * checks run against both rather than one being tested and the other trusted
+ * to match. Only the men count and the button captions differ.
  *
  * Two things are worth testing here and one of them is the view, which is
  * unusual for a suite that cannot render anything.
@@ -86,16 +90,27 @@ function newBoard(sandbox, game) {
 	return board;
 }
 
+const GAMES = [
+	{ name: "morris9", men: 9, model: "9-men-morris-model.js", view: "9-men-morris-view.js",
+		labels: ["9 Men´s Morris", "9 Men´s Morris Fly"], rules: "rules-morris9" },
+	{ name: "morris12", men: 12, model: "12-men-morris-model.js", view: "12-men-morris-view.js",
+		labels: ["12 Men´s Morris", "12 Men´s Morris Fly"], rules: "rules-morris12" },
+];
+
+GAMES.forEach((GAME) => Suite(GAME));
+
+function Suite(GAME) {
+
 /* ---------------------------------------------------------- the buttons */
 
-const m12 = newGame("morris12");
+const m12 = newGame(GAME.name);
 let board = newBoard(m12.sandbox, m12.game);
 
 t.check("the game opens in the prelude", board.preludeStage, 0);
 board.GenerateMoves(m12.game);
 t.check("one move per rule set", board.mMoves.map((m) => m.setup), [0, 1]);
-t.check("the panel names both",
-	m12.game.mOptions.prelude[0].labels, ["12 Men´s Morris", "12 Men´s Morris Fly"]);
+t.check(GAME.name + ": the panel names both",
+	m12.game.mOptions.prelude[0].labels, GAME.labels);
 // The button is the name and nothing else. A second line explaining the
 // difference was tried and dropped: it has to be translated, and it says less
 // than the rules page it duplicates.
@@ -180,7 +195,7 @@ function endgame(game, sandbox) {
 }
 
 [0, 1].forEach((setup) => {
-	const g = newGame("morris12");
+	const g = newGame(GAME.name);
 	choose(g.game, g.sandbox, setup);
 	const b = endgame(g.game, g.sandbox);
 	b.GenerateMoves(g.game);
@@ -199,7 +214,7 @@ function endgame(game, sandbox) {
 // defaults are restored before it is applied. Without that, picking the plain
 // game after the flying one would keep canFly.
 {
-	const g = newGame("morris12");
+	const g = newGame(GAME.name);
 	choose(g.game, g.sandbox, 1);
 	t.check("fly sets canFly", !!g.game.mOptions.canFly, true);
 	t.check("and lets a man in a mill be taken", g.game.mOptions.poundInMill, true);
@@ -211,7 +226,7 @@ function endgame(game, sandbox) {
 
 // The choice is remembered for the next game.
 {
-	const g = newGame("morris12");
+	const g = newGame(GAME.name);
 	choose(g.game, g.sandbox, 1);
 	t.check("the last choice is remembered", g.game.mOptions.prelude[0].persistent, 1);
 	const b = newBoard(g.sandbox, g.game);
@@ -254,9 +269,9 @@ function endgame(game, sandbox) {
 		},
 	};
 
-	const dialog = entry("morris12").config.model.gameOptions.prelude[0];
+	const dialog = entry(GAME.name).config.model.gameOptions.prelude[0];
 	const viewGame = {
-		mOptions: { prelude: JSON.parse(JSON.stringify(entry("morris12").config.model.gameOptions.prelude)),
+		mOptions: { prelude: JSON.parse(JSON.stringify(entry(GAME.name).config.model.gameOptions.prelude)),
 			width: 7, height: 7 },
 		made: null,
 		MakeMove(move) { this.made = move; },
@@ -353,7 +368,7 @@ function endgame(game, sandbox) {
 
 /* --------------------------------------------------------------- manifest */
 
-const m = entry("morris12");
+const m = entry(GAME.name);
 t.check("the game ships the prelude model",
 	m.config.model.js.indexOf("prelude-model.js") >= 0, true);
 t.check("after mills-model.js",
@@ -373,13 +388,31 @@ t.check("the dialog survives JSON",
 // only difference from what the module's other 12-men view scripts expect: the
 // board and the set are unchanged, and only the script list grew.
 t.check("the view adds the overlay and nothing else",
-	m.config.view.js, ["mills-xd-view.js", "12-men-morris-view.js", "prelude-view.js"]);
-t.check("on the module's own 12-men board and set",
-	[m.config.view.css, m.config.model.gameOptions.width, m.config.model.gameOptions.mencount],
-	[["mills.css", "12-men-morris.css"], 7, 12]);
+	m.config.view.js, ["mills-xd-view.js", GAME.view, "prelude-view.js"]);
+t.check("on the module's own board, with the right number of men",
+	[m.config.model.gameOptions.width, m.config.model.gameOptions.height,
+		m.config.model.gameOptions.mencount],
+	[7, 7, GAME.men]);
+t.check("and the right model script",
+	m.config.model.js, ["mills-model.js", GAME.model, "prelude-model.js"]);
 
-["rules-morris12.html", "rules-morris12-fr.html"].forEach((file) => {
+[GAME.rules + ".html", GAME.rules + "-fr.html"].forEach((file) => {
 	t.check(file + " exists", fs.existsSync(path.join(MILLS, file)), true);
 });
 
-t.done("12 Men's Morris prelude");
+}
+
+// The two games must not share the object the prelude writes its answer into,
+// or choosing in one would be remembered by the other.
+{
+	const nine = entry("morris9").config.model.gameOptions.prelude;
+	const twelve = entry("morris12").config.model.gameOptions.prelude;
+	t.check("the two dialogs are separate objects", nine[0] === twelve[0], false);
+	t.check("but offer the same rules",
+		JSON.stringify(nine[0].rules), JSON.stringify(twelve[0].rules));
+	nine[0].persistent = 1;
+	t.check("so remembering one does not answer for the other", twelve[0].persistent, true);
+	nine[0].persistent = true;
+}
+
+t.done("Men's Morris preludes");

@@ -130,6 +130,16 @@ exports.games = (function() {
 	// board methods and all four Move methods it wraps; prelude-view.js after
 	// mills-xd-view.js, whose xdInit publishes the cell size it measures in
 	// and whose state machine it stands in for.
+	var modelScripts_morris9 = [
+		"mills-model.js",
+		"9-men-morris-model.js",
+		"prelude-model.js"
+	]
+	var config_view_js_morris9 = [
+		"mills-xd-view.js",
+		"9-men-morris-view.js",
+		"prelude-view.js"
+	]
 	var modelScripts_morris12 = [
 		"mills-model.js",
 		"12-men-morris-model.js",
@@ -143,7 +153,13 @@ exports.games = (function() {
 	/*
 	 * The two rule sets, as the differences from the manifest's own options.
 	 *
-	 * Each names every option it needs even when the value matches the
+	 * 9 and 12 Men's Morris offer the same choice, so the table is built here
+	 * rather than written twice, with only the button captions passed in. A
+	 * function rather than a shared constant on purpose: prelude-model.js
+	 * writes the chosen index back into "persistent" to remember it, and two
+	 * games sharing one object would remember each other's answer.
+	 *
+	 * Each set names every option it needs even when the value matches the
 	 * default, because prelude-model.js restores the defaults before applying
 	 * a set. Without that, picking the plain game after the flying one would
 	 * keep canFly and play a third game that is neither.
@@ -152,27 +168,31 @@ exports.games = (function() {
 	 * it out is not the same as setting it true: undefined allows a man in a
 	 * mill to be taken, which is what the flying variant does.
 	 */
-	var config_model_prelude_morris12 = [
-		{
-			"panelWidth": 2,
-			"labels": [
-				"12 Men´s Morris",
-				"12 Men´s Morris Fly"
-			],
-			"persistent": true,
-			"rules": [
-				{
-					"poundInMill": false,
-					"canFly": false
-				},
-				{
-					"poundInMill": true,
-					"canFly": true
-				}
-			]
-		},
-		0
-	]
+	function MorrisPrelude(plain, fly) {
+		return [
+			{
+				"panelWidth": 2,
+				"labels": [
+					plain,
+					fly
+				],
+				"persistent": true,
+				"rules": [
+					{
+						"poundInMill": false,
+						"canFly": false
+					},
+					{
+						"poundInMill": true,
+						"canFly": true
+					}
+				]
+			},
+			0
+		]
+	}
+	var config_model_prelude_morris12 = MorrisPrelude("12 Men´s Morris", "12 Men´s Morris Fly")
+	var config_model_prelude_morris9 = MorrisPrelude("9 Men´s Morris", "9 Men´s Morris Fly")
 	var config_view_visuals_600x600_2 = [
 		"res/visuals/twelvemen-600x600-3d.jpg",
 		"res/visuals/twelvemen-600x600-2d.jpg"
@@ -196,6 +216,30 @@ exports.games = (function() {
 		"sounds": config_view_sounds,
 		"skins": config_view_skins_5
 	}
+	/*
+	 * The 9-men view, lifted out of the two entries that inlined it. They were
+	 * identical but for the title, where "9-men-morris" said "7 Men´s Morris
+	 * View" - a copy-paste slip; the correct one is kept.
+	 */
+	var config_view_9 = {
+		"title-en": "9 Men´s Morris View",
+		"switchable": true,
+		"xdView": true,
+		"css": config_view_css,
+		"js": config_view_js,
+		"module": "mills",
+		"preferredRatio": 1.2857142857143,
+		"visuals": config_view_visuals,
+		"animateSelfMoves": false,
+		"useNotation": true,
+		"useShowMoves": true,
+		"defaultOptions": config_view_defaultOptions,
+		"sounds": config_view_sounds,
+		"skins": config_view_skins_5
+	}
+	var config_view_morris9 = Object.assign({}, config_view_9, {
+		"js": config_view_js_morris9
+	})
 	// The board and the set are the plain 12-men ones; only the script list
 	// differs, so the view is that one with the overlay appended rather than a
 	// copy that could drift from it.
@@ -227,6 +271,42 @@ exports.games = (function() {
 		"7-men-morris-view.js"
 	]
 	return [
+		{
+			"name": "morris9",
+			"modelScripts": modelScripts_morris9,
+			"config": {
+				"status": true,
+				"model": {
+					"title-en": "9 Men´s Morris",
+					"summary": {
+						"en": "An old board game, plain or flying",
+						"fr": "Jeu de marelle (x9), simple ou volante"
+					},
+					"rules": {
+						"en": "rules-morris9.html",
+						"fr": "rules-morris9-fr.html"
+					},
+					"maxLevel": 7,
+					"plazza": "true",
+					"thumbnail": "mensmorris9-thumb3d.png",
+					"module": "mills",
+					"description": "description.html",
+					"credits": "credits.html",
+					"js": modelScripts_morris9,
+					"gameOptions": {
+						"preventRepeat": true,
+						"width": 7,
+						"height": 7,
+						"mencount": 9,
+						"poundInMill": false,
+						"prelude": config_model_prelude_morris9
+					},
+					"levels": config_model_levels_4
+				},
+				"view": config_view_morris9
+			},
+			"viewScripts": config_view_js_morris9
+		},
 		{
 			"name": "9-men-morris",
 			"modelScripts": modelScripts,
