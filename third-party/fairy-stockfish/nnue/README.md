@@ -39,6 +39,7 @@ with them, they are right and it is stale:
 | `capablanca-chess.nnue` | capablanca-chess     | capablanca (& 8 prelude setups) |
 | `crazyhouse.nnue`       | crazyhouse           | crazyhouse                      |
 | `grand.nnue`            | grand-chess          | grand                           |
+| `horde.nnue`            | horde-chess          | horde                           |
 | `khans.nnue`            | khans-chess          | khans                           |
 | `kyotoshogi.nnue`       | kyoto-shogi          | kyotoshogi                      |
 | `makruk.nnue`           | makruk               | makruk                          |

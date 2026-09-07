@@ -1,6 +1,6 @@
 {
-	"bytes": 362273,
-	"digest": "6b0c446981650664",
+	"bytes": 367656,
+	"digest": "5526c7c36bd76318",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -12,7 +12,11 @@
 		},
 		{
 			"name": "three-check-chess",
-			"digest": "ab97cc0200264ca6"
+			"digest": "8292c8febb5ae29c"
+		},
+		{
+			"name": "horde-chess",
+			"digest": "502321c9f208eb06"
 		},
 		{
 			"name": "xiangqi",
