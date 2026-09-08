@@ -127,7 +127,7 @@ const vg9 = viewGame(g9);
 const xdv = recorder();
 vg9.xdInit(xdv);
 
-t.check("the cell pitch is published", vg9.goSize, Math.floor(12000 / 10));
+t.check("the cell pitch is published", vg9.goSize, Math.floor(12000 / 11));
 t.check("one gadget per intersection, plus the furniture",
 	Object.keys(xdv.gadgets).length, 81 + 4);
 t.check("the furniture is the board, the bar, the button and the mark",
@@ -174,6 +174,26 @@ t.check("adjacent points are one pitch apart", c01[0] - c00[0], size);
 t.check("the grid is centred", [c00[0] + c88[0], c00[1] + c88[1]], [0, 0]);
 t.check("and fits inside the board with a margin",
 	Math.abs(c00[0]) + size / 2 <= 12000 / 2, true);
+
+/*
+ * The furniture sits beside the board, not on it. Both the bar and the button
+ * used to lap over the board's wooden border to be readable; reserving a full
+ * cell of band above and below is what buys the room, at about five per cent
+ * of the board's width.
+ */
+{
+	const boardTop = -(9 * size) / 2, boardBottom = (9 * size) / 2;
+	const edge = (id, dir) => {
+		const g = xdv.gadgets[id];
+		return g.props.y + dir * g.skin.height / 2;
+	};
+	t.check("the status bar clears the top of the board",
+		edge("status", +1) <= boardTop, true);
+	t.check("the pass button clears the bottom",
+		edge("pass-button", -1) >= boardBottom, true);
+	t.check("and both stay inside the area",
+		[edge("status", -1) >= -12000 / 2, edge("pass-button", +1) <= 12000 / 2], [true, true]);
+}
 
 // Turning the board round turns the coordinates with it.
 vg9.mViewAs = -1;
@@ -225,10 +245,19 @@ t.check("no gadget was updated before it existed", xdv.missing, []);
 	const running = newBoard(g9);
 	running.prisoners = [3, 5];
 	View.Board.xdDisplay.call(running, xdv, vg9);
-	t.check("mid-game the bar shows prisoners and komi",
-		statusText(), ["3", "5", "prisoners  ·  komi 5.5"]);
+	t.check("mid-game the bar shows the two counts and the komi, and no label",
+		statusText(), ["3", "5", "komi 5.5"]);
 	t.check("and never a score that would mean nothing yet",
 		statusText().some((s) => /win|Draw/.test(s)), false);
+	// No word to translate on a bar that is on screen the whole game: the
+	// rules page explains it once instead, which is where it belongs.
+	t.check("and no label needing translation",
+		statusText().some((s) => /[A-Za-z]/.test(s) && !/^komi /.test(s)), false);
+	["rules.html", "rules-fr.html"].forEach((page) => {
+		const text = fs.readFileSync(path.join(GO, page), "utf8");
+		t.check(page + " explains the bar instead",
+			/captur/i.test(text) && /komi/i.test(text), true);
+	});
 
 	// black owns everything but a two-point white corner
 	const over = newBoard(g9);

@@ -31,7 +31,7 @@
  * second size replaces the first one's geometry. That is how Jocly builds
  * views, but it is worth stating, because nothing in the code says so.
  */
-var WIDTH, SIZE, MARGIN;
+var WIDTH, SIZE, MARGIN, BAND;
 
 // How many times the wood photograph repeats across the board. Few enough that
 // the grain still reads at 19x19, many enough that it is not one blurred
@@ -69,8 +69,19 @@ var status = { black: "", white: "", middle: "" };
 		WIDTH = this.mOptions.size;
 		// One extra cell of margin all round, for the coordinates and so the
 		// edge stones are not cut in half by the board's border.
-		SIZE = Math.floor(12000 / (WIDTH + 1));
+		/*
+		 * One cell of margin inside the board for the grid to breathe, and one
+		 * cell of clear band outside it, above and below, for the status bar
+		 * and the pass button.
+		 *
+		 * The band used to be half a cell - just the board's own margin - and
+		 * the bar had to lap over the wood to be readable. It costs about five
+		 * per cent of the board's width to stop doing that, which is a fair
+		 * price for furniture that sits beside the goban instead of on it.
+		 */
+		SIZE = Math.floor(12000 / (WIDTH + 2));
 		MARGIN = SIZE / 2;
+		BAND = SIZE;
 		this.goSize = SIZE;
 		this.goStars = StarPoints(WIDTH);
 
@@ -199,14 +210,12 @@ var status = { black: "", white: "", middle: "" };
 		 * scoreboard.
 		 */
 		/*
-		 * The status bar, in the top margin band - the mirror of the pass
-		 * button in the bottom one.
+		 * The status bar, in the band above the board - the mirror of the pass
+		 * button in the band below.
 		 *
-		 * It is 1.6 margins tall against a band of one, so it laps over the
-		 * board's own empty wooden border by a little. There is nothing there
-		 * to cover - the grid starts one margin inside the board - and the
-		 * extra height is what makes the numbers readable at 19x19, where a
-		 * margin is only half of a 600-unit cell.
+		 * Both sit entirely inside their band now. They used to overlap the
+		 * board's wooden border, which covered nothing but did make the text
+		 * look like it had slipped.
 		 *
 		 * Everything is drawn dark. The first version used pale text, chosen
 		 * for a dark bar that does not exist: above the board is the page
@@ -220,12 +229,12 @@ var status = { black: "", white: "", middle: "" };
 		 * repaints it - the same shape reversi-xd-view.js uses for its own
 		 * scoreboard.
 		 */
-		var STATUS_H = MARGIN * 1.6;
+		var STATUS_H = BAND * 0.8;
 		xdv.createGadget("status", {
 			base: {
 				visible: true,
 				x: 0,
-				y: -(12000 / 2 - STATUS_H / 2),
+				y: -(12000 / 2 - BAND / 2),
 				z: 4,
 			},
 			"2d": {
@@ -278,15 +287,15 @@ var status = { black: "", white: "", middle: "" };
 			base: {
 				visible: false,
 				x: 0,
-				y: 12000 / 2 - MARGIN * 0.6,
+				y: 12000 / 2 - BAND / 2,
 				z: 4,
 			},
 			"2d": {
 				type: "canvas",
 				width: SIZE * 3.2,
-				height: SIZE * 0.9,
+				height: BAND * 0.62,
 				draw: function(ctx) {
-					var w = SIZE * 3.2, h = SIZE * 0.9;
+					var w = SIZE * 3.2, h = BAND * 0.62;
 					ctx.fillStyle = "#c0c0c0";
 					ctx.fillRect(-w / 2, -h / 2, w, h);
 					ctx.fillStyle = "#202020";
@@ -371,9 +380,16 @@ var status = { black: "", white: "", middle: "" };
 		} else {
 			status.black = "" + this.prisoners[0];
 			status.white = "" + this.prisoners[1];
-			// A bare number beside a stone says nothing on its own, so the
-			// middle carries what the two figures are.
-			status.middle = "prisoners  ·  komi " + aGame.g.komi;
+			/*
+			 * Only the komi, and no word for what the two figures are.
+			 *
+			 * "prisoners" would have to be translated into every language the
+			 * game ships in, for a label that sits on screen for the whole
+			 * game and says the same thing every time. The rules page explains
+			 * the bar once, which is where an explanation belongs; "komi" is a
+			 * Go term that is the same word everywhere.
+			 */
+			status.middle = "komi " + aGame.g.komi;
 		}
 		xdv.updateGadget("status", { base: { visible: true } });
 

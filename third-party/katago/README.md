@@ -13,8 +13,6 @@ as the Fairy-Stockfish and Scan integrations next door.
 | file | what it is | shipped by the build |
 |------|------------|----------------------|
 | `kataeval.js` / `kataeval.wasm` | the plain build: no threads, one blocking `kgeSearch()` per position | **yes** |
-| `kataeval-mt.js` / `kataeval-mt.wasm` | KataGo's real Search: tree reuse, ponder, live statistics | no |
-| `kata-worker.js` | upstream's own demo worker, kept as the ABI reference | no |
 
 The plain build is what Jocly asks an engine for: one move for one position.
 `kgeSearch(moveLocs, moveCols, numMoves, toPla, komi, maxVisits, maxTimeMs, …)`
