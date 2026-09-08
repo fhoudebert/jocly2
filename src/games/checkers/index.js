@@ -287,6 +287,70 @@ exports.games = (function() {
 		"checkersbase-model.js",
 		"draughts-model.js"
 	]
+	// The merged 8x8 game: the prelude asks which of the four national rule
+	// sets to play before the first move. prelude-model.js must come after
+	// checkersbase-model.js, whose InitGame and Move.Init it wraps.
+	var modelScripts_draughts8 = [
+		"checkersbase-model.js",
+		"draughts-model.js",
+		"prelude-model.js"
+	]
+	var config_view_js_draughts8 = [
+		"checkers-xd-view.js",
+		"draughts8-xd-view.js",
+		// draws the four buttons: it overrides View.Game.xdInit, and without
+		// it the model asks for the prelude, the panel is never built, and
+		// the game opens on a board that answers no click
+		"prelude-view.js"
+	]
+	/*
+	 * The four rule sets, as the differences from what InitGame leaves behind.
+	 * Only the flags that actually vary are named; the three the four share -
+	 * mustMoveForwardStrict, lastRowCrown, lastRowFactor - stay in "variant"
+	 * below, since no button changes them.
+	 *
+	 * A set names every flag it needs even when the value matches the default,
+	 * because prelude-model.js restores the defaults before applying a set:
+	 * that is what stops German, chosen after English, from inheriting
+	 * English's canCaptureBackward and playing a game that is neither.
+	 */
+	var config_model_prelude_draughts8 = [
+		{
+			"panelWidth": 2,
+			"labels": [
+				"English",
+				"Brazilian",
+				"Spanish",
+				"German"
+			],
+			"persistent": true,
+			"rules": [
+				{
+					"captureLongestLine": true,
+					"longRangeKing": false,
+					"kingCaptureShort": true,
+					"kingValue": 2,
+					"whiteStarts": false,
+					"canCaptureBackward": false,
+					"invertNotation": true
+				},
+				{
+					"captureLongestLine": true
+				},
+				{
+					"captureLongestLine": true,
+					"canCaptureBackward": false
+				},
+				{
+					"captureLongestLine": false,
+					"kingValue": 4,
+					"kingCaptureShort": false,
+					"captureInstantRemove": false
+				}
+			]
+		},
+		0
+	]
 	var config_model_gameOptions_initial_a_14 = [
 		2,
 		2
@@ -503,41 +567,6 @@ exports.games = (function() {
 		"captureLongestLine": true,
 		"lastRowFactor": 0.001
 	}
-	var config_model_gameOptions = {
-		"preventRepeat": true,
-		"width": 4,
-		"height": 8,
-		"initial": config_model_gameOptions_initial_2,
-		"variant": config_model_gameOptions_variant,
-		"uctTransposition": "state"
-	}
-	var config_view_visuals_600x600 = [
-		"res/visuals/brazilian-draughts-600x600-3d.jpg",
-		"res/visuals/brazilian-draughts-600x600-2d.jpg"
-	]
-	var config_view_visuals = {
-		"600x600": config_view_visuals_600x600
-	}
-	var config_view = {
-		"title-en": "Draughts View",
-		"preferredRatio": 1,
-		"js": config_view_js_4,
-		"skins": config_view_skins_8,
-		"visuals": config_view_visuals,
-		"sounds": config_view_sounds_2,
-		"module": "checkers",
-		"css": config_view_css_2,
-		"switchable": true,
-		"animateSelfMoves": false,
-		"useNotation": true,
-		"useShowMoves": true,
-		"defaultOptions": config_view_defaultOptions,
-		"xdView": true
-	}
-	var config_view_js_5 = [
-		"checkersbase-view.js",
-		"draughts-view.js"
-	]
 	var config_view_js_6 = [
 		"checkers-xd-view.js",
 		"draughts6-xd-view.js"
@@ -886,24 +915,27 @@ exports.games = (function() {
 			"viewScripts": config_view_js_3
 		},
 		{
-			"name": "english-draughts",
-			"modelScripts": modelScripts_3,
+			"name": "draughts8",
+			"modelScripts": modelScripts_draughts8,
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "English Draughts",
+					"title-en": "Draughts 8x8",
 					"summary": {
-						"en": "A popular version of checkers on a 8x8 board.",
-						"fr": "Une version populaire des dames en 8x8."
+						"en": "English, Brazilian, Spanish or German draughts, chosen at the start",
+						"fr": "Dames anglaises, brésiliennes, espagnoles ou allemandes"
 					},
-					"rules": "rules-brit-checkers.html",
+					"rules": {
+						"en": "rules-draughts8.html",
+						"fr": "rules-draughts8_fr.html"
+					},
 					"maxLevel": 20,
 					"plazza": "true",
 					"thumbnail": "draughts8-thumb3d.png",
 					"module": "checkers",
 					"description": "description.html",
 					"credits": "credits.html",
-					"js": modelScripts_3,
+					"js": modelScripts_draughts8,
 					"gameOptions": {
 						"preventRepeat": true,
 						"width": 4,
@@ -912,15 +944,9 @@ exports.games = (function() {
 						"variant": {
 							"mustMoveForwardStrict": true,
 							"lastRowCrown": true,
-							"captureLongestLine": true,
-							"longRangeKing": false,
-							"kingCaptureShort": true,
-							"lastRowFactor": 0.001,
-							"kingValue": 2,
-							"whiteStarts": false,
-							"canCaptureBackward": false
+							"lastRowFactor": 0.001
 						},
-						"invertNotation": true,
+						"prelude": config_model_prelude_draughts8,
 						"uctTransposition": "state"
 					},
 					"levels": config_model_levels_7
@@ -928,7 +954,7 @@ exports.games = (function() {
 				"view": {
 					"title-en": "Draughts View",
 					"preferredRatio": 1,
-					"js": config_view_js_4,
+					"js": config_view_js_draughts8,
 					"skins": config_view_skins_8,
 					"visuals": {
 						"600x600": [
@@ -947,7 +973,7 @@ exports.games = (function() {
 					"xdView": true
 				}
 			},
-			"viewScripts": config_view_js_4
+			"viewScripts": config_view_js_draughts8
 		},
 		{
 			"name": "suicide-checkers",
@@ -1003,132 +1029,6 @@ exports.games = (function() {
 						"600x600": [
 							"res/visuals/english-draughts-600x600-3d.jpg",
 							"res/visuals/english-draughts-600x600-2d.jpg"
-						]
-					},
-					"sounds": config_view_sounds_2,
-					"module": "checkers",
-					"css": config_view_css_2,
-					"switchable": true,
-					"animateSelfMoves": false,
-					"useNotation": true,
-					"useShowMoves": true,
-					"defaultOptions": config_view_defaultOptions,
-					"xdView": true
-				}
-			},
-			"viewScripts": config_view_js_4
-		},
-		{
-			"name": "brazilian-draughts",
-			"modelScripts": modelScripts_3,
-			"config": {
-				"status": true,
-				"model": {
-					"title-en": "Brazilian Draughts",
-					"summary": {
-						"en": "Same as international checkers on a 8x8 board.",
-						"fr": "Comme les dames internationales en 8x8."
-					},
-					"rules": "rules-brazilian-draughts.html",
-					"maxLevel": 20,
-					"plazza": "true",
-					"thumbnail": "draughts8-thumb3d.png",
-					"module": "checkers",
-					"description": "description.html",
-					"credits": "credits.html",
-					"js": modelScripts_3,
-					"gameOptions": config_model_gameOptions,
-					"levels": config_model_levels_7
-				},
-				"view": config_view
-			},
-			"viewScripts": config_view_js_4
-		},
-		{
-			"name": "spanish-draughts",
-			"modelScripts": modelScripts_3,
-			"config": {
-				"status": true,
-				"model": {
-					"title-en": "Spanish Draughts",
-					"summary": {
-						"en": "Same as international checkers on a 8x8 board, no backward capture.",
-						"fr": "Comme les dames internationales en 8x8, sans prise en arrière."
-					},
-					"rules": "rules-spanish-draughts.html",
-					"maxLevel": 20,
-					"plazza": "true",
-					"thumbnail": "draughts8-thumb3d.png",
-					"module": "checkers",
-					"description": "description.html",
-					"credits": "credits.html",
-					"js": modelScripts_3,
-					"gameOptions": {
-						"preventRepeat": true,
-						"width": 4,
-						"height": 8,
-						"initial": config_model_gameOptions_initial_2,
-						"variant": {
-							"mustMoveForwardStrict": true,
-							"lastRowCrown": true,
-							"captureLongestLine": true,
-							"lastRowFactor": 0.001,
-							"canCaptureBackward": false
-						},
-						"uctTransposition": "state"
-					},
-					"levels": config_model_levels_7
-				},
-				"view": config_view
-			},
-			"viewScripts": config_view_js_4
-		},
-		{
-			"name": "german-draughts",
-			"modelScripts": modelScripts_3,
-			"config": {
-				"status": true,
-				"model": {
-					"title-en": "German Draughts",
-					"summary": {
-						"en": "Checkers according to German Draughts rules.",
-						"fr": "Les dames selon les règles allemandes."
-					},
-					"rules": "rules-german-draughts.html",
-					"maxLevel": 20,
-					"plazza": "true",
-					"thumbnail": "draughts8-thumb3d.png",
-					"module": "checkers",
-					"description": "description.html",
-					"credits": "credits.html",
-					"js": modelScripts_3,
-					"gameOptions": {
-						"preventRepeat": true,
-						"width": 4,
-						"height": 8,
-						"initial": config_model_gameOptions_initial_2,
-						"variant": {
-							"mustMoveForwardStrict": true,
-							"lastRowCrown": true,
-							"captureLongestLine": false,
-							"lastRowFactor": 0.001,
-							"kingValue": 4,
-							"kingCaptureShort": false,
-							"captureInstantRemove": false
-						},
-						"uctTransposition": "state"
-					},
-					"levels": config_model_levels_7
-				},
-				"view": {
-					"title-en": "Draughts View",
-					"preferredRatio": 1,
-					"js": config_view_js_4,
-					"skins": config_view_skins_8,
-					"visuals": {
-						"600x600": [
-							"res/visuals/german-draughts-600x600-3d.jpg",
-							"res/visuals/german-draughts-600x600-2d.jpg"
 						]
 					},
 					"sounds": config_view_sounds_2,

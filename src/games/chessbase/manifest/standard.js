@@ -11,7 +11,7 @@ const {
 	modelScripts, config_model_gameOptions, config_model_gameOptions_levelOptions,
 	config_model_levels_5,
 	config_model_levels_knightmate_expert, config_model_levels_antichess_expert,
-	config_model_levels_threecheck_expert,
+	config_model_levels_threecheck_expert, config_model_levels_horde_expert,
 	config_model_levels_demi_expert, config_view_css, config_view_defaultOptions,
 	config_view_skins_world, config_view_skins_camera, config_view_skins,
 	config_view_skins_camera_2, config_view_skins_preload_2, config_view_sounds, config_view_js,
@@ -26,12 +26,20 @@ var config_model_levels_5_antichess_expert = config_model_levels_5.concat([confi
 
 var config_model_levels_5_threecheck_expert = config_model_levels_5.concat([config_model_levels_threecheck_expert]);
 
+var config_model_levels_5_horde_expert = config_model_levels_5.concat([config_model_levels_horde_expert]);
+
 var config_model_levels_5_demi_expert = config_model_levels_5.concat([config_model_levels_demi_expert]);
 
 var modelScripts_knightmate = [
 	"base-model.js",
 	"grid-geo-model.js",
 	"standard/knightmate-model.js"
+]
+
+var modelScripts_horde = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"standard/horde-model.js"
 ]
 
 var modelScripts_threecheck = [
@@ -119,6 +127,16 @@ var config_view_js_threecheck = config_view_js.concat(["standard/threecheck-view
 var config_view_threecheck = Object.assign({}, config_view_classic_board, {
 	"css": config_view_css.concat(["threecheck.css"]),
 	"js": config_view_js_threecheck
+})
+
+// The horde's size is a term of its own: 36 Pawns against a full army is
+// roughly level on material, three Pawns against it is lost, and the plain
+// piece-value sum says the same thing about both. See the "hordeSize" entry
+// standard/horde-model.js builds in its evaluate() hook.
+var config_model_gameOptions_horde = Object.assign({}, config_model_gameOptions, {
+	"levelOptions": Object.assign({}, config_model_gameOptions_levelOptions, {
+		"hordeSizeFactor": 0.35
+	})
 })
 
 // Three-check adds one term to the evaluation - how far each side is along
@@ -225,7 +243,7 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "3check Chess",
+				"title-en": "3 check",
 				"summary": {
 					"en": "Orthodox chess, but checking three times also wins",
 					"fr": "Mettre trois fois échec donne la victoire"
@@ -246,6 +264,35 @@ exports.games = {
 			"view": config_view_threecheck
 		},
 		"viewScripts": config_view_js_threecheck
+	},
+
+	"horde-chess": {
+		"name": "horde-chess",
+		"modelScripts": modelScripts_horde,
+		"config": {
+			"status": true,
+			"model": {
+				"title-en": "Horde",
+				"summary": {
+					"en": "An army against 36 Pawns and no King",
+					"fr": "Une armée contre 36 pions et aucun roi"
+				},
+				"thumbnail": "res/rules/standard/horde-thumbnail.png",
+				"module": "chessbase",
+				"plazza": "true",
+				"released": 1757203200,
+				"rules": {
+					"en": "res/rules/standard/horde-rules.html",
+					"fr": "res/rules/standard/horde-rules_fr.html",
+				},
+				"credits": config_model_credits,
+				"gameOptions": config_model_gameOptions_horde,
+				"js": modelScripts_horde,
+				"levels": config_model_levels_5_horde_expert
+			},
+			"view": config_view_classic_board
+		},
+		"viewScripts": config_view_js
 	},
 
 	"knightmate-chess": {

@@ -1403,6 +1403,32 @@
 	// s*isKing) but validated against the board, so a slot left stale by a
 	// captured royal is correctly ignored. Only reached when
 	// aGame.cbMaxRoyalRank>1; single-king variants keep the fast path below.
+	/*
+	 * Does a side legitimately hold no royal piece at all?
+	 *
+	 * Two situations, and both used to be crashes rather than answers. A
+	 * tsume gives the attacker no King (see JocGame.Load's mTsume), and a
+	 * variant may simply not give one side a King to begin with - Horde
+	 * fields 36 Pawns and nothing else. Either way the side cannot be put
+	 * in check, since there is nothing to check.
+	 *
+	 * The fast path in HasLegalMove()/GenerateMoves() below reads
+	 * this.kings[who] and hands it straight to cbGetAttackers(), which
+	 * indexes the threat graph by it: with no royal that is
+	 * threatGraph[who][undefined], and the move generation threw. The
+	 * multi-royal path already counts royals and handles a count of zero,
+	 * so those two send a royal-less side down it instead of guessing.
+	 *
+	 * cbKingless is declared by the model (a permanent property of the
+	 * variant); mTsume comes from the loaded position. Before this, mTsume
+	 * only worked for a game that ALSO had several royal ranks - Chu Shogi
+	 * with its King and Crown Prince - and a tsume in single-King Chess
+	 * crashed on the first move generated.
+	 */
+	Model.Board.cbRoyalOptional = function(aGame) {
+		return aGame.cbMaxRoyalRank>1 || !!aGame.cbKingless || !!aGame.mTsume;
+	}
+
 	Model.Board.cbInLosingCheck = function(aGame, who) {
 		var maxRank=aGame.cbMaxRoyalRank, pT=aGame.g.pTypes;
 		var sole=-1, count=0, prev=-1;
@@ -1429,7 +1455,7 @@
 		// state, not a loss: it has no King to lose and no King to expose,
 		// so nothing can put it in check. Outside tsume mode the verdict is
 		// unchanged.
-		if(count===0) return !aGame.mTsume;
+		if(count===0) return !(aGame.mTsume || aGame.cbKingless);
 		if(count>=2) return false;      // two royals: cannot be checked
 		return this.cbGetAttackers(aGame,sole,who,100).length>0;
 	}
@@ -1443,7 +1469,7 @@
 	// is expanded in its turn.
 	Model.Board.HasLegalMove = function(aGame) {
 		var moves=this.cbGeneratePseudoLegalMoves(aGame);
-		var multiRoyal=aGame.cbMaxRoyalRank>1;
+		var multiRoyal=this.cbRoyalOptional(aGame);
 		var royal=[], other=[];
 		for(var i=0;i<moves.length;i++) {
 			var index=this.board[moves[i].f];
@@ -1471,7 +1497,7 @@
 		this.mMoves = [];
 		var kingOnly=true;
 		var selfKingPos=this.kings[this.mWho];
-		var multiRoyal=aGame.cbMaxRoyalRank>1;
+		var multiRoyal=this.cbRoyalOptional(aGame);
 		var movesLength=moves.length;
 		for(var i=0;i<movesLength;i++) {
 			var move=moves[i];

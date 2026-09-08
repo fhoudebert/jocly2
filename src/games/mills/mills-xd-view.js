@@ -156,6 +156,16 @@
 		SWIDTH=this.mOptions.width+2;
 		HEIGHT=this.mOptions.height;
 		SIZE=Math.floor(Math.min(12000/SWIDTH,12000/HEIGHT));
+		/*
+		 * The cell side, published for anything drawn on top of the board.
+		 * SIZE is a closure variable of this file and depends on the game's
+		 * own width and height (7x7 for 12 Men's Morris, so 1333); a script
+		 * appended after this one - prelude-view.js - would otherwise have to
+		 * recompute it from mOptions, and the first attempt at that guessed a
+		 * fixed pixel size instead and produced buttons of 260x90 on a 12000
+		 * wide board. One source of truth rather than a duplicated formula.
+		 */
+		this.millsSize=SIZE;
 		
 		xdv.createGadget("board", {
 			"2d" : {

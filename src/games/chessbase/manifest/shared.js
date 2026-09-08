@@ -442,6 +442,20 @@ var config_model_levels_threecheck_expert = {
 // Chess960-style notation - verified directly: the plain "engine" format
 // version of a Chess960 castling move can match an unrelated nearby move
 // more closely (in Levenshtein distance) than the real castling move.
+// Horde: a built-in Fairy-Stockfish variant, so no ini. The start position
+// standard/horde-model.js exports matches horde_variant()'s startFen byte for
+// byte, which tests/fairy/horde-perft.test.js checks along with the move
+// counts of ten positions.
+var config_model_levels_horde_expert = {
+	"name": "expert",
+	"label": "Expert",
+	"ai": "fairy-stockfish",
+	"variant": "horde",
+	"skillLevel": 20,
+	"moveTimeMs": 1000,
+	"evalFile": "nnue/horde.nnue"
+}
+
 var config_model_levels_chess960_expert = {
 	"name": "expert",
 	"label": "Expert",
@@ -1773,6 +1787,7 @@ module.exports = {
 	config_model_levels_knightmate_expert, config_model_levels_grand_expert,
 	config_model_levels_capablanca_missing_setups_ini, config_model_levels_capablanca_expert,
 	config_model_levels_antichess_expert, config_model_levels_threecheck_expert,
+	config_model_levels_horde_expert,
 	config_model_levels_chess960_expert,
 	config_model_levels_makruk_expert, config_model_levels_wildebeest_expert_ini,
 	config_model_levels_wildebeest_expert, config_model_levels_heavychess_expert_ini,

@@ -23,6 +23,18 @@
 	}
 	
 	Model.Game.checkersPosToString = PosToString;
+
+	/*
+	 * `invertNotation` is read once, in InitGame, into a variable of this
+	 * closure - so unlike the rule flags, which live in `this.g`, nothing
+	 * outside can change it afterwards. A prelude that lets a player pick
+	 * between rule sets whose square numbering differs (English draughts
+	 * numbers from Black's side, the others do not) needs to, hence this
+	 * setter. Nothing else should call it.
+	 */
+	Model.Game.checkersSetInvertNotation = function(value) {
+		invertNotation = !!value;
+	}
 	
 	Model.Game.InitGameInfo = function() {
 		// overload to set game feature options
