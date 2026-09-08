@@ -402,6 +402,11 @@ t.check("and the right model script",
 
 }
 
+// Both merges are complete: the games they replace are gone, so the module has
+// one entry per board rather than two.
+t.check("the module lists one game per board",
+	manifest.map((g) => g.name).sort(), ["6-men-morris", "7-men-morris", "morris12", "morris9"]);
+
 // The two games must not share the object the prelude writes its answer into,
 // or choosing in one would be remembered by the other.
 {

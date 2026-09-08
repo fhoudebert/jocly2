@@ -254,14 +254,6 @@ exports.games = (function() {
 		"mills-xd-view.js",
 		"6-men-morris-view.js"
 	]
-	var modelScripts_4 = [
-		"mills-model.js",
-		"3-men-morris-model.js"
-	]
-	var config_view_js_4 = [
-		"mills-xd-view.js",
-		"3-men-morris-view.js"
-	]
 	var modelScripts_5 = [
 		"mills-model.js",
 		"7-men-morris-model.js"
@@ -290,8 +282,14 @@ exports.games = (function() {
 					"plazza": "true",
 					"thumbnail": "mensmorris9-thumb3d.png",
 					"module": "mills",
-					"description": "description.html",
-					"credits": "credits.html",
+					"credits": {
+						"en": "credits.html",
+						"fr": "credits-fr.html"
+					},
+					"description": {
+						"en": "description.html",
+						"fr": "description-fr.html"
+					},
 					"js": modelScripts_morris9,
 					"gameOptions": {
 						"preventRepeat": true,
@@ -306,100 +304,6 @@ exports.games = (function() {
 				"view": config_view_morris9
 			},
 			"viewScripts": config_view_js_morris9
-		},
-		{
-			"name": "9-men-morris",
-			"modelScripts": modelScripts,
-			"config": {
-				"status": true,
-				"model": {
-					"title-en": "9 Men´s Morris",
-					"summary": {
-						"en":"An old board game",
-						"fr": "Jeu de marelle(x9)"
-					},
-					"rules": config_model_rules,
-					"maxLevel": 7,
-					"plazza": "true",
-					"thumbnail": "mensmorris9-thumb3d.png",
-					"module": "mills",
-					"description": "description.html",
-					"credits": "credits.html",
-					"js": modelScripts,
-					"gameOptions": {
-						"preventRepeat": true,
-						"width": 7,
-						"height": 7,
-						"mencount": 9,
-						"poundInMill": false
-					},
-					"levels": config_model_levels_4
-				},
-				"view": {
-					"title-en": "7 Men´s Morris View",
-					"switchable": true,
-					"xdView": true,
-					"css": config_view_css,
-					"js": config_view_js,
-					"module": "mills",
-					"preferredRatio": 1.2857142857143,
-					"visuals": config_view_visuals,
-					"animateSelfMoves": false,
-					"useNotation": true,
-					"useShowMoves": true,
-					"defaultOptions": config_view_defaultOptions,
-					"sounds": config_view_sounds,
-					"skins": config_view_skins_5
-				}
-			},
-			"viewScripts": config_view_js
-		},
-		{
-			"name": "9-men-morris-fly",
-			"modelScripts": modelScripts,
-			"config": {
-				"status": true,
-				"model": {
-					"title-en": "9 Men´s Morris Fly",
-					"summary": {
-						"en":"An old board game",
-						"fr": "Jeu de marelle volante (x9)"
-					},
-					"rules": config_model_rules,
-					"maxLevel": 7,
-					"plazza": "true",
-					"thumbnail": "mensmorris9-thumb3d.png",
-					"module": "mills",
-					"description": "description.html",
-					"credits": "credits.html",
-					"js": modelScripts,
-					"gameOptions": {
-						"preventRepeat": true,
-						"width": 7,
-						"height": 7,
-						"mencount": 9,
-						"canFly": true
-					},
-					"levels": config_model_levels_4
-				},
-				"view": {
-					"title-en": "9 Men´s Morris View",
-					"switchable": true,
-					"xdView": true,
-					"css": config_view_css,
-					"js": config_view_js,
-					"module": "mills",
-					"preferredRatio": 1.2857142857143,
-					"visuals": config_view_visuals,
-					"animateSelfMoves": false,
-					"useNotation": true,
-					"useShowMoves": true,
-					"defaultOptions": config_view_defaultOptions,
-					"sounds": config_view_sounds,
-					"skins": config_view_skins_5
-				}
-			},
-			"viewScripts": config_view_js
 		},
 		{
 			"name": "morris12",
@@ -420,8 +324,14 @@ exports.games = (function() {
 					"plazza": "true",
 					"thumbnail": "mensmorris12-thumb3d.png",
 					"module": "mills",
-					"description": "description.html",
-					"credits": "credits.html",
+					"credits": {
+						"en": "credits.html",
+						"fr": "credits-fr.html"
+					},
+					"description": {
+						"en": "description.html",
+						"fr": "description-fr.html"
+					},
 					"js": modelScripts_morris12,
 					"gameOptions": {
 						"preventRepeat": true,
@@ -453,8 +363,14 @@ exports.games = (function() {
 					"plazza": "true",
 					"thumbnail": "mensmorris6-thumb3d.png",
 					"module": "mills",
-					"description": "description.html",
-					"credits": "credits.html",
+					"credits": {
+						"en": "credits.html",
+						"fr": "credits-fr.html"
+					},
+					"description": {
+						"en": "description.html",
+						"fr": "description-fr.html"
+					},
 					"js": modelScripts_3,
 					"gameOptions": {
 						"preventRepeat": true,
@@ -508,8 +424,14 @@ exports.games = (function() {
 					"plazza": "true",
 					"thumbnail": "mensmorris7-thumb3d.png",
 					"module": "mills",
-					"description": "description.html",
-					"credits": "credits.html",
+					"credits": {
+						"en": "credits.html",
+						"fr": "credits-fr.html"
+					},
+					"description": {
+						"en": "description.html",
+						"fr": "description-fr.html"
+					},
 					"js": modelScripts_5,
 					"gameOptions": {
 						"preventRepeat": true,
