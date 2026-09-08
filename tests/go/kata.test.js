@@ -107,7 +107,7 @@ t.check("a 19x19 game exports its own komi",
 
 function loadKata(WorkerClass) {
 	const sandbox = {
-		console: { log: () => { }, info: () => { }, error: () => { } },
+		console: { log: () => { }, info: () => { }, warn: () => { }, error: () => { } },
 		Math, JSON, Object, Array, Promise, setTimeout,
 		Worker: WorkerClass,
 		WeakMap,
@@ -138,10 +138,14 @@ function fakeWorker(script) {
 }
 
 // A game stub with just enough of Jocly on it for startMachine.
+const GO_LEVELS = manifest.filter((x) => x.name === "go9")[0].config.model.levels;
+
 function engineGame(goGame) {
 	return {
 		g: goGame.g,
-		config: { baseURL: "/dist/" },
+		config: { baseURL: "/dist/", model: { levels: GO_LEVELS } },
+		started: [],
+		StartMachine(options) { this.started.push(options.level); },
 		mBoard: goGame.mBoard,
 		mPlayedMoves: goGame.mPlayedMoves,
 		mBestMoves: null,
@@ -236,14 +240,48 @@ const ready = () => new Promise((r) => setTimeout(r, 5));
 })
 
 .then(() => {
-	// The net is missing, or the module failed to load.
+	/*
+	 * The net is missing, or the module failed to load - which is what
+	 * happens on a machine where nobody has installed a network.
+	 *
+	 * Handing the turn back with no move is not enough: the host has nothing
+	 * to play, gives the turn to the human, and the player ends up moving for
+	 * both colours with no idea why. So the game falls back to its own AI and
+	 * says so through the channel the search result already carries to the
+	 * host - the same one jocly.fairy.js uses.
+	 */
 	const board = newGame("go9");
 	const { W, game } = run(board, LEVEL);
 	return ready().then(() => {
 		W.last.onmessage({ data: { type: "Error", error: "kgeLoad: no such file" } });
 		return ready().then(() => {
-			t.check("an engine failure yields no move", game.mBestMoves, []);
-			t.check("and hands the turn back rather than hanging it", game.done, 1);
+			t.check("a missing engine falls back to a native level",
+				game.started.length, 1);
+			t.check("to the strongest one that is not this engine",
+				game.started[0].ai, undefined);
+			t.check("and the degradation is reported, not just logged",
+				[game.mFairyFallback.engine, game.mFairyFallback.level],
+				["kata", game.started[0].label]);
+			t.check("with the reason",
+				/kgeLoad/.test(game.mFairyFallback.reason), true);
+		});
+	});
+})
+
+.then(() => {
+	// A game with no native level at all has nowhere to fall back to: then,
+	// and only then, the turn comes back empty.
+	const W = fakeWorker();
+	const Kata = loadKata(W);
+	const board = newGame("go9");
+	const game = engineGame(board);
+	game.config.model = { levels: [LEVEL] };
+	Kata.startMachine(game, { level: LEVEL });
+	return ready().then(() => {
+		W.last.onmessage({ data: { type: "Error", error: "no network" } });
+		return ready().then(() => {
+			t.check("with no native level, the turn is handed back empty",
+				[game.mBestMoves, game.done], [[], 1]);
 		});
 	});
 })
@@ -269,10 +307,12 @@ const ready = () => new Promise((r) => setTimeout(r, 5));
 	const W = fakeWorker();
 	const Kata = loadKata(W);
 	const game = { g: { size: 9 }, config: {}, mBoard: {}, mBestMoves: null, done: 0, Done() { this.done++; } };
+	game.config.model = { levels: GO_LEVELS };
+	game.StartMachine = function(options) { this.started.push(options.level); };
+	game.started = [];
 	Kata.startMachine(game, { level: LEVEL });
-	t.check("a game with no goExportMoves is refused", game.mBestMoves, []);
+	t.check("a game with no goExportMoves also falls back", game.started.length, 1);
 	t.check("without ever starting a worker", W.posted.length, 0);
-	t.check("and with the turn handed back", game.done, 1);
 })
 
 /* --------------------------------------------------------- the wiring */

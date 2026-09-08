@@ -145,13 +145,60 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		return null;
 	}
 
+	/*
+	 * Le moteur n'est pas la, ou n'a pas demarre : jouer avec l'IA native du
+	 * jeu plutot que de rendre la main sans coup.
+	 *
+	 * Sans cela, startMachine rend un resultat vide, l'hote n'a pas de coup a
+	 * jouer et repasse la main au joueur -- qui se retrouve a jouer les deux
+	 * couleurs sans qu'on lui dise pourquoi. C'est exactement ce que
+	 * jocly.fairy.js evite avec le meme repli.
+	 *
+	 * Le drapeau porte le nom historique mFairyFallback parce que c'est le
+	 * canal que le resultat de recherche transporte deja jusqu'a l'hote (voir
+	 * JocGame.Done et MachineMove dans jocly.core.js), et qu'ouvrir un second
+	 * canal obligerait chaque hote a le brancher. Le champ "engine" dit de
+	 * quel moteur il s'agit ; c'est lui, pas le nom du drapeau, qu'un hote
+	 * doit lire pour ecrire son message.
+	 */
+	function FallbackToNativeAI(aGame, aOptions, err) {
+		delete aGame.mKataAbort;
+		var levels = (aGame.config && aGame.config.model && aGame.config.model.levels) || [];
+		var native = null;
+		for (var i = levels.length - 1; i >= 0; i--) {
+			if (levels[i] && levels[i].ai !== "kata") {
+				native = levels[i];
+				break;
+			}
+		}
+		if (!native) {
+			console.error("kata: engine unavailable and no non-kata level to fall back to:", err);
+			aGame.mBestMoves = [];
+			JocUtil.schedule(aGame, "Done", {});
+			return;
+		}
+		console.warn("kata: engine unavailable (" + ((err && err.message) || err)
+			+ ") - falling back to native AI level '" + (native.label || native.name)
+			+ "' for this move");
+		aGame.mFairyFallback = {
+			engine: "kata",
+			reason: (err && err.message) || String(err),
+			level: native.label || native.name
+		};
+		var options = {};
+		for (var k in aOptions)
+			if (aOptions.hasOwnProperty(k))
+				options[k] = aOptions[k];
+		options.level = native;
+		aGame.StartMachine(options);
+	}
+
 	JoclyKata.startMachine = function (aGame, aOptions) {
 		var level = aOptions.level || {};
 
 		if (typeof aGame.mBoard.goExportMoves != "function") {
-			console.error("kata: this game does not export a move sequence (goExportMoves)");
-			aGame.mBestMoves = [];
-			JocUtil.schedule(aGame, "Done", {});
+			FallbackToNativeAI(aGame, aOptions,
+				new Error("this game does not export a move sequence (goExportMoves)"));
 			return;
 		}
 
@@ -161,9 +208,8 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 			position = aGame.mBoard.goExportMoves(aGame);
 			entry = GetOrCreateWorker(aGame, aOptions);
 		} catch (err) {
-			console.error("kata: cannot start engine:", err);
-			aGame.mBestMoves = [];
-			JocUtil.schedule(aGame, "Done", {});
+			// Pas de Worker (node), ou position inexportable.
+			FallbackToNativeAI(aGame, aOptions, err);
 			return;
 		}
 
@@ -237,9 +283,12 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 					aGame.Done();
 					return;
 				}
-				console.error("kata search failed:", err);
-				aGame.mBestMoves = [];
-				aGame.Done();
+				/*
+				 * Reseau absent, config absente, binaire absent, moteur qui
+				 * refuse de demarrer : tout cela arrive AVANT le premier coup
+				 * et se traite pareil - on joue avec l'IA native et on le dit.
+				 */
+				FallbackToNativeAI(aGame, aOptions, err);
 			});
 	};
 
