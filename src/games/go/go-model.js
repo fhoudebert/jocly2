@@ -39,6 +39,45 @@
 	// Column letters skip I, the universal Go convention.
 	var COLUMNS = "ABCDEFGHJKLMNOPQRSTUVWXYZ";
 
+	/*
+	 * The board size, kept here and set by InitGame.
+	 *
+	 * Notation cannot go through the game object, because the thing that most
+	 * needs it has no reference to one: a Move. Jocly asks a Move for its own
+	 * ToString - from getMoveString, on the core side of the iframe - and a
+	 * Move carries only its own fields. The first version reached for
+	 * Model.Game and read this.g.Coord off it, which is the bare prototype
+	 * with no g at all: every move played threw "Cannot read properties of
+	 * undefined (reading 'Coord')" and the turn was aborted.
+	 *
+	 * So the two conversions are plain functions over a module variable - the
+	 * shape checkersbase-model.js uses for its own PosToString and
+	 * invertNotation. One consequence, stated because nothing else says it:
+	 * one loaded model serves one board size, which is how Jocly loads them
+	 * (one script bundle per game).
+	 */
+	var SIZE = 0;
+
+	function PosToString(pos) {
+		if(pos < 0)
+			return "pass";
+		if(!SIZE)
+			return "?";
+		return COLUMNS[pos % SIZE] + (SIZE - Math.floor(pos / SIZE));
+	}
+
+	function StringToPos(text) {
+		if(!text || /^pass$/i.test(text))
+			return -1;
+		var m = /^([A-Za-z])\s*(\d+)$/.exec(String(text).trim());
+		if(!m || !SIZE) return null;
+		var col = COLUMNS.indexOf(m[1].toUpperCase());
+		var row = SIZE - parseInt(m[2]);
+		if(col < 0 || col >= SIZE || row < 0 || row >= SIZE)
+			return null;
+		return row * SIZE + col;
+	}
+
 	Model.Game.InitGame = function() {
 		var size = this.mOptions.size;
 		var coord = [];   // coord[pos] = [row, col], row 0 = top
@@ -57,6 +96,7 @@
 		this.g.Graph = g;
 		this.g.Coord = coord;
 		this.g.size = size;
+		SIZE = size;
 		this.g.points = size * size;
 		// White's compensation for moving second, counted in the area score.
 		// A half point makes draws impossible, which is why it is the norm.
@@ -80,23 +120,14 @@
 	Model.Game.InitGameExtra = function() {
 	}
 
+	// Both kept as game methods for callers that have a game to hand - the
+	// view, the tests, an engine bridge - but neither needs one.
 	Model.Game.CoordToString = function(pos) {
-		if(pos < 0)
-			return "pass";
-		var rc = this.g.Coord[pos];
-		return COLUMNS[rc[1]] + (this.g.size - rc[0]);
+		return PosToString(pos);
 	}
 
 	Model.Game.StringToCoord = function(text) {
-		if(!text || /^pass$/i.test(text))
-			return -1;
-		var m = /^([A-Za-z])\s*(\d+)$/.exec(text.trim());
-		if(!m) return null;
-		var col = COLUMNS.indexOf(m[1].toUpperCase());
-		var row = this.g.size - parseInt(m[2]);
-		if(col < 0 || col >= this.g.size || row < 0 || row >= this.g.size)
-			return null;
-		return row * this.g.size + col;
+		return StringToPos(text);
 	}
 
 	/* ------------------------------------------------------------- moves */
@@ -120,7 +151,7 @@
 	}
 
 	Model.Move.ToString = function() {
-		return Model.Game.CoordToString.call(this.game || Model.Game, this.p);
+		return PosToString(this.p);
 	}
 
 	/* ------------------------------------------------------------- board */

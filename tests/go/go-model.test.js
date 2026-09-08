@@ -114,6 +114,38 @@ t.check("an edge point has three",
 t.check("and a central point four",
 	g9.g.Graph[at(g9, "E5")].filter((n) => n !== null).length, 4);
 
+/* -------------------------------------------------------------- notation */
+
+/*
+ * A Move has to be able to name itself with no game to hand.
+ *
+ * Jocly asks it to, from getMoveString on the core side of the iframe, and a
+ * Move carries only its own fields - no game, no board. The first version of
+ * this model reached for Model.Game and read this.g off it, which is the bare
+ * prototype: every move played threw "Cannot read properties of undefined
+ * (reading 'Coord')" and the turn was aborted. The board drew fine, so it
+ * looked like anything but a notation bug.
+ */
+{
+	const Move = function(args) { this.Init(args || {}); };
+	Move.prototype = sandbox.Model.Move;
+
+	const lone = new Move({ p: g9.StringToCoord("E5") });
+	t.check("a move names itself with no game in reach", lone.ToString(), "E5");
+	t.check("and so does a pass", new Move({ p: -1 }).ToString(), "pass");
+	t.check("a move built by the game agrees",
+		g9.CreateMove({ p: g9.StringToCoord("A1") }).ToString(), "A1");
+
+	// The size lives in the module, so the notation follows the last game
+	// initialised - one loaded model serves one board, which is how Jocly
+	// loads them. Said here because nothing else would say it.
+	const g13 = newGame("go13");
+	t.check("after a 13x13 game the notation is that board's",
+		new Move({ p: 0 }).ToString(), "A13");
+	newGame("go9");
+	t.check("and follows back", new Move({ p: 0 }).ToString(), "A9");
+}
+
 /* --------------------------------------------------------------- capture */
 
 // A lone white stone on its last liberty: black takes it.
