@@ -33,6 +33,11 @@
  */
 var WIDTH, SIZE, MARGIN;
 
+// How many times the wood photograph repeats across the board. Few enough that
+// the grain still reads at 19x19, many enough that it is not one blurred
+// stretch at 9x9.
+var WOOD_TILES = 4;
+
 	// Star points (hoshi): the handicap intersections, marked on a real board.
 	function StarPoints(size) {
 		if(size < 7) return [];
@@ -65,6 +70,37 @@ var WIDTH, SIZE, MARGIN;
 		var boardWidth = WIDTH * SIZE;
 		var stars = this.goStars, size = WIDTH;
 
+		/*
+		 * The lines, the star points and the surface, drawn once. Two skins
+		 * share the grid and differ only in what is under it: a flat colour,
+		 * or a tiled wood photograph.
+		 *
+		 * jocly.xd-view.js merges a gadget's options as base, then "2d" or
+		 * "3d", then a key named after the current skin - so "skin2dwood"
+		 * below overrides nothing but the draw, and the size and type stay
+		 * declared once.
+		 */
+		function DrawGrid(ctx) {
+			var half = boardWidth / 2;
+			var first = -half + MARGIN;
+			ctx.strokeStyle = "#2b1d0e";
+			ctx.lineWidth = Math.max(1, SIZE * 0.03);
+			ctx.beginPath();
+			for(var i = 0; i < size; i++) {
+				var at = first + i * SIZE;
+				ctx.moveTo(first, at); ctx.lineTo(first + (size - 1) * SIZE, at);
+				ctx.moveTo(at, first); ctx.lineTo(at, first + (size - 1) * SIZE);
+			}
+			ctx.stroke();
+			ctx.fillStyle = "#2b1d0e";
+			stars.forEach(function(pos) {
+				var r = Math.floor(pos / size), c = pos % size;
+				ctx.beginPath();
+				ctx.arc(first + c * SIZE, first + r * SIZE, SIZE * 0.09, 0, 2 * Math.PI);
+				ctx.fill();
+			});
+		}
+
 		xdv.createGadget("board", {
 			base: {
 				x: 0,
@@ -76,25 +112,35 @@ var WIDTH, SIZE, MARGIN;
 				width: boardWidth,
 				height: boardWidth,
 				draw: function(ctx) {
-					var half = boardWidth / 2;
-					var first = -half + MARGIN;
 					ctx.fillStyle = "#e3b96b";
-					ctx.fillRect(-half, -half, boardWidth, boardWidth);
-					ctx.strokeStyle = "#2b1d0e";
-					ctx.lineWidth = Math.max(1, SIZE * 0.03);
-					ctx.beginPath();
-					for(var i = 0; i < size; i++) {
-						var at = first + i * SIZE;
-						ctx.moveTo(first, at); ctx.lineTo(first + (size - 1) * SIZE, at);
-						ctx.moveTo(at, first); ctx.lineTo(at, first + (size - 1) * SIZE);
-					}
-					ctx.stroke();
-					ctx.fillStyle = "#2b1d0e";
-					stars.forEach(function(pos) {
-						var r = Math.floor(pos / size), c = pos % size;
-						ctx.beginPath();
-						ctx.arc(first + c * SIZE, first + r * SIZE, SIZE * 0.09, 0, 2 * Math.PI);
-						ctx.fill();
+					ctx.fillRect(-boardWidth / 2, -boardWidth / 2, boardWidth, boardWidth);
+					DrawGrid(ctx);
+				},
+			},
+			skin2dwood: {
+				/*
+				 * The texture arrives asynchronously, and the gadget has
+				 * already been asked to draw by then - so the callback paints
+				 * into the same context, which is what reversi-xd-view.js does
+				 * with its own board texture. The board is briefly blank rather
+				 * than briefly wrong.
+				 *
+				 * The photograph is tiled rather than stretched: stretching one
+				 * image across 12000 units turns its grain into smears, and the
+				 * grain is the whole point of using a photograph.
+				 */
+				draw: function(ctx) {
+					var half = boardWidth / 2;
+					this.getResource("image|" + fullPath + "/res/wood2.jpg", function(img) {
+						var tile = boardWidth / WOOD_TILES;
+						for(var x = -half; x < half; x += tile)
+							for(var y = -half; y < half; y += tile)
+								ctx.drawImage(img, x, y, tile, tile);
+						// The grain is louder than a flat colour, so the lines
+						// are laid over a slight wash to keep the board legible.
+						ctx.fillStyle = "rgba(227, 185, 107, 0.18)";
+						ctx.fillRect(-half, -half, boardWidth, boardWidth);
+						DrawGrid(ctx);
 					});
 				},
 			},

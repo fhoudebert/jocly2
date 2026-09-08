@@ -111,10 +111,22 @@ exports.games = (function() {
 					"animateSelfMoves": false,
 					"js": config_view_js,
 					"css": config_view_css,
+					/*
+					 * Two skins, both flat. They share the grid and the stones
+					 * and differ only in the surface under them: a plain colour,
+					 * or a tiled wood photograph (res/wood2.jpg, the one the
+					 * xiangqi board uses - copied rather than referenced, since
+					 * the build resolves res/** inside the game's own module).
+					 */
 					"skins": [
 						{
+							"name": "skin2dwood",
+							"title": "Wood",
+							"3d": false
+						},
+						{
 							"name": "skin2d",
-							"title": "2D",
+							"title": "Plain",
 							"3d": false
 						}
 					]

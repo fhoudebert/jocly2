@@ -288,7 +288,70 @@ manifest.forEach((entry) => {
 		entry.config.view.useShowMoves, false);
 	t.check(entry.name + " declares a 2D skin only",
 		entry.config.view.skins.filter((s) => s["3d"]).length, 0);
+	t.check(entry.name + " offers both surfaces",
+		entry.config.view.skins.map((s) => s.name), ["skin2dwood", "skin2d"]);
 });
+
+/* ------------------------------------------------------------ the skins */
+
+/*
+ * Two skins, both flat, sharing everything but the surface under the grid.
+ * jocly.xd-view.js merges a gadget's options as base, then "2d" or "3d", then
+ * a key named after the current skin - so the wood skin overrides the draw and
+ * nothing else, and the type and size stay declared once. Getting that wrong
+ * is invisible until someone switches skin.
+ */
+{
+	const spec = xdv.gadgets["board"].spec;
+	t.check("the wood skin overrides the board", typeof spec.skin2dwood.draw, "function");
+	t.check("and only the drawing", Object.keys(spec.skin2dwood), ["draw"]);
+	t.check("so the type and size come from the shared block",
+		[spec["2d"].type, spec["2d"].width], ["canvas", 9 * vg9.goSize]);
+
+	// a context that records the calls instead of painting
+	function ctx() {
+		const calls = [];
+		const record = (name) => (...args) => calls.push([name].concat(args.slice(0, 2)));
+		return {
+			calls,
+			fillRect: record("fillRect"), drawImage: record("drawImage"),
+			beginPath: record("beginPath"), moveTo: record("moveTo"),
+			lineTo: record("lineTo"), stroke: record("stroke"),
+			arc: record("arc"), fill: record("fill"),
+			set fillStyle(v) { calls.push(["fillStyle", v]); },
+			set strokeStyle(v) { calls.push(["strokeStyle", v]); },
+			set lineWidth(v) { },
+		};
+	}
+	const counted = (c, name) => c.calls.filter((x) => x[0] === name).length;
+
+	// the plain skin paints a colour and draws the grid, synchronously
+	const plain = ctx();
+	spec["2d"].draw.call({}, plain);
+	t.check("the plain board fills a colour", counted(plain, "fillRect"), 1);
+	t.check("and draws the grid on it", counted(plain, "stroke") > 0, true);
+	t.check("with a star point per hoshi", counted(plain, "arc"), vg9.goStars.length);
+
+	// the wood skin asks for the texture and draws nothing until it arrives
+	const wood = ctx();
+	let asked = null, deliver = null;
+	const avatar = {
+		getResource(key, cb) { asked = key; deliver = cb; },
+	};
+	spec.skin2dwood.draw.call(avatar, wood);
+	t.check("the wood board asks for the texture",
+		asked, "image|/games/go/res/wood2.jpg");
+	t.check("and paints nothing before it arrives", wood.calls.length, 0);
+
+	deliver({});
+	t.check("then tiles it rather than stretching it",
+		counted(wood, "drawImage") > 1, true);
+	t.check("draws the same grid over it", counted(wood, "stroke") > 0, true);
+	t.check("and the same star points", counted(wood, "arc"), vg9.goStars.length);
+
+	t.check("the texture is in the module's own res folder, where the build looks",
+		fs.existsSync(path.join(GO, "res", "wood2.jpg")), true);
+}
 
 /* --------------------------------------------------------- another size */
 
