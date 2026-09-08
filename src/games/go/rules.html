@@ -1,0 +1,42 @@
+<p>Go (also weiqi, baduk or igo) is played on the intersections of a grid. Black
+plays first. On your turn you either place one stone on any empty intersection,
+or pass.</p>
+
+<h3>Groups and capture</h3>
+
+<p>Stones of the same colour that touch along a line — not a diagonal — form a
+group. The empty intersections next to a group are its <b>liberties</b>. A group
+with no liberty left is captured and removed from the board, all of it at once.</p>
+
+<p>Captures are resolved in the opponent's favour first: when you place a stone,
+any enemy group left without a liberty is taken off before your own stone is
+checked. This is why you may fill your last liberty when doing so captures.</p>
+
+<h3>Suicide</h3>
+
+<p>You may not place a stone that would leave its own group without a liberty,
+unless the same move captures. A single-point eye of your own colour is
+therefore not a legal move for you, while it may well be one for your opponent.</p>
+
+<h3>Ko</h3>
+
+<p>You may not play a move that recreates a position the game has already been
+in. In practice this shows up as the <b>ko</b>: after one stone is captured, the
+opponent cannot take straight back, and must play elsewhere first. The wider
+rule — called <i>positional superko</i> — also covers the rarer repetitions that
+the simple ko does not.</p>
+
+<h3>Ending the game and scoring</h3>
+
+<p>The game ends when both players pass in succession. This game uses <b>Chinese
+rules</b> and <b>area scoring</b>: your score is the number of your stones on the
+board plus the number of empty intersections that only your colour reaches. An
+empty region touching both colours is neutral and counts for nobody.</p>
+
+<p>White adds <b>komi</b> to compensate for playing second — 7.5 points on a
+19x19 board, 6.5 on 13x13, 5.5 on 9x9. The half point makes a draw impossible.</p>
+
+<p>One consequence is worth knowing before you pass. There is no separate step
+for agreeing which stones are dead: the board is counted exactly as it stands.
+Stones you consider dead but have not captured still count for your opponent, so
+play the position out before passing.</p>
