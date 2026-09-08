@@ -49,7 +49,7 @@ exports.games = (function() {
 			"name": name,
 			"label": label,
 			"ai": "kata",
-			"net": "model-b5c192.bin.gz",
+			"net": "katago-nnue.bin.gz",
 			"visits": visits,
 			"moveTimeMs": moveTimeMs,
 			// Gumbel-top-n root selection, which is stronger than PUCT at the
@@ -81,6 +81,7 @@ exports.games = (function() {
 						"fr": "rules-fr.html"
 					},
 					"maxLevel": 5,
+					"thumbnail": "go-thumbnail.png",
 					"module": "go",
 					"js": modelScripts,
 					"gameOptions": {

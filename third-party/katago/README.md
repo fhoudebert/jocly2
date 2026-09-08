@@ -49,14 +49,22 @@ inventing one.
 Downloadable from the upstream demo (`web/demo/vendor`) or converted from
 KataGo's published networks:
 
-| file | size | notes |
-|------|------|-------|
-| `model-b6c96.bin.gz` | ~3.8 MB | the small one; fine on 9x9 |
-| `model-b5c192.bin.gz` | ~7 MB | upstream's default; beats g170-b6 about 81% of the time on raw policy |
-| `model-b10c128.bin.gz` | ~11 MB | stronger, noticeably slower on CPU |
+The `kata` levels in `src/games/go/index.js` all name **`katago-nnue.bin.gz`**,
+so whichever network you choose, drop it here under that name. One name means
+switching networks is a file copy rather than a manifest edit, and it keeps the
+levels from silently naming a file that no longer exists upstream — which is
+what happened to `model-b5c192.bin.gz`.
 
-Name the one you want in the level's `net` field — see the `kata` levels in
-`src/games/go/index.js`.
+Upstream publishes these, and any of them can play the part:
+
+| size | notes |
+|------|-------|
+| ~3.8 MB | the small one (b6c96); fine on 9x9 |
+| ~7 MB | the middle one (b5c192); upstream's default |
+| ~11 MB | the larger one (b10c128); stronger, noticeably slower on CPU |
+
+Bigger is stronger per visit and slower per visit, so on a CPU fallback the
+small one at more visits often plays better than the large one at fewer.
 
 ## Backend
 

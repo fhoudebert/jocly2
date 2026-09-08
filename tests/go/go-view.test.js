@@ -129,7 +129,10 @@ vg9.xdInit(xdv);
 
 t.check("the cell pitch is published", vg9.goSize, Math.floor(12000 / 10));
 t.check("one gadget per intersection, plus the furniture",
-	Object.keys(xdv.gadgets).length, 81 + 3);
+	Object.keys(xdv.gadgets).length, 81 + 4);
+t.check("the furniture is the board, the bar, the button and the mark",
+	Object.keys(xdv.gadgets).filter((k) => k.indexOf("point#") < 0).sort(),
+	["board", "last-move", "pass-button", "status"]);
 t.check("the board is drawn as one canvas", xdv.gadgets["board"].skin.type, "canvas");
 t.check("and the intersections are elements", xdv.gadgets["point#0"].skin.type, "element");
 t.check("passing has a control of its own", xdv.gadgets["pass-button"] !== undefined, true);
@@ -193,6 +196,65 @@ t.check("the last move is marked there",
 	[xdv.gadgets["last-move"].props.visible,
 		xdv.gadgets["last-move"].props.x, xdv.gadgets["last-move"].props.y], [true, 0, 0]);
 t.check("no gadget was updated before it existed", xdv.missing, []);
+
+/* ----------------------------------------------------------- the status */
+
+/*
+ * What the bar says is a judgement, not a readout. Area counting an unresolved
+ * position is not a running score - most of the board is neutral until the
+ * borders are settled, and a group with two eyes counts the same as a dead one
+ * - so while the game runs the bar shows only what is factual: the prisoners
+ * each side has taken, and the komi. The score appears when both have passed
+ * and it means something.
+ */
+{
+	function statusText() {
+		const calls = [];
+		const c = {
+			calls,
+			beginPath() { }, arc() { }, fill() { }, stroke() { },
+			measureText: () => ({ width: 100 }),
+			fillText: (t) => calls.push(t),
+			set font(v) { }, set fillStyle(v) { }, set strokeStyle(v) { },
+			set lineWidth(v) { }, set textAlign(v) { }, set textBaseline(v) { },
+		};
+		xdv.gadgets["status"].spec["2d"].draw.call({}, c);
+		return calls;
+	}
+
+	const running = newBoard(g9);
+	running.prisoners = [3, 5];
+	View.Board.xdDisplay.call(running, xdv, vg9);
+	t.check("mid-game the bar shows prisoners and komi",
+		statusText(), ["3", "5", "komi 5.5"]);
+	t.check("and never a score that would mean nothing yet",
+		statusText().some((s) => /win|Draw/.test(s)), false);
+
+	// black owns everything but a two-point white corner
+	const over = newBoard(g9);
+	for(let pos = 0; pos < 81; pos++) over.board[pos] = 1;
+	[70, 71, 79].forEach((pos) => { over.board[pos] = -1; });
+	over.board[80] = 0;
+	over.passes = 2;
+	View.Board.xdDisplay.call(over, xdv, vg9);
+	const ended = statusText();
+	const score = over.goScore(g9);
+	t.check("once both have passed the score appears",
+		[ended[0], ended[1]], ["" + score.black, "" + score.white]);
+	t.check("with the verdict, and by how much",
+		ended[2], "Black wins by " + (score.black - score.white));
+
+	// komi is what settles a close board, so the margin has to include it
+	t.check("the margin counts komi", score.white % 1, 0.5);
+
+	t.check("the bar is built with the rest of the scene",
+		(() => {
+			const scene = recorder();
+			vg9.xdInit(scene);
+			vg9.xdBuildScene(scene);
+			return scene.gadgets["status"].props.visible;
+		})(), true);
+}
 
 /* ------------------------------------------------------------ the input */
 

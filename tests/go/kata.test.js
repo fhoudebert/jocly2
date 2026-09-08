@@ -164,7 +164,12 @@ const LEVEL = manifest.filter((x) => x.name === "go9")[0]
 	.config.model.levels.filter((l) => l.ai === "kata")[0];
 
 t.check("the manifest declares kata levels", LEVEL !== undefined, true);
-t.check("naming a net", typeof LEVEL.net, "string");
+// One fixed name whatever network is dropped in: the levels named an upstream
+// file once, and that file stopped existing.
+t.check("naming the net by a fixed local name", LEVEL.net, "katago-nnue.bin.gz");
+t.check("the same on every board",
+  [...new Set(manifest.map((g) => g.config.model.levels.filter((l) => l.ai === "kata")
+    .map((l) => l.net)).flat())], ["katago-nnue.bin.gz"]);
 
 const ready = () => new Promise((r) => setTimeout(r, 5));
 

@@ -38,6 +38,13 @@ var WIDTH, SIZE, MARGIN;
 // stretch at 9x9.
 var WOOD_TILES = 4;
 
+/*
+ * What the status bar says, refreshed by xdDisplay and read by the bar's draw.
+ * A holder rather than arguments because a gadget's draw is called by the view,
+ * not by us.
+ */
+var status = { black: "", white: "", middle: "" };
+
 	// Star points (hoshi): the handicap intersections, marked on a real board.
 	function StarPoints(size) {
 		if(size < 7) return [];
@@ -181,6 +188,65 @@ var WOOD_TILES = 4;
 		});
 
 		/*
+		 * The status bar, in the top margin band - the mirror of the pass
+		 * button in the bottom one.
+		 *
+		 * A canvas gadget repaints on every update (GadgetCanvas.displayElement
+		 * calls draw outside the geometry guard, unlike a plain element, whose
+		 * display callback only runs when something moved). So the bar reads
+		 * its text out of a holder the display refreshes, and any update
+		 * repaints it - the same shape reversi-xd-view.js uses for its own
+		 * scoreboard.
+		 */
+		xdv.createGadget("status", {
+			base: {
+				visible: true,
+				x: 0,
+				y: -(12000 / 2 - MARGIN * 0.55),
+				z: 4,
+			},
+			"2d": {
+				type: "canvas",
+				width: 12000,
+				height: MARGIN * 1.1,
+				draw: function(ctx) {
+					var h = MARGIN * 1.1;
+					var fontSize = Math.round(h * 0.62);
+					ctx.font = "bold " + fontSize + "px sans-serif";
+					ctx.textBaseline = "middle";
+					var r = fontSize * 0.38;
+
+					// A side's stone, then its text, drawn as one run so the
+					// two stay together whatever the numbers are.
+					function side(text, colour, edge, anchor, dir) {
+						var w = ctx.measureText(text).width;
+						var x = anchor + dir * (r + fontSize * 0.35);
+						ctx.beginPath();
+						ctx.arc(anchor + dir * r, 0, r, 0, 2 * Math.PI);
+						ctx.fillStyle = colour;
+						ctx.fill();
+						ctx.strokeStyle = edge;
+						ctx.lineWidth = Math.max(1, r * 0.12);
+						ctx.stroke();
+						ctx.fillStyle = "#f0e6d2";
+						ctx.textAlign = dir > 0 ? "left" : "right";
+						ctx.fillText(text, x, 0);
+						return w;
+					}
+
+					side(status.black, "#111111", "#666666", -12000 / 2 + fontSize, 1);
+					side(status.white, "#f2f2f2", "#888888", 12000 / 2 - fontSize, -1);
+					if(status.middle) {
+						ctx.fillStyle = "#c8b89a";
+						ctx.textAlign = "center";
+						ctx.font = Math.round(h * 0.5) + "px sans-serif";
+						ctx.fillText(status.middle, 0, 0);
+					}
+				},
+			},
+		});
+
+		/*
 		 * Passing has no square to click, so it needs a button of its own -
 		 * and on a board where every point is a legal move, it is the one move
 		 * a player cannot express by pointing at something.
@@ -227,6 +293,7 @@ var WOOD_TILES = 4;
 			xdv.updateGadget("point#" + pos, { base: { visible: true } });
 		xdv.updateGadget("pass-button", { base: { visible: false } });
 		xdv.updateGadget("last-move", { base: { visible: false } });
+		xdv.updateGadget("status", { base: { visible: true } });
 	}
 
 	// Board coordinates of an intersection, honouring the flip.
@@ -262,6 +329,29 @@ var WOOD_TILES = 4;
 				},
 			});
 		}
+		/*
+		 * Prisoners always; the score only once both sides have passed.
+		 *
+		 * Area counting an unresolved position is not a running score, it is a
+		 * number that means nothing: most of the board is neutral until the
+		 * borders are settled, and a group with two eyes counts the same as a
+		 * dead one. Showing it mid-game would not be an estimate, it would be
+		 * misleading - so what is shown while the game runs is the two things
+		 * that are facts, the prisoners each side has taken and the komi.
+		 */
+		if(this.passes >= 2) {
+			var score = this.goScore(aGame);
+			status.black = "" + score.black;
+			status.white = "" + score.white;
+			status.middle = score.black > score.white ? "Black wins by " + (score.black - score.white)
+				: (score.white > score.black ? "White wins by " + (score.white - score.black) : "Draw");
+		} else {
+			status.black = "" + this.prisoners[0];
+			status.white = "" + this.prisoners[1];
+			status.middle = "komi " + aGame.g.komi;
+		}
+		xdv.updateGadget("status", { base: { visible: true } });
+
 		var last = this.lastPlayed;
 		if(last === undefined || last < 0)
 			xdv.updateGadget("last-move", { base: { visible: false } });
