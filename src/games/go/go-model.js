@@ -405,6 +405,40 @@
 		this.mEvaluation = score.black - score.white;
 	}
 
+	/*
+	 * The position, as the sequence of moves that made it, for an engine.
+	 *
+	 * This is the contract jocly.kata.js asks of a game module. kataeval takes
+	 * a position as its move list and replays it itself, which is also how it
+	 * sees the captures, the ko and the network's recent-move inputs - so
+	 * unlike Fairy-Stockfish or Scan there is no board notation to export and
+	 * none to get wrong.
+	 *
+	 * loc is the point index and col is 1 black / 2 white. Whether KataGo
+	 * counts rows from the top or the bottom is not settled here and does not
+	 * need to be: the two conventions differ by a reflection of the board, the
+	 * same reflection applies to the position going in and to the move coming
+	 * back, and a reflection is a symmetry of Go. It would matter for an
+	 * ownership map or a board read back out of kgeEvalSeq; neither is used.
+	 */
+	Model.Board.goExportMoves = function(aGame) {
+		var moves = [];
+		(aGame.mPlayedMoves || []).forEach(function(played, i) {
+			// mPlayedMoves alternates from Black, who moves first in Go as in
+			// Jocly - PLAYER_A. A pass is -1 on both sides.
+			moves.push({
+				loc: played.p === undefined ? -1 : played.p,
+				col: (i % 2) === 0 ? 1 : 2,
+			});
+		});
+		return {
+			moves: moves,
+			toPlay: this.mWho === BLACK ? 1 : 2,
+			komi: aGame.g.komi,
+			boardSize: aGame.g.size,
+		};
+	}
+
 	// Passing when the board still has moves in it is legal but rarely meant, so
 	// the native AI is not allowed to end the game by accident - it may pass
 	// only when it has nothing else.

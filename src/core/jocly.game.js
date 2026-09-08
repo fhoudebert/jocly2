@@ -49,6 +49,7 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		global.JocUtil = ju.JocUtil;
 		global.JoclyUCT = r("./jocly.uct.js").JoclyUCT;
 		global.JoclyFairy = r("./jocly.fairy.js").JoclyFairy;
+		global.JoclyKata = r("./jocly.kata.js").JoclyKata;
 	})();
 
 } else {
@@ -646,6 +647,14 @@ JocGame.prototype.StartMachine = function(aOptions) {
 		// "uct"/alpha-beta AIs, regardless of aOptions.threaded.
 		JoclyScan.startMachine(this,aOptions);
 	}
+	else if(aOptions.level && aOptions.level.ai=="kata" && typeof JoclyKata!="undefined") {
+		// KataGo runs in its own dedicated, long-lived worker (see
+		// jocly.kata.js / jocly.kataworker.js) for the same reason
+		// Fairy-Stockfish and Scan do: a distinct payload, loaded once and
+		// kept across moves. Here it is the network that makes that matter -
+		// several megabytes of it.
+		JoclyKata.startMachine(this,aOptions);
+	}
 	else { // default is legacy alpha-beta ai
 		if(aiThread)
 			this.StartThreadedMachine(aOptions,"alpha-beta");
@@ -722,6 +731,8 @@ JocGame.prototype.StopThreadedMachine = function() {
 	// Same rationale for Scan (see jocly.scan.js).
 	if(typeof JoclyScan != "undefined" && JoclyScan.abortMachine)
 		JoclyScan.abortMachine(this);
+	if(typeof JoclyKata != "undefined" && JoclyKata.abortMachine)
+		JoclyKata.abortMachine(this);
 }
 
 JocGame.prototype.ScheduleStep = function() {

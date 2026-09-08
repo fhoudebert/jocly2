@@ -352,6 +352,7 @@ gulp.task("build-browser-core", function () {
 		"src/browser/jocly.aiworker.js",
 		"src/browser/jocly.fairyworker.js",
 		"src/browser/jocly.scanworker.js",
+		"src/browser/jocly.kataworker.js",
 		"src/browser/jocly.embed.js"
 	]));
 
@@ -360,6 +361,7 @@ gulp.task("build-browser-core", function () {
 		"src/core/jocly.uct.js",
 		"src/core/jocly.fairy.js",
 		"src/core/jocly.scan.js",
+		"src/core/jocly.kata.js",
 		"src/core/jocly.game.js"
 	]), "jocly.game.js", true);
 
@@ -416,6 +418,35 @@ gulp.task("build-browser-core", function () {
 		path.dirname = "scan/data";
 	}));
 
+	// KataGo (third-party/katago): pre-built Emscripten artifacts, copied
+	// through untouched for the same reason as Fairy-Stockfish and Scan above.
+	//
+	// Only the PLAIN build ships. kataeval-mt.* is KataGo's real Search -
+	// stronger, with live statistics - but it needs -pthread, a 33-thread
+	// pool, 512MB of initial memory and a cross-origin isolated page, and
+	// nothing loads it yet: jocly.kataworker.js drives the plain kgeSearch().
+	// Adding it here is one line the day that changes.
+	var joclyKataStream = gulp.src([
+		"third-party/katago/kataeval.js",
+		"third-party/katago/kataeval.wasm"
+	]).pipe(rename(function (path) {
+		path.dirname = "katago";
+	}));
+
+	// The networks are not in the repo - see that directory's README.md for
+	// where to get them. A glob on purpose, exactly like the NNUE one above,
+	// so the build works whether the directory holds none, one or all of the
+	// nets named by "net" in a "kata" level. A referenced-but-absent net is
+	// NOT harmless here, unlike a missing NNUE: KataGo cannot play without
+	// one, so jocly.kataworker.js reports it and jocly.kata.js leaves the
+	// move to Jocly rather than inventing one.
+	var joclyKataNetStream = gulp.src([
+		"third-party/katago/README.md",
+		"third-party/katago/*.bin.gz"
+	], { allowEmpty: true }).pipe(rename(function (path) {
+		path.dirname = "katago";
+	}));
+
 	var joclyResStream = gulp.src("src/browser/res/**/*")
 		.pipe(rename(function (path) {
 			path.dirname = "res/" + path.dirname;
@@ -426,7 +457,8 @@ gulp.task("build-browser-core", function () {
 	allGamesStream = ProcessJS(allGamesStream.pipe(buffer()));
 
 	return mergeSequential(joclyBrowserStream, joclyCoreStream, allGamesStream, joclyBaseStream,
-		joclyExtraStream, joclyFairyStockfishStream, joclyFairyNnueStream, joclyScanStream, joclyScanDataStream, joclyResStream)
+		joclyExtraStream, joclyFairyStockfishStream, joclyFairyNnueStream, joclyScanStream, joclyScanDataStream,
+		joclyKataStream, joclyKataNetStream, joclyResStream)
     .pipe(through.obj(function (file, enc, next) {
       next(null, new Vinyl(file));
     }))

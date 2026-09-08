@@ -139,6 +139,28 @@ t.check("as does the last-move mark", xdv.gadgets["last-move"].spec.base.visible
 // 9x9 marks four corners and the centre; 19x19 marks nine.
 t.check("a 9x9 board has five star points", vg9.goStars.length, 5);
 t.check("the centre is one of them", vg9.goStars.indexOf(4 * 9 + 4) >= 0, true);
+/* ------------------------------------------------------ building the scene */
+
+/*
+ * jocly.xd-view.js calls xdBuildScene unconditionally once the skin is built.
+ * A view without one does not degrade - it throws "this.xdBuildScene is not a
+ * function" and nothing is drawn at all, which is exactly what the first
+ * version of this view did.
+ */
+t.check("the view builds its scene", typeof View.Game.xdBuildScene, "function");
+{
+	const scene = recorder();
+	vg9.xdInit(scene);
+	vg9.xdBuildScene(scene);
+	t.check("the board is shown", scene.gadgets["board"].props.visible, true);
+	t.check("every intersection is shown",
+		Object.keys(scene.gadgets).filter((k) => k.indexOf("point#") === 0)
+			.every((k) => scene.gadgets[k].props.visible === true), true);
+	t.check("the furniture waits", [scene.gadgets["pass-button"].props.visible,
+		scene.gadgets["last-move"].props.visible], [false, false]);
+	t.check("and nothing was touched before it existed", scene.missing, []);
+}
+
 /* ------------------------------------------------------------- the grid */
 
 // The intersections have to land on the lines the board canvas draws, which is

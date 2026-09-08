@@ -164,6 +164,25 @@ var WIDTH, SIZE, MARGIN;
 		});
 	}
 
+	/*
+	 * Called by jocly.xd-view.js once the skin is built, to settle what shows.
+	 * Its absence is not a soft failure: InitView calls it unconditionally, so
+	 * a view without one dies with "this.xdBuildScene is not a function" before
+	 * anything is drawn at all.
+	 *
+	 * There is little to settle here. Every intersection is shown - an empty
+	 * one draws nothing but is what the player clicks - and the two pieces of
+	 * furniture stay hidden until there is a reason for them: the pass button
+	 * when it is someone's turn, the mark when a stone has been played.
+	 */
+	View.Game.xdBuildScene = function(xdv) {
+		xdv.updateGadget("board", { base: { visible: true } });
+		for(var pos = 0; pos < WIDTH * WIDTH; pos++)
+			xdv.updateGadget("point#" + pos, { base: { visible: true } });
+		xdv.updateGadget("pass-button", { base: { visible: false } });
+		xdv.updateGadget("last-move", { base: { visible: false } });
+	}
+
 	// Board coordinates of an intersection, honouring the flip.
 	View.Game.goCoord = function(pos) {
 		var rc = this.g.Coord[pos];

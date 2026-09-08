@@ -20,7 +20,7 @@ exports.games = (function() {
 	 * this module is an engine level (see the analysis: kataeval's kgeSearch in
 	 * a worker, the same shape as jocly.scan.js), which is the next piece.
 	 */
-	var config_model_levels = [
+	var config_model_levels_native = [
 		{
 			"name": "beginner",
 			"label": "Beginner",
@@ -32,6 +32,37 @@ exports.games = (function() {
 			"maxDepth": 2
 		}
 	]
+
+	/*
+	 * The levels the game is actually for. They differ only in how long the
+	 * engine gets to think: a KataGo network plays a reasonable move on its raw
+	 * policy alone, and every visit after that is refinement, so a visit budget
+	 * is a far more honest strength dial here than a search depth is for a
+	 * chess engine.
+	 *
+	 * The net is not in the repository - see third-party/katago/README.md. When
+	 * it is missing the worker says so and Jocly leaves the move alone, rather
+	 * than the engine inventing one.
+	 */
+	function KataLevel(name, label, visits, moveTimeMs) {
+		return {
+			"name": name,
+			"label": label,
+			"ai": "kata",
+			"net": "model-b5c192.bin.gz",
+			"visits": visits,
+			"moveTimeMs": moveTimeMs,
+			// Gumbel-top-n root selection, which is stronger than PUCT at the
+			// visit counts a browser can afford.
+			"gumbel": 16
+		}
+	}
+
+	var config_model_levels = config_model_levels_native.concat([
+		KataLevel("kata-easy", "Easy", 8, 1000),
+		KataLevel("kata-medium", "Medium", 64, 3000),
+		KataLevel("kata-strong", "Strong", 400, 8000)
+	])
 
 	function Go(name, size, title) {
 		return {
@@ -49,7 +80,7 @@ exports.games = (function() {
 						"en": "rules.html",
 						"fr": "rules-fr.html"
 					},
-					"maxLevel": 2,
+					"maxLevel": 5,
 					"module": "go",
 					"js": modelScripts,
 					"gameOptions": {
