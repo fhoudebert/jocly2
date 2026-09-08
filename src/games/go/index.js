@@ -4,6 +4,14 @@ exports.games = (function() {
 		"go-model.js"
 	]
 
+	var config_view_js = [
+		"go-xd-view.js"
+	]
+
+	var config_view_css = [
+		"go.css"
+	]
+
 	/*
 	 * Native levels only, for now, and they are weak: Jocly's own search is not
 	 * going to play Go on 361 points, and Evaluate() says so - it counts area on
@@ -54,12 +62,12 @@ exports.games = (function() {
 					"levels": config_model_levels
 				},
 				/*
-				 * A view stub, not a view. There is no view script yet - this
-				 * module is the rules and nothing else so far - but JocGame.Init
-				 * reads mViewOptions.skins[0].name while building the game, so a
-				 * game with no view section at all cannot even be constructed in
-				 * a test. Enough to build one, not enough to draw one; the board
-				 * comes next.
+				 * 2D only, deliberately: a goban is a flat diagram, and a 3D
+				 * board would mean up to 361 stone meshes on one scene. See the
+				 * head of go-xd-view.js.
+				 *
+				 * useShowMoves is off because on a Go board almost every point
+				 * is a legal move - highlighting them all says nothing.
 				 */
 				"view": {
 					"title-en": "Go View",
@@ -68,6 +76,10 @@ exports.games = (function() {
 					"preferredRatio": 1,
 					"switchable": true,
 					"useShowMoves": false,
+					"useNotation": true,
+					"animateSelfMoves": false,
+					"js": config_view_js,
+					"css": config_view_css,
 					"skins": [
 						{
 							"name": "skin2d",
@@ -76,7 +88,8 @@ exports.games = (function() {
 						}
 					]
 				}
-			}
+			},
+			"viewScripts": config_view_js
 		}
 	}
 

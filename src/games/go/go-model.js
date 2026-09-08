@@ -142,6 +142,9 @@
 		 */
 		this.hist = [0];
 		this.moveCount = 0;
+		// The point last played, or -1. A Go board changes by one stone a turn
+		// and the view marks it so the change is visible at a glance.
+		this.lastPlayed = -1;
 	}
 
 	function SIDE01(side) {
@@ -156,6 +159,7 @@
 		this.hash = aBoard.hash;
 		this.hist = aBoard.hist;           // shared: see InitialPosition
 		this.moveCount = aBoard.moveCount;
+		this.lastPlayed = aBoard.lastPlayed;
 		this.mWho = aBoard.mWho;
 	}
 
@@ -294,6 +298,7 @@
 	Model.Board.ApplyMove = function(aGame, move) {
 		var side = this.mWho;
 		this.moveCount++;
+		this.lastPlayed = move.p;
 		if(move.p < 0) {
 			this.passes++;
 			this.koPos = -1;

@@ -1,0 +1,46 @@
+/*
+ * The stones, and the mark on the last one played.
+ *
+ * Drawn with gradients rather than images so the module ships no asset, and
+ * sized in percentages so they scale with the point whatever the board size:
+ * the same rule has to look right at 9x9, where a point is a fifth of the
+ * board, and at 19x19, where it is a twentieth.
+ *
+ * .go-point is every intersection, empty ones included - the empty ones are
+ * what the player clicks, so they need a size and a cursor even though they
+ * draw nothing.
+ */
+
+.go-point {
+	border-radius: 50%;
+	cursor: pointer;
+}
+
+.go-black {
+	background-image: radial-gradient(circle at 32% 28%, #6b6b6b 0%, #1a1a1a 45%, #000000 100%);
+	box-shadow: 0 0 4% 0 rgba(0,0,0,0.5);
+}
+
+.go-white {
+	background-image: radial-gradient(circle at 32% 28%, #ffffff 0%, #ececec 45%, #b8b4ab 100%);
+	box-shadow: 0 0 4% 0 rgba(0,0,0,0.4);
+}
+
+/*
+ * The last-move mark sits on top of the stone, so it has to read against both
+ * colours: a hollow ring in a colour neither stone uses.
+ */
+.go-last {
+	border-radius: 50%;
+	border: 12% solid #c8322c;
+	box-sizing: border-box;
+	pointer-events: none;
+}
+
+/*
+ * The hover target on a legal point. Kept faint: on a Go board almost every
+ * point is legal, so this is shown a lot and should suggest rather than shout.
+ */
+.go-point.xd-choice:hover {
+	background-color: rgba(255, 255, 255, 0.35);
+}
