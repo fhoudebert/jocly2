@@ -72,6 +72,11 @@ function FetchArrayBuffer(url) {
 	});
 }
 
+function KataError() {
+	if (typeof console !== "undefined" && console.error)
+		console.error.apply(console, ["[kata]"].concat(Array.prototype.slice.call(arguments)));
+}
+
 function LoadEngine(net, boardSize) {
 	if (kataEngineReady)
 		return kataEngineReady;
@@ -94,6 +99,12 @@ function LoadEngine(net, boardSize) {
 		.then(function (mod) {
 			kataModule = mod;
 			return FetchArrayBuffer(kataBaseURL + net).then(function (netBuf) {
+				// Said out loud because its absence is the one setup mistake
+				// that is otherwise silent until the engine is asked to move,
+				// and because the file is not in the repository - somebody has
+				// to have put it there.
+				KataLog("network found:", net,
+					"(" + (netBuf.byteLength / 1048576).toFixed(1) + " MB)");
 				mod.FS.writeFile("/model.bin.gz", new Uint8Array(netBuf));
 				// kgeLoad acquires the GPU device, which it does asynchronously
 				// and blocks on through Asyncify - hence { async: true }.
@@ -181,6 +192,11 @@ onmessage = function (e) {
 			LoadEngine(message.net, message.boardSize).then(function (info) {
 				postMessage({ type: "Ready", data: info });
 			}).catch(function (err) {
+				// The likeliest cause by far, and worth naming rather than
+				// leaving as a fetch failure on a path nobody recognises.
+				KataError("engine unavailable:", "" + (err && err.message || err),
+					"- expected the network at " + kataBaseURL + (message.net || "(none named)")
+					+ "; see third-party/katago/README.md");
 				postMessage({ type: "Error", error: "" + (err && err.message || err) });
 			});
 			break;

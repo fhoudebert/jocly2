@@ -46,25 +46,42 @@ whereas KataGo cannot play at all without its net. `jocly.kataworker.js`
 reports the failure and `jocly.kata.js` leaves the move to Jocly rather than
 inventing one.
 
-Downloadable from the upstream demo (`web/demo/vendor`) or converted from
-KataGo's published networks:
+The `kata` levels in `src/games/go/index.js` all name
+**`katago-nnetwork.bin.gz`**, so whichever network you choose, drop it here
+under that name. One fixed name means switching networks is a file copy rather
+than a manifest edit, and it stops the levels naming a file that has since
+moved — which is what happened to the one they named first.
 
-The `kata` levels in `src/games/go/index.js` all name **`katago-nnue.bin.gz`**,
-so whichever network you choose, drop it here under that name. One name means
-switching networks is a file copy rather than a manifest edit, and it keeps the
-levels from silently naming a file that no longer exists upstream — which is
-what happened to `model-b5c192.bin.gz`.
+Not `nnue`. NNUE is a chess and shogi term — an *efficiently updatable* shallow
+network, recomputed incrementally as an alpha-beta search makes and unmakes
+moves, which is what `fairy-stockfish/nnue` next door holds. KataGo's is a
+convolutional residual policy-value network evaluated whole, on a batch of
+positions, by an MCTS. Same idea in the abstract, entirely different animal,
+and calling it NNUE would send anyone reading the manifest looking for the
+wrong thing.
 
-Upstream publishes these, and any of them can play the part:
+### Where to get one
 
-| size | notes |
-|------|-------|
-| ~3.8 MB | the small one (b6c96); fine on 9x9 |
-| ~7 MB | the middle one (b5c192); upstream's default |
-| ~11 MB | the larger one (b10c128); stronger, noticeably slower on CPU |
+Pachi republishes converted KataGo networks, which is the most durable source
+of them — KataGo's own training runs move and their file names go with them,
+which is exactly what happened to the network these levels used to name:
 
-Bigger is stronger per visit and slower per visit, so on a CPU fallback the
-small one at more visits often plays better than the large one at fewer.
+<https://github.com/pasky/pachi/releases/#release-katago_models>
+
+The one used to develop this integration:
+
+```
+curl -L -o third-party/katago/katago-nnetwork.bin.gz \
+  https://github.com/pasky/pachi/releases/download/katago_models/g170e-b10c128-s1141046784-d204142634.bin.gz
+```
+
+That is `g170e-b10c128`, about 11 MB. Smaller networks from the same release
+page (b6c96 around 3.8 MB, b5c192 around 7 MB) work as well under the same
+name.
+
+Bigger is stronger per visit and slower per visit, so on the CPU fallback the
+small one at more visits often plays better than the large one at fewer. Try
+b6c96 first if a level feels sluggish, before lowering its visit count.
 
 ## Backend
 

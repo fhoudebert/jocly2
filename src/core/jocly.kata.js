@@ -172,7 +172,15 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		};
 
 		entry.ready
-			.then(function () {
+			.then(function (info) {
+				// Reported here as well as in the worker: a Worker's console
+				// output is easy to miss, and "which backend, which network"
+				// is the first thing anyone asks when a level plays oddly.
+				if (info && !entry.announced) {
+					entry.announced = true;
+					console.info("[kata]", "ready on", info.backend,
+						"- network", level.net, "- board", aGame.g.size);
+				}
 				return new Promise(function (resolve, reject) {
 					entry.worker.onmessage = function (e) {
 						var message = e.data;

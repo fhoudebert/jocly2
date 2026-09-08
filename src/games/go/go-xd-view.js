@@ -198,48 +198,71 @@ var status = { black: "", white: "", middle: "" };
 		 * repaints it - the same shape reversi-xd-view.js uses for its own
 		 * scoreboard.
 		 */
+		/*
+		 * The status bar, in the top margin band - the mirror of the pass
+		 * button in the bottom one.
+		 *
+		 * It is 1.6 margins tall against a band of one, so it laps over the
+		 * board's own empty wooden border by a little. There is nothing there
+		 * to cover - the grid starts one margin inside the board - and the
+		 * extra height is what makes the numbers readable at 19x19, where a
+		 * margin is only half of a 600-unit cell.
+		 *
+		 * Everything is drawn dark. The first version used pale text, chosen
+		 * for a dark bar that does not exist: above the board is the page
+		 * background and below it is tan wood, both light, and pale on pale is
+		 * what made the figures hard to read rather than their size alone.
+		 *
+		 * A canvas gadget repaints on every update (GadgetCanvas.displayElement
+		 * calls draw outside the geometry guard, unlike a plain element, whose
+		 * display callback only runs when something moved). So the bar reads
+		 * its text out of a holder the display refreshes, and any update
+		 * repaints it - the same shape reversi-xd-view.js uses for its own
+		 * scoreboard.
+		 */
+		var STATUS_H = MARGIN * 1.6;
 		xdv.createGadget("status", {
 			base: {
 				visible: true,
 				x: 0,
-				y: -(12000 / 2 - MARGIN * 0.55),
+				y: -(12000 / 2 - STATUS_H / 2),
 				z: 4,
 			},
 			"2d": {
 				type: "canvas",
 				width: 12000,
-				height: MARGIN * 1.1,
+				height: STATUS_H,
 				draw: function(ctx) {
-					var h = MARGIN * 1.1;
-					var fontSize = Math.round(h * 0.62);
-					ctx.font = "bold " + fontSize + "px sans-serif";
+					var fontSize = Math.round(STATUS_H * 0.72);
+					var ink = "#2b1d0e";
 					ctx.textBaseline = "middle";
-					var r = fontSize * 0.38;
+					var r = fontSize * 0.42;
 
-					// A side's stone, then its text, drawn as one run so the
-					// two stay together whatever the numbers are.
-					function side(text, colour, edge, anchor, dir) {
-						var w = ctx.measureText(text).width;
-						var x = anchor + dir * (r + fontSize * 0.35);
+					// A side's stone, then its number, drawn as one run so the
+					// two stay together whatever the figures are.
+					function side(text, colour, anchor, dir) {
+						ctx.font = "bold " + fontSize + "px sans-serif";
 						ctx.beginPath();
 						ctx.arc(anchor + dir * r, 0, r, 0, 2 * Math.PI);
 						ctx.fillStyle = colour;
 						ctx.fill();
-						ctx.strokeStyle = edge;
-						ctx.lineWidth = Math.max(1, r * 0.12);
+						ctx.strokeStyle = ink;
+						ctx.lineWidth = Math.max(1, r * 0.14);
 						ctx.stroke();
-						ctx.fillStyle = "#f0e6d2";
+						ctx.fillStyle = ink;
 						ctx.textAlign = dir > 0 ? "left" : "right";
-						ctx.fillText(text, x, 0);
-						return w;
+						ctx.fillText(text, anchor + dir * (2 * r + fontSize * 0.4), 0);
 					}
 
-					side(status.black, "#111111", "#666666", -12000 / 2 + fontSize, 1);
-					side(status.white, "#f2f2f2", "#888888", 12000 / 2 - fontSize, -1);
+					// Inset by a stone's width, so nothing hugs the edge of the
+					// board the way it did at 13x13.
+					var inset = 12000 / 2 - fontSize * 1.6;
+					side(status.black, "#111111", -inset, 1);
+					side(status.white, "#f2f2f2", inset, -1);
 					if(status.middle) {
-						ctx.fillStyle = "#c8b89a";
+						ctx.fillStyle = ink;
 						ctx.textAlign = "center";
-						ctx.font = Math.round(h * 0.5) + "px sans-serif";
+						ctx.font = "bold " + Math.round(STATUS_H * 0.6) + "px sans-serif";
 						ctx.fillText(status.middle, 0, 0);
 					}
 				},
@@ -348,7 +371,9 @@ var status = { black: "", white: "", middle: "" };
 		} else {
 			status.black = "" + this.prisoners[0];
 			status.white = "" + this.prisoners[1];
-			status.middle = "komi " + aGame.g.komi;
+			// A bare number beside a stone says nothing on its own, so the
+			// middle carries what the two figures are.
+			status.middle = "prisoners  ·  komi " + aGame.g.komi;
 		}
 		xdv.updateGadget("status", { base: { visible: true } });
 

@@ -226,7 +226,7 @@ t.check("no gadget was updated before it existed", xdv.missing, []);
 	running.prisoners = [3, 5];
 	View.Board.xdDisplay.call(running, xdv, vg9);
 	t.check("mid-game the bar shows prisoners and komi",
-		statusText(), ["3", "5", "komi 5.5"]);
+		statusText(), ["3", "5", "prisoners  ·  komi 5.5"]);
 	t.check("and never a score that would mean nothing yet",
 		statusText().some((s) => /win|Draw/.test(s)), false);
 

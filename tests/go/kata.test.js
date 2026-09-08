@@ -166,10 +166,10 @@ const LEVEL = manifest.filter((x) => x.name === "go9")[0]
 t.check("the manifest declares kata levels", LEVEL !== undefined, true);
 // One fixed name whatever network is dropped in: the levels named an upstream
 // file once, and that file stopped existing.
-t.check("naming the net by a fixed local name", LEVEL.net, "katago-nnue.bin.gz");
+t.check("naming the net by a fixed local name", LEVEL.net, "katago-nnetwork.bin.gz");
 t.check("the same on every board",
   [...new Set(manifest.map((g) => g.config.model.levels.filter((l) => l.ai === "kata")
-    .map((l) => l.net)).flat())], ["katago-nnue.bin.gz"]);
+    .map((l) => l.net)).flat())], ["katago-nnetwork.bin.gz"]);
 
 const ready = () => new Promise((r) => setTimeout(r, 5));
 
@@ -306,6 +306,7 @@ const ready = () => new Promise((r) => setTimeout(r, 5));
 	t.check("no net is bundled, as with the NNUEs",
 		fs.readdirSync(kata).filter((f) => /\.bin\.gz$/.test(f)), []);
 
+
 	// The worker must drive the plain ABI, not the threaded one.
 	const worker = fs.readFileSync(path.join(SRC, "browser", "jocly.kataworker.js"), "utf8");
 	t.check("the worker calls the plain search", /kgeSearch/.test(worker), true);
@@ -320,6 +321,27 @@ const ready = () => new Promise((r) => setTimeout(r, 5));
 		.map((x) => x.replace(/["\']/g, ""));
 	t.check("every ABI call the worker makes exists in the shipped build",
 		named.filter((fn) => built.indexOf("_" + fn) < 0), []);
+
+	// The README has to say where to get one: the file is not in the
+	// repository, so it is the only instruction anyone has.
+	const readme = fs.readFileSync(path.join(kata, "README.md"), "utf8");
+	t.check("the README names the file the levels expect",
+		readme.indexOf(LEVEL.net) >= 0, true);
+	t.check("and where to download a network",
+		/pasky\/pachi\/releases/.test(readme), true);
+	t.check("with a command that writes it under that name",
+		new RegExp("curl[\\s\\S]{0,200}" + LEVEL.net.replace(/\./g, "\\.")).test(readme), true);
+
+	// The worker says so when it finds the network, and names the path it
+	// looked at when it does not: its absence is the one setup mistake that is
+	// otherwise silent until the engine is asked to move.
+	t.check("the worker reports the network it loaded",
+		/network found:/.test(worker), true);
+	t.check("and names the expected path when it cannot",
+		/expected the network at/.test(worker), true);
+	const core = fs.readFileSync(path.join(SRC, "core", "jocly.kata.js"), "utf8");
+	t.check("the page console hears about it too, not only the worker's",
+		/console\.info\("\[kata\]"/.test(core), true);
 })
 
 .then(() => t.done("KataGo integration"), (e) => {

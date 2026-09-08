@@ -49,7 +49,7 @@ exports.games = (function() {
 			"name": name,
 			"label": label,
 			"ai": "kata",
-			"net": "katago-nnue.bin.gz",
+			"net": "katago-nnetwork.bin.gz",
 			"visits": visits,
 			"moveTimeMs": moveTimeMs,
 			// Gumbel-top-n root selection, which is stronger than PUCT at the
