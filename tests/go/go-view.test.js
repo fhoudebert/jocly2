@@ -418,7 +418,12 @@ t.check("no percentage box-shadow length",
 /* ------------------------------------------------------------- manifest */
 
 manifest.forEach((entry) => {
-	t.check(entry.name + " ships the view", entry.config.view.js, ["go-xd-view.js"]);
+	// The prelude's view goes with it, and its absence is a silent failure
+	// rather than a loud one: the model would ask for the prelude, no panel
+	// would be built, and the game would open on a goban that answers no
+	// click. checkers/index.js carries the same warning for its own.
+	t.check(entry.name + " ships the view",
+		entry.config.view.js, ["go-xd-view.js", "prelude-view.js"]);
 	t.check(entry.name + " ships the stylesheet", entry.config.view.css, ["go.css"]);
 	t.check(entry.name + " does not offer to show every move",
 		entry.config.view.useShowMoves, false);

@@ -169,14 +169,7 @@
 		 * board down for a typo; playing under the default and saying so
 		 * leaves the game usable and the mistake visible.
 		 */
-		var wanted = this.mOptions.rules || RULESET_DEFAULT;
-		if(!RULESETS[wanted]) {
-			console.warn("go: unknown rule set '" + wanted + "', playing "
-				+ RULESET_DEFAULT);
-			wanted = RULESET_DEFAULT;
-		}
-		this.g.rules = wanted;
-		this.g.suicideOk = RULESETS[wanted].suicide;
+		this.goSetRules();
 
 		/*
 		 * Zobrist keys for the position hash. Positional superko compares whole
@@ -194,6 +187,46 @@
 	}
 
 	Model.Game.InitGameExtra = function() {
+	}
+
+	/*
+	 * Read mOptions.rules into the two fields the move generator consults.
+	 *
+	 * A method rather than a block inside InitGame because the rule set is no
+	 * longer settled once and for all: the prelude (prelude-model.js) asks the
+	 * player, and its answer arrives AFTER InitGame has run. It writes
+	 * mOptions.rules and calls this again, so there is one place that turns a
+	 * name into behaviour and one place that validates it - a second copy in
+	 * the prelude would be a second table to keep in step with this one.
+	 *
+	 * Read once rather than at every move: the rule cannot change mid-game,
+	 * and suicideOk is consulted in the generator's inner loop.
+	 *
+	 * An unknown name falls back to the default rather than throwing. A game
+	 * module naming a rule set this file does not know is a manifest error,
+	 * but refusing to start the game over it would take a whole board down for
+	 * a typo; playing under the default and saying so leaves the game usable
+	 * and the mistake visible.
+	 */
+	Model.Game.goSetRules = function() {
+		var wanted = this.mOptions.rules || RULESET_DEFAULT;
+		if(!RULESETS[wanted]) {
+			console.warn("go: unknown rule set '" + wanted + "', playing "
+				+ RULESET_DEFAULT);
+			wanted = RULESET_DEFAULT;
+		}
+		this.g.rules = wanted;
+		this.g.suicideOk = RULESETS[wanted].suicide;
+	}
+
+	// The rule sets a prelude may offer, in manifest order. Exposed so the
+	// dialog does not have to repeat the table above.
+	Model.Game.goRuleSets = function() {
+		var out = [];
+		for(var k in RULESETS)
+			if(RULESETS.hasOwnProperty(k))
+				out.push(k);
+		return out;
 	}
 
 	// Both kept as game methods for callers that have a game to hand - the

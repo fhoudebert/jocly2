@@ -1,11 +1,18 @@
 exports.games = (function() {
 
+	// prelude-model.js comes after go-model.js, whose InitGameExtra, board
+	// and move methods it wraps.
 	var modelScripts = [
-		"go-model.js"
+		"go-model.js",
+		"prelude-model.js"
 	]
 
 	var config_view_js = [
-		"go-xd-view.js"
+		"go-xd-view.js",
+		// Draws the two buttons. Without it the model asks for the prelude,
+		// no panel is built, and the game opens on a goban that answers no
+		// click.
+		"prelude-view.js"
 	]
 
 	var config_view_css = [
@@ -64,6 +71,40 @@ exports.games = (function() {
 		KataLevel("kata-strong", "Strong", 400, 8000)
 	])
 
+	/*
+	 * Which rule set, asked before the first stone.
+	 *
+	 * Two entries because two is what go-model.js implements, and they differ
+	 * by one flag: multi-stone self-capture, legal under Tromp-Taylor and not
+	 * under the OGS reading of Chinese rules. They agree on area scoring,
+	 * positional superko and the absence of any tax.
+	 *
+	 * The names are KataGo's, and deliberately so: they are handed to the
+	 * engine through goExportMoves, so the board and the engine play the same
+	 * game. "Chinese (OGS)" rather than "Chinese" because KataGo's `chinese`
+	 * preset uses the SIMPLE ko rule, which this module does not implement -
+	 * see the note above RULESETS in go-model.js.
+	 *
+	 * `persistent: true` preselects the last choice next time. Only the labels
+	 * and the option each writes live here: a manifest is serialised with
+	 * JSON.stringify, so a dialog can only carry plain data, and the table
+	 * that turns a name into behaviour stays in the model.
+	 */
+	var config_model_prelude = [
+		{
+			"panelWidth": 1,
+			"labels": [
+				"Chinese (OGS)",
+				"Tromp-Taylor"
+			],
+			"persistent": true,
+			"rules": [
+				{ "rules": "chinese-ogs" },
+				{ "rules": "tromp-taylor" }
+			]
+		}
+	]
+
 	function Go(name, size, title) {
 		return {
 			"name": name,
@@ -89,7 +130,12 @@ exports.games = (function() {
 						"size": size,
 						// White's compensation for moving second. A half point
 						// makes draws impossible, which is why it is the norm.
-						"komi": size >= 19 ? 7.5 : (size >= 13 ? 6.5 : 5.5)
+						"komi": size >= 19 ? 7.5 : (size >= 13 ? 6.5 : 5.5),
+						// The rule set in force until the prelude is answered,
+						// and the one a board set up outside a game plays
+						// under. See prelude-model.js.
+						"rules": "chinese-ogs",
+						"prelude": config_model_prelude
 					},
 					"levels": config_model_levels
 				},
