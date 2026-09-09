@@ -1,18 +1,18 @@
 {
-	"bytes": 367656,
-	"digest": "5526c7c36bd76318",
+	"bytes": 367768,
+	"digest": "2e8979511893213a",
 	"games": [
 		{
 			"name": "classic-chess",
-			"digest": "1b4e26ef1bae74e5"
+			"digest": "2b3c26b8999c84dc"
 		},
 		{
 			"name": "losing-chess",
-			"digest": "6678c3c104fa25ae"
+			"digest": "8e04cf64bad5cc56"
 		},
 		{
 			"name": "three-check-chess",
-			"digest": "8292c8febb5ae29c"
+			"digest": "1e88c5c61b3a4032"
 		},
 		{
 			"name": "horde-chess",
@@ -124,11 +124,11 @@
 		},
 		{
 			"name": "metamachy-chess",
-			"digest": "794e2670e4ac0360"
+			"digest": "4b74617e3dd90a21"
 		},
 		{
 			"name": "capablanca-chess",
-			"digest": "75e850e4db8ed8d7"
+			"digest": "50eca3b50d656b3f"
 		},
 		{
 			"name": "grand-chess",

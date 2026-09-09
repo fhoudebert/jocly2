@@ -586,7 +586,10 @@ exports.games = (function() {
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "Roman Alquerque",
+				    "title": {
+					    "en": "Roman Alquerque",
+					    "fr": "Alquerque romain"
+				    },
 					"summary": {
 						"en": "Alquerque as played in France and England.",
 						"fr": "L'alquerque tel qu'on y jouait en France et en Angleterre."
@@ -675,7 +678,10 @@ exports.games = (function() {
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "Arabic Alquerque",
+				    "title": {
+					    "en": "Arabic Alquerque",
+					    "fr": "Alquerque arabe"
+				    },
 					"summary": {
 						"en": "Alquerque as played in Middle-East and Spain.",
 						"fr": "L'alquerque tel qu'on y jouait au Moyen-Orient et en Espagne."
@@ -767,10 +773,13 @@ exports.games = (function() {
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "International Draughts",
+				    "title": {
+					    "en": "International Draughts",
+					    "fr": "Dames internationales"
+				    },
 					"summary": {
 						"en":"Rules for draughts as played in worldwide competitions.",
-						"fr": "Jeu de Dames international"
+						"fr": "Suivant les règles des compétitions à travers le monde"
 					},
                     "rules": {
 						"en": "rules-draughts.html",
@@ -1213,7 +1222,10 @@ exports.games = (function() {
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "Turkish Draughts",
+				    "title": {
+					    "en": "Turkish Draughts",
+					    "fr": "Dames turques"
+				    },
 					"summary": {
 						"en":"A 8x8 checkers on straight lines.",
 						"fr": "Sur un damier en ligne droite"

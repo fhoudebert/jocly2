@@ -121,7 +121,26 @@ function HandleModuleGames(modelOnly) {
 
 			// same some game data so we can list all games later
 			allGames[game.name] = {
-				title: game.config.model["title-en"],
+				/*
+				 * The title as the manifest declares it: a plain string, or an
+				 * object indexed by locale, exactly like `summary` already is.
+				 *
+				 *     "title-en": "10x8 Chess variants"
+				 *     "title": { "en": "10x8 Chess variants",
+				 *                "fr": "Echecs en 10x8" }
+				 *
+				 * Both forms travel to the index untouched, and it is the
+				 * CLIENT that picks a language - the index is built once and
+				 * read by pages in every locale, so it cannot choose for them.
+				 * That is the arrangement `summary` has always used; the title
+				 * simply joins it. See Localized() in
+				 * examples/browser/js/control.js for the reference reading.
+				 *
+				 * "title-en" stays supported and stays the fallback: three
+				 * hundred manifests declare it, and a title is not worth a
+				 * flag day.
+				 */
+				title: game.config.model.title || game.config.model["title-en"],
 				summary: game.config.model.summary,
 				thumbnail: game.config.model.thumbnail,
 				module: moduleName,

@@ -677,11 +677,18 @@ $(document).ready(function () {
                                 gameName: gameName
                             });
                         });
-                        // sorting by title
+                        /*
+                         * Sorted by the title AS SHOWN, not as stored. A
+                         * manifest may carry its title translated - the same
+                         * shape `summary` has always used - and sorting on the
+                         * raw field would compare an object against a string
+                         * and leave the list in no order at all.
+                         */
+                        games.forEach((game) => { game.shownTitle = Localized(game.title); });
                         games.sort( (a,b)=> {
-                            if(b.title<a.title)
+                            if(b.shownTitle<a.shownTitle)
                                 return 1;
-                            else if(b.title>a.title)
+                            else if(b.shownTitle>a.shownTitle)
                                 return -1;
                             else
                                 return 0;
@@ -693,7 +700,7 @@ $(document).ready(function () {
                                 .css({
                                     backgroundImage: "url('"+game.thumbnail+"')"
                                 })
-                                .append($("<div>").addClass("game-descr-name").text(game.title))
+                                .append($("<div>").addClass("game-descr-name").text(game.shownTitle))
                                 .append($("<div>").addClass("game-descr-summary").text(Localized(game.summary)))
                                 .on("click",()=>{
                                     var url0 = window.location;

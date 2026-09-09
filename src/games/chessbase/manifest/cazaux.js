@@ -487,7 +487,10 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "Metamachy",
+				"title": {
+					"en": "Metamachy",
+					"fr": "Métamachie"
+				},
 				"summary": {
 					"en": "Chess on 12x12 with fairy pieces",
 					"fr": "Échecs en 12x12 avec des pièces féeriques"

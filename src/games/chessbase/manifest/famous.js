@@ -180,7 +180,10 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "Chess",
+				"title": {
+					"en": "Chess",
+					"fr": "\u00c9checs"
+				},
 				"summary": {
 					"en":"Regular Orthodox Classic Western Chess",
 					"fr": "Les Échecs classiques (Orthodoxe)",

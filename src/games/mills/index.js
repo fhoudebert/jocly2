@@ -269,10 +269,13 @@ exports.games = (function() {
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "9 Men´s Morris",
+				    "title": {
+					    "en": "9 Men´s Morris",
+					    "fr": "Marelle à 9"
+				    },
 					"summary": {
 						"en": "An old board game, plain or flying",
-						"fr": "Jeu de marelle (x9), simple ou volante"
+						"fr": "Jeu du moulin classique ou avec saut"
 					},
 					"rules": {
 						"en": "rules-morris9.html",
@@ -311,10 +314,13 @@ exports.games = (function() {
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "12 Men´s Morris",
+				    "title": {
+					    "en": "12 Men´s Morris",
+					    "fr": "Marelle à 12"
+				    },
 					"summary": {
 						"en": "An old board game, plain or flying",
-						"fr": "Jeu de marelle (x12), simple ou volante"
+						"fr": "Jeu du moulin classique ou avec saut"
 					},
 					"rules": {
 						"en": "rules-morris12.html",
@@ -353,10 +359,13 @@ exports.games = (function() {
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "6 Men´s Morris",
+				    "title": {
+					    "en": "6 Men´s Morris",
+					    "fr": "Marelle à 6"
+				    },
 					"summary": {
-						"en":"An old board game",
-						"fr": "Jeu de marelle (x6)"
+						"en": "An old board game, plain or flying",
+						"fr": "Jeu du moulin classique ou avec saut"
 					},
 					"rules": config_model_rules,
 					"maxLevel": 7,
@@ -414,10 +423,13 @@ exports.games = (function() {
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "7 Men´s Morris",
+				    "title": {
+					    "en": "7 Men´s Morris",
+					    "fr": "Marelle à 7"
+				    },
 					"summary": {
-						"en":"An old board game",
-						"fr": "Jeu de marelle (x7)"
+						"en": "An old board game, plain or flying",
+						"fr": "Jeu du moulin classique ou avec saut"
 					},
 					"rules": config_model_rules,
 					"maxLevel": 7,
