@@ -1,6 +1,6 @@
 {
-	"bytes": 367926,
-	"digest": "4c4c588867df069d",
+	"bytes": 368043,
+	"digest": "9de5d92ab7f7290a",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -28,11 +28,11 @@
 		},
 		{
 			"name": "minichess5x5-chess",
-			"digest": "3e3414ba14198cd5"
+			"digest": "e3e197342632faf3"
 		},
 		{
 			"name": "mini4x4-chess",
-			"digest": "b7a9b10df170a959"
+			"digest": "85bf529760e34c60"
 		},
 		{
 			"name": "minichess4x5-chess",
@@ -100,11 +100,11 @@
 		},
 		{
 			"name": "3dchess",
-			"digest": "d7a0fad3a004dee0"
+			"digest": "82e958e5a09bf7a6"
 		},
 		{
 			"name": "space-spartan",
-			"digest": "83913800ad8e0b08"
+			"digest": "41df030f09db487c"
 		},
 		{
 			"name": "cylinder-chess",
@@ -172,7 +172,7 @@
 		},
 		{
 			"name": "dukerutland-chess",
-			"digest": "779cc91ab2055300"
+			"digest": "c1a044e7b6c416a8"
 		},
 		{
 			"name": "gustav3-chess",

@@ -182,7 +182,7 @@ exports.games = {
 			"model": {
 				"title": {
 					"en": "Chess",
-					"fr": "\u00c9checs"
+					"fr": "\u00c9checs FIDE"
 				},
 				"summary": {
 					"en":"Regular Orthodox Classic Western Chess",

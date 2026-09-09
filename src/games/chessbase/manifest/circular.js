@@ -71,11 +71,11 @@ exports.games = {
 			"model": {
 				"title": {
 					"en": "Modern Circular Chess",
-					"fr": "Échecs circulaires moderne",
+					"fr": "Échecs circulaires modernes",
 				},
 				"summary": {
 					"en": "Chess on a ring",
-					"fr": "Échecs sur un anneau"
+					"fr": "Échiquier en anneau"
 				},
 				"rules": {
 					"en": "res/rules/circular/circular-rules.html"
