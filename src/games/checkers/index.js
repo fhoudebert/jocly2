@@ -929,7 +929,10 @@ exports.games = (function() {
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "Draughts 8x8",
+				    "title": {
+					    "en": "Draughts 8x8",
+					    "fr": "Dames en 8x8"
+				    },
 					"summary": {
 						"en": "English, Brazilian, Spanish or German draughts, chosen at the start",
 						"fr": "Dames anglaises, brésiliennes, espagnoles ou allemandes"
@@ -990,7 +993,10 @@ exports.games = (function() {
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "Suicide checkers",
+				    "title": {
+					    "en": "Suicide checkers",
+					    "fr": "Anti-dames"
+				    },
 					"summary": {
 						"en": "A.k.a Giveaway checkers or Anti-checkers",
 						"fr": "Aussi appelé qui-perd-gagne ou anti-dames."
