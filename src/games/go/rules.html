@@ -12,11 +12,35 @@ with no liberty left is captured and removed from the board, all of it at once.<
 any enemy group left without a liberty is taken off before your own stone is
 checked. This is why you may fill your last liberty when doing so captures.</p>
 
+<h3>Choosing the rules</h3>
+
+<p>Before the first stone, the board asks which rule set to play:
+<b>Chinese (OGS)</b> or <b>Tromp-Taylor</b>. The answer is recorded as part of
+the game, so a saved game replays under the rules it was played under, and the
+engine is told about it too.</p>
+
+<p>The two agree on almost everything: area scoring, positional superko, no
+tax on eyes in seki. They differ on one point, self-capture, described below.
+Anything the rest of this page says holds under both unless it says otherwise.</p>
+
+<p>&#8220;Chinese (OGS)&#8221; rather than plain &#8220;Chinese&#8221;: the
+Chinese rules used in tournaments settle repetitions differently. What is played
+here is the reading used by the OGS and KGS servers, and it is the one the
+engine is asked to follow.</p>
+
 <h3>Suicide</h3>
 
-<p>You may not place a stone that would leave its own group without a liberty,
-unless the same move captures. A single-point eye of your own colour is
-therefore not a legal move for you, while it may well be one for your opponent.</p>
+<p>Under <b>Chinese (OGS)</b> you may not place a stone that would leave its own
+group without a liberty, unless the same move captures. A single-point eye of
+your own colour is therefore not a legal move for you, while it may well be one
+for your opponent.</p>
+
+<p>Under <b>Tromp-Taylor</b> the same move is legal when it takes <i>more than
+one</i> stone off the board — your new stone and the group it joins go together,
+and count as prisoners for your opponent. Filling your own last liberty with a
+lone stone stays illegal in both. Self-capture is rarely useful, but it is
+occasionally the cheapest way to end a ko fight or to fill your own territory
+under time pressure.</p>
 
 <h3>Ko</h3>
 
@@ -24,7 +48,8 @@ therefore not a legal move for you, while it may well be one for your opponent.<
 in. In practice this shows up as the <b>ko</b>: after one stone is captured, the
 opponent cannot take straight back, and must play elsewhere first. The wider
 rule — called <i>positional superko</i> — also covers the rarer repetitions that
-the simple ko does not.</p>
+the simple ko does not. Both rule sets use it, so the ko behaves the same way
+whichever you chose.</p>
 
 <h3>Reading the bar</h3>
 
@@ -38,10 +63,12 @@ the middle names the winner and by how much.</p>
 
 <h3>Ending the game and scoring</h3>
 
-<p>The game ends when both players pass in succession. This game uses <b>Chinese
-rules</b> and <b>area scoring</b>: your score is the number of your stones on the
-board plus the number of empty intersections that only your colour reaches. An
-empty region touching both colours is neutral and counts for nobody.</p>
+<p>The game ends when both players pass in succession. Both rule sets count by
+<b>area</b>, so the counting is the same either way: your score is the number of
+your stones on the board plus the number of empty intersections that only your
+colour reaches. An empty region touching both colours is neutral and counts for
+nobody. Prisoners do not enter the score — under area rules they matter only
+through the stones they removed.</p>
 
 <p>White adds <b>komi</b> to compensate for playing second — 7.5 points on a
 19x19 board, 6.5 on 13x13, 5.5 on 9x9. The half point makes a draw impossible.</p>

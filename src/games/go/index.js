@@ -122,7 +122,13 @@ exports.games = (function() {
 						"fr": "rules-fr.html"
 					},
 					"maxLevel": 5,
-					"thumbnail": "go-thumbnail.png",
+					// Une vignette PAR TAILLE : les trois jeux ne different
+					// que par leur goban, et une image commune les rendait
+					// indiscernables dans la liste -- la seule chose que le
+					// joueur y choisit est justement la taille. Le nom du
+					// fichier suit la variable, donc ajouter une taille suffit
+					// a lui donner sa vignette.
+					"thumbnail": "go-thumbnail-" + size + ".png",
 					"module": "go",
 					"js": modelScripts,
 					"gameOptions": {

@@ -431,6 +431,47 @@ manifest.forEach((entry) => {
 		entry.config.view.skins.filter((s) => s["3d"]).length, 0);
 	t.check(entry.name + " offers both surfaces",
 		entry.config.view.skins.map((s) => s.name), ["skin2dwood", "skin2d"]);
+
+	/*
+	 * A thumbnail per board size. The three games differ by nothing else -
+	 * same rules, same view, same stones - so one shared picture made them
+	 * indistinguishable in the list, where the size is the only thing the
+	 * player is choosing between.
+	 *
+	 * The name is checked AND the file: the build copies whatever the manifest
+	 * names, so a name pointing at nothing ships a broken image rather than
+	 * failing the build.
+	 */
+	const size = entry.config.model.gameOptions.size;
+	t.check(entry.name + " has a thumbnail of its own",
+		entry.config.model.thumbnail, "go-thumbnail-" + size + ".png");
+	t.check("and the file is there",
+		fs.existsSync(path.join(GO, entry.config.model.thumbnail)), true);
+});
+
+/* ------------------------------------------------------- the rules pages */
+
+/*
+ * The player is now ASKED something before the first stone, so the rules page
+ * has to say what the question is. Both languages, and the same ground in
+ * both: a translation that forgets one of the two rule sets leaves half the
+ * players unable to answer the panel in front of them.
+ *
+ * Checked on content rather than on wording - these pages are prose and will
+ * be rewritten - but on the content that would leave the panel unexplained.
+ */
+["rules.html", "rules-fr.html"].forEach((page) => {
+	const text = fs.readFileSync(path.join(GO, page), "utf8");
+	t.check(page + " names both rule sets",
+		/Tromp-Taylor/.test(text) && /OGS/.test(text), true);
+	// The single difference between them. A page that named the two sets
+	// without saying what separates them would make the choice arbitrary.
+	t.check(page + " says what separates them",
+		/self-capture|suicide/i.test(text), true);
+	// And says the choice is recorded rather than a passing setting: it is a
+	// move, it is saved with the game, and the engine is told about it.
+	t.check(page + " says the choice belongs to the game",
+		/recorded|enregistr/i.test(text), true);
 });
 
 /* ------------------------------------------------------------ the skins */
