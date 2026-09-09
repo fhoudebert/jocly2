@@ -270,8 +270,11 @@ t.check("no gadget was updated before it existed", xdv.missing, []);
 	const score = over.goScore(g9);
 	t.check("once both have passed the score appears",
 		[ended[0], ended[1]], ["" + score.black, "" + score.white]);
-	t.check("with the verdict, and by how much",
-		ended[2], "Black wins by " + (score.black - score.white));
+	// A stone and a number, not a sentence: the bar is drawn by Jocly, which
+	// has no translations, so the verdict must read the same in every
+	// language. The words are the host's business, from getBoardState("score").
+	t.check("with the winner's stone, and by how much",
+		ended[2], "\u25cf +" + (score.black - score.white));
 
 	// komi is what settles a close board, so the margin has to include it
 	t.check("the margin counts komi", score.white % 1, 0.5);

@@ -415,6 +415,47 @@
 		};
 	}
 
+	/*
+	 * The score, out to whoever is hosting the game.
+	 *
+	 * getBoardState(format) is the one channel Jocly already proxies out of
+	 * the iframe, so a host can read it without a message of its own. Other
+	 * games answer it with a FEN because that is what an engine bridge wants;
+	 * Go has no board notation to export (jocly.kata.js takes the move list,
+	 * see goExportMoves), so the format is free and "score" is what a host
+	 * actually needs: the figures behind the end of the game.
+	 *
+	 * WHY A HOST WOULD WANT THEM: the winner alone is mWinner, which Jocly
+	 * already returns. The MARGIN is not derivable from outside - area
+	 * counting is this file's business - and "wins by 3.5" is the sentence a
+	 * player expects at the end of a game of Go. Handing over the numbers
+	 * lets the host write that sentence in its own language, which is the
+	 * whole point: nothing in Jocly is translated, and a status bar drawn
+	 * here can only ever be English.
+	 *
+	 * Any other format keeps the base class's behaviour, so nothing that
+	 * calls getBoardState() without arguments changes.
+	 */
+	Model.Board.ExportBoardState = function(aGame, format) {
+		if(format !== "score")
+			return JSON.stringify(this);
+		var score = this.goScore(aGame);
+		return {
+			black:     score.black,
+			white:     score.white,
+			// Signed the way the game is read: positive means Black leads.
+			margin:    score.black - score.white,
+			komi:      aGame.g.komi,
+			prisoners: [this.prisoners[0], this.prisoners[1]],
+			passes:    this.passes,
+			// The score of an unfinished position is area counting on a
+			// board nobody has settled, which is not an estimate but a
+			// meaningless number. The flag says which of the two it is, so a
+			// host cannot show one for the other by accident.
+			counted:   this.passes >= 2,
+		};
+	}
+
 	Model.Board.Evaluate = function(aGame, aFinishOnly, aTopLevel) {
 		if(this.passes >= 2) {
 			var score = this.goScore(aGame);

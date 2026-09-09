@@ -43,7 +43,7 @@ var WOOD_TILES = 4;
  * A holder rather than arguments because a gadget's draw is called by the view,
  * not by us.
  */
-var status = { black: "", white: "", middle: "" };
+var status = { black: "", white: "", middle: "", turn: 0 };
 
 	// Star points (hoshi): the handicap intersections, marked on a real board.
 	function StarPoints(size) {
@@ -249,7 +249,7 @@ var status = { black: "", white: "", middle: "" };
 
 					// A side's stone, then its number, drawn as one run so the
 					// two stay together whatever the figures are.
-					function side(text, colour, anchor, dir) {
+					function side(text, colour, anchor, dir, active) {
 						ctx.font = "bold " + fontSize + "px sans-serif";
 						ctx.beginPath();
 						ctx.arc(anchor + dir * r, 0, r, 0, 2 * Math.PI);
@@ -258,6 +258,21 @@ var status = { black: "", white: "", middle: "" };
 						ctx.strokeStyle = ink;
 						ctx.lineWidth = Math.max(1, r * 0.14);
 						ctx.stroke();
+						/*
+						 * Whose turn it is, as a ring round that side's
+						 * stone. A word would have to be translated and this
+						 * bar is drawn by Jocly, which has no dictionary;
+						 * the ring is read the same in every language, and
+						 * it is on the board, where the player is looking
+						 * while an engine takes its time.
+						 */
+						if(active) {
+							ctx.beginPath();
+							ctx.arc(anchor + dir * r, 0, r * 1.45, 0, 2 * Math.PI);
+							ctx.strokeStyle = "#b03a1a";
+							ctx.lineWidth = Math.max(1, r * 0.18);
+							ctx.stroke();
+						}
 						ctx.fillStyle = ink;
 						ctx.textAlign = dir > 0 ? "left" : "right";
 						ctx.fillText(text, anchor + dir * (2 * r + fontSize * 0.4), 0);
@@ -266,8 +281,8 @@ var status = { black: "", white: "", middle: "" };
 					// Inset by a stone's width, so nothing hugs the edge of the
 					// board the way it did at 13x13.
 					var inset = 12000 / 2 - fontSize * 1.6;
-					side(status.black, "#111111", -inset, 1);
-					side(status.white, "#f2f2f2", inset, -1);
+					side(status.black, "#111111", -inset, 1, status.turn === JocGame.PLAYER_A);
+					side(status.white, "#f2f2f2", inset, -1, status.turn === JocGame.PLAYER_B);
 					if(status.middle) {
 						ctx.fillStyle = ink;
 						ctx.textAlign = "center";
@@ -375,9 +390,20 @@ var status = { black: "", white: "", middle: "" };
 			var score = this.goScore(aGame);
 			status.black = "" + score.black;
 			status.white = "" + score.white;
-			status.middle = score.black > score.white ? "Black wins by " + (score.black - score.white)
-				: (score.white > score.black ? "White wins by " + (score.white - score.black) : "Draw");
+			/*
+			 * NO SENTENCE HERE. "Black wins by 3.5" is English, and Jocly
+			 * has no translations - the same reasoning that keeps the word
+			 * "prisoners" off this bar during the game. A filled or hollow
+			 * stone and a number say it in every language, and a host that
+			 * does have a dictionary can write the sentence from
+			 * getBoardState("score") (see go-model.js).
+			 */
+			status.turn = 0;
+			var margin = score.black - score.white;
+			status.middle = margin === 0 ? "="            // jigo, integer komi only
+				: (margin > 0 ? "\u25cf +" : "\u25cb +") + Math.abs(margin);
 		} else {
+			status.turn = this.mWho;
 			status.black = "" + this.prisoners[0];
 			status.white = "" + this.prisoners[1];
 			/*

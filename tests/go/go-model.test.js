@@ -350,6 +350,44 @@ score = board.goScore(g9);
 t.check("black leads on stones but loses on komi",
 	[score.black, score.white, board.mWinner], [41, 45.5, -1]);
 
+/* --------------------------------------------------- the score, going out */
+
+/*
+ * getBoardState("score") is how a host gets the figures. It matters because
+ * the winner alone (mWinner) does not carry the MARGIN, and no caller can
+ * work the margin out from outside: area counting lives in this file. A host
+ * with a dictionary writes "wins by 3.5" in its own language from these
+ * numbers - the status bar here cannot, Jocly having no translations.
+ */
+{
+	const state = board.ExportBoardState(g9, "score");
+	t.check("the score goes out with its margin",
+		[state.black, state.white, state.margin], [41, 45.5, 41 - 45.5]);
+	t.check("and says the board was really counted", state.counted, true);
+	t.check("komi travels with it", state.komi, 5.5);
+
+	// An unfinished board answers too, but says so: area counting a position
+	// nobody has settled is not an estimate, and a host must be able to tell
+	// the two apart before showing anything.
+	const running = setup(g9, [
+		"b . w w w w w w w",
+		"b . w w w w w w w",
+		"b . w w w w w w w",
+		"b . w w w w w w w",
+		"b . w w w w w w w",
+		"b . w w w w w w w",
+		"b . w w w w w w w",
+		"b . w w w w w w w",
+		"b . w w w w w w w",
+	], 1);
+	t.check("an unfinished board is flagged as uncounted",
+		running.ExportBoardState(g9, "score").counted, false);
+
+	// Any other format keeps the base behaviour, so getBoardState() without
+	// arguments answers exactly as it did before this hook existed.
+	t.check("no format, no change", typeof board.ExportBoardState(g9), "string");
+}
+
 /* ------------------------------------------------------------- the sizes */
 
 [["go9", 9, 5.5], ["go13", 13, 6.5], ["go19", 19, 7.5]].forEach(([name, size, komi]) => {
