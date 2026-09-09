@@ -279,7 +279,10 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "Space Spartan",
+				"title": {
+					"en": "Space Spartan",
+					"fr": "Spartiates de l'espace",
+				},
 				"summary": {
 					"en": "6x8x3 Chess",
 					"fr": "Échecs en 6x8x3"

@@ -69,7 +69,10 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "Modern Circular Chess",
+				"title": {
+					"en": "Modern Circular Chess",
+					"fr": "Échecs circulaires moderne",
+				},
 				"summary": {
 					"en": "Chess on a ring",
 					"fr": "Échecs sur un anneau"
@@ -134,7 +137,10 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "Byzantine Chess",
+				"title": {
+					"en": "Byzantine Chess",
+					"fr": "Échecs byzantins ",
+				},
 				"summary": {
 					"en":"10th century circular Chess",
 					"fr": "Échecs circulaires (Xe siècle)",
@@ -232,7 +238,10 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "Cylinder Chess",
+				"title": {
+					"en": "Cylinder Chess",
+					"fr": "Échecs cylindriques",
+				},
 				"summary": {
 					"en": "Cylinder Chess",
 					"fr": "Échecs cylindriques"

@@ -64,7 +64,10 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "Courier Chess",
+				"title": {
+					"en": "Courier Chess",
+					"fr": "Échecs courier"
+				},
 				"summary": {
 					"en": "12x8 chess (12th century)",
 					"fr": "Échecs en 12x8 (XIIe siècle)"
