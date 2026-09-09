@@ -274,6 +274,7 @@ gulp.task("build-node-core", function () {
 			// require("jocly.core.js") throw and took the whole node dist
 			// down with it. The file is node-safe: it exports for node and
 			// only reaches for a Worker when a kata level is played.
+			"src/core/jocly.scan.js",
 			"src/core/jocly.kata.js",
 			"src/core/jocly.game.js"
 		]));

@@ -49,6 +49,14 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		global.JocUtil = ju.JocUtil;
 		global.JoclyUCT = r("./jocly.uct.js").JoclyUCT;
 		global.JoclyFairy = r("./jocly.fairy.js").JoclyFairy;
+		// Scan comme les deux autres. Sans cette ligne, StartMachine tombait
+		// sur `typeof JoclyScan != "undefined"` -> faux, et un niveau
+		// "ai": "scan" glissait SILENCIEUSEMENT vers l'alpha-beta par defaut :
+		// un coup etait joue, mais rien ne disait que ce n'etait pas Scan qui
+		// l'avait trouve. Charge, le module prend le meme chemin que les
+		// autres -- pas de Worker en node, donc repli annonce par
+		// mFairyFallback.
+		global.JoclyScan = r("./jocly.scan.js").JoclyScan;
 		global.JoclyKata = r("./jocly.kata.js").JoclyKata;
 	})();
 

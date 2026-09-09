@@ -183,6 +183,10 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		aGame.mFairyFallback = {
 			engine: "kata",
 			reason: (err && err.message) || String(err),
+			// Le niveau CHOISI, a cote de celui qui joue : l'hote a besoin des
+			// deux pour dire « X n'a pas demarre, vous jouez contre Y », et la
+			// liste deroulante affiche toujours le premier.
+			requested: (aOptions.level && (aOptions.level.label || aOptions.level.name)) || null,
 			level: native.label || native.name
 		};
 		var options = {};

@@ -791,6 +791,11 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		aGame.mFairyFallback = {
 			engine: "fairy-stockfish",
 			reason: (err && err.message) || String(err),
+			// The level the PLAYER chose, alongside the one that actually
+			// plays: a host can only write "Expert could not start, you are
+			// playing Medium" if it is told both, and the dropdown still
+			// shows the first one.
+			requested: (aOptions.level && (aOptions.level.label || aOptions.level.name)) || null,
 			level: native.label || native.name
 		};
 		var options = {};
