@@ -159,6 +159,55 @@ function NotifyWinner(match, winner) {
 }
 
 /*
+ * A thinking time, written short: "3.4 s" under the minute, "1:05" above it.
+ * The tenth is the point - it is what tells a search that is running from one
+ * that has finished and not handed back.
+ *
+ * The unit does not go through TRANSLATIONS: "s" is written the same in both
+ * languages, and a readout that refreshes ten times a second is not where to
+ * put the dictionary to work.
+ */
+function FormatElapsed(ms) {
+    var s = ms / 1000;
+    if(s < 60)
+        return s.toFixed(1) + " s";
+    var sec = Math.floor(s % 60);
+    return Math.floor(s / 60) + ":" + (sec < 10 ? "0" : "") + sec;
+}
+
+/*
+ * The clock on a machine turn.
+ *
+ * WHY IT MATTERS MORE HERE THAN ANYWHERE ELSE: this page runs the engines in
+ * the browser - the wasm Fairy-Stockfish, the wasm KataGo and their nets -
+ * where a host with a native binary beside it answers in milliseconds. Several
+ * seconds of a still board and a still status line do not distinguish "it is
+ * thinking" from "it has died", and the progress bar only moves for engines
+ * that report progress; the wasm ones largely do not.
+ *
+ * The counter only advances while the search leaves the main thread alone,
+ * which is the case here - Jocly runs its engines in a Worker. An engine that
+ * blocked the page would freeze its own clock too, and the stillness would
+ * then be the right diagnosis rather than a display bug.
+ *
+ * Returns the function that stops it, which hands back the elapsed time.
+ */
+function StartThinkingClock(label) {
+    var t0 = Date.now();
+    function Tick() {
+        $("#game-status").text(label + " " + FormatElapsed(Date.now() - t0));
+    }
+    Tick();
+    var timer = setInterval(Tick, 100);
+    return function() {
+        clearInterval(timer);
+        var ms = Date.now() - t0;
+        console.info("Search took", FormatElapsed(ms));
+        return ms;
+    };
+}
+
+/*
  * Run the game
  */
 var movePending = null;
@@ -181,7 +230,9 @@ function RunMatch(match, progressBar) {
         match.getTurn()
             .then((player) => {
                 // display whose turn
-                $("#game-status").text(T(player==Jocly.PLAYER_A?"A playing":"B playing"));
+                var whose = T(player==Jocly.PLAYER_A?"A playing":"B playing");
+                var stopClock = null;
+                $("#game-status").text(whose);
                 var mode = $("#mode").val();
                 var promise = Promise.resolve();
                 if((player==Jocly.PLAYER_A && (mode=="self-self" || mode=="self-comp")) ||
@@ -197,6 +248,7 @@ function RunMatch(match, progressBar) {
                             progressBar.style.display = "block";
                             progressBar.style.width = 0;
                         }
+                        stopClock = StartThinkingClock(whose);
                         promise = promise.then( () => {
                                 return match.getConfig();
                             })
@@ -264,6 +316,14 @@ function RunMatch(match, progressBar) {
                         console.warn("Turn aborted:",e);
                     })
                     .then(() => {
+                        // Stopped here rather than beside the search: this
+                        // link runs after the .catch too, so an aborted or
+                        // failed turn does not leave a timer counting for a
+                        // search that ended.
+                        if (stopClock) {
+                            stopClock();
+                            stopClock = null;
+                        }
                         if (progressBar)
                             progressBar.style.display = "none";
                     });

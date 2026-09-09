@@ -56,6 +56,15 @@ html,body {
     text-align: center;
 }
 #game-status {
+    /*
+     * The status line carries a thinking clock that refreshes ten times a
+     * second. Tabular figures keep every digit the same width, so "9.9 s"
+     * and "10.0 s" do not make the box breathe in and out; nowrap keeps the
+     * time on the line with the name rather than wrapping under it in a
+     * narrow column.
+     */
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
 }
 #links {
     text-align: center;
