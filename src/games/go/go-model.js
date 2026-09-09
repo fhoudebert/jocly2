@@ -626,6 +626,12 @@
 		return {
 			black:     score.black,
 			white:     score.white,
+			// Les regles avec le score : un ecart ne veut rien dire sans elles.
+			// Un hote qui ecrit le resultat quelque part -- un SGF a RU[...] --
+			// n'a pas d'autre moyen de savoir sous quoi la partie a ete comptee,
+			// le choix du prelude etant enregistre comme un coup et non comme
+			// une propriete de la position.
+			rules:     aGame.g.rules,
 			// Signed the way the game is read: positive means Black leads.
 			margin:    score.black - score.white,
 			komi:      aGame.g.komi,

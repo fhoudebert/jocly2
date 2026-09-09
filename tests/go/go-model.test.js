@@ -367,6 +367,11 @@ t.check("black leads on stones but loses on komi",
 	t.check("the score goes out with its margin",
 		[state.black, state.white, state.margin], [41, 45.5, 41 - 45.5]);
 	t.check("and says the board was really counted", state.counted, true);
+	// With the rules it was counted under. A margin means nothing without
+	// them, and the choice is recorded as a MOVE rather than as a property of
+	// the position - so a host writing the result down (an SGF's RU[...]) has
+	// no other way to learn it.
+	t.check("under the rules in force", state.rules, "chinese-ogs");
 	t.check("komi travels with it", state.komi, 5.5);
 
 	// An unfinished board answers too, but says so: area counting a position
