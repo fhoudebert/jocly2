@@ -436,6 +436,16 @@ $(document).ready(function () {
                             $("#options-moves").hide();
                             if(options.showMoves!==undefined)
                                 $("#options-moves").show().children("input").prop("checked",options.showMoves);
+                            /*
+                             * Cachee tant que le jeu ne la propose pas.
+                             * getViewOptions n'inclut showLastMove que si la
+                             * vue sait dessiner la marque, donc son absence
+                             * est la reponse : un interrupteur sans effet
+                             * serait pire que pas d'interrupteur.
+                             */
+                            $("#options-lastmove").hide();
+                            if(options.showLastMove!==undefined)
+                                $("#options-lastmove").show().children("input").prop("checked",options.showLastMove);
                             $("#options-autocomplete").hide();
                             if(options.autoComplete!==undefined)
                                 $("#options-autocomplete").show().children("input").prop("checked",options.autoComplete);
@@ -448,6 +458,8 @@ $(document).ready(function () {
                                     opts.notation=$("#options-notation-input").prop("checked");
                                 if($("#options-moves").is(":visible"))
                                     opts.showMoves=$("#options-moves-input").prop("checked");
+                                if($("#options-lastmove").is(":visible"))
+                                    opts.showLastMove=$("#options-lastmove-input").prop("checked");
                                 if($("#options-autocomplete").is(":visible"))
                                     opts.autoComplete=$("#options-autocomplete-input").prop("checked");
                                 if($("#options-sounds").is(":visible"))

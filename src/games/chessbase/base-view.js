@@ -9,6 +9,16 @@
 	View.Game.cbTargetSelectColor = 0xffffff;
 	View.Game.cbTargetCancelColor = 0xff8800;
 
+	/*
+	 * La couleur de la marque du dernier coup.
+	 *
+	 * Distincte des deux ci-dessus, et pas par gout : le blanc veut deja dire
+	 * « vous pouvez jouer ici » et l'orange « annuler ». Une marque qui
+	 * reprendrait l'une des deux se lirait comme une invitation a cliquer sur
+	 * une case ou il n'y a rien a faire.
+	 */
+	View.Game.cbLastMoveColor = 0x3a86c8;
+
 	View.Game.cbPromoSize = 2000;
 	
 	View.Game.xdInit = function(xdv) {
@@ -25,6 +35,7 @@
 		this.cbCreatePromo(xdv);
 		this.cbCreatePieces(xdv);
 		this.cbCreateCells(xdv);
+		this.cbCreateLastMove(xdv);
 	}	
 	
 	// useful to initialize pieces and board while the real meshes aren't loaded yet
@@ -127,6 +138,73 @@
 			})(pos);
 	}
 	
+	/*
+	 * La case d'ou vient le dernier coup joue.
+	 *
+	 * UN GADGET A SOI, ET C'EST LE POINT DE TOUTE LA CONCEPTION. Chaque case
+	 * porte deja deux calques -- cell#pos et clicker#pos -- mais tous deux
+	 * sont pilotes par la machine a etats d'entree : le `highlight` d'une
+	 * action pose des classes sur cell#f, et son `unhighlight` fait
+	 * `classes: ""`. Une marque ecrite comme une classe sur cell# serait donc
+	 * EFFACEE EN SILENCE la premiere fois que le joueur selectionne puis
+	 * deselectionne une piece posee sur cette case, et reviendrait au
+	 * prochain affichage complet. Intermittent, et impossible a reproduire a
+	 * la demande.
+	 *
+	 * Un seul gadget suffit : la marque se deplace, elle ne se duplique pas.
+	 * Il est place par cbMakeDisplaySpec, defini une seule fois ici et qui
+	 * delegue a cbView.coords -- que chaque geometrie fournit. Les huit
+	 * plateaux (grille, hexagone, cercle, cylindre, cube, multiplan, makruk,
+	 * shatranj) sont donc couverts sans une ligne par geometrie, et
+	 * cbView.clicker donne la taille propre a chaque jeu.
+	 *
+	 * z 102 : au-dessus des cases (101), sous les cibles cliquables (103), de
+	 * sorte que la marque ne masque jamais ce sur quoi on peut cliquer.
+	 */
+	View.Game.cbCreateLastMove = function(xdv) {
+		var $this = this;
+		/*
+		 * DEUX MARQUES, PAS UNE. La case de depart seule dit d'ou la piece
+		 * vient, pas ou elle est allee -- et sur un plateau charge, la piece
+		 * arrivee ne se distingue pas de ses voisines. Les deux ensemble
+		 * tracent le coup, ce qui est la question que se pose un joueur
+		 * revenant sur un coup joue par le moteur.
+		 *
+		 * Meme forme et meme couleur pour les deux : la piece les departage
+		 * toute seule, puisqu'elle est sur l'une et pas sur l'autre. Deux
+		 * aspects differents demanderaient au joueur d'apprendre un code.
+		 */
+		["lastfrom", "lastto"].forEach(function(name) {
+			xdv.createGadget(name, $.extend(true, {
+				base: {
+					visible: false,
+				},
+				"2d": {
+					z: 102,
+					type: "element",
+					initialClasses: "cb-lastmove",
+				},
+				"3d": {
+					type: "meshfile",
+					file: $this.g.fullPath + $this.cbTargetMesh,
+					flatShading: true,
+					castShadow: false,
+					smooth: 0,
+					materials: {
+						square: {
+							transparent: true,
+							opacity: 0,
+						},
+						ring: {
+							color: $this.cbLastMoveColor,
+							opacity: 1,
+						},
+					},
+				},
+			}, $this.cbView.clicker));
+		});
+	}
+
 	View.Game.cbCreatePromo = function(xdv) {
 		xdv.createGadget("promo-board",{
 			base: {
@@ -429,6 +507,50 @@
 		return displaySpec;
 	}
 	
+	/*
+	 * Deux valeurs de lastMove.f ne sont PAS des cases et doivent etre
+	 * ecartees, faute de quoi la marque se pose n'importe ou :
+	 *
+	 *   -1  le mannequin pose par InitialPosition, avant le premier coup. Le
+	 *       commentaire de base-model.js dit qu'il est la pour ne jamais etre
+	 *       pris pour une capture ; il ne doit pas davantage etre pris pour
+	 *       une case de depart.
+	 *   -2  l'etage du prelude, que prelude-model.js cache dans ce champ. Une
+	 *       partie qui commence par un choix d'arrangement passe donc par la.
+	 *
+	 * Un plateau charge depuis une position peut n'avoir aucun lastMove : on
+	 * ne marque alors rien, ce qui est exact -- aucun coup n'a ete joue.
+	 */
+	View.Game.cbDisplayLastMove = function(xdv, board) {
+		var $this = this;
+
+		function place(gadget, pos) {
+			if(typeof pos != "number" || pos < 0 || pos >= $this.g.boardSize
+				|| !$this.mShowLastMove) {
+				xdv.updateGadget(gadget, { base: { visible: false } });
+				return;
+			}
+			xdv.updateGadget(gadget, $.extend(true,
+				$this.cbMakeDisplaySpec(pos, 0),
+				{ base: { visible: true } },
+				$this.cbView.clicker));
+		}
+
+		var last = board.lastMove;
+		place("lastfrom", last && last.f);
+		/*
+		 * La case d'arrivee du roque n'est pas `t` telle quelle : un coup de
+		 * roque empile la case du roi dans les 16 bits BAS et un nombre de pas
+		 * dans les hauts (voir la generation, `t: pos | step*(j-last)<<16`).
+		 * Le modele lui-meme demasque partout ou il s'en sert -- cbApplyCastle
+		 * fait `move.t & 0xffff`, et la notation aussi. Sans ce masque, la
+		 * marque d'un roque se poserait hors du plateau, et le controle de
+		 * borne ci-dessus la ferait simplement disparaitre : le coup le plus
+		 * spectaculaire de la partie serait le seul a n'etre pas marque.
+		 */
+		place("lastto", last && typeof last.t == "number" ? last.t & 0xffff : undefined);
+	}
+
 	View.Game.cbMakeDisplaySpecForPiece = function(aGame,pos,piece) {
 		var displaySpec=this.cbMakeDisplaySpec(pos,piece.s);		
 		if(cbVar.pieceTypes[piece.t]===undefined) {
@@ -458,6 +580,7 @@
 	
 	View.Board.xdDisplay = function(xdv, aGame) {
 		var $this=this;
+		aGame.cbDisplayLastMove(xdv, this);
 		for(var index=0;index<this.pieces.length;index++) {
 			var piece=this.pieces[index];
 			if(piece.p<0)

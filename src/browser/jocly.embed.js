@@ -80,6 +80,7 @@ function ReceiveMessage(event)
                                     "mNotation": "notation",
                                     "mSounds": "sounds",
                                     "mShowMoves": "showMoves",
+                                    "mShowLastMove": "showLastMove",
                                     "mAutoComplete": "autoComplete",
 									"mAnaglyph": "anaglyph"
                                 }

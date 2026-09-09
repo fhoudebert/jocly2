@@ -829,6 +829,7 @@
 					"mNotation": "notation",
 					"mSounds": "sounds",
 					"mShowMoves": "showMoves",
+					"mShowLastMove": "showLastMove",
 					"mAutoComplete": "autoComplete",
 					"mAnaglyph": "anaglyph"
 				}
@@ -862,6 +863,11 @@
 					options.notation = !!self.game.mNotation;
 				if (self.game.mViewOptions.useShowMoves)
 					options.showMoves = !!self.game.mShowMoves;
+				// Absente du resultat quand la vue ne sait pas la dessiner : c'est
+				// a cette absence que les clients reconnaissent qu'il n'y a pas de
+				// case a cocher a montrer.
+				if (self.game.mViewOptions.useShowLastMove)
+					options.showLastMove = !!self.game.mShowLastMove;
 				if (self.game.mViewOptions.useAutoComplete)
 					options.autoComplete = !!self.game.mAutoComplete;
 				if(self.game.mViewOptions.switchable)

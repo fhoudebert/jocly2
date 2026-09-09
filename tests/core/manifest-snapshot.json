@@ -1,342 +1,342 @@
 {
-	"bytes": 368048,
-	"digest": "022125f7bde87e24",
+	"bytes": 369980,
+	"digest": "a0cd8f4dd66104e1",
 	"games": [
 		{
 			"name": "classic-chess",
-			"digest": "972e75c89da50a1f"
+			"digest": "d85bf7f69e6133ce"
 		},
 		{
 			"name": "losing-chess",
-			"digest": "8e04cf64bad5cc56"
+			"digest": "b5912589d90644b7"
 		},
 		{
 			"name": "three-check-chess",
-			"digest": "1e88c5c61b3a4032"
+			"digest": "ceca76d89bdc00a6"
 		},
 		{
 			"name": "horde-chess",
-			"digest": "502321c9f208eb06"
+			"digest": "dd694a6a0f273901"
 		},
 		{
 			"name": "xiangqi",
-			"digest": "24ee14c345e224c5"
+			"digest": "e1d91312e9d0a227"
 		},
 		{
 			"name": "janggi",
-			"digest": "2098c4159848c160"
+			"digest": "8370394791621172"
 		},
 		{
 			"name": "minichess5x5-chess",
-			"digest": "e3e197342632faf3"
+			"digest": "939ce451ac2ddd0a"
 		},
 		{
 			"name": "mini4x4-chess",
-			"digest": "85bf529760e34c60"
+			"digest": "d528eca0ac870c9b"
 		},
 		{
 			"name": "minichess4x5-chess",
-			"digest": "0c8bb884b725461d"
+			"digest": "e8b860e05a34aebd"
 		},
 		{
 			"name": "los-alamos-chess",
-			"digest": "0138ada2ab66cabf"
+			"digest": "93865634d10b313a"
 		},
 		{
 			"name": "attack-chess",
-			"digest": "a27cdefe98d94cee"
+			"digest": "884c78849033ddb9"
 		},
 		{
 			"name": "courier-chess",
-			"digest": "d2c59327899c0dc6"
+			"digest": "b9881cec033504c7"
 		},
 		{
 			"name": "makruk",
-			"digest": "bf27af90c3e4a1b4"
+			"digest": "827b31bf072e0a20"
 		},
 		{
 			"name": "shako-chess",
-			"digest": "42ba778423b03989"
+			"digest": "24022bd3ca135bdc"
 		},
 		{
 			"name": "shatranj-chess",
-			"digest": "9d089944ba6049e7"
+			"digest": "b0f2caf60246e3e4"
 		},
 		{
 			"name": "knightmate-chess",
-			"digest": "806007d8e6c838a2"
+			"digest": "1361fc623ba2bd4d"
 		},
 		{
 			"name": "raumschach",
-			"digest": "6773ce9452c81b7a"
+			"digest": "72e5d99532a75cdb"
 		},
 		{
 			"name": "glinski-chess",
-			"digest": "2e4311305c2fdf39"
+			"digest": "97a13cc0c4ad8f99"
 		},
 		{
 			"name": "brusky-chess",
-			"digest": "a73a72130341d6ae"
+			"digest": "24a5fcd7020bffc5"
 		},
 		{
 			"name": "devasa-chess",
-			"digest": "115a82782fcc4279"
+			"digest": "3ac29899fe34bf43"
 		},
 		{
 			"name": "mccooey-chess",
-			"digest": "53e5aa3df3ff7449"
+			"digest": "4e02b9d8cf814178"
 		},
 		{
 			"name": "shafran-chess",
-			"digest": "3edb2dc08b19455a"
+			"digest": "50f965482d1c7f78"
 		},
 		{
 			"name": "circular-chess",
-			"digest": "0bc9ce538e0140da"
+			"digest": "d2cd72716db604d4"
 		},
 		{
 			"name": "byzantine-chess",
-			"digest": "e7b5683f358907a0"
+			"digest": "d166eb6252034920"
 		},
 		{
 			"name": "3dchess",
-			"digest": "82e958e5a09bf7a6"
+			"digest": "d14b2b1c37387818"
 		},
 		{
 			"name": "space-spartan",
-			"digest": "41df030f09db487c"
+			"digest": "17cdfde35cab9385"
 		},
 		{
 			"name": "cylinder-chess",
-			"digest": "4b28dcb5bfe04783"
+			"digest": "6e11a6e11718c106"
 		},
 		{
 			"name": "cubic-chess",
-			"digest": "108fd644b3f0a24d"
+			"digest": "510c717b24f25c31"
 		},
 		{
 			"name": "rollerball-chess",
-			"digest": "1b574f88884a6032"
+			"digest": "39d3b84ebde4bf7d"
 		},
 		{
 			"name": "chess960",
-			"digest": "6167ddbf84c6ac4f"
+			"digest": "650ff9e7c9822d8b"
 		},
 		{
 			"name": "metamachy-chess",
-			"digest": "4b74617e3dd90a21"
+			"digest": "c91520ae9c384e7c"
 		},
 		{
 			"name": "capablanca-chess",
-			"digest": "50eca3b50d656b3f"
+			"digest": "6f7ea5059f5c7819"
 		},
 		{
 			"name": "grand-chess",
-			"digest": "a8b9c69a3c207521"
+			"digest": "3ce5e52dad9db7c5"
 		},
 		{
 			"name": "hectochess",
-			"digest": "0cef37de8397d0bc"
+			"digest": "979fd7d9cf310423"
 		},
 		{
 			"name": "heavychess",
-			"digest": "948492b14cf5a090"
+			"digest": "d53044a9a8b5e410"
 		},
 		{
 			"name": "modern-chess",
-			"digest": "f1872f5c3d83bf88"
+			"digest": "1433d27e2e893273"
 		},
 		{
 			"name": "chancellor-chess",
-			"digest": "f41dd19bb87c2800"
+			"digest": "d2ce2b9e1f788524"
 		},
 		{
 			"name": "wildebeest-chess",
-			"digest": "21797a1932eaa819"
+			"digest": "ade04fb42c487ffc"
 		},
 		{
 			"name": "smess",
-			"digest": "b3b7fea3f4cb278b"
+			"digest": "5f7f55cf16c20178"
 		},
 		{
 			"name": "demi-chess",
-			"digest": "f1c31e52760e82f8"
+			"digest": "04ab6227287566c0"
 		},
 		{
 			"name": "romanchenko-chess",
-			"digest": "2379580ba82238b4"
+			"digest": "3831ad8ded6a6c61"
 		},
 		{
 			"name": "amazon-chess",
-			"digest": "cb0ace23f8c74bda"
+			"digest": "2358d03f590437b1"
 		},
 		{
 			"name": "dukerutland-chess",
-			"digest": "c1a044e7b6c416a8"
+			"digest": "2cbc0b004e59a73f"
 		},
 		{
 			"name": "gustav3-chess",
-			"digest": "2579a7e475985f09"
+			"digest": "7c895cfed3fbe06e"
 		},
 		{
 			"name": "hyderabad-chess",
-			"digest": "98a561c741fb8cd0"
+			"digest": "e8258b02eea559ee"
 		},
 		{
 			"name": "kaisergame-chess",
-			"digest": "96d63627b0615256"
+			"digest": "56bd5df32ef61950"
 		},
 		{
 			"name": "sultangame-chess",
-			"digest": "88f09a908045a1db"
+			"digest": "218ee3351537e34c"
 		},
 		{
 			"name": "reformed-courier-chess",
-			"digest": "9df9bfc551127ed4"
+			"digest": "973add7376265355"
 		},
 		{
 			"name": "tutti-frutti-chess",
-			"digest": "a3f6c869101ae00f"
+			"digest": "69de0e7757122d62"
 		},
 		{
 			"name": "sweet16-chess",
-			"digest": "abd613c712d5ebbb"
+			"digest": "abeee8db0056ddb6"
 		},
 		{
 			"name": "tera-chess",
-			"digest": "165ccf16721f4ba7"
+			"digest": "39be63e11a375f3f"
 		},
 		{
 			"name": "giga-chess",
-			"digest": "60f5ae01cd35d55d"
+			"digest": "e6f7362f1fbac05d"
 		},
 		{
 			"name": "leychessalpha-chess",
-			"digest": "33d2b795bf74ecd2"
+			"digest": "465de6bf4dadb17d"
 		},
 		{
 			"name": "fantasticXIII-chess",
-			"digest": "fa5f8aa9115e27b5"
+			"digest": "6d82253af7353d73"
 		},
 		{
 			"name": "bigorra-chess",
-			"digest": "0533f9207fb94c86"
+			"digest": "5cd656e63dd3c311"
 		},
 		{
 			"name": "wild-tamerlane-chess",
-			"digest": "ee7cb38e5e61eacb"
+			"digest": "cfd261ab8a3d375e"
 		},
 		{
 			"name": "pemba-chess",
-			"digest": "8b14bac3d1721561"
+			"digest": "874b48d4f734ee9c"
 		},
 		{
 			"name": "giga-chessII",
-			"digest": "1ddf9e8f446155be"
+			"digest": "5b4c5b4901c30391"
 		},
 		{
 			"name": "gross-chess",
-			"digest": "7300ff3efe7d6e09"
+			"digest": "ad6235906bedcba4"
 		},
 		{
 			"name": "timurid-chess",
-			"digest": "b9122e1bd3fd8afb"
+			"digest": "9071220a43360483"
 		},
 		{
 			"name": "zanzibar-s-chess",
-			"digest": "dde028c32715a9b0"
+			"digest": "3db8f02b37dd44b7"
 		},
 		{
 			"name": "patchanka-chess",
-			"digest": "f47b7213f49924c8"
+			"digest": "62213462e7d3044e"
 		},
 		{
 			"name": "team-mate-chess",
-			"digest": "e2d3fe459058a65a"
+			"digest": "245868ab0a803f3e"
 		},
 		{
 			"name": "ultima",
-			"digest": "3248a5fb70cdc33e"
+			"digest": "3ac6fd5242b88b21"
 		},
 		{
 			"name": "rococo",
-			"digest": "55b2d275a12c82f7"
+			"digest": "58eea9a762a13b9c"
 		},
 		{
 			"name": "rocaille",
-			"digest": "09eeb15d36361ef7"
+			"digest": "792b02ac4e401ef9"
 		},
 		{
 			"name": "werewolf-chess",
-			"digest": "47b321589e87c0af"
+			"digest": "2d75a3723f6c7e47"
 		},
 		{
 			"name": "elven-chess",
-			"digest": "7ad80096dbf55900"
+			"digest": "3329d1bcf02cbc6d"
 		},
 		{
 			"name": "spartan-chess",
-			"digest": "7afa49a0c37eedd7"
+			"digest": "dc8ad9d6c9f9a100"
 		},
 		{
 			"name": "khans-chess",
-			"digest": "efed232c6ffd9925"
+			"digest": "d9cb2d992d8c9a3e"
 		},
 		{
 			"name": "scirocco-chess",
-			"digest": "baa49517bd001410"
+			"digest": "5487341056348cd4"
 		},
 		{
 			"name": "shogi",
-			"digest": "2e5faa69bdec2235"
+			"digest": "d2ad2cf6a8259ac5"
 		},
 		{
 			"name": "kotaishi-shogi",
-			"digest": "8a861438fce01f95"
+			"digest": "936fb987ad692e04"
 		},
 		{
 			"name": "seireigi",
-			"digest": "7c5c3ddd0e4e3561"
+			"digest": "a057c71a23a09f8b"
 		},
 		{
 			"name": "chu-seireigi",
-			"digest": "14c1f0a0716eb825"
+			"digest": "b387962457f9b717"
 		},
 		{
 			"name": "mini-shogi",
-			"digest": "5704c14109f0bc79"
+			"digest": "ecbb57b244f07f99"
 		},
 		{
 			"name": "kyoto-shogi",
-			"digest": "d5b170cfb575d588"
+			"digest": "cd4b6b7e7b46aaa3"
 		},
 		{
 			"name": "tori-shogi",
-			"digest": "1a6f375a147edfc8"
+			"digest": "4e321e4938b2846d"
 		},
 		{
 			"name": "chu-shogi",
-			"digest": "0e9cac0bbf994490"
+			"digest": "203ca0fb79629389"
 		},
 		{
 			"name": "tenjiku-shogi",
-			"digest": "278ac822d8a3fcef"
+			"digest": "2b60c9947a97b9e0"
 		},
 		{
 			"name": "makromachy",
-			"digest": "de6d2826bed0422a"
+			"digest": "eeb30f5683be30a8"
 		},
 		{
 			"name": "minjiku-shogi",
-			"digest": "2b4418a623e7edf1"
+			"digest": "1ea04dbdaf73da1e"
 		},
 		{
 			"name": "acedrex-chess",
-			"digest": "951da0b0b3c63995"
+			"digest": "efa48ff92b665861"
 		},
 		{
 			"name": "crazyhouse",
-			"digest": "1d93123061b0c977"
+			"digest": "1f7e68eb52355580"
 		}
 	]
 }

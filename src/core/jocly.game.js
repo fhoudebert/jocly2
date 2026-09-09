@@ -105,6 +105,11 @@ JocGame.prototype.Init = function(aOptions) {
 		this.mSkin = this.mViewOptions.skins[0].name; // TODO check if 3D not supported
 		this.mNotation=false;
 		this.mShowMoves=this.mViewOptions.useShowMoves;
+		// Allumee par defaut quand la vue la propose : la marque repond a une
+		// question que le joueur se pose deja, et une option utile qu'il faut
+		// aller decouvrir ne sert personne. Elle suit ensuite le meme circuit
+		// que mShowMoves, a l'octet pres.
+		this.mShowLastMove=this.mViewOptions.useShowLastMove;
 		this.mSounds=!!this.mViewOptions.sounds;
 		this.mAutoComplete=false;
 
@@ -290,6 +295,7 @@ JocGame.prototype.AttachElement = function (element, options) {
                     "mNotation": "notation",
                     "mSounds": "sounds",
                     "mShowMoves": "moves",
+                    "mShowLastMove": "lastmove",
                     "mAutoComplete": "autocomplete"
                 }
 				for(var opt in optDefs)

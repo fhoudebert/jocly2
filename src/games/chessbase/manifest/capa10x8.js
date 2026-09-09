@@ -82,6 +82,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
