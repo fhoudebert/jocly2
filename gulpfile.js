@@ -267,6 +267,14 @@ gulp.task("build-node-core", function () {
 			// require("child_process"), so it must stay out of the browser
 			// bundle below.
 			"src/core/jocly.fairynative.js",
+			// jocly.game.js requires it OUTRIGHT on the node path -
+			// require("./jocly.kata.js"), not the guarded `typeof
+			// JoclyScan != "undefined"` that lets Scan be absent - so
+			// leaving it out did not disable Go in node, it made
+			// require("jocly.core.js") throw and took the whole node dist
+			// down with it. The file is node-safe: it exports for node and
+			// only reaches for a Worker when a kata level is played.
+			"src/core/jocly.kata.js",
 			"src/core/jocly.game.js"
 		]));
 

@@ -121,15 +121,41 @@ function LoadRules(config, container) {
 }
 
 /*
- * Displays winner
+ * Displays winner, and by how much when the game says.
+ *
+ * WHO won is Jocly's business and comes back from getFinished(). BY HOW MUCH
+ * is the game's, and only some have an answer: Go is won by 3.5 as readily as
+ * by 60, and the figure is half of what a player wants at the end. A game that
+ * has one publishes it through getBoardState("score") - see
+ * src/games/go/go-model.js - and that is the whole contract: an object with a
+ * signed `margin` and a `counted` flag saying the position was really counted
+ * rather than merely scored mid-game.
+ *
+ * WHY IT IS THE CLIENT THAT WRITES THE SENTENCE: Jocly has no translations.
+ * A verdict drawn by a game's own view could only ever be English, so the
+ * views state the margin as a stone and a number and leave the words to
+ * whoever has a dictionary - here, TRANSLATIONS above.
+ *
+ * Any game without a score answers with its board notation, or rejects. Both
+ * land on the plain verdict, which is what this function displayed before.
  */
-function NotifyWinner(winner) {
+function NotifyWinner(match, winner) {
     var text = "Draw";
     if(winner==Jocly.PLAYER_A)
         text = "A wins";
     else if(winner==Jocly.PLAYER_B)
         text = "B wins";
-    $("#game-status").text(T(text));
+    var verdict = T(text);
+    Promise.resolve(match.getBoardState("score"))
+        .then(function(state) {
+            if(state && typeof state == "object" && state.counted &&
+                Math.abs(state.margin) > 0)                 // a tie has no margin to announce
+                    verdict += " : " + Math.abs(state.margin);
+        })
+        .catch(function() {})                               // no score: the verdict alone
+        .then(function() {
+            $("#game-status").text(verdict);
+        });
 }
 
 /*
@@ -228,7 +254,7 @@ function RunMatch(match, progressBar) {
                         movePending = null;
                         movePendingResolver();
                         if (result.finished)
-                            NotifyWinner(result.winner);
+                            NotifyWinner(match, result.winner);
                         else
                             NextMove();
                         })

@@ -329,6 +329,30 @@ const ready = () => new Promise((r) => setTimeout(r, 5));
 	const gulp = fs.readFileSync(path.join(ROOT, "gulpfile.js"), "utf8");
 	t.check("the worker is built", /jocly\.kataworker\.js/.test(gulp), true);
 	t.check("the core module is bundled", /src\/core\/jocly\.kata\.js/.test(gulp), true);
+
+	/*
+	 * ...and bundled in the NODE list too, which the line above cannot see:
+	 * the same filename appears in the browser list, so a search of the whole
+	 * gulpfile passes on either one. It did, while the node list was missing
+	 * jocly.kata.js - and the cost was not "no Go in node". jocly.game.js
+	 * requires it OUTRIGHT on that path (the guarded `typeof JoclyScan` form
+	 * lets Scan be absent; kata has no such guard), so require("jocly.core.js")
+	 * threw and every node consumer of the dist went down with it.
+	 *
+	 * Checked against what jocly.game.js actually requires rather than against
+	 * a list written here, so a fifth module added tomorrow is covered without
+	 * anyone remembering this file.
+	 */
+	{
+		const from = gulp.indexOf('gulp.task("build-node-core"');
+		const nodeTask = gulp.slice(from, gulp.indexOf("gulp.task(", from + 10));
+		const required = [...gameJs.matchAll(/r\("\.\/(jocly\.[a-z]+\.js)"\)/g)].map((m) => m[1]);
+		t.check("the node path requires a handful of modules", required.length > 2, true);
+		required.forEach((file) => {
+			t.check("the node build ships " + file,
+				nodeTask.indexOf("src/core/" + file) > 0, true);
+		});
+	}
 	t.check("the plain engine is shipped", /third-party\/katago\/kataeval\.wasm/.test(gulp), true);
 	// Looked for in what the build actually copies, not in the file text: the
 	// gulpfile explains in a comment why the threaded build is left out, and a
