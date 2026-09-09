@@ -53,6 +53,25 @@
 	// it on the first copy.
 	var STAGE = "preludeStage";
 
+	/*
+	 * Le point d'un coup de prelude qui ne choisit rien.
+	 *
+	 * Une etape vide sert a RENDRE LA MAIN : le moteur inverse le trait apres
+	 * chaque coup, donc un prelude d'une seule etape donnait la premiere
+	 * pierre a Blanc. Une seconde etape, que l'adversaire franchit sans rien
+	 * decider, remet le compte a l'endroit -- c'est la convention des deux
+	 * autres modules, ou elle s'ecrit « 0 » a la fin du tableau (voir
+	 * checkers/index.js et chessbase/mini/minichess5x5-model.js).
+	 *
+	 * -2 ET NON -1, parce qu'au go -1 EST une passe. Les deux se confondraient
+	 * dans la partie enregistree, ou l'une s'ecrit « -- » et l'autre « pass »,
+	 * et Equals ne les distinguerait pas non plus -- il ne compare que le
+	 * point. Un point negatif n'est jamais une intersection, donc -2 ne peut
+	 * pas etre pris pour un coup ; c'est aussi la valeur que le prelude
+	 * chessbase emploie pour se signaler, ce qui n'est pas un hasard.
+	 */
+	var PRELUDE_PASS = -2;
+
 	function Dialogs(aGame) {
 		return aGame.mOptions.prelude;
 	}
@@ -134,7 +153,9 @@
 			return SuperGenerateMoves.apply(this, arguments);
 		var dialog = Dialogs(aGame)[this[STAGE]];
 		if(!dialog) {
-			this.mMoves = [{ p: -1 }];   // a turn pass
+			// Etape vide : un seul coup, que la vue joue toute seule (xdInput
+			// rend null, et la machine a etats enchaine sans rien demander).
+			this.mMoves = [{ p: PRELUDE_PASS }];
 			return;
 		}
 		if(dialog.persistent !== undefined && dialog.persistent !== true) {
@@ -193,7 +214,7 @@
 			return SuperStaticGenerateMoves.apply(this, arguments);
 		var dialog = Dialogs(aGame)[this[STAGE]];
 		if(!dialog)
-			return [aGame.CreateMove({ p: -1 })];
+			return [aGame.CreateMove({ p: PRELUDE_PASS })];
 		var p = dialog.persistent;
 		if(p !== undefined && p !== true)
 			return [aGame.CreateMove({ p: -1, setup: p })];
@@ -241,6 +262,10 @@
 	Model.Move.ToString = function() {
 		if(this.setup !== undefined)
 			return "#" + this.setup;
+		// « -- », comme les preludes checkers et chessbase, et surtout PAS
+		// « pass » : la partie enregistree se relit, et une passe y a un sens.
+		if(this.p === PRELUDE_PASS)
+			return "--";
 		return SuperMoveToString.apply(this, arguments);
 	}
 

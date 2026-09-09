@@ -102,7 +102,21 @@ exports.games = (function() {
 				{ "rules": "chinese-ogs" },
 				{ "rules": "tromp-taylor" }
 			]
-		}
+		},
+		/*
+		 * Une seconde etape, vide, et elle n'est pas decorative : le moteur
+		 * inverse le trait apres CHAQUE coup, y compris apres la reponse au
+		 * prelude. Avec une seule etape, Noir repondait la question et Blanc
+		 * posait la premiere pierre -- alors que le go commence par Noir.
+		 * L'adversaire franchit celle-ci sans rien decider et le compte
+		 * revient a l'endroit.
+		 *
+		 * C'est la convention des deux autres modules, ou elle s'ecrit de la
+		 * meme facon : voir config_model_prelude_draughts8 dans
+		 * checkers/index.js et le prelude de minichess5x5-model.js, dont le
+		 * commentaire dit exactement la meme chose.
+		 */
+		0
 	]
 
 	function Go(name, size, title) {

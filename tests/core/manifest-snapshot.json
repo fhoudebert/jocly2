@@ -1,10 +1,10 @@
 {
-	"bytes": 368043,
-	"digest": "9de5d92ab7f7290a",
+	"bytes": 368048,
+	"digest": "022125f7bde87e24",
 	"games": [
 		{
 			"name": "classic-chess",
-			"digest": "2b3c26b8999c84dc"
+			"digest": "972e75c89da50a1f"
 		},
 		{
 			"name": "losing-chess",
@@ -92,7 +92,7 @@
 		},
 		{
 			"name": "circular-chess",
-			"digest": "72e84572fa668f10"
+			"digest": "0bc9ce538e0140da"
 		},
 		{
 			"name": "byzantine-chess",

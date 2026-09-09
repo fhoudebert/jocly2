@@ -129,9 +129,27 @@ manifest.forEach((entry) => {
 	board.ApplyMove(game, board.mMoves[1]);
 	t.check("choosing the second set switches the rules",
 		[game.g.rules, game.g.suicideOk], ["tromp-taylor", true]);
-	t.check("and the prelude is over", board.preludeStage, -1);
 	t.check("the signature said which side of it we were on",
 		inPrelude === board.GetSignature(), false);
+
+	/*
+	 * A SECOND STAGE, EMPTY, AND IT IS NOT DECORATION.
+	 *
+	 * The engine flips the side to move after EVERY move it applies, the
+	 * prelude answer included. With one stage, Black answered the question and
+	 * WHITE laid the first stone - which is not how Go starts, and is what a
+	 * player saw: the machine replying instantly to a button press.
+	 *
+	 * A stage the opponent walks through without deciding anything puts the
+	 * count back. checkers/index.js and minichess5x5-model.js end their
+	 * prelude arrays with the same bare 0.
+	 */
+	t.check("a second stage follows the question", board.preludeStage, 1);
+	board.GenerateMoves(game);
+	t.check("with one move and nothing to choose",
+		board.mMoves.map((m) => m.setup), [undefined]);
+	board.ApplyMove(game, board.mMoves[0]);
+	t.check("and then the prelude is over", board.preludeStage, -1);
 
 	board.GenerateMoves(game);
 	t.check("play begins: every point, plus the pass",
@@ -206,6 +224,10 @@ manifest.forEach((entry) => {
 	// Once the prelude is over, Go's own StaticGenerateMoves is back: it
 	// returns null so the native AI cannot pass by accident.
 	board.ApplyMove(game, game.CreateMove({ p: -1, setup: 0 }));
+	const walkThrough = board.StaticGenerateMoves(game);
+	t.check("the empty stage answers itself too", walkThrough.length, 1);
+	t.check("with nothing chosen", walkThrough[0].setup, undefined);
+	board.ApplyMove(game, walkThrough[0]);
 	t.check("and afterwards the game's own answer is back",
 		board.StaticGenerateMoves(game), null);
 }
@@ -251,6 +273,43 @@ manifest.forEach((entry) => {
 	// Still a move, so the record of the second game says which rules it was
 	// played under just as plainly as the first.
 	t.check("and still records the choice", next.mMoves[0].setup, 1);
+}
+
+/* ------------------------------------------------ who lays the first stone */
+
+/*
+ * The whole point of the empty stage, checked the way the engine does it:
+ * jocly.game.js flips mWho after each ApplyMove (three places do it, all of
+ * them outside the model). An ODD number of prelude plies therefore hands the
+ * opening move to the wrong side, and no amount of correct rule-setting makes
+ * up for it.
+ */
+{
+	const game = newGame("go9");
+	const board = newBoard(game);
+	t.check("Black is to move before the prelude", board.mWho, 1);
+
+	let plies = 0;
+	while(board.preludeStage >= 0) {
+		board.GenerateMoves(game);
+		board.ApplyMove(game, board.mMoves[0]);
+		board.mWho = -board.mWho;              // ce que fait le moteur
+		plies++;
+	}
+	t.check("the prelude takes an even number of plies", plies % 2, 0);
+	t.check("so Black still lays the first stone", board.mWho, 1);
+
+	// Et la partie enregistree porte les deux, dans la forme que les deux
+	// autres modules ecrivent : « #0 -- ». Tabulon sait deja la relire.
+	board.GenerateMoves(game);
+	t.check("the walk-through move is written like the others",
+		game.CreateMove({ p: -2 }).ToString(), "--");
+	// Surtout PAS « pass » : une passe a un sens au go, et une partie
+	// rechargee la compterait comme telle.
+	t.check("and a real pass is still a pass",
+		game.CreateMove({ p: -1 }).ToString(), "pass");
+	t.check("the two are not the same move",
+		game.CreateMove({ p: -2 }).Equals(game.CreateMove({ p: -1 })), false);
 }
 
 t.done("Go prelude");
