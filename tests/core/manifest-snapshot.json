@@ -1,6 +1,6 @@
 {
-	"bytes": 367768,
-	"digest": "2e8979511893213a",
+	"bytes": 367926,
+	"digest": "4c4c588867df069d",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -48,7 +48,7 @@
 		},
 		{
 			"name": "courier-chess",
-			"digest": "55166af9490640a0"
+			"digest": "d2c59327899c0dc6"
 		},
 		{
 			"name": "makruk",
@@ -92,11 +92,11 @@
 		},
 		{
 			"name": "circular-chess",
-			"digest": "bdf305191de91b0e"
+			"digest": "72e84572fa668f10"
 		},
 		{
 			"name": "byzantine-chess",
-			"digest": "051979b650fdb4a9"
+			"digest": "e7b5683f358907a0"
 		},
 		{
 			"name": "3dchess",
@@ -104,11 +104,11 @@
 		},
 		{
 			"name": "space-spartan",
-			"digest": "bbc5055ae9678118"
+			"digest": "83913800ad8e0b08"
 		},
 		{
 			"name": "cylinder-chess",
-			"digest": "91ffc1cad644c93d"
+			"digest": "4b28dcb5bfe04783"
 		},
 		{
 			"name": "cubic-chess",

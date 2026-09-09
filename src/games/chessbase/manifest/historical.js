@@ -177,7 +177,10 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "Duke of Rutland Chess",
+				"title": {
+					"en": "Duke of Rutland Chess",
+					"fr": "Échecs du duc de Rutland",
+				},
 				"summary": {
 					"en": "Chess on 14x10 (1747)",
 					"fr": "Échecs en 14x10 (1747)"

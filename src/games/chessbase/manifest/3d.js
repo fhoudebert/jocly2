@@ -190,10 +190,13 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "3D Chess",
+				"title": {
+					"en": "3D Chess",
+					"fr": "Échecs 3D",
+				},
 				"summary": {
-					"en": "Asymmetric 3D Chess (6x8x3)",
-					"fr": "Échecs 3D asymétriques (6x8x3)"
+					"en": "3D Chess (6x8x3)",
+					"fr": "Échecs 3D (6x8x3)"
 				},
 				"rules": {
 					"en": "res/rules/3dchess/3dchess-rules.html",
@@ -284,8 +287,8 @@ exports.games = {
 					"fr": "Spartiates de l'espace",
 				},
 				"summary": {
-					"en": "6x8x3 Chess",
-					"fr": "Échecs en 6x8x3"
+					"en": "Asymmetric 3D Chess (6x8x3)",
+					"fr": "Échecs 3D asymétriques (6x8x3)"
 				},
 				"rules": {
 					"en": "res/rules/3dchess/space-spartan-rules.html",
