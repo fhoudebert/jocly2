@@ -183,8 +183,16 @@ var status = { black: "", white: "", middle: "", turn: 0 };
 				},
 			});
 
-		// The last stone played, so a board that changes by one stone a turn
-		// still reads at a glance.
+		/*
+		 * The last stone played, so a board that changes by one stone a turn
+		 * still reads at a glance - on a full 19x19 board, finding the one
+		 * point that moved is otherwise a search.
+		 *
+		 * Two fifths of the pitch: comfortably inside the stone (0.94) and
+		 * large enough to be found without hunting, which the previous 0.34
+		 * was not - see go.css, where the ring is painted and where the mark's
+		 * colour is chosen against the stone underneath it.
+		 */
 		xdv.createGadget("last-move", {
 			base: {
 				visible: false,
@@ -192,8 +200,8 @@ var status = { black: "", white: "", middle: "", turn: 0 };
 			},
 			"2d": {
 				type: "element",
-				width: SIZE * 0.34,
-				height: SIZE * 0.34,
+				width: SIZE * 0.40,
+				height: SIZE * 0.40,
 				initialClasses: "go-last",
 			},
 		});
@@ -419,6 +427,11 @@ var status = { black: "", white: "", middle: "", turn: 0 };
 		}
 		xdv.updateGadget("status", { base: { visible: true } });
 
+		/*
+		 * A pass leaves lastPlayed at -1 and the mark goes away, which is
+		 * right: there is no point to mark, and leaving the previous one up
+		 * would say the opponent has not moved yet.
+		 */
 		var last = this.lastPlayed;
 		if(last === undefined || last < 0)
 			xdv.updateGadget("last-move", { base: { visible: false } });
@@ -426,6 +439,14 @@ var status = { black: "", white: "", middle: "", turn: 0 };
 			var coord = aGame.goCoord(last);
 			xdv.updateGadget("last-move", {
 				base: { visible: true, x: coord[0], y: coord[1] },
+				// The stone it lands on decides the mark's colour: white on
+				// black, near-black on white. One fixed colour cannot be read
+				// against both, however it is chosen.
+				"2d": {
+					classes: this.board[last] === JocGame.PLAYER_A
+						? "go-last go-last-on-black"
+						: "go-last go-last-on-white",
+				},
 			});
 		}
 	}

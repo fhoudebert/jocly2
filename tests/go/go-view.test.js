@@ -215,6 +215,23 @@ t.check("the point is placed on the grid",
 t.check("the last move is marked there",
 	[xdv.gadgets["last-move"].props.visible,
 		xdv.gadgets["last-move"].props.x, xdv.gadgets["last-move"].props.y], [true, 0, 0]);
+// The mark takes its colour FROM the stone it lands on. One fixed colour
+// cannot be read against both black and white, whatever hue is picked, so the
+// class has to follow the move rather than being set once at creation.
+t.check("and takes the colour that reads on a black stone",
+	xdv.gadgets["last-move"].skin.classes, "go-last go-last-on-black");
+{
+	// A board of its own: mutating the one above would follow into the status
+	// checks below, which read their own positions.
+	const reply = newBoard(g9);
+	reply.mWho = -1;                       // White to play
+	reply.GenerateMoves(g9);
+	const a1 = g9.StringToCoord("A1");
+	reply.ApplyMove(g9, reply.mMoves.filter((m) => m.p === a1)[0]);
+	View.Board.xdDisplay.call(reply, xdv, vg9);
+	t.check("and the other one on a white stone",
+		xdv.gadgets["last-move"].skin.classes, "go-last go-last-on-white");
+}
 t.check("no gadget was updated before it existed", xdv.missing, []);
 
 /* ----------------------------------------------------------- the status */
@@ -368,10 +385,35 @@ const css = fs.readFileSync(path.join(GO, "go.css"), "utf8");
 		new RegExp("\\." + name + "[ ,.:{]").test(css), true));
 
 const src = fs.readFileSync(path.join(GO, "go-xd-view.js"), "utf8");
-const emitted = (src.match(/"go-point[^"]*"/g) || [])
+// Every string of go-* classes the view hands to a gadget, not just the point
+// ones: the last-move mark now emits its own pair, and a class the stylesheet
+// does not define is a mark that draws nothing.
+const emitted = (src.match(/"go-(?:point|last)[^"]*"/g) || [])
 	.join(" ").replace(/"/g, "").split(/\s+/).filter((x) => x);
 t.check("and every class the view can emit",
 	emitted.filter((c) => !new RegExp("\\." + c + "[ ,.:{]").test(css)), []);
+
+/*
+ * No percentage where CSS demands a length.
+ *
+ * THIS IS WHAT KEPT THE LAST-MOVE MARK OFF THE BOARD. `border: 12% solid` reads
+ * naturally and is invalid - border-width takes <length> | thin | medium |
+ * thick, never a percentage - so the browser dropped the whole declaration and
+ * .go-last rendered as an empty transparent box. Nothing failed, nothing was
+ * logged, the mark simply never appeared. box-shadow lengths have the same
+ * rule and the same trap, and this file had that one too.
+ *
+ * The rest of the stylesheet does scale with the point, because the properties
+ * it uses - border-radius, gradient stops - genuinely accept percentages. The
+ * check is on the two that do not.
+ */
+const strip = css.replace(/\/\*[\s\S]*?\*\//g, "");
+// border-radius and gradient stops DO take percentages and the file leans on
+// them, so the pattern names only the border properties that take a length.
+t.check("no percentage border width",
+	/border(-(top|right|bottom|left))?(-width)?\s*:[^;}]*\d\s*%/.test(strip), false);
+t.check("no percentage box-shadow length",
+	/box-shadow\s*:[^;}]*\d\s*%/.test(strip), false);
 
 /* ------------------------------------------------------------- manifest */
 

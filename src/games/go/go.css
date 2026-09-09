@@ -18,24 +18,39 @@
 
 .go-black {
 	background-image: radial-gradient(circle at 32% 28%, #6b6b6b 0%, #1a1a1a 45%, #000000 100%);
-	box-shadow: 0 0 4% 0 rgba(0,0,0,0.5);
 }
 
 .go-white {
 	background-image: radial-gradient(circle at 32% 28%, #ffffff 0%, #ececec 45%, #b8b4ab 100%);
-	box-shadow: 0 0 4% 0 rgba(0,0,0,0.4);
 }
 
 /*
  * The last-move mark sits on top of the stone, so it has to read against both
- * colours: a hollow ring in a colour neither stone uses.
+ * colours - which is why it is drawn in the OPPOSITE colour to the stone under
+ * it rather than in one fixed colour: nothing else contrasts with both black
+ * and white, and a hue that did would still fail for a colour-blind reader.
+ * The two go-last-on-* rules below carry that colour; the ring is one shape.
+ *
+ * PAINTED WITH A GRADIENT, NOT A BORDER, and the difference is the whole
+ * reason this mark was invisible: `border-width` does not accept percentages
+ * (CSS Backgrounds and Borders takes <length> | thin | medium | thick). The
+ * former `border: 12% solid` was therefore an invalid declaration, dropped
+ * whole by the browser, and .go-last rendered as an empty transparent box -
+ * the mark had never once appeared on screen. A gradient does take
+ * percentages, so the ring keeps the property the rest of this file relies on:
+ * it scales with the point, right for a 9x9 board and for a 19x19 one, with no
+ * pixel size to pick.
  */
 .go-last {
 	border-radius: 50%;
-	border: 12% solid #c8322c;
-	box-sizing: border-box;
 	pointer-events: none;
+	background-image: radial-gradient(circle,
+		rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 56%,
+		currentColor 60%, currentColor 100%);
 }
+
+.go-last-on-black { color: #f5f5f5; }
+.go-last-on-white { color: #16181c; }
 
 /*
  * The hover target on a legal point. Kept faint: on a Go board almost every
