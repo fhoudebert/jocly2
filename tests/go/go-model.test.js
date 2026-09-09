@@ -47,11 +47,14 @@ function loadModel() {
 
 const sandbox = loadModel();
 
-function newGame(name) {
+function newGame(name, extra) {
 	const g = manifest.filter((x) => x.name === name)[0];
 	const game = Object.create(sandbox.Model.Game);
 	game.g = {};
 	game.mOptions = JSON.parse(JSON.stringify(g.config.model.gameOptions));
+	// A rule set is a game option, so it is set the way the manifest would set
+	// it - before InitGame, which is where the model reads it.
+	Object.assign(game.mOptions, extra || {});
 	game.mPlayedMoves = [];
 	function Move(args) { this.Init(args || {}); }
 	Move.prototype = sandbox.Model.Move;
@@ -472,6 +475,142 @@ t.check("nor the history, once either plays on", board.hist.length < copy.hist.l
 	const score = board.goScore(game);
 	t.check("the two areas and the neutral points cover the board",
 		Math.round(score.black + (score.white - game.g.komi)) <= game.g.points, true);
+}
+
+/* ------------------------------------------------------ the rule sets */
+
+/*
+ * Two rule sets, and between them exactly one difference that changes which
+ * moves exist: multi-stone self-capture, legal under tromp-taylor and not
+ * under chinese-ogs. They agree on everything else this file implements -
+ * area scoring, positional superko, no tax - which is why tromp-taylor is a
+ * cheap second rule set and japanese is not.
+ *
+ * The names are KataGo's because they are handed to KataGo. A board and an
+ * engine that disagree about the rules are worse than a board with no choice
+ * of rules at all.
+ */
+{
+	const gc = newGame("go9");                                   // chinese-ogs
+	const gt = newGame("go9", { rules: "tromp-taylor" });
+
+	t.check("the default rule set is named", gc.g.rules, "chinese-ogs");
+	t.check("and forbids self-capture", gc.g.suicideOk, false);
+	t.check("tromp-taylor is named too", gt.g.rules, "tromp-taylor");
+	t.check("and allows it", gt.g.suicideOk, true);
+
+	/*
+	 * The position, black to play at A8:
+	 *
+	 *   9  b b w . .        A9 B9 black, their group's ONLY liberty is A8
+	 *   8  . w . . .        A8 empty, B8 white
+	 *   7  w . . . .        A7 white
+	 *
+	 * Playing A8 fills the group's last liberty, takes nothing off the board
+	 * and leaves three black stones with nowhere to breathe.
+	 */
+	const rows = [
+		"b b w . . . . . .",
+		". w . . . . . . .",
+		"w . . . . . . . .",
+		". . . . . . . . .",
+		". . . . . . . . .",
+		". . . . . . . . .",
+		". . . . . . . . .",
+		". . . . . . . . .",
+		". . . . . . . . .",
+	];
+
+	const chinese = setup(gc, rows, 1);
+	chinese.GenerateMoves(gc);
+	t.check("under chinese-ogs the self-capture is not a move",
+		legal(gc, chinese, "A8"), false);
+
+	const tromp = setup(gt, rows, 1);
+	tromp.GenerateMoves(gt);
+	t.check("under tromp-taylor it is", legal(gt, tromp, "A8"), true);
+
+	// A lone stone with no liberty is illegal under BOTH: that is KataGo's
+	// reading of Tromp-Taylor, and matching the engine is the whole point of
+	// using its names. C9 is surrounded by white on B9 and C8... which it is
+	// not here, so build the case on its own.
+	{
+		const lone = setup(gt, [
+			". w . . . . . . .",
+			"w . . . . . . . .",
+			". . . . . . . . .",
+			". . . . . . . . .",
+			". . . . . . . . .",
+			". . . . . . . . .",
+			". . . . . . . . .",
+			". . . . . . . . .",
+			". . . . . . . . .",
+		], 1);
+		lone.GenerateMoves(gt);
+		t.check("but a lone stone may still not kill itself",
+			legal(gt, lone, "A9"), false);
+	}
+
+	/*
+	 * Superko applies to a self-capture, and this is the case the move
+	 * generator's shortcut would miss: it reasons that a move capturing
+	 * nothing only ADDS stones and so cannot repeat a position. A
+	 * self-capture is the exception - it takes its own group off the board.
+	 *
+	 * Rather than build a repetition by hand, the position the move WOULD
+	 * reach is hashed and planted in the history: if the rule is applied, the
+	 * move disappears.
+	 */
+	{
+		const board = setup(gt, rows, 1);
+		let after = board.hash;
+		["A9", "B9"].forEach((p) => {
+			after ^= gt.g.zobrist[0][at(gt, p)];   // the two black stones leave
+		});
+		board.hist = board.hist.concat([after]);
+		board.GenerateMoves(gt);
+		t.check("a self-capture that repeats a position is refused",
+			legal(gt, board, "A8"), false);
+	}
+
+	/*
+	 * And when it is played, the stones actually leave. Worked out by
+	 * ApplyMove rather than carried on the move, so a move replayed from a
+	 * saved game or handed over by an engine - neither carries a capture list
+	 * - is played the same way.
+	 */
+	{
+		const board = setup(gt, rows, 1);
+		board.GenerateMoves(gt);
+		const move = board.mMoves.filter((m) => m.p === at(gt, "A8"))[0];
+		board.ApplyMove(gt, move);
+		t.check("the whole group leaves the board",
+			["A9", "B9", "A8"].map((p) => board.board[at(gt, p)]), [0, 0, 0]);
+		// To WHITE's prisoners: under area scoring they do not enter the score,
+		// but they are on screen, and stones credited to the player who walked
+		// into the self-capture would read as captures he made.
+		t.check("and count as White's prisoners", board.prisoners, [0, 3]);
+		// The hash is what superko compares, so a self-capture that removed
+		// stones without unhashing them would quietly break the ko rule.
+		let expected = 0;
+		for(let pos = 0; pos < gt.g.points; pos++)
+			if(board.board[pos] !== 0)
+				expected ^= gt.g.zobrist[(1 - board.board[pos]) / 2][pos];
+		t.check("the hash still describes the board", board.hash, expected);
+	}
+
+	// The name travels with the position, so the engine can be asked to play
+	// under the same rules. See goExportMoves and jocly.kata.js.
+	t.check("the export names the rule set in force",
+		setup(gt, rows, 1).goExportMoves(gt).rules, "tromp-taylor");
+	t.check("and the default one as well",
+		setup(gc, rows, 1).goExportMoves(gc).rules, "chinese-ogs");
+
+	// An unknown name does not take the board down: a manifest typo should
+	// leave the game playable and the mistake visible in the console.
+	const gx = newGame("go9", { rules: "chinoise" });
+	t.check("an unknown rule set falls back to the default",
+		[gx.g.rules, gx.g.suicideOk], ["chinese-ogs", false]);
 }
 
 t.done("Go rules");

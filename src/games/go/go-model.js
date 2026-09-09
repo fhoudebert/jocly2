@@ -56,10 +56,41 @@
 	 * kata-set-rules; the wasm build's ABI has no way to be told, which is a
 	 * limitation of that build rather than of this contract).
 	 *
-	 * A constant for now. When a prelude lets the player choose the rules,
-	 * this becomes a read of that choice and everything downstream follows.
+	 * The default when a game declares nothing. A prelude choosing between
+	 * the entries below is the next step, and it will write mOptions.rules.
 	 */
-	var RULESET = "chinese-ogs";
+	var RULESET_DEFAULT = "chinese-ogs";
+
+	/*
+	 * The rule sets this file can arbitrate, keyed by KataGo's name for them.
+	 *
+	 * ONE FLAG, AND THAT IS THE POINT. Of the seven axes KataGo distinguishes,
+	 * chinese-ogs and tromp-taylor differ on exactly three, and two of them
+	 * cost nothing here:
+	 *
+	 *   - whiteHandicapBonus (N vs 0): Jocly's Go has no handicap stones, so
+	 *     there is no bonus to award either way.
+	 *   - friendlyPassOk (true vs false): whether an engine may pass when the
+	 *     game would not end. That governs an engine's choices, not what this
+	 *     file accepts - passing is legal here in both, as it is in Go.
+	 *   - multiStoneSuicideLegal (false vs true): the real difference, and the
+	 *     only one that changes which moves exist.
+	 *
+	 * They agree on the rest: area scoring, POSITIONAL superko, no tax. Which
+	 * is why tromp-taylor is the cheap second rule set to offer and japanese
+	 * is not - territory scoring needs agreement on dead stones, which has no
+	 * meaning inside a move.
+	 *
+	 * SINGLE-STONE SUICIDE STAYS ILLEGAL even under tromp-taylor. That is
+	 * KataGo's reading, stated in its own gtp_example.cfg ("Single-stone
+	 * suicide is always illegal"), and matching the engine is the entire
+	 * reason these names are used at all: a rule the engine and the board
+	 * disagree on is worse than no choice of rules.
+	 */
+	var RULESETS = {
+		"chinese-ogs":  { suicide: false },
+		"tromp-taylor": { suicide: true },
+	};
 
 	// Column letters skip I, the universal Go convention.
 	var COLUMNS = "ABCDEFGHJKLMNOPQRSTUVWXYZ";
@@ -126,6 +157,26 @@
 		// White's compensation for moving second, counted in the area score.
 		// A half point makes draws impossible, which is why it is the norm.
 		this.g.komi = this.mOptions.komi === undefined ? 7.5 : this.mOptions.komi;
+
+		/*
+		 * The rule set, read here rather than at every move: it cannot change
+		 * mid-game, and the two flags below are consulted in the move
+		 * generator's inner loop.
+		 *
+		 * An unknown name falls back to the default rather than throwing. A
+		 * game module naming a rule set this file does not know is a manifest
+		 * error, but refusing to start the game over it would take a whole
+		 * board down for a typo; playing under the default and saying so
+		 * leaves the game usable and the mistake visible.
+		 */
+		var wanted = this.mOptions.rules || RULESET_DEFAULT;
+		if(!RULESETS[wanted]) {
+			console.warn("go: unknown rule set '" + wanted + "', playing "
+				+ RULESET_DEFAULT);
+			wanted = RULESET_DEFAULT;
+		}
+		this.g.rules = wanted;
+		this.g.suicideOk = RULESETS[wanted].suicide;
 
 		/*
 		 * Zobrist keys for the position hash. Positional superko compares whole
@@ -293,6 +344,7 @@
 		var links = graph[pos];
 		var captured = [], capturedGroups = {};
 		var ownLiberty = false, joinsLiving = false;
+		var friends = [], friendGroups = {};
 		for(var d = 0; d < 4; d++) {
 			var n = links[d];
 			if(n === null) continue;
@@ -306,11 +358,31 @@
 				}
 			} else if(scan.libs[gid] > 1)
 				joinsLiving = true;
+			else if(!friendGroups[gid]) {
+				friendGroups[gid] = true;
+				friends.push(gid);
+			}
 		}
 		// The stone lives if it has a liberty of its own, joins a group that has
 		// one to spare, or takes something off the board first.
 		var suicide = !ownLiberty && !joinsLiving && captured.length === 0;
-		return { captured: captured, suicide: suicide };
+		if(!suicide)
+			return { captured: captured, suicide: false };
+		/*
+		 * Which stones the move would take off the board by playing it: the
+		 * new stone and every friendly group it touches. Only built on the
+		 * suicide path - it is needed to tell a legal multi-stone self-capture
+		 * from an illegal lone one, and to hash the position that results,
+		 * neither of which the common path cares about.
+		 *
+		 * Every friendly neighbour here is down to its last liberty (the one
+		 * this move fills), or joinsLiving would have been set and there would
+		 * be no suicide to weigh.
+		 */
+		var self = [pos];
+		for(var i = 0; i < friends.length; i++)
+			self = self.concat(scan.stones[friends[i]]);
+		return { captured: captured, suicide: true, self: self };
 	}
 
 	Model.Board.GenerateMoves = function(aGame) {
@@ -326,8 +398,36 @@
 			if(board[pos] !== EMPTY || pos === this.koPos)
 				continue;
 			var r = Resolve(aGame, board, scan, pos, side);
-			if(r.suicide)
+			if(r.suicide) {
+				/*
+				 * Self-capture, legal under tromp-taylor and not under
+				 * chinese-ogs - and never legal for a lone stone, which is
+				 * KataGo's reading of Tromp-Taylor and therefore the one that
+				 * keeps the board and the engine agreeing.
+				 */
+				if(!aGame.g.suicideOk || r.self.length < 2)
+					continue;
+				/*
+				 * Superko applies here too, and this is the one place it would
+				 * be easy to miss: the shortcut below reasons that a move
+				 * which captures nothing only ADDS stones and so cannot repeat
+				 * a position. A self-capture is the exception - it takes its
+				 * own group off the board, and can therefore return the board
+				 * to a position it has already been in.
+				 *
+				 * The stone is placed and then removed with the rest of its
+				 * group, so its own key cancels out and only the friendly
+				 * stones that leave the board change the hash.
+				 */
+				var hs = this.hash;
+				for(var k = 0; k < r.self.length; k++)
+					if(r.self[k] !== pos)
+						hs ^= aGame.g.zobrist[SIDE01(side)][r.self[k]];
+				if(this.hist.indexOf(hs) >= 0)
+					continue;
+				this.mMoves.push({ p: pos });
 				continue;
+			}
 			/*
 			 * Positional superko, checked only where it can possibly apply.
 			 *
@@ -378,6 +478,31 @@
 			this.hash ^= aGame.g.zobrist[SIDE01(-side)][captured[i]];
 		}
 		this.prisoners[SIDE01(side)] += captured.length;
+
+		/*
+		 * Self-capture, under a rule set that allows it.
+		 *
+		 * Worked out here rather than carried on the move, so that a move
+		 * arriving from a saved game or from an engine - neither of which
+		 * carries a capture list - is played the same way as one this file
+		 * generated. Only a move that captured nothing can be one: taking a
+		 * stone off always leaves the new group a liberty.
+		 *
+		 * The stones go to the OPPONENT's prisoner count. Under area scoring
+		 * prisoners do not enter the score at all, but they are on screen, and
+		 * a self-capture credited to the player who walked into it would read
+		 * as a capture he made.
+		 */
+		if(captured.length === 0) {
+			var own = Group(aGame, this.board, move.p, {});
+			if(own.liberties === 0) {
+				for(var s = 0; s < own.stones.length; s++) {
+					this.board[own.stones[s]] = EMPTY;
+					this.hash ^= aGame.g.zobrist[SIDE01(side)][own.stones[s]];
+				}
+				this.prisoners[SIDE01(-side)] += own.stones.length;
+			}
+		}
 
 		/*
 		 * The simple ko point: only a move that captures exactly one stone and
@@ -534,8 +659,8 @@
 			komi: aGame.g.komi,
 			boardSize: aGame.g.size,
 			// The rules this position was played under, so the engine can be
-			// asked to play under them too. See RULESET at the top.
-			rules: RULESET,
+			// asked to play under them too. See RULESETS at the top.
+			rules: aGame.g.rules,
 		};
 	}
 
