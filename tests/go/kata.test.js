@@ -74,7 +74,32 @@ function play(game, text) {
 const g9 = newGame("go9");
 
 t.check("an empty board exports an empty sequence",
-	g9.mBoard.goExportMoves(g9), { moves: [], toPlay: 1, komi: 5.5, boardSize: 9 });
+	g9.mBoard.goExportMoves(g9),
+	{ moves: [], toPlay: 1, komi: 5.5, boardSize: 9, rules: "chinese-ogs" });
+
+/*
+ * The ruleset travels WITH the position, and its name is not decorative.
+ *
+ * An engine plays under the rules its host gives it; a host that says nothing
+ * gets whatever the engine's config holds, and KataGo's own gtp_example.cfg
+ * ships `rules = tromp-taylor` - which legalises multi-stone suicide and would
+ * have the engine offer moves go-model.js refuses.
+ *
+ * "chinese-ogs" and not "chinese": KataGo's `chinese` preset uses the SIMPLE
+ * ko rule, while this game plays POSITIONAL superko with area scoring, which
+ * is what KataGo calls chinese-ogs (and chinese-kgs). A wrong name here would
+ * be handed straight to an engine.
+ */
+t.check("with the rules it is arbitrated under",
+	g9.mBoard.goExportMoves(g9).rules, "chinese-ogs");
+
+// And forwarded to the worker: the wasm ABI cannot use it - kgeSearch takes
+// only the komi - but a native bridge can, and the field is how it reaches one.
+{
+	const bridge = fs.readFileSync(path.join(ROOT, "src", "core", "jocly.kata.js"), "utf8");
+	t.check("and the bridge puts it in the Search message",
+		/rules:\s*position\.rules/.test(bridge), true);
+}
 
 play(g9, "E5");
 t.check("black's first move is colour 1",

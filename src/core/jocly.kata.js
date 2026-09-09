@@ -255,6 +255,14 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 						moves: position.moves,
 						toPlay: position.toPlay,
 						komi: position.komi,
+						// Les regles sous lesquelles le jeu arbitre (voir
+						// RULESET dans go-model.js). Le worker wasm l'ignore --
+						// son ABI kgeSearch ne prend que le komi -- mais un
+						// shim natif peut les imposer au moteur, et sans elles
+						// le moteur joue sous celles de sa config : le
+						// gtp_example.cfg de KataGo porte tromp-taylor, qui
+						// autorise le suicide multi-pierres que ce jeu refuse.
+						rules: position.rules,
 						visits: level.visits,
 						moveTimeMs: level.moveTimeMs,
 						gumbel: level.gumbel

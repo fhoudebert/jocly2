@@ -36,6 +36,31 @@
 	var BLACK = 1;    // JocGame.PLAYER_A - Black moves first, as in Go
 	var WHITE = -1;   // JocGame.PLAYER_B
 
+	/*
+	 * The rule set this file arbitrates, under the name KataGo gives it.
+	 *
+	 * NOT "chinese", and the difference is not pedantry. KataGo's `chinese`
+	 * preset uses the SIMPLE ko rule; what this file implements - area
+	 * scoring, POSITIONAL superko, no suicide - is KataGo's `chinese-ogs`
+	 * (identical to `chinese-kgs`). KataGo's own rules page flags the same
+	 * trap: OGS's "Chinese" uses positional superko, unlike Chinese
+	 * tournament practice. Naming it wrongly here would be worse than not
+	 * naming it, because the name is about to be handed to an engine.
+	 *
+	 * WHY IT IS PUBLISHED AT ALL. An engine plays under the rules ITS host
+	 * gives it, and a host that is told nothing uses whatever its config
+	 * says - KataGo's own gtp_example.cfg ships `rules = tromp-taylor`, which
+	 * allows multi-stone suicide and would have the engine offer moves this
+	 * file refuses. So the ruleset travels with the position, out through
+	 * goExportMoves, and a host that can set it does (Tabulon sends
+	 * kata-set-rules; the wasm build's ABI has no way to be told, which is a
+	 * limitation of that build rather than of this contract).
+	 *
+	 * A constant for now. When a prelude lets the player choose the rules,
+	 * this becomes a read of that choice and everything downstream follows.
+	 */
+	var RULESET = "chinese-ogs";
+
 	// Column letters skip I, the universal Go convention.
 	var COLUMNS = "ABCDEFGHJKLMNOPQRSTUVWXYZ";
 
@@ -508,6 +533,9 @@
 			toPlay: this.mWho === BLACK ? 1 : 2,
 			komi: aGame.g.komi,
 			boardSize: aGame.g.size,
+			// The rules this position was played under, so the engine can be
+			// asked to play under them too. See RULESET at the top.
+			rules: RULESET,
 		};
 	}
 
