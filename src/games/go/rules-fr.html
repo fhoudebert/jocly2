@@ -1,76 +1,74 @@
-<p>Le go (aussi weiqi, baduk ou igo) se joue sur les intersections d'un quadrillage.
-les Noirs commencent. Chacun tour, on pose une pierre sur une intersection libre,
-ou on passe.</p>
+<style>
+	.side {
+		float: right;
+		max-width: 100%;
+	}
+    .piece-icon {
+        width: 70px;
+        height: auto;
+        float: left;
+        margin-right: 10px;
+    }
+	@media screen and (max-width: 520px) {
+		.side {
+			float: none;
+			display: block;
+			max-width: 100%;
+			margin-right: auto;
+			margin-left: auto;
+		}		
+	}
+	
+	h1,h2,h3,h4 {
+		clear: both;
+	}
+</style>
+<h2>Go</h2>
+<p>Le go (aussi appelé <i>weiqi</i>, <i>baduk</i> ou <i>igo</i>) se joue sur les intersections d'un quadrillage. Les Noirs jouent en premier. À chaque tour, un joueur pose une pierre sur une intersection libre ou passe.</p>
 
-<h3>Groupes et capture</h3>
+<h3>Groupes et captures</h3>
 
-<p>Les pierres de même couleur qui sont connectées le long d'une ligne — pas en
-diagonale — forment un groupe. Les intersections vides adjacentes à un groupe
-sont ses <b>libertés</b>. Un groupe qui n'a plus aucune liberté est capturé et
-retiré du plateau, en entier et d'un coup.</p>
+<p>Les pierres de même couleur qui sont connectées le long d'une ligne — mais pas en diagonale — forment un <b>groupe</b>. Les intersections vides directement adjacentes à un groupe sont ses <b>libertés</b>. Lorsqu'un groupe n'a plus aucune liberté, il est capturé : toutes ses pierres sont retirées du plateau en une seule fois.</p>
 
-<p>Quand vous posez une pierre, tout groupe ennemi privé de liberté est retiré
-avant que votre propre pierre ne soit considérée. C'est pourquoi on peut
-combler sa dernière liberté pour prendre.</p>
+<p>Lorsqu'une pierre est posée, les groupes adverses qui n'ont plus de liberté sont retirés avant de vérifier les libertés du groupe nouvellement formé. Il est donc possible de jouer sur la dernière liberté d'un groupe adverse pour le capturer.</p>
 
 <h3>Le choix des règles</h3>
 
-<p>Avant de poser la première pierre, on vous fait choisir sous quelles règles jouer :
-<b>chinoises (OGS)</b> ou <b>Tromp-Taylor</b>. La réponse est enregistrée comme
-faisant partie de la partie : une partie sauvegardée se rejoue donc avec les
-règles sous lesquelles elle a été jouée, et le moteur externe en tient compte lui aussi.</p>
+<p>Avant de poser la première pierre, vous choisissez les règles sous lesquelles jouer : <b>chinoises (OGS)</b> ou <b>Néo-zélandaises (Tromp-Taylor)</b>. Ce choix fait partie intégrante de la partie : une partie sauvegardée est rejouée avec les règles sous lesquelles elle a été jouée, et le moteur externe en tient également compte.</p>
 
-<p>Les deux règles ne diffèrent sur un seul point, le suicide, décrit ci-dessous.</p>
+<p>Ces deux systèmes utilisent le même mode de comptage par <b>aire</b>. La principale différence concerne le <b>suicide</b>, décrit ci-dessous.</p>
 
-<p>« Chinoises (OGS) » plutôt que « chinoises » tout court : les règles chinoises
-de tournoi tranchent les répétitions autrement.</p>
+<p>La mention <b>« chinoises (OGS) »</b>, plutôt que simplement « chinoises », précise que le jeu suit la définition des règles chinoises utilisée par OGS, notamment pour les règles de répétition.</p>
 
 <h3>Le suicide</h3>
+<img class='piece-icon' src='{GAME}/res/flags/China.png'>
+<p>Sous les règles <b>chinoises (OGS)</b>, il est interdit de poser une pierre si, après le coup et après les éventuelles captures, son propre groupe n'a plus aucune liberté. Il est donc interdit de jouer dans un œil qui ne permet aucune capture. En revanche, un coup qui semble suicidaire est légal s'il capture au préalable un ou plusieurs groupes adverses et donne ainsi des libertés au groupe joué.</p>
+<img class='piece-icon' src='{GAME}/res/flags/New_Zealand.png'>
+<p>Sous les règles <b>Néo-zélandaises (Tromp-Taylor)</b>, le suicide est autorisé : une pierre peut être jouée même si elle ne dispose d'aucune liberté après le coup. Si elle rejoint un groupe qui se retrouve lui aussi sans liberté, <i>l'ensemble du groupe est retiré du plateau</i>. Ces pierres sont alors comptées comme des prisonniers pour l'adversaire. Le suicide est rarement avantageux, mais peut parfois permettre de sortir d'une situation de répétition, de terminer rapidement une séquence ou de jouer un dernier coup lorsque le temps est compté.</p>
 
-<p>Sous les règles <b>chinoises (OGS)</b>, vous ne pouvez pas poser une pierre
-qui laisserait son propre groupe sans liberté, sauf si le coup capture. Jouer
-dans un œil d'une seule intersection de votre couleur n'est donc pas un coup
-légal pour vous, alors qu'il peut fort bien l'être pour votre adversaire.</p>
+<h3>Le ko et les répétitions</h3>
 
-<p>Sous <b>Tromp-Taylor</b>, ce même coup est légal lorsqu'il retire <i>plus
-d'une</i> pierre du plateau : votre nouvelle pierre et le groupe qu'elle rejoint
-partent ensemble, et comptent comme prisonniers pour votre adversaire. Combler
-sa dernière liberté avec une pierre isolée reste interdit dans les deux cas.
-Le suicide est rarement utile, mais c'est parfois le moyen le plus économique
-de clore un ko ou de combler son propre territoire quand le temps presse.</p>
+<p>Il est interdit de jouer un coup qui recrée une position déjà rencontrée dans la partie. Le cas le plus courant est le <b>ko</b> : après la capture d'une pierre, l'adversaire ne peut pas reprendre immédiatement la même position et doit jouer ailleurs avant de revenir.</p>
 
-<h3>Le ko</h3>
-
-<p>On ne peut pas jouer un coup qui recrée une position déjà rencontrée dans
-la partie. En pratique cela se manifeste par le <b>ko</b> : après la capture
-d'une pierre, l'adversaire ne peut pas reprendre immédiatement et doit jouer
-ailleurs d'abord. La règle plus large — le <i>superko positionnel</i> — couvre
-aussi les répétitions plus rares que le ko simple ne désigne pas. Les deux jeux
-de règles l'emploient : le ko se comporte donc de la même façon quel que soit
-votre choix.</p>
+<p>La règle plus générale du <i>superko positionnel</i> interdit également les répétitions plus complexes qui ne correspondent pas au ko simple. Les deux systèmes de règles utilisent cette règle : le ko et les répétitions se comportent donc de la même manière quel que soit le choix effectué.</p>
 
 <h3>Score</h3>
 
-<p>La barre au-dessus du goban indique, à côté de chaque couleur, le nombre de
-prisonniers <b>capturés</b> jusqu'ici, et entre les deux le
-komi (handicap pour celui qui a joué en premier). Les captures sont un indicateur tant que la partie dure et servira à calculer le score final en tenant des territoires conquis.</p>
+<p>Les deux systèmes utilisent le <b>comptage par aire</b>. Le score final d'une couleur est égal au nombre de ses pierres encore présentes sur le plateau, augmenté du nombre d'intersections vides appartenant exclusivement à son territoire.</p>
 
-<p>La partie s'arrêtent dès que les deux joueurs ont passé leur tour, le
-score final s'affiche aux mêmes emplacements, et le milieu s'affiche l'écart.</p>
+<p>Une région vide qui n'est atteinte que par une seule couleur compte pour cette couleur. Une région vide qui est atteinte par les deux couleurs est <b>neutre</b> et ne compte pour personne.</p>
+
+<p>Les <b>prisonniers capturés</b> ne sont pas ajoutés au score : leur rôle dans le comptage par aire est indirect, puisqu'ils ont été retirés du plateau. Les prisonniers affichés pendant la partie constituent donc principalement un indicateur du déroulement du jeu.</p>
+
+<p>Blanc reçoit un <b>komi</b> pour compenser le fait de jouer en second : <b>7,5 points</b> sur un goban 19x19, <b>6,5 points</b> sur 13x13 et <b>5,5 points</b> sur 9x9. Le demi-point rend impossible une égalité parfaite.</p>
+
+<p>Contrairement au comptage japonais, jouer une pierre dans son propre territoire est généralement <b>neutre</b> avec le comptage par aire : la pierre ajoute un point, mais occupe une intersection qui ne peut alors plus compter comme territoire. En revanche, jouer inutilement dans son propre territoire peut rester défavorable dans certaines situations.</p>
 
 <h3>Fin de partie et comptage</h3>
 
-<p>Les deux jeux de règles comptent par <b>aire</b> : le décompte est donc le
-même dans les deux cas. Votre score est le nombre de vos pierres sur le plateau
-plus le nombre d'intersections vides que seule votre couleur atteint. Une région
-vide bordée par les deux couleurs est neutre et ne compte pour personne. Les
-prisonniers n'entrent pas dans le score — au comptage d'aire ils ne comptent que
-par les pierres qu'ils ont retirées.</p>
+<p>La partie se termine lorsque les deux joueurs ont passé consécutivement. Le score final est alors calculé à partir de la position présente sur le plateau.</p>
 
-<p>Blanc ajoute le <b>komi</b> pour compenser le fait de jouer en second — 7,5
-points sur un goban 19x19, 6,5 en 13x13, 5,5 en 9x9. Le demi-point rend le match
-nul impossible.</p>
+<p>Une pierre ou un groupe que vous considérez comme mort mais qui est toujours présent sur le plateau <b>compte encore comme une pierre vivante</b> pour son propriétaire. Si nécessaire, continuez donc à jouer pour capturer les groupes morts avant de passer.</p>
 
-<p>Le plateau est compté tel quel. Les pierres que vous jugez mortes mais que vous n'avez pas capturées
-comptent encore pour votre adversaire — jouez donc la position jusqu'au bout
-avant de passer.</p>
+<p>La barre de score affiche, pour chaque couleur, le nombre de prisonniers capturés pendant la partie. Le komi est affiché entre les deux scores et, après la fin de la partie, l'écart final est affiché au même emplacement.</p>
+

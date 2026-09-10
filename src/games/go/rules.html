@@ -1,79 +1,72 @@
-<p>Go (also weiqi, baduk or igo) is played on the intersections of a grid. Black
-plays first. On your turn you either place one stone on any empty intersection,
-or pass.</p>
+<style>
+	.side {
+		float: right;
+		max-width: 100%;
+	}
+    .piece-icon {
+        width: 70px;
+        height: auto;
+        float: left;
+        margin-right: 10px;
+    }
+	@media screen and (max-width: 520px) {
+		.side {
+			float: none;
+			display: block;
+			max-width: 100%;
+			margin-right: auto;
+			margin-left: auto;
+		}		
+	}
+	
+	h1,h2,h3,h4 {
+		clear: both;
+	}
+</style>
+<h2>Go</h2>
+<p>Go (also known as <i>weiqi</i>, <i>baduk</i> or <i>igo</i>) is played on the intersections of a grid. Black plays first. On your turn, you either place one stone on an empty intersection or pass.</p>
 
 <h3>Groups and capture</h3>
 
-<p>Stones of the same colour that touch along a line — not a diagonal — form a
-group. The empty intersections next to a group are its <b>liberties</b>. A group
-with no liberty left is captured and removed from the board, all of it at once.</p>
+<p>Stones of the same colour that are connected along a line — but not diagonally — form a <b>group</b>. The empty intersections directly adjacent to a group are its <b>liberties</b>. When a group has no liberties left, it is captured: all of its stones are removed from the board at once.</p>
 
-<p>Captures are resolved in the opponent's favour first: when you place a stone,
-any enemy group left without a liberty is taken off before your own stone is
-checked. This is why you may fill your last liberty when doing so captures.</p>
+<p>When you place a stone, any opposing group that has no liberties is removed before the liberties of your newly formed group are checked. This is why you may play on your own last liberty when the move captures an opposing group.</p>
 
 <h3>Choosing the rules</h3>
 
-<p>Before the first stone, the board asks which rule set to play:
-<b>Chinese (OGS)</b> or <b>Tromp-Taylor</b>. The answer is recorded as part of
-the game, so a saved game replays under the rules it was played under, and the
-engine is told about it too.</p>
+<p>Before the first stone is played, you choose which rule set to use: <b>Chinese (OGS)</b> or <b>New Zealand (Tromp-Taylor)</b>. This choice is recorded as part of the game, so a saved game is replayed under the rules it was played with, and the external engine is informed of the same choice.</p>
 
-<p>The two agree on almost everything: area scoring, positional superko, no
-tax on eyes in seki. They differ on one point, self-capture, described below.
-Anything the rest of this page says holds under both unless it says otherwise.</p>
+<p>The two rule sets use the same <b>area scoring</b> and the same <i>positional superko</i> rule. They differ mainly in how they treat <b>self-capture</b>, described below.</p>
 
-<p>&#8220;Chinese (OGS)&#8221; rather than plain &#8220;Chinese&#8221;: the
-Chinese rules used in tournaments settle repetitions differently. What is played
-here is the reading used by the OGS and KGS servers, and it is the one the
-engine is asked to follow.</p>
+<p><b>Chinese (OGS)</b>, rather than simply &ldquo;Chinese&rdquo;, specifies the interpretation used here. The rules used in Chinese tournaments have a different formulation of the repetition rule. This game follows the rule set used by OGS and KGS, and the external engine is instructed to follow it as well.</p>
 
-<h3>Suicide</h3>
+<h3>Self-capture (suicide)</h3>
 
-<p>Under <b>Chinese (OGS)</b> you may not place a stone that would leave its own
-group without a liberty, unless the same move captures. A single-point eye of
-your own colour is therefore not a legal move for you, while it may well be one
-for your opponent.</p>
+<p>Under <b>Chinese (OGS)</b>, you may not place a stone if, after any captures, the group it belongs to has no liberties. A move that captures one or more opposing groups is allowed, even if the newly placed stone would otherwise have no liberty, because the captures are removed first.</p>
 
-<p>Under <b>Tromp-Taylor</b> the same move is legal when it takes <i>more than
-one</i> stone off the board — your new stone and the group it joins go together,
-and count as prisoners for your opponent. Filling your own last liberty with a
-lone stone stays illegal in both. Self-capture is rarely useful, but it is
-occasionally the cheapest way to end a ko fight or to fill your own territory
-under time pressure.</p>
+<p>Under <b>New Zealand (Tromp-Taylor)</b>, self-capture is allowed. A stone may therefore be played even when it has no liberty after the move. If it joins a group that also has no liberties, <i>the entire group is removed from the board</i>, and those stones count as prisoners for the opponent. Self-capture is rarely advantageous, but it can occasionally help resolve a repetition, finish a sequence quickly, or play a final move when time is running short.</p>
 
-<h3>Ko</h3>
+<h3>Ko and repetition</h3>
 
-<p>You may not play a move that recreates a position the game has already been
-in. In practice this shows up as the <b>ko</b>: after one stone is captured, the
-opponent cannot take straight back, and must play elsewhere first. The wider
-rule — called <i>positional superko</i> — also covers the rarer repetitions that
-the simple ko does not. Both rule sets use it, so the ko behaves the same way
-whichever you chose.</p>
+<p>You may not play a move that recreates a position that has already occurred in the game. The most familiar example is the <b>ko</b>: after capturing a stone, the opponent cannot immediately recapture in a way that recreates the previous position, and must play elsewhere first.</p>
 
-<h3>Reading the bar</h3>
+<p>The broader rule, called <i>positional superko</i>, also prevents less obvious repetitions that are not covered by the simple ko rule. Both rule sets use it, so ko and repetition behave the same way whichever rule set you choose.</p>
 
-<p>The bar above the board shows, beside each colour, the number of stones that
-colour has <b>captured</b> so far, and between them the komi. Captures are not
-the score — under area rules they only matter through the stones they remove —
-but they are the one number that is a fact while the game is running.</p>
+<h3>Reading the score bar</h3>
 
-<p>Once both players have passed, the same two places show the final score, and
-the middle names the winner and by how much.</p>
+<p>The bar above the board shows, beside each colour, the number of stones that colour has <b>captured</b> so far. The komi is shown between the two sides. Captures are not part of the final score under area scoring; they are nevertheless useful during the game as an indication of how many opposing stones have been removed.</p>
+
+<p>Once the game is over, the same two positions display the final scores, with the winner and the margin shown in the middle.</p>
 
 <h3>Ending the game and scoring</h3>
 
-<p>The game ends when both players pass in succession. Both rule sets count by
-<b>area</b>, so the counting is the same either way: your score is the number of
-your stones on the board plus the number of empty intersections that only your
-colour reaches. An empty region touching both colours is neutral and counts for
-nobody. Prisoners do not enter the score — under area rules they matter only
-through the stones they removed.</p>
+<p>The game ends when both players pass consecutively. Both rule sets use <b>area scoring</b>, so the final counting is the same in both cases: your score is the number of your stones remaining on the board plus the number of empty intersections belonging exclusively to your territory.</p>
 
-<p>White adds <b>komi</b> to compensate for playing second — 7.5 points on a
-19x19 board, 6.5 on 13x13, 5.5 on 9x9. The half point makes a draw impossible.</p>
+<p>An empty region that is reached by both colours is <b>neutral</b> and counts for neither player. Captured prisoners are not added to the score under area scoring; their effect is indirect, through the stones they have removed from the board.</p>
 
-<p>One consequence is worth knowing before you pass. There is no separate step
-for agreeing which stones are dead: the board is counted exactly as it stands.
-Stones you consider dead but have not captured still count for your opponent, so
-play the position out before passing.</p>
+<p>White receives <b>komi</b> to compensate for playing second: 7.5 points on a 19x19 board, 6.5 on 13x13, and 5.5 on 9x9. The half point makes a draw impossible.</p>
+
+<p>One consequence is important before you pass. There is no separate step in which the players agree which stones are dead: the board is counted exactly as it stands. Stones that you consider dead but have not captured still count as stones for their owner, so play the position out and capture them before passing.</p>
+
+<p>With area scoring, playing a stone inside your own territory is generally <b>neutral</b>: the stone itself adds one point, but it occupies an intersection that would otherwise have counted as territory. This differs from Japanese territory scoring, where filling your own territory generally loses a point.</p>
+
