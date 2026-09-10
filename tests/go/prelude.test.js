@@ -103,35 +103,48 @@ manifest.forEach((entry) => {
 		dialog.rules.map((r) => r.rules), ["chinese-ogs", "tromp-taylor"]);
 	// "Chinese (OGS)" and not "Chinese": KataGo's `chinese` preset uses the
 	// SIMPLE ko rule, which this module does not implement. The label has to
-	// say what is actually being played.
+	// say what is actually being played, for the day it is shown.
 	t.check("the Chinese one says which Chinese", /OGS/.test(dialog.labels[0]), true);
 
 	/*
-	 * A flag beside each label, and BESIDE rather than INSTEAD OF.
+	 * A flag INSTEAD OF each label.
 	 *
-	 * The flag is what the eye finds first, which is the point of having it.
-	 * But it states nothing precisely: New Zealand is here because its rules
-	 * allow self-capture, as Tromp-Taylor does - the very thing that separates
-	 * the two choices - yet the two are not the same rule set (KataGo tells
-	 * them apart by their ko rule) and John Tromp is Dutch. China stands for
-	 * the OGS reading, not for Chinese tournament practice, which is the whole
-	 * point of the "-ogs" suffix. The label carries that precision; without it
-	 * two pictures are unreadable to a screen reader and to anyone who does
-	 * not already know the convention.
+	 * Jocly has no dictionary, so every word written into a manifest or a view
+	 * is a word nobody will ever translate. A picture reads in every language.
+	 * The text therefore leaves the JS for the rules page, which already
+	 * exists per language and where the same flag stands beside the rule it
+	 * selects - and where the nuances live that a button never had room for:
+	 * New Zealand is on that button because its rules allow self-capture as
+	 * Tromp-Taylor does, yet the two are not the same rule set (KataGo tells
+	 * them apart by their ko rule), and China stands for the OGS reading
+	 * rather than Chinese tournament practice.
+	 *
+	 * The labels stay in the manifest as a FALLBACK - a missing flag would
+	 * otherwise leave a blank button, one you have to click to find out what
+	 * it does - and because their count is what fixes the number of buttons.
 	 */
 	t.check("each choice carries a flag", dialog.flags.length, dialog.labels.length);
-	t.check("and keeps its label",
+	t.check("and keeps a label to fall back on",
 		dialog.labels.filter((l) => !String(l).trim()), []);
-	// Chemins relatifs au module : la vue les prefixe de fullPath, comme tout
-	// ce que le module charge depuis res/.
+	// Module-relative, like everything a module loads from res/: the view
+	// prefixes them with mViewOptions.fullPath.
 	t.check("the flags are module-relative paths",
 		dialog.flags.filter((f) => !/^res\/flags\/[A-Za-z_]+\.png$/.test(f)), []);
-	// Et les fichiers existent : un chemin qui ne mene nulle part ne fait pas
-	// echouer le build, il livre un bouton sans drapeau.
+	// And the files are there. A path that leads nowhere does not fail the
+	// build - it ships a blank button.
 	dialog.flags.forEach((f) => {
-		t.check("the file " + f + " is there",
-			fs.existsSync(path.join(GO, f)), true);
+		t.check("the file " + f + " is there", fs.existsSync(path.join(GO, f)), true);
 	});
+	// La vue doit s'en servir, sinon le manifeste n'est qu'une decoration --
+	// et retomber sur le libelle quand un drapeau manque : un bouton vide est
+	// pire qu'un bouton non traduit.
+	{
+		const view = fs.readFileSync(path.join(GO, "prelude-view.js"), "utf8");
+		t.check("the view draws them",
+			/dialog\.flags/.test(view) && /drawImage\(/.test(view), true);
+		t.check("and falls back to the label when a flag is missing",
+			/if\(!flag\)[\s\S]{0,700}fillText\(label/.test(view), true);
+	}
 }
 
 /* ---------------------------------------------------------- the choice */

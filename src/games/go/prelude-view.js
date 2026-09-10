@@ -38,22 +38,27 @@
 		var labels = dialog.labels;
 		if(!labels || !labels.length) return;
 		/*
-		 * Un drapeau par choix, quand le manifeste en declare.
+		 * Un drapeau par choix, quand le manifeste en declare -- ET A LA PLACE
+		 * DU LIBELLE, pas a cote.
 		 *
-		 * IL ACCOMPAGNE LE LIBELLE, il ne le remplace pas, et ce n'est pas
-		 * une precaution de facade : le drapeau se reconnait d'un coup d'oeil
-		 * -- c'est ce qu'on lui demande -- mais il ne DIT rien de precis. La
+		 * POURQUOI : jocly n'a pas de dictionnaire, donc tout mot ecrit dans
+		 * un manifeste ou dans une vue est un mot que personne ne traduira
+		 * jamais. Une image, elle, se lit dans toutes les langues. Le texte
+		 * quitte donc le JS pour la page de regles, qui existe deja par
+		 * langue (rules.html, rules-fr.html) et ou le meme drapeau figure a
+		 * cote du point de regle qu'il gouverne -- c'est la que le joueur
+		 * apprend ce que « Chine » veut dire ici.
+		 *
+		 * Ce que le drapeau ne peut pas porter reste donc dans la page : la
 		 * Nouvelle-Zelande est ici parce que ses regles autorisent le suicide,
 		 * comme Tromp-Taylor, mais les deux ne sont pas le meme jeu de regles
-		 * (KataGo les distingue : ko situationnel d'un cote, positionnel de
-		 * l'autre) et John Tromp est neerlandais. De meme, la Chine designe
-		 * ici la lecture d'OGS, pas la pratique des tournois chinois -- c'est
-		 * tout le sens du suffixe « -ogs ». Le libelle porte cette exactitude ;
-		 * le drapeau porte la reconnaissance.
+		 * -- KataGo les distingue par leur ko -- et John Tromp est
+		 * neerlandais ; la Chine designe la lecture d'OGS et non la pratique
+		 * des tournois chinois. Un bouton n'a jamais eu la place de dire ca.
 		 *
-		 * Le meme raisonnement en sens inverse : sans le libelle, deux images
-		 * ne se lisent ni par un lecteur d'ecran, ni par qui ne connait pas la
-		 * convention.
+		 * Le libelle reste dans le manifeste et sert de SECOURS : un drapeau
+		 * absent ou introuvable laisserait sinon un bouton vide, sur lequel il
+		 * faut cliquer pour savoir ce qu'il fait.
 		 */
 		var flags = dialog.flags || [];
 		var fullPath = aGame.mViewOptions.fullPath;
@@ -101,49 +106,45 @@
 						ctx.rect(-bw / 2, -bh / 2, bw, bh);
 						ctx.fill();
 
-						// Le drapeau a gauche, le libelle a droite de la place
-						// qui reste. Sans drapeau, le libelle occupe tout et
-						// se centre, comme avant.
-						var flagW = flag ? bh * 1.25 : 0;
-						var textLeft = -bw / 2 + flagW + (flag ? bh * 0.30 : 0);
-						var textW = bw / 2 - textLeft - bh * 0.18;
-
-						ctx.fillStyle = "#202020";
-						// Measured, not guessed: "Chinese (OGS)" and
-						// "Tromp-Taylor" are not the same length, and a size
-						// that fits the shorter clips the longer.
-						var fontSize = Math.round(bh * 0.42);
-						do {
-							ctx.font = "bold " + fontSize + "px sans-serif";
-							if(ctx.measureText(label).width <= textW * 0.96) break;
-							fontSize--;
-						} while(fontSize > 6);
-						ctx.textAlign = flag ? "left" : "center";
-						ctx.textBaseline = "middle";
-						ctx.fillText(label, flag ? textLeft : 0, 0);
-
-						if(!flag) return;
+						if(!flag) {
+							// Secours : pas de drapeau declare, on ecrit le
+							// libelle plutot que de laisser un bouton muet.
+							ctx.fillStyle = "#202020";
+							var fontSize = Math.round(bh * 0.42);
+							do {
+								ctx.font = "bold " + fontSize + "px sans-serif";
+								if(ctx.measureText(label).width <= bw * 0.88) break;
+								fontSize--;
+							} while(fontSize > 6);
+							ctx.textAlign = "center";
+							ctx.textBaseline = "middle";
+							ctx.fillText(label, 0, 0);
+							return;
+						}
 						/*
 						 * L'image arrive apres coup, et le gadget a deja
 						 * dessine quand elle arrive : le rappel peint dans le
 						 * MEME contexte, comme le fait go-xd-view.js pour la
 						 * texture du plateau. Le bouton est donc brievement
-						 * sans drapeau plutot que brievement faux -- et le
-						 * libelle, lui, est la des le premier trait.
+						 * gris plutot que brievement faux.
 						 */
 						this.getResource("image|" + fullPath + "/" + flag, function(img) {
-							// Proportions respectees : un drapeau etire est
-							// un autre drapeau, et certains ne se distinguent
-							// que par leur rapport (Suisse, Danemark...).
-							var h = bh * 0.62, w = h * (img.width / img.height);
-							if(w > flagW) { w = flagW; h = w * (img.height / img.width); }
-							var x = -bw / 2 + (flagW - w) / 2;
-							ctx.drawImage(img, x, -h / 2, w, h);
-							// Un liseré : beaucoup de drapeaux ont du blanc au
+							/*
+							 * Au plus grand, dans le bouton, SANS DEFORMER :
+							 * un drapeau etire est un autre drapeau, et
+							 * certains ne se distinguent que par leur rapport.
+							 * Le bouton n'ayant plus de texte, le drapeau
+							 * prend toute la place moins une marge.
+							 */
+							var maxW = bw * 0.82, maxH = bh * 0.74;
+							var w = maxW, h = w * (img.height / img.width);
+							if(h > maxH) { h = maxH; w = h * (img.width / img.height); }
+							ctx.drawImage(img, -w / 2, -h / 2, w, h);
+							// Un lisere : beaucoup de drapeaux ont du blanc au
 							// bord et se fondraient dans le bouton.
 							ctx.strokeStyle = "rgba(0, 0, 0, 0.45)";
 							ctx.lineWidth = Math.max(1, bh * 0.02);
-							ctx.strokeRect(x, -h / 2, w, h);
+							ctx.strokeRect(-w / 2, -h / 2, w, h);
 						});
 					},
 				},

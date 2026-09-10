@@ -317,11 +317,26 @@ exports.games = (function() {
 	var config_model_prelude_draughts8 = [
 		{
 			"panelWidth": 2,
+			/*
+			 * Les libelles ne sont plus affiches : le bouton porte le drapeau
+			 * correspondant (voir prelude-view.js), et c'est la page de regles,
+			 * qui existe par langue, qui dit ce que chacun designe. Ils restent
+			 * ici comme secours si un drapeau venait a manquer, et parce que
+			 * leur nombre fixe le nombre de boutons.
+			 */
 			"labels": [
 				"English",
 				"Brazilian",
 				"Spanish",
 				"German"
+			],
+			// Meme ordre que les libelles et que les jeux de regles ci-dessous :
+			// les trois tableaux sont lus par le meme indice.
+			"flags": [
+				"res/flags/England.png",
+				"res/flags/Brazil.png",
+				"res/flags/Spain.png",
+				"res/flags/Germany.png"
 			],
 			"persistent": true,
 			"rules": [
