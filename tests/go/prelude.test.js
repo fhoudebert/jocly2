@@ -105,6 +105,33 @@ manifest.forEach((entry) => {
 	// SIMPLE ko rule, which this module does not implement. The label has to
 	// say what is actually being played.
 	t.check("the Chinese one says which Chinese", /OGS/.test(dialog.labels[0]), true);
+
+	/*
+	 * A flag beside each label, and BESIDE rather than INSTEAD OF.
+	 *
+	 * The flag is what the eye finds first, which is the point of having it.
+	 * But it states nothing precisely: New Zealand is here because its rules
+	 * allow self-capture, as Tromp-Taylor does - the very thing that separates
+	 * the two choices - yet the two are not the same rule set (KataGo tells
+	 * them apart by their ko rule) and John Tromp is Dutch. China stands for
+	 * the OGS reading, not for Chinese tournament practice, which is the whole
+	 * point of the "-ogs" suffix. The label carries that precision; without it
+	 * two pictures are unreadable to a screen reader and to anyone who does
+	 * not already know the convention.
+	 */
+	t.check("each choice carries a flag", dialog.flags.length, dialog.labels.length);
+	t.check("and keeps its label",
+		dialog.labels.filter((l) => !String(l).trim()), []);
+	// Chemins relatifs au module : la vue les prefixe de fullPath, comme tout
+	// ce que le module charge depuis res/.
+	t.check("the flags are module-relative paths",
+		dialog.flags.filter((f) => !/^res\/flags\/[A-Za-z_]+\.png$/.test(f)), []);
+	// Et les fichiers existent : un chemin qui ne mene nulle part ne fait pas
+	// echouer le build, il livre un bouton sans drapeau.
+	dialog.flags.forEach((f) => {
+		t.check("the file " + f + " is there",
+			fs.existsSync(path.join(GO, f)), true);
+	});
 }
 
 /* ---------------------------------------------------------- the choice */

@@ -470,8 +470,28 @@ manifest.forEach((entry) => {
 		/self-capture|suicide/i.test(text), true);
 	// And says the choice is recorded rather than a passing setting: it is a
 	// move, it is saved with the game, and the engine is told about it.
+	// Le choix appartient a la partie : il est joue comme un coup, sauvegarde
+	// avec elle, et transmis au moteur. Ce n'est pas un reglage d'affichage,
+	// et c'est ce que la page doit dire -- peu importe la tournure.
 	t.check(page + " says the choice belongs to the game",
-		/recorded|enregistr/i.test(text), true);
+		/recorded|enregistr|partie int\u00e9grante|part of the game/i.test(text), true);
+
+	/*
+	 * ET LE DRAPEAU DU BOUTON, a cote du point de regle qu'il gouverne.
+	 *
+	 * C'est le seul endroit ou le joueur peut faire le lien : le panneau
+	 * montre deux drapeaux et ne dit rien de plus, la page de regles dit tout
+	 * et ne montrait rien. Une page qui n'aurait que l'un des deux laisserait
+	 * la moitie du lien a deviner.
+	 */
+	["China", "New_Zealand"].forEach((flag) => {
+		t.check(page + " carries the " + flag + " flag",
+			text.indexOf("res/flags/" + flag + ".png") > 0, true);
+	});
+	// Il vit dans le module, pas dans la page : le chemin passe par {GAME},
+	// que l'hote remplace, comme toutes les images des pages de regles.
+	t.check(page + " asks the host for them",
+		/\{GAME\}\/res\/flags\//.test(text), true);
 });
 
 /* ------------------------------------------------------------ the skins */
