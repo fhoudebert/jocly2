@@ -98,6 +98,22 @@ exports.games = (function() {
 				"Tromp-Taylor"
 			],
 			"persistent": true,
+			/*
+			 * Un drapeau par choix, a cote du libelle. Chemins relatifs au
+			 * module, comme tout ce qui est dans res/ -- la vue les prefixe
+			 * de mViewOptions.fullPath.
+			 *
+			 * Ce sont des MNEMONIQUES, pas des definitions. La Nouvelle-Zelande
+			 * parce que ses regles autorisent le suicide comme Tromp-Taylor,
+			 * qui est justement ce qui separe les deux choix ici ; la Chine
+			 * pour la lecture d'OGS, qui n'est pas la pratique des tournois
+			 * chinois. Le libelle reste a cote pour dire ce que le drapeau ne
+			 * dit pas.
+			 */
+			"flags": [
+				"res/flags/China.png",
+				"res/flags/New_Zealand.png"
+			],
 			"rules": [
 				{ "rules": "chinese-ogs" },
 				{ "rules": "tromp-taylor" }
