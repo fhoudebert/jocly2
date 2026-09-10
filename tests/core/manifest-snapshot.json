@@ -1,6 +1,6 @@
 {
-	"bytes": 369980,
-	"digest": "a0cd8f4dd66104e1",
+	"bytes": 370071,
+	"digest": "3c2039b0e5735594",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -192,7 +192,7 @@
 		},
 		{
 			"name": "reformed-courier-chess",
-			"digest": "973add7376265355"
+			"digest": "9a6cfad8227aca1f"
 		},
 		{
 			"name": "tutti-frutti-chess",
@@ -240,7 +240,7 @@
 		},
 		{
 			"name": "timurid-chess",
-			"digest": "9071220a43360483"
+			"digest": "be0101e9eacb4436"
 		},
 		{
 			"name": "zanzibar-s-chess",

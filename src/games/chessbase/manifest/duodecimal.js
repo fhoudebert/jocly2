@@ -178,10 +178,13 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "Reformed Courierspiel",
+			    "title": {
+				    "en": "Reformed Courierspiel",
+				    "fr": "Échecs Courier Réformé"
+			    },
 				"summary": {
-					"en": "Clément Bégnis, 2011",
-					"fr": "Clément Bégnis, 2011"
+					"en": "Modern version of courier chess (12x8)",
+					"fr": "Échecs Courier modernisé (12x8)"
 				},
 				"rules": {
 					"en": "res/rules/reformed-courier/reformed-courier-rules.html",
@@ -523,8 +526,10 @@ exports.games = {
  			"config": {
  				"status": true,
  				"model": {
- 					"title-en": "Timurid",
-
+				    "title": {
+					    "en": "Timurid II",
+					    "fr": "Timourides II"
+				    },
  					"summary": {
  						"en": "Tamerlan II on 12x10 with fairy pieces",
  						"fr": "Tamerlan II en 12x10 avec des pièces féeriques"
