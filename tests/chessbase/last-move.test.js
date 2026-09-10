@@ -274,8 +274,36 @@ t.check("et xdInit cree le gadget",
 	const gameJs = fs.readFileSync(path.join(ROOT, "src", "core", "jocly.game.js"), "utf8");
 	const embed = fs.readFileSync(path.join(ROOT, "src", "browser", "jocly.embed.js"), "utf8");
 
-	t.check("jocly.game.js lit la capacite du manifeste",
-		/mShowLastMove\s*=\s*this\.mViewOptions\.useShowLastMove/.test(gameJs), true);
+	/*
+	 * Eteinte par defaut, et c'est une decision, pas un oubli : une marque
+	 * permanente sur deux cases est un ajout visuel a des vues dont
+	 * l'apparence est reglee depuis longtemps. La CAPACITE, elle, reste lue
+	 * dans le manifeste -- c'est ce qui fait apparaitre la case a cocher, et
+	 * les deux sont independants.
+	 */
+	t.check("la marque est eteinte au demarrage",
+		/mShowLastMove\s*=\s*false/.test(gameJs), true);
+	t.check("mais la capacite reste declaree par le jeu",
+		/useShowLastMove/.test(core), true);
+	// Un jeu peut renverser ce defaut comme pour les autres options.
+	t.check("et un jeu peut l'allumer par defaultOptions",
+		/"mShowLastMove":\s*"lastmove"/.test(gameJs), true);
+
+	/*
+	 * Eteinte, mais ALLUMABLE, et c'est le point : l'etat de depart est pose
+	 * dans JocGame.prototype.Init, qui tourne une fois a la creation de la
+	 * partie. setViewOptions reconstruit la vue (GameDestroyView,
+	 * GameInitView, DisplayBoard) sans repasser par Init -- sinon un
+	 * `false` ecrit la aurait rallume... eteint la case a chaque
+	 * reconstruction, et la case a cocher n'aurait jamais tenu. C'est deja
+	 * ainsi que mShowMoves fonctionne ; on verifie que le defaut n'a pas ete
+	 * pose ailleurs, dans un chemin rejoue a chaque affichage.
+	 */
+	const initBlock = /JocGame\.prototype\.Init\s*=\s*function[\s\S]*?\n\}/.exec(gameJs)[0];
+	t.check("le defaut est pose a la creation de la partie, pas a chaque vue",
+		/mShowLastMove\s*=\s*false/.test(initBlock), true);
+	t.check("et nulle part ailleurs",
+		(gameJs.match(/mShowLastMove\s*=\s*false/g) || []).length, 1);
 	t.check("setViewOptions la recoit",
 		/"mShowLastMove":\s*"showLastMove"/.test(core), true);
 	t.check("getViewOptions la renvoie",

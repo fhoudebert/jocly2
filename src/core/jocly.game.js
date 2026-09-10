@@ -105,11 +105,21 @@ JocGame.prototype.Init = function(aOptions) {
 		this.mSkin = this.mViewOptions.skins[0].name; // TODO check if 3D not supported
 		this.mNotation=false;
 		this.mShowMoves=this.mViewOptions.useShowMoves;
-		// Allumee par defaut quand la vue la propose : la marque repond a une
-		// question que le joueur se pose deja, et une option utile qu'il faut
-		// aller decouvrir ne sert personne. Elle suit ensuite le meme circuit
-		// que mShowMoves, a l'octet pres.
-		this.mShowLastMove=this.mViewOptions.useShowLastMove;
+		/*
+		 * ETEINTE PAR DEFAUT, contrairement a mShowMoves juste au-dessus, qui
+		 * prend la valeur de sa capacite.
+		 *
+		 * Une marque permanente sur deux cases est un ajout visuel a des vues
+		 * dont l'apparence est reglee depuis longtemps, et certaines sont
+		 * chargees : la proposer sans l'imposer laisse le joueur decider, et
+		 * laisse le temps de la juger a l'ecran avant d'en faire un defaut.
+		 *
+		 * La CAPACITE reste lue depuis le manifeste ailleurs (getViewOptions
+		 * dans jocly.core.js) : c'est elle qui fait apparaitre la case a cocher,
+		 * et elle est independante de l'etat initial. Un jeu peut renverser ce
+		 * defaut par defaultOptions.lastmove, comme pour les autres options.
+		 */
+		this.mShowLastMove=false;
 		this.mSounds=!!this.mViewOptions.sounds;
 		this.mAutoComplete=false;
 
