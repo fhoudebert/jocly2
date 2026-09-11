@@ -1,4 +1,4 @@
-/*    Copyright 2017 Jocly
+/*    Copyright 2017-2026 Jocly
  *
  *    This program is free software: you can redistribute it and/or  modify
  *    it under the terms of the GNU Affero General Public License, version 3,
@@ -330,7 +330,6 @@ JocGame.prototype.DetachElement = function () {
 		if (!game.gamePreAttachProto)
 			reject(new Error("Game not attached"));
 		else {
-			// TODO
 			resolve();
 		}
 	});
