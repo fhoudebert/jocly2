@@ -180,7 +180,10 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "Chess",
+				"title": {
+					"en": "Chess",
+					"fr": "\u00c9checs FIDE"
+				},
 				"summary": {
 					"en":"Regular Orthodox Classic Western Chess",
 					"fr": "Les Échecs classiques (Orthodoxe)",
@@ -213,6 +216,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
@@ -310,6 +314,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 0.9,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
@@ -441,6 +446,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 0.9,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
@@ -567,6 +573,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
@@ -666,6 +673,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
@@ -767,6 +775,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
@@ -810,6 +819,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,

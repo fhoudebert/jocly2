@@ -28,6 +28,9 @@ Simple human vs computer: [Classic chess](https://fhoudebert.github.io/jocly/exa
 [Rococo](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=rococo),
 [Janggi](https://fhoudebert.github.io/jocly/examples/browser/control_fr.html?game=janggi),
 [Crazyhouse](https://fhoudebert.github.io/jocly/examples/browser/control_fr.html?game=crazyhouse)
+[Go 9x9](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=go9),
+[Patchanka](https://biscandine.fr/variantes/jocly2/examples/browser/control.html?game=patchanka-chess&level=expert)
+
 
 Or see and try [all available games](https://fhoudebert.github.io/jocly/examples/browser/multiple.html)
 
@@ -41,8 +44,8 @@ Building
 - install the *node.js* environment (using [nvm](https://github.com/creationix/nvm) is probably a good idea)
 - install *gulp*: `npm install -g gulp`
 - install [git](https://git-scm.com/downloads)
-- clone Jocly from *github*: `git clone https://github.com/aclap-dev/jocly.git`
-- enter the `jocly` directory
+- clone Jocly from *github*: `git clone https://github.com/fhoudebert/jocly2.git`
+- enter the `jocly2` directory
 - download required modules: `npm install`
 - build: `gulp build`
 - `dist/browser` contains the javascript library to build web applications, `dist/node` is the module to be used for node.js applications
@@ -57,7 +60,7 @@ Related projects:
 -----------------
 
 -play Jocly (Human or AI) via a web server with a mobile-friendly interface : [Mogichex](https://github.com/fhoudebert/mogichex) 
--play Jocly (Human or AI) via a web server with a desktop-friendly interface: [Joclymatch](https ://github.com/fhoudebert/joclymatch) 
+-play Jocly (Human or AI) via a web server with a desktop-friendly interface: [Joclymatch](https://github.com/fhoudebert/joclymatch) 
 -play Jocly against an opponent or a computer via a native client (Linux, Windows) : [Tabulon](https://biscandine.fr/variantes/tabulon/) 
 
 ## Credits
@@ -66,6 +69,7 @@ Related projects:
 The original project is no longer maintained; it lives on as **[jocly2](https://github.com/fhoudebert/jocly2)**.
 
 The Expert level uses [Fairy-Stockfish](https://github.com/fairy-stockfish/Fairy-Stockfish) by Fabian Fichter, derived from Stockfish. 
-The Champion level for draughts use [Scan](https://hjetten.home.xs4all.nl/scan/scan.html) maintained by Fabien Letouzey
+The Champion level for draughts use [Scan](https://hjetten.home.xs4all.nl/scan/scan.html) maintained by Fabien Letouzey  
+The Go levels use [KataGo](https://github.com/lightvector/KataGo) by David J. Wu, under the MIT licence. Copyright (c) 2019 David J. Wu. Neither the engine nor a neural network is shipped with Jocly; see `third-party/katago/README.md`.
 
 Game artwork under `chessbase/res` is **CC BY-SA 3.0**.

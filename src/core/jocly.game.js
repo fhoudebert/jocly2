@@ -1,4 +1,4 @@
-/*    Copyright 2017 Jocly
+/*    Copyright 2017-2026 Jocly
  *
  *    This program is free software: you can redistribute it and/or  modify
  *    it under the terms of the GNU Affero General Public License, version 3,
@@ -49,6 +49,15 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		global.JocUtil = ju.JocUtil;
 		global.JoclyUCT = r("./jocly.uct.js").JoclyUCT;
 		global.JoclyFairy = r("./jocly.fairy.js").JoclyFairy;
+		// Scan comme les deux autres. Sans cette ligne, StartMachine tombait
+		// sur `typeof JoclyScan != "undefined"` -> faux, et un niveau
+		// "ai": "scan" glissait SILENCIEUSEMENT vers l'alpha-beta par defaut :
+		// un coup etait joue, mais rien ne disait que ce n'etait pas Scan qui
+		// l'avait trouve. Charge, le module prend le meme chemin que les
+		// autres -- pas de Worker en node, donc repli annonce par
+		// mFairyFallback.
+		global.JoclyScan = r("./jocly.scan.js").JoclyScan;
+		global.JoclyKata = r("./jocly.kata.js").JoclyKata;
 	})();
 
 } else {
@@ -84,6 +93,32 @@ JocGame.MAX_VALUE = Math.pow(2,53);
 
 JocGame.prototype = {}
 
+/*
+ * Change le cote depuis lequel on regarde le plateau.
+ *
+ * LE SEUL CHEMIN AUTORISE POUR ECRIRE mViewAs, et il existe parce qu'un
+ * mauvais mViewAs ne provoque AUCUNE erreur : les vues comparent sa valeur
+ * (`this.mViewAs == 1`, `this.mViewAs * side < 0`), donc `undefined` ou une
+ * chaine ne font pas echouer l'affichage -- elles le retournent. Le plateau
+ * s'ouvre les blancs en haut, sans un mot dans la console, et le joueur n'a
+ * d'autre recours que de basculer vers l'autre camp puis de revenir.
+ *
+ * C'est ce qui arrivait a l'attachement quand les options de vue relues du
+ * stockage local ne portaient pas de `viewAs` -- ce qui est le cas courant,
+ * le panneau d'options n'en enregistrant pas. Voir jocly.embed.js.
+ *
+ * Une valeur inattendue est donc IGNOREE plutot qu'ecrite : mieux vaut garder
+ * l'orientation en cours que d'en prendre une qui n'existe pas.
+ */
+JocGame.prototype.SetViewAs = function(aPlayer) {
+	if(aPlayer !== JocGame.PLAYER_A && aPlayer !== JocGame.PLAYER_B)
+		return false;
+	this.mViewAs = aPlayer;
+	if(this.mOptions)
+		this.mOptions.viewAs = aPlayer;
+	return true;
+}
+
 JocGame.prototype.Init = function(aOptions) {
 	this.mWho = JocGame.PLAYER_A;
 	this.mViewAs = JocGame.PLAYER_A;
@@ -96,6 +131,21 @@ JocGame.prototype.Init = function(aOptions) {
 		this.mSkin = this.mViewOptions.skins[0].name; // TODO check if 3D not supported
 		this.mNotation=false;
 		this.mShowMoves=this.mViewOptions.useShowMoves;
+		/*
+		 * ETEINTE PAR DEFAUT, contrairement a mShowMoves juste au-dessus, qui
+		 * prend la valeur de sa capacite.
+		 *
+		 * Une marque permanente sur deux cases est un ajout visuel a des vues
+		 * dont l'apparence est reglee depuis longtemps, et certaines sont
+		 * chargees : la proposer sans l'imposer laisse le joueur decider, et
+		 * laisse le temps de la juger a l'ecran avant d'en faire un defaut.
+		 *
+		 * La CAPACITE reste lue depuis le manifeste ailleurs (getViewOptions
+		 * dans jocly.core.js) : c'est elle qui fait apparaitre la case a cocher,
+		 * et elle est independante de l'etat initial. Un jeu peut renverser ce
+		 * defaut par defaultOptions.lastmove, comme pour les autres options.
+		 */
+		this.mShowLastMove=false;
 		this.mSounds=!!this.mViewOptions.sounds;
 		this.mAutoComplete=false;
 
@@ -105,7 +155,7 @@ JocGame.prototype.Init = function(aOptions) {
 			this.mLoopMax = this.mOptions.loopMax;
 		this.mVisitedBoards = {};
 		if(typeof(this.mOptions.viewAs)!="undefined")
-			this.mViewAs = this.mOptions.viewAs;
+			this.SetViewAs(this.mOptions.viewAs);
 		else
 			this.mOptions.viewAs = this.mViewAs;
 	}
@@ -281,6 +331,7 @@ JocGame.prototype.AttachElement = function (element, options) {
                     "mNotation": "notation",
                     "mSounds": "sounds",
                     "mShowMoves": "moves",
+                    "mShowLastMove": "lastmove",
                     "mAutoComplete": "autocomplete"
                 }
 				for(var opt in optDefs)
@@ -305,7 +356,6 @@ JocGame.prototype.DetachElement = function () {
 		if (!game.gamePreAttachProto)
 			reject(new Error("Game not attached"));
 		else {
-			// TODO
 			resolve();
 		}
 	});
@@ -646,6 +696,14 @@ JocGame.prototype.StartMachine = function(aOptions) {
 		// "uct"/alpha-beta AIs, regardless of aOptions.threaded.
 		JoclyScan.startMachine(this,aOptions);
 	}
+	else if(aOptions.level && aOptions.level.ai=="kata" && typeof JoclyKata!="undefined") {
+		// KataGo runs in its own dedicated, long-lived worker (see
+		// jocly.kata.js / jocly.kataworker.js) for the same reason
+		// Fairy-Stockfish and Scan do: a distinct payload, loaded once and
+		// kept across moves. Here it is the network that makes that matter -
+		// several megabytes of it.
+		JoclyKata.startMachine(this,aOptions);
+	}
 	else { // default is legacy alpha-beta ai
 		if(aiThread)
 			this.StartThreadedMachine(aOptions,"alpha-beta");
@@ -722,6 +780,8 @@ JocGame.prototype.StopThreadedMachine = function() {
 	// Same rationale for Scan (see jocly.scan.js).
 	if(typeof JoclyScan != "undefined" && JoclyScan.abortMachine)
 		JoclyScan.abortMachine(this);
+	if(typeof JoclyKata != "undefined" && JoclyKata.abortMachine)
+		JoclyKata.abortMachine(this);
 }
 
 JocGame.prototype.ScheduleStep = function() {

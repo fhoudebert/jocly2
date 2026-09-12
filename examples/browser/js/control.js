@@ -121,23 +121,107 @@ function LoadRules(config, container) {
 }
 
 /*
- * Displays winner
+ * Displays winner, and by how much when the game says.
+ *
+ * WHO won is Jocly's business and comes back from getFinished(). BY HOW MUCH
+ * is the game's, and only some have an answer: Go is won by 3.5 as readily as
+ * by 60, and the figure is half of what a player wants at the end. A game that
+ * has one publishes it through getBoardState("score") - see
+ * src/games/go/go-model.js - and that is the whole contract: an object with a
+ * signed `margin` and a `counted` flag saying the position was really counted
+ * rather than merely scored mid-game.
+ *
+ * WHY IT IS THE CLIENT THAT WRITES THE SENTENCE: Jocly has no translations.
+ * A verdict drawn by a game's own view could only ever be English, so the
+ * views state the margin as a stone and a number and leave the words to
+ * whoever has a dictionary - here, TRANSLATIONS above.
+ *
+ * Any game without a score answers with its board notation, or rejects. Both
+ * land on the plain verdict, which is what this function displayed before.
  */
-function NotifyWinner(winner) {
+function NotifyWinner(match, winner) {
     var text = "Draw";
     if(winner==Jocly.PLAYER_A)
         text = "A wins";
     else if(winner==Jocly.PLAYER_B)
         text = "B wins";
-    $("#game-status").text(T(text));
+    var verdict = T(text);
+    Promise.resolve(match.getBoardState("score"))
+        .then(function(state) {
+            if(state && typeof state == "object" && state.counted &&
+                Math.abs(state.margin) > 0)                 // a tie has no margin to announce
+                    verdict += " : " + Math.abs(state.margin);
+        })
+        .catch(function() {})                               // no score: the verdict alone
+        .then(function() {
+            $("#game-status").text(verdict);
+        });
+}
+
+/*
+ * A thinking time, written short: "3.4 s" under the minute, "1:05" above it.
+ * The tenth is the point - it is what tells a search that is running from one
+ * that has finished and not handed back.
+ *
+ * The unit does not go through TRANSLATIONS: "s" is written the same in both
+ * languages, and a readout that refreshes ten times a second is not where to
+ * put the dictionary to work.
+ */
+function FormatElapsed(ms) {
+    var s = ms / 1000;
+    if(s < 60)
+        return s.toFixed(1) + " s";
+    var sec = Math.floor(s % 60);
+    return Math.floor(s / 60) + ":" + (sec < 10 ? "0" : "") + sec;
+}
+
+/*
+ * The clock on a machine turn.
+ *
+ * WHY IT MATTERS MORE HERE THAN ANYWHERE ELSE: this page runs the engines in
+ * the browser - the wasm Fairy-Stockfish, the wasm KataGo and their nets -
+ * where a host with a native binary beside it answers in milliseconds. Several
+ * seconds of a still board and a still status line do not distinguish "it is
+ * thinking" from "it has died", and the progress bar only moves for engines
+ * that report progress; the wasm ones largely do not.
+ *
+ * The counter only advances while the search leaves the main thread alone,
+ * which is the case here - Jocly runs its engines in a Worker. An engine that
+ * blocked the page would freeze its own clock too, and the stillness would
+ * then be the right diagnosis rather than a display bug.
+ *
+ * Returns the function that stops it, which hands back the elapsed time.
+ */
+function StartThinkingClock(label) {
+    var t0 = Date.now();
+    function Tick() {
+        $("#game-status").text(label + " " + FormatElapsed(Date.now() - t0));
+    }
+    Tick();
+    var timer = setInterval(Tick, 100);
+    return function() {
+        clearInterval(timer);
+        var ms = Date.now() - t0;
+        console.info("Search took", FormatElapsed(ms));
+        return ms;
+    };
 }
 
 /*
  * Run the game
  */
+/*
+ * Un tour est-il en cours ? La promesse tenue quand il se termine, ou null.
+ *
+ * VOLONTAIREMENT AU NIVEAU DU MODULE : chaque changement d'option relance
+ * RunMatch, et c'est ce drapeau partage qui empeche deux tours de s'ouvrir en
+ * meme temps. Le reduire a une variable locale rendrait chaque appel aveugle
+ * aux autres.
+ *
+ * Son RESOLVEUR, lui, n'a rien a faire ici -- voir NextMove.
+ */
 var movePending = null;
 function RunMatch(match, progressBar) {
-    var movePendingResolver;
 
     // first make sure there is no user input or machine search in progress
     var promise = match.abortUserTurn() // just in case one is running
@@ -148,14 +232,44 @@ function RunMatch(match, progressBar) {
     function NextMove() {
         if(movePending)
             return;
-        movePending = new Promise((resolve,reject)=>{
-            movePendingResolver = resolve;
+        /*
+         * LE RESOLVEUR EST LOCAL AU TOUR QU'IL TERMINE.
+         *
+         * Il vivait dans RunMatch, une portee par APPEL, tandis que
+         * movePending vit au niveau du module. Les deux n'etaient donc pas au
+         * meme niveau : deux appels de RunMatch se partageaient le drapeau
+         * mais pas le resolveur. Le garde-fou ci-dessus suffisait a l'eviter
+         * en pratique, mais si un second NextMove passait un jour, il
+         * ecraserait le resolveur du premier -- et la promesse de celui-ci ne
+         * serait JAMAIS tenue. Tout ce qui l'attend (la fin de RunMatch, donc
+         * le tour suivant) resterait en suspens, sans erreur ni trace.
+         *
+         * Capture ici, le resolveur appartient au tour qu'il termine et a lui
+         * seul. Il n'y a plus rien a ecraser.
+         */
+        var resolveThisMove;
+        var thisMove = movePending = new Promise((resolve,reject)=>{
+            resolveThisMove = resolve;
         });
+        // Ne rend la main QU'UNE fois, et ne libere le drapeau que s'il est
+        // encore le notre : un tour termine deux fois -- par sa fin normale
+        // puis par son abandon -- ne doit pas effacer le tour suivant.
+        var released = false;
+        function ReleaseThisMove() {
+            if(released)
+                return;
+            released = true;
+            if(movePending === thisMove)
+                movePending = null;
+            resolveThisMove();
+        }
         // whose turn is it ?
         match.getTurn()
             .then((player) => {
                 // display whose turn
-                $("#game-status").text(T(player==Jocly.PLAYER_A?"A playing":"B playing"));
+                var whose = T(player==Jocly.PLAYER_A?"A playing":"B playing");
+                var stopClock = null;
+                $("#game-status").text(whose);
                 var mode = $("#mode").val();
                 var promise = Promise.resolve();
                 if((player==Jocly.PLAYER_A && (mode=="self-self" || mode=="self-comp")) ||
@@ -171,6 +285,7 @@ function RunMatch(match, progressBar) {
                             progressBar.style.display = "block";
                             progressBar.style.width = 0;
                         }
+                        stopClock = StartThinkingClock(whose);
                         promise = promise.then( () => {
                                 return match.getConfig();
                             })
@@ -225,25 +340,45 @@ function RunMatch(match, progressBar) {
                         return match.getFinished()
                     })
                     .then((result) => {
-                        movePending = null;
-                        movePendingResolver();
+                        ReleaseThisMove();
                         if (result.finished)
-                            NotifyWinner(result.winner);
+                            NotifyWinner(match, result.winner);
                         else
                             NextMove();
                         })
                     .catch((e)=>{
-                        movePending = null;
-                        movePendingResolver();
+                        ReleaseThisMove();
                         console.warn("Turn aborted:",e);
                     })
                     .then(() => {
+                        // Stopped here rather than beside the search: this
+                        // link runs after the .catch too, so an aborted or
+                        // failed turn does not leave a timer counting for a
+                        // search that ended.
+                        if (stopClock) {
+                            stopClock();
+                            stopClock = null;
+                        }
                         if (progressBar)
                             progressBar.style.display = "none";
                     });
             })
     }
-    match.getFinished()
+    /*
+     * ON ATTEND LES ABANDONS, et c'est le point de ce chainage.
+     *
+     * `promise` ci-dessus abandonne le tour humain et la recherche machine
+     * eventuellement en cours, mais son resultat n'etait pas attendu : la
+     * suite partait en parallele. Un RunMatch demande pendant qu'un tour tourne
+     * -- ce que fait CHAQUE changement d'option -- pouvait donc demarrer le
+     * tour suivant AVANT que l'abandon du precedent ne soit arrive, et
+     * l'abandon tuait alors le tour qu'on venait d'ouvrir. Le plateau restait
+     * muet jusqu'a la prochaine action du joueur.
+     */
+    promise
+        .then( () => {
+            return match.getFinished();
+        })
         .then( (result) => {
             // make sure the game is not finished to request next move
             if(!result.finished) {
@@ -334,6 +469,34 @@ $(document).ready(function () {
                 var viewOptions = window.localStorage && window.localStorage[gameName+".options"] && 
                     JSON.parse(window.localStorage[gameName+".options"]) || undefined;
 
+                /*
+                 * Le cote memorise est range dans une clef A PART, et il n'est
+                 * donc PAS dans les options ci-dessus -- le panneau d'options
+                 * n'enregistre que l'habillage, la notation, les sons.
+                 *
+                 * Il etait rattrape apres coup, en posant la valeur dans la
+                 * liste et en simulant un changement. Cela marchait, au prix de
+                 * deux defauts : la partie demarrait deux fois (le gestionnaire
+                 * de la liste lance RunMatch, et la suite de la chaine aussi),
+                 * et le plateau s'affichait d'abord a l'endroit par defaut
+                 * avant de basculer.
+                 *
+                 * On le joint donc aux options d'attachement, la ou vont deja
+                 * toutes les autres : l'orientation est bonne du premier trait,
+                 * et plus rien n'a besoin d'etre simule.
+                 */
+                var savedViewAs = window.localStorage && window.localStorage[gameName+".view-as"];
+                if(config.view.switchable && savedViewAs) {
+                    var savedPlayer = savedViewAs=="player-a" ? Jocly.PLAYER_A
+                                    : savedViewAs=="player-b" ? Jocly.PLAYER_B : null;
+                    // Une valeur que la liste ne connait pas est ignoree : une
+                    // orientation inventee vaut moins que celle par defaut.
+                    if(savedPlayer) {
+                        viewOptions = viewOptions || {};
+                        viewOptions.viewAs = savedPlayer;
+                    }
+                }
+
                 // the match need to be attached to a DOM element for displaying the board
                 match.attachElement(area, { viewOptions: viewOptions })
                     .then( () => {
@@ -350,6 +513,16 @@ $(document).ready(function () {
                             $("#options-moves").hide();
                             if(options.showMoves!==undefined)
                                 $("#options-moves").show().children("input").prop("checked",options.showMoves);
+                            /*
+                             * Cachee tant que le jeu ne la propose pas.
+                             * getViewOptions n'inclut showLastMove que si la
+                             * vue sait dessiner la marque, donc son absence
+                             * est la reponse : un interrupteur sans effet
+                             * serait pire que pas d'interrupteur.
+                             */
+                            $("#options-lastmove").hide();
+                            if(options.showLastMove!==undefined)
+                                $("#options-lastmove").show().children("input").prop("checked",options.showLastMove);
                             $("#options-autocomplete").hide();
                             if(options.autoComplete!==undefined)
                                 $("#options-autocomplete").show().children("input").prop("checked",options.autoComplete);
@@ -362,6 +535,8 @@ $(document).ready(function () {
                                     opts.notation=$("#options-notation-input").prop("checked");
                                 if($("#options-moves").is(":visible"))
                                     opts.showMoves=$("#options-moves-input").prop("checked");
+                                if($("#options-lastmove").is(":visible"))
+                                    opts.showLastMove=$("#options-lastmove-input").prop("checked");
                                 if($("#options-autocomplete").is(":visible"))
                                     opts.autoComplete=$("#options-autocomplete-input").prop("checked");
                                 if($("#options-sounds").is(":visible"))
@@ -418,9 +593,11 @@ $(document).ready(function () {
                                                 RunMatch(match,progressBar);                                
                                             });
                                 });
-                                var viewAs = window.localStorage && window.localStorage[gameName+".view-as"];
-                                if(viewAs)
-                                    $("#view-as").val(viewAs).trigger("change");
+                                // Sans trigger : l'orientation est deja posee a
+                                // l'attachement, et declencher le gestionnaire
+                                // ici relancerait une seconde partie.
+                                if(savedViewAs)
+                                    $("#view-as").val(savedViewAs);
                             }
 
                         })
@@ -591,11 +768,18 @@ $(document).ready(function () {
                                 gameName: gameName
                             });
                         });
-                        // sorting by title
+                        /*
+                         * Sorted by the title AS SHOWN, not as stored. A
+                         * manifest may carry its title translated - the same
+                         * shape `summary` has always used - and sorting on the
+                         * raw field would compare an object against a string
+                         * and leave the list in no order at all.
+                         */
+                        games.forEach((game) => { game.shownTitle = Localized(game.title); });
                         games.sort( (a,b)=> {
-                            if(b.title<a.title)
+                            if(b.shownTitle<a.shownTitle)
                                 return 1;
-                            else if(b.title>a.title)
+                            else if(b.shownTitle>a.shownTitle)
                                 return -1;
                             else
                                 return 0;
@@ -607,7 +791,7 @@ $(document).ready(function () {
                                 .css({
                                     backgroundImage: "url('"+game.thumbnail+"')"
                                 })
-                                .append($("<div>").addClass("game-descr-name").text(game.title))
+                                .append($("<div>").addClass("game-descr-name").text(game.shownTitle))
                                 .append($("<div>").addClass("game-descr-summary").text(Localized(game.summary)))
                                 .on("click",()=>{
                                     var url0 = window.location;

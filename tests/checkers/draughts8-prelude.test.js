@@ -104,6 +104,62 @@ t.check("one move per rule set", board.mMoves.map((m) => m.setup), [0, 1, 2, 3])
 t.check("the panel names all four",
 	d8.game.mOptions.prelude[0].labels, ["English", "Brazilian", "Spanish", "German"]);
 
+/*
+ * A FLAG INSTEAD OF EACH NAME on the buttons.
+ *
+ * Jocly has no dictionary, so every word written into a manifest or a view is
+ * a word nobody will ever translate. A picture reads in every language, and
+ * here the picture is exact: these really are national rule sets, so the flag
+ * says nothing the name did not. The words move to the rules page, which
+ * already exists per language and where the same flag now stands beside the
+ * section it selects.
+ *
+ * The names stay in the manifest as a FALLBACK - a missing flag would
+ * otherwise leave a blank button, one you have to click to find out what it
+ * does - and because their count is what fixes the number of buttons.
+ */
+{
+	const dialog = d8.game.mOptions.prelude[0];
+	t.check("and shows a flag for each",
+		dialog.flags, ["res/flags/England.png", "res/flags/Brazil.png",
+			"res/flags/Spain.png", "res/flags/Germany.png"]);
+	// Read by the same index as labels and rules: a shorter list would leave
+	// the last buttons blank, a longer one would point past the rule sets.
+	t.check("the three lists line up",
+		[dialog.flags.length, dialog.rules.length], [dialog.labels.length, dialog.labels.length]);
+	// And the files are there. A path that leads nowhere does not fail the
+	// build - it ships a blank button.
+	dialog.flags.forEach((f) => {
+		t.check("the file " + f + " is there", fs.existsSync(path.join(CHECKERS, f)), true);
+	});
+	// The view must actually reach for them, or the manifest is decoration.
+	const view = fs.readFileSync(path.join(CHECKERS, "prelude-view.js"), "utf8");
+	t.check("the view draws them", /dialog\.flags/.test(view) && /drawImage\(/.test(view), true);
+	// Kept as a fallback rather than deleted: a blank button is worse than an
+	// untranslated one.
+	t.check("and falls back to the name when a flag is missing",
+		/if\(!flag\)[\s\S]{0,700}fillText\(label/.test(view), true);
+}
+
+/*
+ * Le lien entre le bouton et la regle qu'il choisit se fait dans la page de
+ * regles, et nulle part ailleurs : le panneau ne montre plus que des images.
+ * Une page qui aurait le texte sans le drapeau laisserait la moitie du lien a
+ * deviner - dans les DEUX langues, une traduction qui l'oublierait etant une
+ * traduction qui perd l'explication.
+ */
+["rules-draughts8.html", "rules-draughts8_fr.html"].forEach((page) => {
+	const text = fs.readFileSync(path.join(CHECKERS, page), "utf8");
+	["England", "Brazil", "Spain", "Germany"].forEach((flag) => {
+		t.check(page + " carries the " + flag + " flag",
+			text.indexOf("res/flags/" + flag + ".png") > 0, true);
+	});
+	// Par {GAME}, que l'hote remplace : les images vivent dans le module, pas
+	// dans la page.
+	t.check(page + " asks the host for them",
+		/\{GAME\}\/res\/flags\//.test(text), true);
+});
+
 // checkersbase's Move.Init builds pos and capt and copies nothing else, so a
 // setup handed to CreateMove used to come back without one - and every button
 // then chose the first rule set.

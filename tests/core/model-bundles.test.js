@@ -111,7 +111,7 @@ function build(moduleDir, entry) {
 // Others are not excluded on principle, only untested here. mills joined when
 // its prelude was added: that game appends a third script to lists whose last
 // file ends in a bare "}", the exact shape this catches.
-const MODULES = ["checkers", "mills"];
+const MODULES = ["checkers", "mills", "go"];
 
 let checked = 0;
 MODULES.forEach((moduleName) => {

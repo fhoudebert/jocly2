@@ -13,8 +13,12 @@
                     .css({
                         backgroundImage: "url('"+game.thumbnail+"')"
                     })
-                    .append($("<div>").addClass("game-descr-name").text(game.title))
-                    .append($("<div>").addClass("game-descr-summary").text(game.summary))
+                    // Both fields may be a string or an object indexed by
+                    // locale (see Localized() in control.js). Printing the
+                    // object gives "[object Object]", which is what this page
+                    // did for every translated summary.
+                    .append($("<div>").addClass("game-descr-name").text(Text(game.title)))
+                    .append($("<div>").addClass("game-descr-summary").text(Text(game.summary)))
                     .on("click",()=>{
                         StartGame(gameName);
                     }).appendTo($("#game-list"));
@@ -28,7 +32,16 @@
         var area = $("<div>").addClass("game-area-mini");
         $("<div>").addClass("game-area-mini-cont").append(area).appendTo($("body"));
 
-        function NotifyWinner(winner) {
+        // La forme minimale de Localized() de control.js : cette page-ci n'a pas de
+// selecteur de langue, elle suit celle du navigateur et retombe sur l'anglais.
+function Text(field) {
+    if(field == null) return "";
+    if(typeof field == "string") return field;
+    var lang = (navigator.language || "en").split("-")[0];
+    return field[lang] || field.en || Object.values(field)[0] || "";
+}
+
+function NotifyWinner(winner) {
             var txt = "?";
             if(winner==Jocly.PLAYER_A)
                 txt = "Player A wins";

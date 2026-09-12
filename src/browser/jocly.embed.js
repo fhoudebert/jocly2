@@ -1,4 +1,4 @@
-/*    Copyright 2017 Jocly
+/*    Copyright 2017-2026 Jocly
  *
  *    This program is free software: you can redistribute it and/or  modify
  *    it under the terms of the GNU Affero General Public License, version 3,
@@ -80,14 +80,30 @@ function ReceiveMessage(event)
                                     "mNotation": "notation",
                                     "mSounds": "sounds",
                                     "mShowMoves": "showMoves",
+                                    "mShowLastMove": "showLastMove",
                                     "mAutoComplete": "autoComplete",
 									"mAnaglyph": "anaglyph"
                                 }
                                 for(var o in optDefs) 
                                     if(typeof options[optDefs[o]]!="undefined")
                                         match.game[o] = options[optDefs[o]];
+								/*
+								 * LA GARDE `typeof != undefined` MANQUAIT ICI, alors
+								 * que la boucle juste au-dessus la fait pour toutes
+								 * les autres options. Les options de vue relues du
+								 * stockage local ne portent pas de `viewAs` -- le
+								 * panneau d'options ne l'y met pas -- donc cette ligne
+								 * ecrivait `undefined` dans mViewAs a chaque
+								 * attachement. Les vues ne comparent que sa valeur, si
+								 * bien que rien n'echouait : le plateau s'ouvrait
+								 * simplement a l'envers.
+								 *
+								 * SetViewAs refuse ce qui n'est pas un camp, et garde
+								 * l'orientation en cours plutot que d'en prendre une
+								 * qui n'existe pas.
+								 */
 								if(match.game.mViewOptions.switchable)
-									match.game.mViewAs = options.viewAs;
+									match.game.SetViewAs(options.viewAs);
                             }
                             match.game.GameInitView();
                             match.game.DisplayBoard();

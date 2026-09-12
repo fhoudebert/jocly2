@@ -1,4 +1,4 @@
-/*    Copyright 2026 Jocly
+/*    Copyright 2017-2026 Jocly
  *
  *    This program is free software: you can redistribute it and/or  modify
  *    it under the terms of the GNU Affero General Public License, version 3,
@@ -791,6 +791,11 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		aGame.mFairyFallback = {
 			engine: "fairy-stockfish",
 			reason: (err && err.message) || String(err),
+			// The level the PLAYER chose, alongside the one that actually
+			// plays: a host can only write "Expert could not start, you are
+			// playing Medium" if it is told both, and the dropdown still
+			// shows the first one.
+			requested: (aOptions.level && (aOptions.level.label || aOptions.level.name)) || null,
 			level: native.label || native.name
 		};
 		var options = {};

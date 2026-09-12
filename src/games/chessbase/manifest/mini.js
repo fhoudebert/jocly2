@@ -231,7 +231,10 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "MiniChess 5x5",
+				"title": {
+					"en": "MiniChess 5x5",
+					"fr": "Mini-échecs 5x5",
+				},
 				"summary": {
 					"en": "Gardner, Baby and Malett on 5x5",
 					"fr": "Gardner, Baby et Malett en 5x5"
@@ -266,6 +269,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
@@ -286,7 +290,10 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "Mini Chess 4x4",
+				"title": {
+					"en": "MiniChess 4x5",
+					"fr": "Mini-échecs 4x5",
+				},
 				"summary": {
 					"en": "4x4 mini chess variant",
 					"fr": "Variante d’échecs miniature en 4x4"
@@ -321,6 +328,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
@@ -376,6 +384,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
@@ -434,6 +443,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
@@ -489,6 +499,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,

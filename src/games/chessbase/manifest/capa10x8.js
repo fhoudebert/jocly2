@@ -41,7 +41,13 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "10x8 Chess variants",
+				// Un titre traduit : meme forme que `summary` juste dessous.
+				// La forme "title-en" reste valable partout ailleurs, et sert
+				// de repli -- voir le commentaire de allGames dans gulpfile.js.
+				"title": {
+					"en": "10x8 Chess variants",
+					"fr": "\u00c9checs en 10x8"
+				},
 				"summary": {
 					"en": "Capablanca, Janus, Carrera, Gothic …",
 					"fr": "Capablanca, Janus, Carrera, Gothic…"
@@ -76,6 +82,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,

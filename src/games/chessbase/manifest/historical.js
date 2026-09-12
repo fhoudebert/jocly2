@@ -64,7 +64,10 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "Courier Chess",
+				"title": {
+					"en": "Courier Chess",
+					"fr": "Échecs courier"
+				},
 				"summary": {
 					"en": "12x8 chess (12th century)",
 					"fr": "Échecs en 12x8 (XIIe siècle)"
@@ -99,6 +102,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1.5,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
@@ -174,7 +178,10 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "Duke of Rutland Chess",
+				"title": {
+					"en": "Duke of Rutland Chess",
+					"fr": "Échecs du duc de Rutland",
+				},
 				"summary": {
 					"en": "Chess on 14x10 (1747)",
 					"fr": "Échecs en 14x10 (1747)"
@@ -209,6 +216,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
@@ -302,6 +310,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 0.9,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,

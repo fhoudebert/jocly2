@@ -68,6 +68,7 @@ var config_view_classic_board = {
 	"css": config_view_css,
 	"preferredRatio": 1,
 	"useShowMoves": true,
+				"useShowLastMove": true,
 	"useNotation": true,
 	"module": "chessbase",
 	"defaultOptions": config_view_defaultOptions,
@@ -207,7 +208,10 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "Losing Chess",
+				"title": {
+					"en": "Losing Chess",
+					"fr": "Qui perd gagne"
+				},
 				"summary": {
 					"en": "Also known as Antichess, Suicide Chess, Giveaway Chess, ...",
 					"fr": "Aussi appelé Antichess, Suicide Chess ou Giveaway Chess…"
@@ -243,7 +247,10 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "3 check",
+				"title": {
+					"en": "3 check",
+					"fr": "3 \u00c9checs"
+				},
 				"summary": {
 					"en": "Orthodox chess, but checking three times also wins",
 					"fr": "Mettre trois fois échec donne la victoire"
@@ -334,6 +341,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
@@ -398,6 +406,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
@@ -453,6 +462,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
@@ -513,6 +523,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,

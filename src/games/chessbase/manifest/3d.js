@@ -112,6 +112,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1.1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
@@ -190,10 +191,13 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "3D Chess",
+				"title": {
+					"en": "3D Chess",
+					"fr": "Échecs 3D",
+				},
 				"summary": {
-					"en": "Asymmetric 3D Chess (6x8x3)",
-					"fr": "Échecs 3D asymétriques (6x8x3)"
+					"en": "3D Chess (6x8x3)",
+					"fr": "Échecs 3D (6x8x3)"
 				},
 				"rules": {
 					"en": "res/rules/3dchess/3dchess-rules.html",
@@ -226,6 +230,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
@@ -279,10 +284,13 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "Space Spartan",
+				"title": {
+					"en": "Space Spartan",
+					"fr": "Spartiates de l'espace",
+				},
 				"summary": {
-					"en": "6x8x3 Chess",
-					"fr": "Échecs en 6x8x3"
+					"en": "Asymmetric 3D Chess (6x8x3)",
+					"fr": "Échecs 3D asymétriques (6x8x3)"
 				},
 				"rules": {
 					"en": "res/rules/3dchess/space-spartan-rules.html",
@@ -312,6 +320,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
@@ -393,6 +402,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1.3333333333333,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": {

@@ -121,7 +121,26 @@ function HandleModuleGames(modelOnly) {
 
 			// same some game data so we can list all games later
 			allGames[game.name] = {
-				title: game.config.model["title-en"],
+				/*
+				 * The title as the manifest declares it: a plain string, or an
+				 * object indexed by locale, exactly like `summary` already is.
+				 *
+				 *     "title-en": "10x8 Chess variants"
+				 *     "title": { "en": "10x8 Chess variants",
+				 *                "fr": "Echecs en 10x8" }
+				 *
+				 * Both forms travel to the index untouched, and it is the
+				 * CLIENT that picks a language - the index is built once and
+				 * read by pages in every locale, so it cannot choose for them.
+				 * That is the arrangement `summary` has always used; the title
+				 * simply joins it. See Localized() in
+				 * examples/browser/js/control.js for the reference reading.
+				 *
+				 * "title-en" stays supported and stays the fallback: three
+				 * hundred manifests declare it, and a title is not worth a
+				 * flag day.
+				 */
+				title: game.config.model.title || game.config.model["title-en"],
 				summary: game.config.model.summary,
 				thumbnail: game.config.model.thumbnail,
 				module: moduleName,
@@ -267,6 +286,15 @@ gulp.task("build-node-core", function () {
 			// require("child_process"), so it must stay out of the browser
 			// bundle below.
 			"src/core/jocly.fairynative.js",
+			// jocly.game.js requires it OUTRIGHT on the node path -
+			// require("./jocly.kata.js"), not the guarded `typeof
+			// JoclyScan != "undefined"` that lets Scan be absent - so
+			// leaving it out did not disable Go in node, it made
+			// require("jocly.core.js") throw and took the whole node dist
+			// down with it. The file is node-safe: it exports for node and
+			// only reaches for a Worker when a kata level is played.
+			"src/core/jocly.scan.js",
+			"src/core/jocly.kata.js",
 			"src/core/jocly.game.js"
 		]));
 
@@ -352,6 +380,7 @@ gulp.task("build-browser-core", function () {
 		"src/browser/jocly.aiworker.js",
 		"src/browser/jocly.fairyworker.js",
 		"src/browser/jocly.scanworker.js",
+		"src/browser/jocly.kataworker.js",
 		"src/browser/jocly.embed.js"
 	]));
 
@@ -360,6 +389,7 @@ gulp.task("build-browser-core", function () {
 		"src/core/jocly.uct.js",
 		"src/core/jocly.fairy.js",
 		"src/core/jocly.scan.js",
+		"src/core/jocly.kata.js",
 		"src/core/jocly.game.js"
 	]), "jocly.game.js", true);
 
@@ -416,6 +446,35 @@ gulp.task("build-browser-core", function () {
 		path.dirname = "scan/data";
 	}));
 
+	// KataGo (third-party/katago): pre-built Emscripten artifacts, copied
+	// through untouched for the same reason as Fairy-Stockfish and Scan above.
+	//
+	// Only the PLAIN build ships. kataeval-mt.* is KataGo's real Search -
+	// stronger, with live statistics - but it needs -pthread, a 33-thread
+	// pool, 512MB of initial memory and a cross-origin isolated page, and
+	// nothing loads it yet: jocly.kataworker.js drives the plain kgeSearch().
+	// Adding it here is one line the day that changes.
+	var joclyKataStream = gulp.src([
+		"third-party/katago/kataeval.js",
+		"third-party/katago/kataeval.wasm"
+	]).pipe(rename(function (path) {
+		path.dirname = "katago";
+	}));
+
+	// The networks are not in the repo - see that directory's README.md for
+	// where to get them. A glob on purpose, exactly like the NNUE one above,
+	// so the build works whether the directory holds none, one or all of the
+	// nets named by "net" in a "kata" level. A referenced-but-absent net is
+	// NOT harmless here, unlike a missing NNUE: KataGo cannot play without
+	// one, so jocly.kataworker.js reports it and jocly.kata.js leaves the
+	// move to Jocly rather than inventing one.
+	var joclyKataNetStream = gulp.src([
+		"third-party/katago/README.md",
+		"third-party/katago/*.bin.gz"
+	], { allowEmpty: true }).pipe(rename(function (path) {
+		path.dirname = "katago";
+	}));
+
 	var joclyResStream = gulp.src("src/browser/res/**/*")
 		.pipe(rename(function (path) {
 			path.dirname = "res/" + path.dirname;
@@ -426,7 +485,8 @@ gulp.task("build-browser-core", function () {
 	allGamesStream = ProcessJS(allGamesStream.pipe(buffer()));
 
 	return mergeSequential(joclyBrowserStream, joclyCoreStream, allGamesStream, joclyBaseStream,
-		joclyExtraStream, joclyFairyStockfishStream, joclyFairyNnueStream, joclyScanStream, joclyScanDataStream, joclyResStream)
+		joclyExtraStream, joclyFairyStockfishStream, joclyFairyNnueStream, joclyScanStream, joclyScanDataStream,
+		joclyKataStream, joclyKataNetStream, joclyResStream)
     .pipe(through.obj(function (file, enc, next) {
       next(null, new Vinyl(file));
     }))

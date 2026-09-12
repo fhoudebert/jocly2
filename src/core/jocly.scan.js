@@ -1,4 +1,4 @@
-/*    Copyright 2026 Jocly
+/*    Copyright 2017-2026 Jocly
  *
  *    This program is free software: you can redistribute it and/or  modify
  *    it under the terms of the GNU Affero General Public License, version 3,
@@ -159,12 +159,66 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		return aGame.GetBestMatchingMove(scanMove, candidates);
 	}
 
+	/*
+	 * Le moteur n'a pas demarre : on joue le coup avec l'IA native du jeu et
+	 * on le DIT, plutot que de rendre la main sans coup.
+	 *
+	 * C'EST LE POINT DE TOUT CE BLOC. Sans lui, startMachine finissait sur un
+	 * `mBestMoves = []` et un `Done()` : l'hote n'avait pas de coup a jouer et
+	 * repassait la main au joueur, qui se retrouvait a jouer les deux couleurs
+	 * sans qu'on lui dise pourquoi. Aux dames internationales, le niveau
+	 * "Champion" (ai: "scan") le faisait des que le binaire Scan n'etait pas
+	 * installe -- c'est-a-dire par defaut. jocly.fairy.js et jocly.kata.js
+	 * evitaient deja ce trou ; ce fichier etait le dernier des trois a
+	 * l'avoir.
+	 *
+	 * Le drapeau porte le nom historique mFairyFallback parce que c'est le
+	 * canal que le resultat de recherche transporte deja jusqu'a l'hote (voir
+	 * JocGame.Done et MachineMove dans jocly.core.js) : ouvrir un second canal
+	 * obligerait chaque hote a le brancher. `engine` dit de quel moteur il
+	 * s'agit, `requested` le niveau que le joueur avait choisi et `level`
+	 * celui qui joue reellement -- un hote a besoin des deux pour ecrire
+	 * "« Champion » n'a pas demarre, vous jouez contre Expert".
+	 */
+	function FallbackToNativeAI(aGame, aOptions, err) {
+		delete aGame.mScanAbort;
+		var asked = aOptions.level || {};
+		var levels = (aGame.config && aGame.config.model && aGame.config.model.levels) || [];
+		var native = null;
+		for (var i = levels.length - 1; i >= 0; i--) {
+			if (levels[i] && levels[i].ai !== "scan") {
+				native = levels[i];
+				break;
+			}
+		}
+		if (!native) {
+			console.error("scan: engine unavailable and no non-scan level to fall back to:", err);
+			aGame.mBestMoves = [];
+			JocUtil.schedule(aGame, "Done", {});
+			return;
+		}
+		console.warn("scan: engine unavailable (" + ((err && err.message) || err)
+			+ ") - falling back to native AI level '" + (native.label || native.name)
+			+ "' for this move");
+		aGame.mFairyFallback = {
+			engine: "scan",
+			reason: (err && err.message) || String(err),
+			requested: asked.label || asked.name || null,
+			level: native.label || native.name
+		};
+		var options = {};
+		for (var k in aOptions)
+			if (aOptions.hasOwnProperty(k))
+				options[k] = aOptions[k];
+		options.level = native;
+		aGame.StartMachine(options);
+	}
+
 	JoclyScan.startMachine = function (aGame, aOptions) {
 		var level = aOptions.level || {};
 		if (typeof aGame.mBoard.ExportBoardState != "function" || typeof aGame.mBoard.ExportBoardState(aGame) != "string") {
-			console.error("scan: this game does not support FEN export (ExportBoardState)");
-			aGame.mBestMoves = [];
-			JocUtil.schedule(aGame, "Done", {});
+			FallbackToNativeAI(aGame, aOptions,
+				new Error("this game does not support FEN export (ExportBoardState)"));
 			return;
 		}
 
@@ -177,7 +231,14 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		// scan_set_position_fen() fails (Scan's parser expects the turn
 		// letter first), prepending it here round-trips correctly.
 		var fen = (aGame.mWho == 1 ? "W" : "B") + ":" + aGame.mBoard.ExportBoardState(aGame);
-		var entry = GetOrCreateWorker(aGame, aOptions);
+		var entry;
+		try {
+			entry = GetOrCreateWorker(aGame, aOptions);
+		} catch (err) {
+			// Pas de Worker (node), ou creation refusee.
+			FallbackToNativeAI(aGame, aOptions, err);
+			return;
+		}
 
 		aGame.mScanAbort = function () {
 			entry.worker.postMessage({ type: "Stop" });
@@ -234,9 +295,12 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 					aGame.Done();
 					return;
 				}
-				console.error("scan search failed:", err);
-				aGame.mBestMoves = [];
-				aGame.Done();
+				/*
+				 * Binaire absent, moteur qui refuse de demarrer, recherche qui
+				 * echoue : tout cela se traite pareil du point de vue du
+				 * joueur -- on joue avec l'IA native et on l'annonce.
+				 */
+				FallbackToNativeAI(aGame, aOptions, err);
 			});
 	};
 

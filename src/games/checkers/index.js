@@ -317,11 +317,26 @@ exports.games = (function() {
 	var config_model_prelude_draughts8 = [
 		{
 			"panelWidth": 2,
+			/*
+			 * Les libelles ne sont plus affiches : le bouton porte le drapeau
+			 * correspondant (voir prelude-view.js), et c'est la page de regles,
+			 * qui existe par langue, qui dit ce que chacun designe. Ils restent
+			 * ici comme secours si un drapeau venait a manquer, et parce que
+			 * leur nombre fixe le nombre de boutons.
+			 */
 			"labels": [
 				"English",
 				"Brazilian",
 				"Spanish",
 				"German"
+			],
+			// Meme ordre que les libelles et que les jeux de regles ci-dessous :
+			// les trois tableaux sont lus par le meme indice.
+			"flags": [
+				"res/flags/England.png",
+				"res/flags/Brazil.png",
+				"res/flags/Spain.png",
+				"res/flags/Germany.png"
 			],
 			"persistent": true,
 			"rules": [
@@ -586,7 +601,10 @@ exports.games = (function() {
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "Roman Alquerque",
+				    "title": {
+					    "en": "Roman Alquerque",
+					    "fr": "Alquerque romain"
+				    },
 					"summary": {
 						"en": "Alquerque as played in France and England.",
 						"fr": "L'alquerque tel qu'on y jouait en France et en Angleterre."
@@ -675,7 +693,10 @@ exports.games = (function() {
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "Arabic Alquerque",
+				    "title": {
+					    "en": "Arabic Alquerque",
+					    "fr": "Alquerque arabe"
+				    },
 					"summary": {
 						"en": "Alquerque as played in Middle-East and Spain.",
 						"fr": "L'alquerque tel qu'on y jouait au Moyen-Orient et en Espagne."
@@ -767,10 +788,13 @@ exports.games = (function() {
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "International Draughts",
+				    "title": {
+					    "en": "International Draughts",
+					    "fr": "Dames internationales"
+				    },
 					"summary": {
 						"en":"Rules for draughts as played in worldwide competitions.",
-						"fr": "Jeu de Dames international"
+						"fr": "Suivant les règles des compétitions à travers le monde"
 					},
                     "rules": {
 						"en": "rules-draughts.html",
@@ -920,7 +944,10 @@ exports.games = (function() {
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "Draughts 8x8",
+				    "title": {
+					    "en": "Draughts 8x8",
+					    "fr": "Dames en 8x8"
+				    },
 					"summary": {
 						"en": "English, Brazilian, Spanish or German draughts, chosen at the start",
 						"fr": "Dames anglaises, brésiliennes, espagnoles ou allemandes"
@@ -981,7 +1008,10 @@ exports.games = (function() {
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "Suicide checkers",
+				    "title": {
+					    "en": "Suicide checkers",
+					    "fr": "Anti-dames"
+				    },
 					"summary": {
 						"en": "A.k.a Giveaway checkers or Anti-checkers",
 						"fr": "Aussi appelé qui-perd-gagne ou anti-dames."
@@ -1213,7 +1243,10 @@ exports.games = (function() {
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "Turkish Draughts",
+				    "title": {
+					    "en": "Turkish Draughts",
+					    "fr": "Dames turques"
+				    },
 					"summary": {
 						"en":"A 8x8 checkers on straight lines.",
 						"fr": "Sur un damier en ligne droite"

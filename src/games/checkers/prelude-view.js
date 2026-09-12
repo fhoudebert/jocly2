@@ -51,6 +51,28 @@
 		var labels = dialog.labels;
 		if(!labels || !labels.length) return;
 
+		/*
+		 * Un drapeau par choix, A LA PLACE du libelle.
+		 *
+		 * POURQUOI : jocly n'a pas de dictionnaire, donc tout mot ecrit dans
+		 * un manifeste ou dans une vue est un mot que personne ne traduira
+		 * jamais. Une image, elle, se lit dans toutes les langues. Le texte
+		 * quitte donc le JS pour la page de regles, qui existe deja par
+		 * langue et ou le meme drapeau figure a cote du jeu de regles qu'il
+		 * designe.
+		 *
+		 * Ici les drapeaux sont EXACTS, contrairement au go : ce sont
+		 * vraiment des regles nationales -- anglaises, bresiliennes,
+		 * espagnoles, allemandes -- et le drapeau ne dit rien de plus que le
+		 * nom qu'il remplace.
+		 *
+		 * Le libelle reste dans le manifeste et sert de SECOURS : un drapeau
+		 * absent ou introuvable laisserait sinon un bouton vide, sur lequel
+		 * il faut cliquer pour savoir ce qu'il fait.
+		 */
+		var flags = dialog.flags || [];
+		var fullPath = aGame.mViewOptions.fullPath;
+
 		// One board cell is 12000/squareWidth across, and the buttons are
 		// sized in those units so the panel scales with the board rather than
 		// with the window - a button fixed in pixels is unreadable on a phone
@@ -84,23 +106,54 @@
 					height: bh,
 					z: 109,
 					draw: function(ctx) {
+						var flag = flags[setup];
 						ctx.fillStyle = "#c0c0c0";
 						ctx.beginPath();
 						ctx.rect(-bw / 2, -bh / 2, bw, bh);
 						ctx.fill();
-						ctx.fillStyle = "#202020";
-						// measured, not guessed: the four names are not the
-						// same length, and a size that fits "German" clips
-						// "Brazilian"
-						var fontSize = Math.round(bh * 0.42);
-						do {
-							ctx.font = "bold " + fontSize + "px sans-serif";
-							if(ctx.measureText(label).width <= bw * 0.88) break;
-							fontSize--;
-						} while(fontSize > 6);
-						ctx.textAlign = "center";
-						ctx.textBaseline = "middle";
-						ctx.fillText(label, 0, 0);
+
+						if(!flag) {
+							// Secours : pas de drapeau declare, on ecrit le
+							// libelle plutot que de laisser un bouton muet.
+							ctx.fillStyle = "#202020";
+							// measured, not guessed: the four names are not
+							// the same length, and a size that fits "German"
+							// clips "Brazilian"
+							var fontSize = Math.round(bh * 0.42);
+							do {
+								ctx.font = "bold " + fontSize + "px sans-serif";
+								if(ctx.measureText(label).width <= bw * 0.88) break;
+								fontSize--;
+							} while(fontSize > 6);
+							ctx.textAlign = "center";
+							ctx.textBaseline = "middle";
+							ctx.fillText(label, 0, 0);
+							return;
+						}
+						/*
+						 * L'image arrive apres coup, et le gadget a deja
+						 * dessine quand elle arrive : le rappel peint dans le
+						 * MEME contexte. Le bouton est donc brievement gris
+						 * plutot que brievement faux.
+						 */
+						this.getResource("image|" + fullPath + "/" + flag, function(img) {
+							/*
+							 * Au plus grand, SANS DEFORMER : un drapeau etire
+							 * est un autre drapeau, et ceux-ci n'ont pas tous
+							 * le meme rapport (100x60 pour l'Angleterre et
+							 * l'Allemagne, 100x70 pour le Bresil, 100x67 pour
+							 * l'Espagne).
+							 */
+							var maxW = bw * 0.82, maxH = bh * 0.74;
+							var w = maxW, h = w * (img.height / img.width);
+							if(h > maxH) { h = maxH; w = h * (img.width / img.height); }
+							ctx.drawImage(img, -w / 2, -h / 2, w, h);
+							// Un lisere : plusieurs de ces drapeaux ont du
+							// blanc au bord et se fondraient dans le bouton.
+							ctx.strokeStyle = "rgba(0, 0, 0, 0.45)";
+							ctx.lineWidth = Math.max(1, bh * 0.02);
+							ctx.strokeRect(-w / 2, -h / 2, w, h);
+						});
 					},
 				},
 			});

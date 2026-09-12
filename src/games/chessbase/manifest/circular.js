@@ -69,10 +69,13 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "Modern Circular Chess",
+				"title": {
+					"en": "Modern Circular Chess",
+					"fr": "Échecs circulaires modernes",
+				},
 				"summary": {
 					"en": "Chess on a ring",
-					"fr": "Échecs sur un anneau"
+					"fr": "Échiquier en anneau"
 				},
 				"rules": {
 					"en": "res/rules/circular/circular-rules.html"
@@ -104,6 +107,7 @@ exports.games = {
 				"css": config_view_css_3,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
@@ -134,7 +138,10 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "Byzantine Chess",
+				"title": {
+					"en": "Byzantine Chess",
+					"fr": "Échecs byzantins ",
+				},
 				"summary": {
 					"en":"10th century circular Chess",
 					"fr": "Échecs circulaires (Xe siècle)",
@@ -170,6 +177,7 @@ exports.games = {
 				"css": config_view_css_3,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
@@ -232,7 +240,10 @@ exports.games = {
 		"config": {
 			"status": true,
 			"model": {
-				"title-en": "Cylinder Chess",
+				"title": {
+					"en": "Cylinder Chess",
+					"fr": "Échecs cylindriques",
+				},
 				"summary": {
 					"en": "Cylinder Chess",
 					"fr": "Échecs cylindriques"
@@ -267,6 +278,7 @@ exports.games = {
 				"css": config_view_css,
 				"preferredRatio": 1,
 				"useShowMoves": true,
+				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,

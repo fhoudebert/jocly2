@@ -63,8 +63,24 @@ check("no summary is empty",
 	check("no summary is English text copied into the French field", suspicious, []);
 }
 
+/*
+ * A title, under either spelling. "title-en" is the old form and still the
+ * common one; "title" carries the same text indexed by locale, the way
+ * `summary` above already is. What must not happen is neither - a game with no
+ * title at all is a blank line in every list that shows it.
+ */
 check("titles are still declared",
-	games.filter((g) => !g.config.model["title-en"]).map((g) => g.name), []);
+	games.filter((g) => !g.config.model["title-en"] && !g.config.model.title)
+		.map((g) => g.name), []);
+
+// A translated title must actually carry English: that is the fallback every
+// client falls back TO, so a title that only exists in French is a game with
+// no name for everyone else.
+check("a translated title still has English",
+	games.filter((g) => {
+		const title = g.config.model.title;
+		return title && typeof title === "object" && !String(title.en || "").trim();
+	}).map((g) => g.name), []);
 
 // a rules page or a thumbnail that points nowhere shows up as a broken link in
 // the app, so the paths are checked to exist

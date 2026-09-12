@@ -29,4 +29,35 @@
 .cb-clicker {
 }
 
+/*
+ * La case d'ou vient le dernier coup joue.
+ *
+ * UN ANNEAU, PAS UN FOND. Les cases sont peintes dans le canvas unique du
+ * plateau (voir paintCell dans les vues de geometrie) et leur couleur
+ * appartient a l'habillage -- certains sont des photographies. Une teinte
+ * plaquee se battrait avec chacun d'eux ; un contour se lit sur case claire
+ * comme sur case sombre, et sur les huit geometries. C'est aussi la forme que
+ * la 3D affiche, le maillage cbTargetMesh etant un anneau : les deux rendus
+ * montrent ainsi la meme chose.
+ *
+ * PEINT PAR UN DEGRADE ET NON PAR UNE BORDURE. `border-width` n'accepte pas
+ * les pourcentages -- la specification demande une <length> -- donc
+ * « border: 6% solid » est une declaration invalide, jetee en entier par le
+ * navigateur, et l'element ne dessinerait rien. Le piege a deja coute a ce
+ * depot la marque du dernier coup du go, invisible depuis toujours pour cette
+ * raison exacte (voir go.css). Un degrade, lui, prend des pourcentages, et la
+ * marque suit donc la taille de la case : cbView.clicker la redimensionne par
+ * jeu, et une epaisseur en pixels serait epaisse sur un 4x5 et invisible sur
+ * un 12x12.
+ *
+ * La couleur repond a cbLastMoveColor (base-view.js), qui peint l'anneau en
+ * 3D ; les deux doivent bouger ensemble.
+ */
+.cb-lastmove {
+	pointer-events: none;
+	background-image: radial-gradient(circle,
+		rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 56%,
+		rgba(58, 134, 200, 0.85) 62%, rgba(58, 134, 200, 0.85) 100%);
+}
+
 

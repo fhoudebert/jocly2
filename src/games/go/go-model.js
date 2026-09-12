@@ -1,0 +1,713 @@
+/*
+ * Go (weiqi, baduk, igo) - the model.
+ *
+ * Written to be driven by an external engine rather than by Jocly's own
+ * search: the native AIs are not going to play 19x19, so this file's job is to
+ * know the rules exactly, not to be fast in a tree. Where the two pull in
+ * different directions it chooses the rules.
+ *
+ * Two modules here already know most of Go. margo (src/games/margo) is Go on a
+ * stacked 3D board and its own rules page says so - "un groupe de boules doit
+ * toujours avoir au moins une position libre adjacente... comme au Go, la règle
+ * du Ko s'applique... le suicide n'est pas permis" - so groups, liberties,
+ * capture, ko and the suicide ban are not new ground in this codebase, only new
+ * on a flat board. reversi (src/games/reversi) supplies the other half: a pass
+ * move, a passes counter, and a game that ends on two passes and is then
+ * decided by counting.
+ *
+ * What neither supplies is the counting itself, which is where Go is genuinely
+ * harder than either.
+ *
+ * RULES IMPLEMENTED: Chinese, area scoring, positional superko.
+ *
+ * That choice is not a detail. Under Japanese territory scoring the players
+ * have to agree which stones are dead before the board can be counted, and
+ * Jocly has no notion of agreement outside a move. Under area scoring, once
+ * both sides pass, the score is a mechanical function of the position -
+ * provided dead stones have actually been captured, which is what area rules
+ * ask of the players and what engines do anyway. So two passes end the game and
+ * the board is counted as it stands. A player who passes with dead stones still
+ * on the board has resigned them, exactly as the rules say.
+ */
+
+(function() {
+
+	var EMPTY = 0;
+	var BLACK = 1;    // JocGame.PLAYER_A - Black moves first, as in Go
+	var WHITE = -1;   // JocGame.PLAYER_B
+
+	/*
+	 * The rule set this file arbitrates, under the name KataGo gives it.
+	 *
+	 * NOT "chinese", and the difference is not pedantry. KataGo's `chinese`
+	 * preset uses the SIMPLE ko rule; what this file implements - area
+	 * scoring, POSITIONAL superko, no suicide - is KataGo's `chinese-ogs`
+	 * (identical to `chinese-kgs`). KataGo's own rules page flags the same
+	 * trap: OGS's "Chinese" uses positional superko, unlike Chinese
+	 * tournament practice. Naming it wrongly here would be worse than not
+	 * naming it, because the name is about to be handed to an engine.
+	 *
+	 * WHY IT IS PUBLISHED AT ALL. An engine plays under the rules ITS host
+	 * gives it, and a host that is told nothing uses whatever its config
+	 * says - KataGo's own gtp_example.cfg ships `rules = tromp-taylor`, which
+	 * allows multi-stone suicide and would have the engine offer moves this
+	 * file refuses. So the ruleset travels with the position, out through
+	 * goExportMoves, and a host that can set it does (Tabulon sends
+	 * kata-set-rules; the wasm build's ABI has no way to be told, which is a
+	 * limitation of that build rather than of this contract).
+	 *
+	 * The default when a game declares nothing. A prelude choosing between
+	 * the entries below is the next step, and it will write mOptions.rules.
+	 */
+	var RULESET_DEFAULT = "chinese-ogs";
+
+	/*
+	 * The rule sets this file can arbitrate, keyed by KataGo's name for them.
+	 *
+	 * ONE FLAG, AND THAT IS THE POINT. Of the seven axes KataGo distinguishes,
+	 * chinese-ogs and tromp-taylor differ on exactly three, and two of them
+	 * cost nothing here:
+	 *
+	 *   - whiteHandicapBonus (N vs 0): Jocly's Go has no handicap stones, so
+	 *     there is no bonus to award either way.
+	 *   - friendlyPassOk (true vs false): whether an engine may pass when the
+	 *     game would not end. That governs an engine's choices, not what this
+	 *     file accepts - passing is legal here in both, as it is in Go.
+	 *   - multiStoneSuicideLegal (false vs true): the real difference, and the
+	 *     only one that changes which moves exist.
+	 *
+	 * They agree on the rest: area scoring, POSITIONAL superko, no tax. Which
+	 * is why tromp-taylor is the cheap second rule set to offer and japanese
+	 * is not - territory scoring needs agreement on dead stones, which has no
+	 * meaning inside a move.
+	 *
+	 * SINGLE-STONE SUICIDE STAYS ILLEGAL even under tromp-taylor. That is
+	 * KataGo's reading, stated in its own gtp_example.cfg ("Single-stone
+	 * suicide is always illegal"), and matching the engine is the entire
+	 * reason these names are used at all: a rule the engine and the board
+	 * disagree on is worse than no choice of rules.
+	 */
+	var RULESETS = {
+		"chinese-ogs":  { suicide: false },
+		"tromp-taylor": { suicide: true },
+	};
+
+	// Column letters skip I, the universal Go convention.
+	var COLUMNS = "ABCDEFGHJKLMNOPQRSTUVWXYZ";
+
+	/*
+	 * The board size, kept here and set by InitGame.
+	 *
+	 * Notation cannot go through the game object, because the thing that most
+	 * needs it has no reference to one: a Move. Jocly asks a Move for its own
+	 * ToString - from getMoveString, on the core side of the iframe - and a
+	 * Move carries only its own fields. The first version reached for
+	 * Model.Game and read this.g.Coord off it, which is the bare prototype
+	 * with no g at all: every move played threw "Cannot read properties of
+	 * undefined (reading 'Coord')" and the turn was aborted.
+	 *
+	 * So the two conversions are plain functions over a module variable - the
+	 * shape checkersbase-model.js uses for its own PosToString and
+	 * invertNotation. One consequence, stated because nothing else says it:
+	 * one loaded model serves one board size, which is how Jocly loads them
+	 * (one script bundle per game).
+	 */
+	var SIZE = 0;
+
+	function PosToString(pos) {
+		if(pos < 0)
+			return "pass";
+		if(!SIZE)
+			return "?";
+		return COLUMNS[pos % SIZE] + (SIZE - Math.floor(pos / SIZE));
+	}
+
+	function StringToPos(text) {
+		if(!text || /^pass$/i.test(text))
+			return -1;
+		var m = /^([A-Za-z])\s*(\d+)$/.exec(String(text).trim());
+		if(!m || !SIZE) return null;
+		var col = COLUMNS.indexOf(m[1].toUpperCase());
+		var row = SIZE - parseInt(m[2]);
+		if(col < 0 || col >= SIZE || row < 0 || row >= SIZE)
+			return null;
+		return row * SIZE + col;
+	}
+
+	Model.Game.InitGame = function() {
+		var size = this.mOptions.size;
+		var coord = [];   // coord[pos] = [row, col], row 0 = top
+		var g = [];       // g[pos][dir] = neighbour pos, or null off the board
+		for(var r = 0; r < size; r++)
+			for(var c = 0; c < size; c++) {
+				var pos = r * size + c;
+				coord[pos] = [r, c];
+				g[pos] = [
+					c > 0 ? pos - 1 : null,
+					c < size - 1 ? pos + 1 : null,
+					r > 0 ? pos - size : null,
+					r < size - 1 ? pos + size : null,
+				];
+			}
+		this.g.Graph = g;
+		this.g.Coord = coord;
+		this.g.size = size;
+		SIZE = size;
+		this.g.points = size * size;
+		// White's compensation for moving second, counted in the area score.
+		// A half point makes draws impossible, which is why it is the norm.
+		this.g.komi = this.mOptions.komi === undefined ? 7.5 : this.mOptions.komi;
+
+		/*
+		 * The rule set, read here rather than at every move: it cannot change
+		 * mid-game, and the two flags below are consulted in the move
+		 * generator's inner loop.
+		 *
+		 * An unknown name falls back to the default rather than throwing. A
+		 * game module naming a rule set this file does not know is a manifest
+		 * error, but refusing to start the game over it would take a whole
+		 * board down for a typo; playing under the default and saying so
+		 * leaves the game usable and the mistake visible.
+		 */
+		this.goSetRules();
+
+		/*
+		 * Zobrist keys for the position hash. Positional superko compares whole
+		 * board positions, so the hash has to be over the stones alone - not
+		 * the side to move, which is what situational superko would use.
+		 */
+		var mt = JocGame.LetsTwist(0x60);
+		this.g.zobrist = [[], []];
+		for(var pos = 0; pos < this.g.points; pos++) {
+			this.g.zobrist[0][pos] = mt.genrand_int32();
+			this.g.zobrist[1][pos] = mt.genrand_int32();
+		}
+
+		this.InitGameExtra();
+	}
+
+	Model.Game.InitGameExtra = function() {
+	}
+
+	/*
+	 * Read mOptions.rules into the two fields the move generator consults.
+	 *
+	 * A method rather than a block inside InitGame because the rule set is no
+	 * longer settled once and for all: the prelude (prelude-model.js) asks the
+	 * player, and its answer arrives AFTER InitGame has run. It writes
+	 * mOptions.rules and calls this again, so there is one place that turns a
+	 * name into behaviour and one place that validates it - a second copy in
+	 * the prelude would be a second table to keep in step with this one.
+	 *
+	 * Read once rather than at every move: the rule cannot change mid-game,
+	 * and suicideOk is consulted in the generator's inner loop.
+	 *
+	 * An unknown name falls back to the default rather than throwing. A game
+	 * module naming a rule set this file does not know is a manifest error,
+	 * but refusing to start the game over it would take a whole board down for
+	 * a typo; playing under the default and saying so leaves the game usable
+	 * and the mistake visible.
+	 */
+	Model.Game.goSetRules = function() {
+		var wanted = this.mOptions.rules || RULESET_DEFAULT;
+		if(!RULESETS[wanted]) {
+			console.warn("go: unknown rule set '" + wanted + "', playing "
+				+ RULESET_DEFAULT);
+			wanted = RULESET_DEFAULT;
+		}
+		this.g.rules = wanted;
+		this.g.suicideOk = RULESETS[wanted].suicide;
+	}
+
+	// The rule sets a prelude may offer, in manifest order. Exposed so the
+	// dialog does not have to repeat the table above.
+	Model.Game.goRuleSets = function() {
+		var out = [];
+		for(var k in RULESETS)
+			if(RULESETS.hasOwnProperty(k))
+				out.push(k);
+		return out;
+	}
+
+	// Both kept as game methods for callers that have a game to hand - the
+	// view, the tests, an engine bridge - but neither needs one.
+	Model.Game.CoordToString = function(pos) {
+		return PosToString(pos);
+	}
+
+	Model.Game.StringToCoord = function(text) {
+		return StringToPos(text);
+	}
+
+	/* ------------------------------------------------------------- moves */
+
+	Model.Move.Init = function(args) {
+		this.p = args.p === undefined ? -1 : args.p;   // -1 is a pass
+		if(args.c !== undefined)
+			this.c = args.c;                           // captured points, if any
+	}
+
+	Model.Move.CopyFrom = function(aMove) {
+		this.p = aMove.p;
+		if(aMove.c !== undefined)
+			this.c = aMove.c.slice();
+		else
+			delete this.c;
+	}
+
+	Model.Move.Equals = function(move) {
+		return this.p === move.p;
+	}
+
+	Model.Move.ToString = function() {
+		return PosToString(this.p);
+	}
+
+	/* ------------------------------------------------------------- board */
+
+	Model.Board.InitialPosition = function(aGame) {
+		var points = aGame.g.points;
+		this.board = new Array(points);
+		for(var pos = 0; pos < points; pos++)
+			this.board[pos] = EMPTY;
+		this.passes = 0;                  // consecutive passes; two end the game
+		this.prisoners = [0, 0];          // [black's captures, white's], index by SIDE01
+		this.koPos = -1;                  // point forbidden by the simple ko rule
+		this.hash = 0;                    // Zobrist hash of the stones
+		/*
+		 * Every position the game has been in, for positional superko. Shared by
+		 * reference between boards and never mutated in place - ApplyMove
+		 * replaces it with a longer one - so copying a board costs nothing here
+		 * and no board can corrupt another's history.
+		 */
+		this.hist = [0];
+		this.moveCount = 0;
+		// The point last played, or -1. A Go board changes by one stone a turn
+		// and the view marks it so the change is visible at a glance.
+		this.lastPlayed = -1;
+	}
+
+	function SIDE01(side) {
+		return (1 - side) / 2;             // 1 -> 0, -1 -> 1, as reversi indexes
+	}
+
+	Model.Board.CopyFrom = function(aBoard) {
+		this.board = aBoard.board.slice();
+		this.passes = aBoard.passes;
+		this.prisoners = [aBoard.prisoners[0], aBoard.prisoners[1]];
+		this.koPos = aBoard.koPos;
+		this.hash = aBoard.hash;
+		this.hist = aBoard.hist;           // shared: see InitialPosition
+		this.moveCount = aBoard.moveCount;
+		this.lastPlayed = aBoard.lastPlayed;
+		this.mWho = aBoard.mWho;
+	}
+
+	// The stones alone, which is what positional superko compares. Overriding
+	// this also keeps JocBoard's default off the hot path: it is
+	// md5(JSON.stringify(board)), and stringifying a 361-point board on every
+	// node would dominate everything else this file does.
+	Model.Board.GetSignature = function() {
+		return this.hash;
+	}
+
+	/*
+	 * Walk the group at pos, collecting its stones and counting its liberties.
+	 * Returns {stones, liberties}. The seen array is caller-supplied so a scan
+	 * over the whole board can visit each stone once.
+	 */
+	function Group(aGame, board, pos, seen) {
+		var graph = aGame.g.Graph;
+		var side = board[pos];
+		var stones = [pos], liberties = 0;
+		var libSeen = {};
+		seen[pos] = true;
+		for(var i = 0; i < stones.length; i++) {
+			var links = graph[stones[i]];
+			for(var d = 0; d < 4; d++) {
+				var n = links[d];
+				if(n === null) continue;
+				var at = board[n];
+				if(at === EMPTY) {
+					if(!libSeen[n]) { libSeen[n] = true; liberties++; }
+				} else if(at === side && !seen[n]) {
+					seen[n] = true;
+					stones.push(n);
+				}
+			}
+		}
+		return { stones: stones, liberties: liberties };
+	}
+
+	/*
+	 * One pass over the board yielding, for every stone, the id of its group and
+	 * for every group its liberty count. Move legality then costs four lookups
+	 * per empty point instead of a flood fill each - the difference between
+	 * O(n) and O(n^2) per generation, which on 361 points is the difference
+	 * between usable and not.
+	 */
+	function Scan(aGame, board) {
+		var points = aGame.g.points;
+		var groupOf = new Array(points), libs = [], stones = [];
+		var seen = {};
+		for(var pos = 0; pos < points; pos++)
+			groupOf[pos] = -1;
+		for(var pos = 0; pos < points; pos++) {
+			if(board[pos] === EMPTY || seen[pos]) continue;
+			var group = Group(aGame, board, pos, seen);
+			var id = libs.length;
+			libs.push(group.liberties);
+			stones.push(group.stones);
+			for(var i = 0; i < group.stones.length; i++)
+				groupOf[group.stones[i]] = id;
+		}
+		return { groupOf: groupOf, libs: libs, stones: stones };
+	}
+
+	Model.Board.goScan = function(aGame) {
+		return Scan(aGame, this.board);
+	}
+
+	/*
+	 * Which stones a move at pos by side would capture, and whether the move is
+	 * suicide. Called only for the few candidates that need it.
+	 */
+	function Resolve(aGame, board, scan, pos, side) {
+		var graph = aGame.g.Graph;
+		var links = graph[pos];
+		var captured = [], capturedGroups = {};
+		var ownLiberty = false, joinsLiving = false;
+		var friends = [], friendGroups = {};
+		for(var d = 0; d < 4; d++) {
+			var n = links[d];
+			if(n === null) continue;
+			var at = board[n];
+			if(at === EMPTY) { ownLiberty = true; continue; }
+			var gid = scan.groupOf[n];
+			if(at === -side) {
+				if(scan.libs[gid] === 1 && !capturedGroups[gid]) {
+					capturedGroups[gid] = true;
+					captured = captured.concat(scan.stones[gid]);
+				}
+			} else if(scan.libs[gid] > 1)
+				joinsLiving = true;
+			else if(!friendGroups[gid]) {
+				friendGroups[gid] = true;
+				friends.push(gid);
+			}
+		}
+		// The stone lives if it has a liberty of its own, joins a group that has
+		// one to spare, or takes something off the board first.
+		var suicide = !ownLiberty && !joinsLiving && captured.length === 0;
+		if(!suicide)
+			return { captured: captured, suicide: false };
+		/*
+		 * Which stones the move would take off the board by playing it: the
+		 * new stone and every friendly group it touches. Only built on the
+		 * suicide path - it is needed to tell a legal multi-stone self-capture
+		 * from an illegal lone one, and to hash the position that results,
+		 * neither of which the common path cares about.
+		 *
+		 * Every friendly neighbour here is down to its last liberty (the one
+		 * this move fills), or joinsLiving would have been set and there would
+		 * be no suicide to weigh.
+		 */
+		var self = [pos];
+		for(var i = 0; i < friends.length; i++)
+			self = self.concat(scan.stones[friends[i]]);
+		return { captured: captured, suicide: true, self: self };
+	}
+
+	Model.Board.GenerateMoves = function(aGame) {
+		this.mMoves = [];
+		if(this.passes >= 2)
+			return;                        // the game is over; Evaluate says who won
+
+		var board = this.board, side = this.mWho;
+		var scan = Scan(aGame, board);
+		var points = aGame.g.points;
+
+		for(var pos = 0; pos < points; pos++) {
+			if(board[pos] !== EMPTY || pos === this.koPos)
+				continue;
+			var r = Resolve(aGame, board, scan, pos, side);
+			if(r.suicide) {
+				/*
+				 * Self-capture, legal under tromp-taylor and not under
+				 * chinese-ogs - and never legal for a lone stone, which is
+				 * KataGo's reading of Tromp-Taylor and therefore the one that
+				 * keeps the board and the engine agreeing.
+				 */
+				if(!aGame.g.suicideOk || r.self.length < 2)
+					continue;
+				/*
+				 * Superko applies here too, and this is the one place it would
+				 * be easy to miss: the shortcut below reasons that a move
+				 * which captures nothing only ADDS stones and so cannot repeat
+				 * a position. A self-capture is the exception - it takes its
+				 * own group off the board, and can therefore return the board
+				 * to a position it has already been in.
+				 *
+				 * The stone is placed and then removed with the rest of its
+				 * group, so its own key cancels out and only the friendly
+				 * stones that leave the board change the hash.
+				 */
+				var hs = this.hash;
+				for(var k = 0; k < r.self.length; k++)
+					if(r.self[k] !== pos)
+						hs ^= aGame.g.zobrist[SIDE01(side)][r.self[k]];
+				if(this.hist.indexOf(hs) >= 0)
+					continue;
+				this.mMoves.push({ p: pos });
+				continue;
+			}
+			/*
+			 * Positional superko, checked only where it can possibly apply.
+			 *
+			 * A move that captures nothing leaves strictly more stones on the
+			 * board than before, so the position it makes cannot equal any
+			 * earlier one - no check needed, and that is almost every move. Only
+			 * capturing moves can return to a previous position, and there are
+			 * rarely more than a handful in a position, so the exact rule costs
+			 * almost nothing.
+			 */
+			if(r.captured.length > 0) {
+				var h = this.hash ^ aGame.g.zobrist[SIDE01(side)][pos];
+				for(var i = 0; i < r.captured.length; i++)
+					h ^= aGame.g.zobrist[SIDE01(-side)][r.captured[i]];
+				if(this.hist.indexOf(h) >= 0)
+					continue;
+			}
+			this.mMoves.push(r.captured.length ? { p: pos, c: r.captured } : { p: pos });
+		}
+		// Passing is always legal, and is the only move once the board is full.
+		this.mMoves.push({ p: -1 });
+	}
+
+	Model.Board.ApplyMove = function(aGame, move) {
+		var side = this.mWho;
+		this.moveCount++;
+		this.lastPlayed = move.p;
+		if(move.p < 0) {
+			this.passes++;
+			this.koPos = -1;
+			// A pass changes no stone, so the position - and its hash - is
+			// unchanged and nothing is appended to the history.
+			return;
+		}
+		this.passes = 0;
+
+		var captured = move.c;
+		if(captured === undefined) {
+			// A move replayed from a saved game or handed over by an engine
+			// carries no capture list; work it out.
+			captured = Resolve(aGame, this.board, Scan(aGame, this.board), move.p, side).captured;
+		}
+
+		this.board[move.p] = side;
+		this.hash ^= aGame.g.zobrist[SIDE01(side)][move.p];
+		for(var i = 0; i < captured.length; i++) {
+			this.board[captured[i]] = EMPTY;
+			this.hash ^= aGame.g.zobrist[SIDE01(-side)][captured[i]];
+		}
+		this.prisoners[SIDE01(side)] += captured.length;
+
+		/*
+		 * Self-capture, under a rule set that allows it.
+		 *
+		 * Worked out here rather than carried on the move, so that a move
+		 * arriving from a saved game or from an engine - neither of which
+		 * carries a capture list - is played the same way as one this file
+		 * generated. Only a move that captured nothing can be one: taking a
+		 * stone off always leaves the new group a liberty.
+		 *
+		 * The stones go to the OPPONENT's prisoner count. Under area scoring
+		 * prisoners do not enter the score at all, but they are on screen, and
+		 * a self-capture credited to the player who walked into it would read
+		 * as a capture he made.
+		 */
+		if(captured.length === 0) {
+			var own = Group(aGame, this.board, move.p, {});
+			if(own.liberties === 0) {
+				for(var s = 0; s < own.stones.length; s++) {
+					this.board[own.stones[s]] = EMPTY;
+					this.hash ^= aGame.g.zobrist[SIDE01(side)][own.stones[s]];
+				}
+				this.prisoners[SIDE01(-side)] += own.stones.length;
+			}
+		}
+
+		/*
+		 * The simple ko point: only a move that captures exactly one stone and
+		 * is itself a lone stone with one liberty can be immediately recaptured
+		 * into the same position. Superko above would catch it anyway; naming it
+		 * here is what lets the UI grey the point out rather than silently
+		 * omitting the move.
+		 */
+		this.koPos = -1;
+		if(captured.length === 1) {
+			var group = Group(aGame, this.board, move.p, {});
+			if(group.stones.length === 1 && group.liberties === 1)
+				this.koPos = captured[0];
+		}
+
+		this.hist = this.hist.concat([this.hash]);
+	}
+
+	/* ----------------------------------------------------------- scoring */
+
+	/*
+	 * Chinese area score: a player's stones on the board, plus the empty points
+	 * that only they reach. An empty region touching both colours is neutral
+	 * (dame) and counts for nobody.
+	 *
+	 * Returns { black, white } with komi already added to white.
+	 */
+	Model.Board.goScore = function(aGame) {
+		var board = this.board, graph = aGame.g.Graph, points = aGame.g.points;
+		var area = [0, 0];
+		var seen = {};
+		for(var pos = 0; pos < points; pos++) {
+			if(board[pos] !== EMPTY) {
+				area[SIDE01(board[pos])]++;
+				continue;
+			}
+			if(seen[pos]) continue;
+			// flood the empty region, noting which colours border it
+			var region = [pos], touchesBlack = false, touchesWhite = false;
+			seen[pos] = true;
+			for(var i = 0; i < region.length; i++) {
+				var links = graph[region[i]];
+				for(var d = 0; d < 4; d++) {
+					var n = links[d];
+					if(n === null) continue;
+					var at = board[n];
+					if(at === EMPTY) {
+						if(!seen[n]) { seen[n] = true; region.push(n); }
+					} else if(at === BLACK) touchesBlack = true;
+					else touchesWhite = true;
+				}
+			}
+			if(touchesBlack && !touchesWhite) area[SIDE01(BLACK)] += region.length;
+			else if(touchesWhite && !touchesBlack) area[SIDE01(WHITE)] += region.length;
+			// bordered by both, or by neither on an empty board: neutral
+		}
+		return {
+			black: area[SIDE01(BLACK)],
+			white: area[SIDE01(WHITE)] + aGame.g.komi,
+		};
+	}
+
+	/*
+	 * The score, out to whoever is hosting the game.
+	 *
+	 * getBoardState(format) is the one channel Jocly already proxies out of
+	 * the iframe, so a host can read it without a message of its own. Other
+	 * games answer it with a FEN because that is what an engine bridge wants;
+	 * Go has no board notation to export (jocly.kata.js takes the move list,
+	 * see goExportMoves), so the format is free and "score" is what a host
+	 * actually needs: the figures behind the end of the game.
+	 *
+	 * WHY A HOST WOULD WANT THEM: the winner alone is mWinner, which Jocly
+	 * already returns. The MARGIN is not derivable from outside - area
+	 * counting is this file's business - and "wins by 3.5" is the sentence a
+	 * player expects at the end of a game of Go. Handing over the numbers
+	 * lets the host write that sentence in its own language, which is the
+	 * whole point: nothing in Jocly is translated, and a status bar drawn
+	 * here can only ever be English.
+	 *
+	 * Any other format keeps the base class's behaviour, so nothing that
+	 * calls getBoardState() without arguments changes.
+	 */
+	Model.Board.ExportBoardState = function(aGame, format) {
+		if(format !== "score")
+			return JSON.stringify(this);
+		var score = this.goScore(aGame);
+		return {
+			black:     score.black,
+			white:     score.white,
+			// Les regles avec le score : un ecart ne veut rien dire sans elles.
+			// Un hote qui ecrit le resultat quelque part -- un SGF a RU[...] --
+			// n'a pas d'autre moyen de savoir sous quoi la partie a ete comptee,
+			// le choix du prelude etant enregistre comme un coup et non comme
+			// une propriete de la position.
+			rules:     aGame.g.rules,
+			// Signed the way the game is read: positive means Black leads.
+			margin:    score.black - score.white,
+			komi:      aGame.g.komi,
+			prisoners: [this.prisoners[0], this.prisoners[1]],
+			passes:    this.passes,
+			// The score of an unfinished position is area counting on a
+			// board nobody has settled, which is not an estimate but a
+			// meaningless number. The flag says which of the two it is, so a
+			// host cannot show one for the other by accident.
+			counted:   this.passes >= 2,
+		};
+	}
+
+	Model.Board.Evaluate = function(aGame, aFinishOnly, aTopLevel) {
+		if(this.passes >= 2) {
+			var score = this.goScore(aGame);
+			this.mFinished = true;
+			if(score.black > score.white) this.mWinner = JocGame.PLAYER_A;
+			else if(score.white > score.black) this.mWinner = JocGame.PLAYER_B;
+			else this.mWinner = JocGame.DRAW;   // only reachable with integer komi
+			this.mEvaluation = 0;
+			return;
+		}
+		/*
+		 * A running score for the native AIs. It is area counting on a position
+		 * nobody has resolved yet, so it is a poor estimate mid-game - live
+		 * groups with two eyes are indistinguishable from dead ones here. Good
+		 * enough to prefer capturing to not, and no more; the engine levels are
+		 * what this game is for.
+		 */
+		var score = this.goScore(aGame);
+		this.mEvaluation = score.black - score.white;
+	}
+
+	/*
+	 * The position, as the sequence of moves that made it, for an engine.
+	 *
+	 * This is the contract jocly.kata.js asks of a game module. kataeval takes
+	 * a position as its move list and replays it itself, which is also how it
+	 * sees the captures, the ko and the network's recent-move inputs - so
+	 * unlike Fairy-Stockfish or Scan there is no board notation to export and
+	 * none to get wrong.
+	 *
+	 * loc is the point index and col is 1 black / 2 white. Whether KataGo
+	 * counts rows from the top or the bottom is not settled here and does not
+	 * need to be: the two conventions differ by a reflection of the board, the
+	 * same reflection applies to the position going in and to the move coming
+	 * back, and a reflection is a symmetry of Go. It would matter for an
+	 * ownership map or a board read back out of kgeEvalSeq; neither is used.
+	 */
+	Model.Board.goExportMoves = function(aGame) {
+		var moves = [];
+		(aGame.mPlayedMoves || []).forEach(function(played, i) {
+			// mPlayedMoves alternates from Black, who moves first in Go as in
+			// Jocly - PLAYER_A. A pass is -1 on both sides.
+			moves.push({
+				loc: played.p === undefined ? -1 : played.p,
+				col: (i % 2) === 0 ? 1 : 2,
+			});
+		});
+		return {
+			moves: moves,
+			toPlay: this.mWho === BLACK ? 1 : 2,
+			komi: aGame.g.komi,
+			boardSize: aGame.g.size,
+			// The rules this position was played under, so the engine can be
+			// asked to play under them too. See RULESETS at the top.
+			rules: aGame.g.rules,
+		};
+	}
+
+	// Passing when the board still has moves in it is legal but rarely meant, so
+	// the native AI is not allowed to end the game by accident - it may pass
+	// only when it has nothing else.
+	Model.Board.StaticGenerateMoves = function(aGame) {
+		return null;
+	}
+
+})();
