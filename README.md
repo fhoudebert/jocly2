@@ -29,7 +29,7 @@ Simple human vs computer: [Classic chess](https://fhoudebert.github.io/jocly/exa
 [Janggi](https://fhoudebert.github.io/jocly/examples/browser/control_fr.html?game=janggi),
 [Crazyhouse](https://fhoudebert.github.io/jocly/examples/browser/control_fr.html?game=crazyhouse)
 [Go 9x9](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=go9),
-[Patchanka](https://biscandine.fr/variantes/jocly2/examples/browser/control.html?game=patchanka-chess&level=expert)
+[Patchanka](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=patchanka-chess&level=expert)
 
 
 Or see and try [all available games](https://fhoudebert.github.io/jocly/examples/browser/multiple.html)
