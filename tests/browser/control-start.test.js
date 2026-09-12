@@ -96,4 +96,48 @@ t.check("un changement du joueur applique toujours le cote",
 	/setViewOptions\(\{[\s\S]{0,40}viewAs: player/.test(src), true);
 t.check("et relance la partie", /viewAs: player[\s\S]{0,160}RunMatch\(match,progressBar\)/.test(src), true);
 
+/* --------------------------------------- un tour, un resolveur */
+
+/*
+ * LE DESEQUILIBRE. `movePending` vit au niveau du MODULE -- c'est voulu, c'est
+ * lui qui empeche deux tours de s'ouvrir en meme temps quand un changement
+ * d'option relance RunMatch. Son resolveur, lui, vivait dans RunMatch, une
+ * portee par APPEL : deux appels se partageaient le drapeau mais pas le
+ * resolveur.
+ *
+ * Le garde-fou `if(movePending) return;` suffisait a l'eviter en pratique.
+ * Mais si un second NextMove passait un jour, il ecraserait le resolveur du
+ * premier, et la promesse de celui-ci ne serait JAMAIS tenue : tout ce qui
+ * l'attend -- la fin de RunMatch, donc le tour suivant -- resterait en
+ * suspens, sans erreur ni trace. Le genre de blocage qu'on ne retrouve pas.
+ */
+{
+	t.check("le resolveur ne vit plus dans RunMatch",
+		/movePendingResolver/.test(src), false);
+
+	const next = /function NextMove\(\)[\s\S]*?\n    \}/.exec(src);
+	t.check("NextMove est lisible", !!next, true);
+	const body = next ? next[0] : "";
+
+	// Capture dans le tour qu'il termine : il n'y a plus rien a ecraser.
+	t.check("chaque tour capture le sien",
+		/var resolveThisMove;[\s\S]{0,140}resolveThisMove = resolve/.test(body), true);
+
+	/*
+	 * Et la liberation est gardee deux fois. Un tour peut se terminer par sa
+	 * fin normale PUIS par son abandon -- les deux chemins appelaient la
+	 * liberation -- et il ne doit alors ni tenir sa promesse deux fois, ni
+	 * effacer le drapeau d'un tour qui n'est pas le sien.
+	 */
+	t.check("elle ne rend la main qu'une fois",
+		/if\(released\)\s*\n\s*return;/.test(body), true);
+	t.check("et ne libere le drapeau que s'il est encore le sien",
+		/if\(movePending === thisMove\)\s*\n\s*movePending = null;/.test(body), true);
+
+	// Plus aucune remise a zero directe : c'etait le chemin qui pouvait
+	// effacer le tour d'un autre.
+	const raw = (body.match(/movePending = null/g) || []).length;
+	t.check("un seul endroit remet le drapeau a zero", raw, 1);
+}
+
 t.done("control start");

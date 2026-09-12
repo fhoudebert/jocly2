@@ -210,9 +210,18 @@ function StartThinkingClock(label) {
 /*
  * Run the game
  */
+/*
+ * Un tour est-il en cours ? La promesse tenue quand il se termine, ou null.
+ *
+ * VOLONTAIREMENT AU NIVEAU DU MODULE : chaque changement d'option relance
+ * RunMatch, et c'est ce drapeau partage qui empeche deux tours de s'ouvrir en
+ * meme temps. Le reduire a une variable locale rendrait chaque appel aveugle
+ * aux autres.
+ *
+ * Son RESOLVEUR, lui, n'a rien a faire ici -- voir NextMove.
+ */
 var movePending = null;
 function RunMatch(match, progressBar) {
-    var movePendingResolver;
 
     // first make sure there is no user input or machine search in progress
     var promise = match.abortUserTurn() // just in case one is running
@@ -223,9 +232,37 @@ function RunMatch(match, progressBar) {
     function NextMove() {
         if(movePending)
             return;
-        movePending = new Promise((resolve,reject)=>{
-            movePendingResolver = resolve;
+        /*
+         * LE RESOLVEUR EST LOCAL AU TOUR QU'IL TERMINE.
+         *
+         * Il vivait dans RunMatch, une portee par APPEL, tandis que
+         * movePending vit au niveau du module. Les deux n'etaient donc pas au
+         * meme niveau : deux appels de RunMatch se partageaient le drapeau
+         * mais pas le resolveur. Le garde-fou ci-dessus suffisait a l'eviter
+         * en pratique, mais si un second NextMove passait un jour, il
+         * ecraserait le resolveur du premier -- et la promesse de celui-ci ne
+         * serait JAMAIS tenue. Tout ce qui l'attend (la fin de RunMatch, donc
+         * le tour suivant) resterait en suspens, sans erreur ni trace.
+         *
+         * Capture ici, le resolveur appartient au tour qu'il termine et a lui
+         * seul. Il n'y a plus rien a ecraser.
+         */
+        var resolveThisMove;
+        var thisMove = movePending = new Promise((resolve,reject)=>{
+            resolveThisMove = resolve;
         });
+        // Ne rend la main QU'UNE fois, et ne libere le drapeau que s'il est
+        // encore le notre : un tour termine deux fois -- par sa fin normale
+        // puis par son abandon -- ne doit pas effacer le tour suivant.
+        var released = false;
+        function ReleaseThisMove() {
+            if(released)
+                return;
+            released = true;
+            if(movePending === thisMove)
+                movePending = null;
+            resolveThisMove();
+        }
         // whose turn is it ?
         match.getTurn()
             .then((player) => {
@@ -303,16 +340,14 @@ function RunMatch(match, progressBar) {
                         return match.getFinished()
                     })
                     .then((result) => {
-                        movePending = null;
-                        movePendingResolver();
+                        ReleaseThisMove();
                         if (result.finished)
                             NotifyWinner(match, result.winner);
                         else
                             NextMove();
                         })
                     .catch((e)=>{
-                        movePending = null;
-                        movePendingResolver();
+                        ReleaseThisMove();
                         console.warn("Turn aborted:",e);
                     })
                     .then(() => {
