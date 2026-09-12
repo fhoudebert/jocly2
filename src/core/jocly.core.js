@@ -836,8 +836,10 @@
 				for (var o in optDefs)
 					if (typeof options[optDefs[o]] != "undefined")
 						self.game[o] = options[optDefs[o]];
-				if(options.viewAs && self.game.mViewOptions.switchable)
-					self.game.mViewAs = options.viewAs;
+				// Meme porte que a l'attachement : une valeur inattendue est
+				// ignoree au lieu d'etre ecrite (voir SetViewAs).
+				if(self.game.mViewOptions.switchable)
+					self.game.SetViewAs(options.viewAs);
 				self.game.GameInitView();
 				self.game.DisplayBoard();
 				if (userTurnPending)
@@ -1031,7 +1033,9 @@
 
 			var promise = new Promise(function (resolve, reject) {
 				self.game.GameDestroyView();
-				self.game.mViewAs = player;
+				// La troisieme porte, celle de l'API obsolete : elle ecrivait
+				// sans controle non plus. Meme garde que les deux autres.
+				self.game.SetViewAs(player);
 				self.game.GameInitView();
 				self.game.DisplayBoard();
 				resolve();

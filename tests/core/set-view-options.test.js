@@ -69,6 +69,18 @@ function proxy(pendingTurn, viewOptions) {
 			GameDestroyView: record("GameDestroyView"),
 			GameInitView: record("GameInitView"),
 			DisplayBoard: record("DisplayBoard"),
+			/*
+			 * mViewAs ne s'ecrit plus directement : il passe par SetViewAs,
+			 * qui refuse ce qui n'est pas un camp. C'est cette garde qui
+			 * empeche `undefined` -- le cas courant d'options relues du
+			 * stockage local, ou le cote n'est jamais enregistre -- de
+			 * retourner le plateau en silence. Voir tests/core/view-as.test.js.
+			 */
+			SetViewAs: function(player) {
+				if (player !== 1 && player !== -1) return false;
+				this.mViewAs = player;
+				return true;
+			},
 		},
 	};
 }

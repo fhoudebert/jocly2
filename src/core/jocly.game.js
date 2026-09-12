@@ -93,6 +93,32 @@ JocGame.MAX_VALUE = Math.pow(2,53);
 
 JocGame.prototype = {}
 
+/*
+ * Change le cote depuis lequel on regarde le plateau.
+ *
+ * LE SEUL CHEMIN AUTORISE POUR ECRIRE mViewAs, et il existe parce qu'un
+ * mauvais mViewAs ne provoque AUCUNE erreur : les vues comparent sa valeur
+ * (`this.mViewAs == 1`, `this.mViewAs * side < 0`), donc `undefined` ou une
+ * chaine ne font pas echouer l'affichage -- elles le retournent. Le plateau
+ * s'ouvre les blancs en haut, sans un mot dans la console, et le joueur n'a
+ * d'autre recours que de basculer vers l'autre camp puis de revenir.
+ *
+ * C'est ce qui arrivait a l'attachement quand les options de vue relues du
+ * stockage local ne portaient pas de `viewAs` -- ce qui est le cas courant,
+ * le panneau d'options n'en enregistrant pas. Voir jocly.embed.js.
+ *
+ * Une valeur inattendue est donc IGNOREE plutot qu'ecrite : mieux vaut garder
+ * l'orientation en cours que d'en prendre une qui n'existe pas.
+ */
+JocGame.prototype.SetViewAs = function(aPlayer) {
+	if(aPlayer !== JocGame.PLAYER_A && aPlayer !== JocGame.PLAYER_B)
+		return false;
+	this.mViewAs = aPlayer;
+	if(this.mOptions)
+		this.mOptions.viewAs = aPlayer;
+	return true;
+}
+
 JocGame.prototype.Init = function(aOptions) {
 	this.mWho = JocGame.PLAYER_A;
 	this.mViewAs = JocGame.PLAYER_A;
@@ -129,7 +155,7 @@ JocGame.prototype.Init = function(aOptions) {
 			this.mLoopMax = this.mOptions.loopMax;
 		this.mVisitedBoards = {};
 		if(typeof(this.mOptions.viewAs)!="undefined")
-			this.mViewAs = this.mOptions.viewAs;
+			this.SetViewAs(this.mOptions.viewAs);
 		else
 			this.mOptions.viewAs = this.mViewAs;
 	}

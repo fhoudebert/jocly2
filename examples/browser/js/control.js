@@ -329,7 +329,21 @@ function RunMatch(match, progressBar) {
                     });
             })
     }
-    match.getFinished()
+    /*
+     * ON ATTEND LES ABANDONS, et c'est le point de ce chainage.
+     *
+     * `promise` ci-dessus abandonne le tour humain et la recherche machine
+     * eventuellement en cours, mais son resultat n'etait pas attendu : la
+     * suite partait en parallele. Un RunMatch demande pendant qu'un tour tourne
+     * -- ce que fait CHAQUE changement d'option -- pouvait donc demarrer le
+     * tour suivant AVANT que l'abandon du precedent ne soit arrive, et
+     * l'abandon tuait alors le tour qu'on venait d'ouvrir. Le plateau restait
+     * muet jusqu'a la prochaine action du joueur.
+     */
+    promise
+        .then( () => {
+            return match.getFinished();
+        })
         .then( (result) => {
             // make sure the game is not finished to request next move
             if(!result.finished) {
@@ -419,6 +433,34 @@ $(document).ready(function () {
                 // get saved view options if any
                 var viewOptions = window.localStorage && window.localStorage[gameName+".options"] && 
                     JSON.parse(window.localStorage[gameName+".options"]) || undefined;
+
+                /*
+                 * Le cote memorise est range dans une clef A PART, et il n'est
+                 * donc PAS dans les options ci-dessus -- le panneau d'options
+                 * n'enregistre que l'habillage, la notation, les sons.
+                 *
+                 * Il etait rattrape apres coup, en posant la valeur dans la
+                 * liste et en simulant un changement. Cela marchait, au prix de
+                 * deux defauts : la partie demarrait deux fois (le gestionnaire
+                 * de la liste lance RunMatch, et la suite de la chaine aussi),
+                 * et le plateau s'affichait d'abord a l'endroit par defaut
+                 * avant de basculer.
+                 *
+                 * On le joint donc aux options d'attachement, la ou vont deja
+                 * toutes les autres : l'orientation est bonne du premier trait,
+                 * et plus rien n'a besoin d'etre simule.
+                 */
+                var savedViewAs = window.localStorage && window.localStorage[gameName+".view-as"];
+                if(config.view.switchable && savedViewAs) {
+                    var savedPlayer = savedViewAs=="player-a" ? Jocly.PLAYER_A
+                                    : savedViewAs=="player-b" ? Jocly.PLAYER_B : null;
+                    // Une valeur que la liste ne connait pas est ignoree : une
+                    // orientation inventee vaut moins que celle par defaut.
+                    if(savedPlayer) {
+                        viewOptions = viewOptions || {};
+                        viewOptions.viewAs = savedPlayer;
+                    }
+                }
 
                 // the match need to be attached to a DOM element for displaying the board
                 match.attachElement(area, { viewOptions: viewOptions })
@@ -516,9 +558,11 @@ $(document).ready(function () {
                                                 RunMatch(match,progressBar);                                
                                             });
                                 });
-                                var viewAs = window.localStorage && window.localStorage[gameName+".view-as"];
-                                if(viewAs)
-                                    $("#view-as").val(viewAs).trigger("change");
+                                // Sans trigger : l'orientation est deja posee a
+                                // l'attachement, et declencher le gestionnaire
+                                // ici relancerait une seconde partie.
+                                if(savedViewAs)
+                                    $("#view-as").val(savedViewAs);
                             }
 
                         })
