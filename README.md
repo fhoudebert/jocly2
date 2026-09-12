@@ -28,11 +28,9 @@ Simple human vs computer: [Classic chess](https://fhoudebert.github.io/jocly/exa
 [Rococo](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=rococo),
 [Janggi](https://fhoudebert.github.io/jocly/examples/browser/control_fr.html?game=janggi),
 [Crazyhouse](https://fhoudebert.github.io/jocly/examples/browser/control_fr.html?game=crazyhouse)
-
-Go, on three board sizes, with area scoring and a choice of rule set made before the first stone:
 [Go 9x9](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=go9),
-[Go 13x13](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=go13),
-[Go 19x19](https://fhoudebert.github.io/jocly/examples/browser/control.html?game=go19)
+[Patchanka](https://biscandine.fr/variantes/jocly2/examples/browser/control.html?game=patchanka-chess&level=expert)
+
 
 Or see and try [all available games](https://fhoudebert.github.io/jocly/examples/browser/multiple.html)
 
