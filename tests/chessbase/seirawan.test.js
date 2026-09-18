@@ -29,13 +29,36 @@ const GAME = "seirawan++-chess";
 
 	/* ------------------------------------------------ la position de départ */
 
-	// 8 colonnes sur 10 rangées : l'échiquier occupe les rangées 1 à 8, les
-	// rangées 0 et 9 sont les portes.
-	t.check("le plateau fait 8x10", [game.cbVar.geometry.width, game.cbVar.geometry.height], [8, 10]);
+	/*
+	 * UN ÉCHIQUIER DE 8x8, plus quatre colonnes hors jeu — deux de chaque côté.
+	 * Les pièces attendent dans celles de droite, à hauteur de la rangée
+	 * arrière de leur camp.
+	 *
+	 * La première version étendait la HAUTEUR, et c'était faux deux fois : les
+	 * portes y étaient des cases ordinaires où tout coulissant descendait dès
+	 * qu'elles se libéraient (Ra2-a1, Ke2-d1…), et toutes les rangées étaient
+	 * décalées — le pion e4 s'écrivait « e5 ».
+	 */
+	t.check("l'échiquier fait 8 rangées", game.cbVar.geometry.height, 8);
+	t.check("avec des colonnes hors jeu", game.cbVar.geometry.width > 8, true);
 
 	const fen = await match.getBoardState();
-	t.check("les quatre pièces attendent aux portes",
-		[/^3m!c!3\//.test(fen), /\/3C!M!3 /.test(fen)], [true, true]);
+	t.check("les quatre pièces attendent de côté",
+		[/rnbqkbnrc!m!/.test(fen), /RNBQKBNRC!M!/.test(fen)], [true, true]);
+
+	/*
+	 * AUCUN COUP NE MÈNE À UNE PORTE. C'est l'assertion qui manquait, et elle
+	 * aurait attrapé la première géométrie d'emblée : les graphes sont
+	 * désormais confinés à la zone de jeu, donc une porte vidée reste
+	 * inaccessible.
+	 */
+	{
+		const gates = [];
+		for (const r of [0, 7]) for (const n of [10, 11]) gates.push(r * 12 + n);
+		const all = await match.getPossibleMoves();
+		t.check("aucun coup ne mène à une case d'attente",
+			all.filter((m) => gates.includes(m.t & 0xffff)).length, 0);
+	}
 
 	/*
 	 * LEUR GRAPHE EST VIDE, et c'est une décision : elles n'entrent pas en se

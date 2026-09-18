@@ -52,21 +52,55 @@
 (function() {
 
 	/*
-	 * 8 colonnes, 10 rangées : l'échiquier occupe les rangées 1 à 8, et les
-	 * rangées 0 et 9 sont les PORTES où les deux pièces attendent.
+	 * UN ÉCHIQUIER DE 8x8, PLUS DES CASES HORS JEU.
+	 *
+	 * cbDropGeometry construit une grille plus large et déclare la zone de jeu
+	 * réelle : les cases hors zone existent pour le moteur mais AUCUN
+	 * coulissant n'y entre. C'est ce qu'emploie le crazyhouse pour sa réserve,
+	 * et c'est exactement le contrat dont les portes ont besoin.
+	 *
+	 * Ce n'était pas le cas d'une grille ordinaire étendue en hauteur : les
+	 * portes y étaient des cases comme les autres, et la tour descendait
+	 * dessus dès qu'une pièce en était sortie (Ra2-a1, Ke2-d1…). Le défaut
+	 * était masqué au départ, les portes étant occupées, et apparaissait à la
+	 * première entrée.
+	 *
+	 * Bénéfice second, et il compte autant : les rangées gardent leur
+	 * numérotation. Sur la grille étendue, le pion e4 s'écrivait « e5 » et
+	 * chaque notation de ce jeu était illisible pour qui connaît les échecs.
 	 *
 	 * Les pièces en attente sont sur le plateau au sens du moteur — elles ont
 	 * une case, elles comptent dans le matériel — mais leur graphe est vide :
 	 * elles ne se déplacent jamais d'elles-mêmes. C'est un coup d'une pièce de
 	 * la rangée arrière qui les fait entrer.
 	 */
-	var geometry = Model.Game.cbBoardGeometryGrid(8,10);
+	var GRID = 12;                          // 8 colonnes de jeu + 4 hors jeu
+	var geometry = Model.Game.cbBoardGeometryGrid(GRID,8);
 
-	/** La case du fichier `f` (0 = a) sur la rangée `r` (0 = porte blanche). */
-	function POS(f,r) { return r*8+f; }
+	/*
+	 * LA ZONE DE JEU, passée en `confine` à chaque graphe de pièce.
+	 *
+	 * C'est le mécanisme que drop-model.js emploie pour sa réserve : les cases
+	 * hors zone existent pour le moteur, mais aucun graphe n'y mène. On le
+	 * reprend sans charger drop-model, qui apporterait toute la machinerie du
+	 * parachutage -- son InitialPosition exige un handLayout que ce jeu n'a
+	 * pas, et le charger pour une géométrie ferait échouer la création de la
+	 * partie.
+	 */
+	geometry.handWidth = 2; geometry.handHeight = 0;
 
-	var WHITE_HOME = 1, BLACK_HOME = 8;     // rangées arrière
-	var WHITE_GATE = 0, BLACK_GATE = 9;     // rangées d'attente
+	var AREA = {};
+	for(var r=0;r<8;r++)
+		for(var f=0;f<8;f++)
+			AREA[(r*GRID + f + 2).toString()] = 1;
+
+	/** La case du fichier `f` (0 = a) sur la rangée `r` (0 = rangée 1). */
+	function POS(f,r) { return r*GRID + f + 2; }
+
+	/** Une case d'attente : hors de la zone de jeu, à droite de l'échiquier. */
+	function GATE(n,r) { return r*GRID + 10 + n; }
+
+	var WHITE_HOME = 0, BLACK_HOME = 7;     // rangées arrière
 
 	/*
 	 * LES PAIRES DE PIÈCES, en donnée.
@@ -82,9 +116,9 @@
 	var PAIRS = {
 		"marshall-cardinal": [
 			{ name:'cardinal', fen:'C', aspect:'fr-cardinal', value:7,
-			  graph: function(g,self) { return self.cbMergeGraphs(g,self.cbBishopGraph(g),self.cbKnightGraph(g)); } },
+			  graph: function(g,self) { return self.cbMergeGraphs(g,self.cbBishopGraph(g,AREA),self.cbKnightGraph(g,AREA)); } },
 			{ name:'marshall', fen:'M', aspect:'fr-marshall', value:9,
-			  graph: function(g,self) { return self.cbMergeGraphs(g,self.cbRookGraph(g),self.cbKnightGraph(g)); } },
+			  graph: function(g,self) { return self.cbMergeGraphs(g,self.cbRookGraph(g,AREA),self.cbKnightGraph(g,AREA)); } },
 		],
 	};
 
@@ -97,10 +131,10 @@
 	// Quelle piece attend sur quelle porte : fixe par le placement initial, et
 	// c'est ce qui permet a la notation de la nommer sans consulter le plateau.
 	var GATE_LETTER = {};
-	GATE_LETTER[POS(3,WHITE_GATE)] = PAIR[0].fen;
-	GATE_LETTER[POS(4,WHITE_GATE)] = PAIR[1].fen;
-	GATE_LETTER[POS(4,BLACK_GATE)] = PAIR[0].fen;
-	GATE_LETTER[POS(3,BLACK_GATE)] = PAIR[1].fen;
+	GATE_LETTER[GATE(0,WHITE_HOME)] = PAIR[0].fen;
+	GATE_LETTER[GATE(1,WHITE_HOME)] = PAIR[1].fen;
+	GATE_LETTER[GATE(0,BLACK_HOME)] = PAIR[0].fen;
+	GATE_LETTER[GATE(1,BLACK_HOME)] = PAIR[1].fen;
 	var ENTERS = {};
 	ENTERS[GATE_CARDINAL] = CARDINAL;
 	ENTERS[GATE_MARSHALL] = MARSHALL;
@@ -113,31 +147,31 @@
 			geometry: geometry,
 
 			pieceTypes: {
-				0: { name:'pawn-w', aspect:'pawn', graph:this.cbPawnGraph(geometry,1),
+				0: { name:'pawn-w', aspect:'pawn', graph:this.cbPawnGraph(geometry,1,AREA),
 				     value:1, abbrev:'', fenAbbrev:'P', epCatch:true },
-				1: { name:'ipawn-w', aspect:'pawn', graph:this.cbInitialPawnGraph(geometry,1),
+				1: { name:'ipawn-w', aspect:'pawn', graph:this.cbInitialPawnGraph(geometry,1,AREA),
 				     value:1, abbrev:'', fenAbbrev:'P', epTarget:true, epCatch:true,
-				     initial:[{s:1,p:POS(0,2)},{s:1,p:POS(1,2)},{s:1,p:POS(2,2)},{s:1,p:POS(3,2)},
-				              {s:1,p:POS(4,2)},{s:1,p:POS(5,2)},{s:1,p:POS(6,2)},{s:1,p:POS(7,2)}] },
-				2: { name:'pawn-b', aspect:'pawn', graph:this.cbPawnGraph(geometry,-1),
+				     initial:[{s:1,p:POS(0,1)},{s:1,p:POS(1,1)},{s:1,p:POS(2,1)},{s:1,p:POS(3,1)},
+				              {s:1,p:POS(4,1)},{s:1,p:POS(5,1)},{s:1,p:POS(6,1)},{s:1,p:POS(7,1)}] },
+				2: { name:'pawn-b', aspect:'pawn', graph:this.cbPawnGraph(geometry,-1,AREA),
 				     value:1, abbrev:'', fenAbbrev:'P', epCatch:true },
-				3: { name:'ipawn-b', aspect:'pawn', graph:this.cbInitialPawnGraph(geometry,-1),
+				3: { name:'ipawn-b', aspect:'pawn', graph:this.cbInitialPawnGraph(geometry,-1,AREA),
 				     value:1, abbrev:'', fenAbbrev:'P', epTarget:true, epCatch:true,
-				     initial:[{s:-1,p:POS(0,7)},{s:-1,p:POS(1,7)},{s:-1,p:POS(2,7)},{s:-1,p:POS(3,7)},
-				              {s:-1,p:POS(4,7)},{s:-1,p:POS(5,7)},{s:-1,p:POS(6,7)},{s:-1,p:POS(7,7)}] },
+				     initial:[{s:-1,p:POS(0,6)},{s:-1,p:POS(1,6)},{s:-1,p:POS(2,6)},{s:-1,p:POS(3,6)},
+				              {s:-1,p:POS(4,6)},{s:-1,p:POS(5,6)},{s:-1,p:POS(6,6)},{s:-1,p:POS(7,6)}] },
 
-				4: { name:'knight', graph:this.cbKnightGraph(geometry), value:2.9, abbrev:'N',
+				4: { name:'knight', graph:this.cbKnightGraph(geometry,AREA), value:2.9, abbrev:'N',
 				     initial:[{s:1,p:POS(1,WHITE_HOME)},{s:1,p:POS(6,WHITE_HOME)},
 				              {s:-1,p:POS(1,BLACK_HOME)},{s:-1,p:POS(6,BLACK_HOME)}] },
-				5: { name:'bishop', graph:this.cbBishopGraph(geometry), value:3.05, abbrev:'B',
+				5: { name:'bishop', graph:this.cbBishopGraph(geometry,AREA), value:3.05, abbrev:'B',
 				     initial:[{s:1,p:POS(2,WHITE_HOME)},{s:1,p:POS(5,WHITE_HOME)},
 				              {s:-1,p:POS(2,BLACK_HOME)},{s:-1,p:POS(5,BLACK_HOME)}] },
-				6: { name:'rook', graph:this.cbRookGraph(geometry), value:4.95, abbrev:'R', castle:true,
+				6: { name:'rook', graph:this.cbRookGraph(geometry,AREA), value:4.95, abbrev:'R', castle:true,
 				     initial:[{s:1,p:POS(0,WHITE_HOME)},{s:1,p:POS(7,WHITE_HOME)},
 				              {s:-1,p:POS(0,BLACK_HOME)},{s:-1,p:POS(7,BLACK_HOME)}] },
-				7: { name:'queen', graph:this.cbQueenGraph(geometry), value:9.15, abbrev:'Q',
+				7: { name:'queen', graph:this.cbQueenGraph(geometry,AREA), value:9.15, abbrev:'Q',
 				     initial:[{s:1,p:POS(3,WHITE_HOME)},{s:-1,p:POS(3,BLACK_HOME)}] },
-				8: { name:'king', graph:this.cbKingGraph(geometry), isKing:true, abbrev:'K',
+				8: { name:'king', graph:this.cbKingGraph(geometry,AREA), isKing:true, abbrev:'K',
 				     initial:[{s:1,p:POS(4,WHITE_HOME)},{s:-1,p:POS(4,BLACK_HOME)}] },
 
 				9:  { name:PAIR[0].name, aspect:PAIR[0].aspect, graph:PAIR[0].graph(geometry,self),
@@ -154,10 +188,10 @@
 				 */
 				11: { name:'gate-'+PAIR[0].name, aspect:PAIR[0].aspect, graph:empty,
 				      value:PAIR[0].value, abbrev:PAIR[0].fen, fenAbbrev:PAIR[0].fen+'!',
-				      initial:[{s:1,p:POS(3,WHITE_GATE)},{s:-1,p:POS(4,BLACK_GATE)}] },
+				      initial:[{s:1,p:GATE(0,WHITE_HOME)},{s:-1,p:GATE(0,BLACK_HOME)}] },
 				12: { name:'gate-'+PAIR[1].name, aspect:PAIR[1].aspect, graph:empty,
 				      value:PAIR[1].value, abbrev:PAIR[1].fen, fenAbbrev:PAIR[1].fen+'!',
-				      initial:[{s:1,p:POS(4,WHITE_GATE)},{s:-1,p:POS(3,BLACK_GATE)}] },
+				      initial:[{s:1,p:GATE(1,WHITE_HOME)},{s:-1,p:GATE(1,BLACK_HOME)}] },
 			},
 
 			// Ordinaire : le socle attend un tableau, et l'entrée ne passe plus
@@ -237,8 +271,8 @@
 
 	/** Les portes de ce camp, dans l'ordre où elles seront proposées. */
 	function gatesOf(who) {
-		var r = who > 0 ? WHITE_GATE : BLACK_GATE;
-		return [POS(3,r),POS(4,r)];
+		var r = who > 0 ? WHITE_HOME : BLACK_HOME;
+		return [GATE(0,r),GATE(1,r)];
 	}
 
 	/* ─── L'entrée, produite à la génération ────────────────────────────────── */
