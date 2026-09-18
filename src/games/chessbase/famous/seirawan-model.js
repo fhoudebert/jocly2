@@ -41,12 +41,12 @@
  * calculée sur un échiquier qui n'est pas celui du coup : des coups légaux
  * écartés, et des coups illégaux acceptés. Rien ne le signalerait.
  *
- * ── Ce qui n'est pas fait ────────────────────────────────────────────────────
+ * ── Le roque ─────────────────────────────────────────────────────────────────
  *
- * L'entrée AU ROQUE. Deux cases s'y libèrent, celle du roi et celle de la
- * tour ; le S-Chess l'autorise. Le socle traite le roque par un chemin séparé
- * (cbApplyCastle), et l'y greffer demande de savoir lequel des deux départs
- * l'entrée occupe. Laissé de côté plutôt qu'à moitié posé.
+ * C'est le seul coup qui libère DEUX cases, celle du roi et celle de la tour,
+ * et le S-Chess laisse entrer sur l'une ou l'autre. C'est aussi le seul qui
+ * offre un choix de case : d'où le champ `et`, inutile partout ailleurs où la
+ * pièce se pose sur la case quittée.
  */
 
 (function() {
@@ -324,13 +324,23 @@
 		var movesLength = this.mMoves.length;
 		for(var i=0;i<movesLength;i++) {
 			var move = this.mMoves[i];
-			if(move.cg !== undefined) continue;           // roque : voir l'en-tête
-			if(!this.entranceSquares[move.f]) continue;
-			for(var g=0;g<gates.length;g++) {
-				if(this.cbGatePiece(aGame,gates[g],this.mWho) < 0) continue;
-				var variant = aGame.CreateMove(move);
-				variant.en = gates[g];
-				extra.push(variant);
+			/*
+			 * AU ROQUE, DEUX CASES SE LIBÈRENT -- celle du roi et celle de la
+			 * tour -- et le S-Chess laisse entrer sur l'une ou l'autre. C'est
+			 * le seul coup qui offre un choix de case, d'où le champ `et` :
+			 * ailleurs la pièce se pose sur la case quittée, ici il faut dire
+			 * laquelle.
+			 */
+			var targets = move.cg !== undefined ? [move.f, move.cg] : [move.f];
+			for(var k=0;k<targets.length;k++) {
+				if(!this.entranceSquares[targets[k]]) continue;
+				for(var g=0;g<gates.length;g++) {
+					if(this.cbGatePiece(aGame,gates[g],this.mWho) < 0) continue;
+					var variant = aGame.CreateMove(move);
+					variant.en = gates[g];
+					variant.et = targets[k];
+					extra.push(variant);
+				}
 			}
 		}
 		for(var k=0;k<extra.length;k++)
@@ -356,13 +366,24 @@
 		if(move.en === undefined) return undo;
 		var index = this.board[move.en];
 		if(index < 0) return undo;
+		var into = entranceTarget(move);
+		// La case doit être libre APRÈS le coup principal. Au roque, le roi et
+		// la tour changent de case : si l'un d'eux retombait sur une case de
+		// départ, il n'y aurait plus de place pour la pièce entrante.
+		if(this.board[into] >= 0) return undo;
 		var piece = this.pieces[index];
-		undo.unshift({ i:index, f:move.f, t:move.en, ty:piece.t });
+		undo.unshift({ i:index, f:into, t:move.en, ty:piece.t });
 		this.board[move.en] = -1;
-		piece.p = move.f;
+		piece.p = into;
 		piece.t = ENTERS[piece.t];
-		this.board[move.f] = index;
+		this.board[into] = index;
 		return undo;
+	}
+
+	/** La case où la pièce entrante se pose : celle que `et` désigne au roque,
+	 *  sinon celle que la pièce déplacée vient de quitter. */
+	function entranceTarget(move) {
+		return move.et === undefined ? move.f : move.et;
 	}
 
 	var SuperApplyMove = Model.Board.ApplyMove;
@@ -370,19 +391,25 @@
 		var entering = move.en === undefined ? -1 : this.board[move.en];
 		SuperApplyMove.apply(this,arguments);
 
-		// La case se ferme dès qu'elle est quittée, entrée ou non.
+		// La case se ferme dès qu'elle est quittée, entrée ou non. Au roque
+		// DEUX pièces bougent : les deux cases se ferment, sans quoi la tour
+		// pourrait faire entrer une pièce longtemps après avoir roqué.
 		if(this.entranceSquares[move.f])
 			this.entranceSquares[move.f] = false;
+		if(move.cg !== undefined && this.entranceSquares[move.cg])
+			this.entranceSquares[move.cg] = false;
 
 		if(entering < 0) return;
+		var into = entranceTarget(move);
+		if(this.board[into] >= 0) return;
 		var piece = this.pieces[entering];
 		this.zSign ^= aGame.bKey(piece);
 		this.zSign ^= aGame.tKey(piece);
 		this.board[move.en] = -1;
-		piece.p = move.f;
+		piece.p = into;
 		piece.t = ENTERS[piece.t];
 		piece.r = aGame.g.pTypes[piece.t].ranking;
-		this.board[move.f] = entering;
+		this.board[into] = entering;
 		this.zSign ^= aGame.tKey(piece);
 		this.zSign ^= aGame.bKey(piece);
 	}
@@ -404,8 +431,14 @@
 		 * partie relue aurait pris la premiere des deux. C'est exactement le
 		 * piege que le commentaire d'Equals decrit pour le roque.
 		 */
-		if(this.en !== undefined)
+		if(this.en !== undefined) {
 			text += "/" + GATE_LETTER[this.en];
+			// Au roque seulement, la case : « O-O » ne dit pas laquelle des
+			// deux cases libérées la pièce occupe, et deux roques qui ne
+			// diffèrent que par là s'écriraient pareil.
+			if(this.cg !== undefined)
+				text += geometry.PosName(entranceTarget(this));
+		}
 		return text;
 	}
 
@@ -414,7 +447,8 @@
 		// Deux coups identiques dont l'un fait entrer une pièce ne sont PAS le
 		// même coup : sans cela, rejouer une partie choisirait le premier des
 		// deux et l'entrée se perdrait.
-		return SuperMoveEquals.apply(this,arguments) && this.en === move.en;
+		return SuperMoveEquals.apply(this,arguments)
+			&& this.en === move.en && this.et === move.et;
 	}
 
 	var SuperMoveCopyFrom = Model.Move.CopyFrom;
@@ -422,6 +456,8 @@
 		SuperMoveCopyFrom.apply(this,arguments);
 		if(move.en === undefined) delete this.en;
 		else this.en = move.en;
+		if(move.et === undefined) delete this.et;
+		else this.et = move.et;
 	}
 
 })();

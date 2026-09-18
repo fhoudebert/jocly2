@@ -214,5 +214,55 @@ const GAME = "seirawan++-chess";
 		if (c) t.check("et ne sont pas le même coup", a.Equals(c), false);
 	}
 
+	/* ------------------------------------------------ le roque */
+
+	/*
+	 * LE ROQUE LIBÈRE DEUX CASES — celle du roi et celle de la tour — et le
+	 * S-Chess laisse entrer sur l'une ou l'autre. C'est le seul coup qui offre
+	 * un CHOIX de case : partout ailleurs la pièce se pose sur la case quittée,
+	 * et il n'y a rien à dire.
+	 *
+	 * D'où deux choses à vérifier ensemble : que les quatre variantes existent,
+	 * et qu'elles s'écrivent différemment. « O-O/C » ne dirait pas laquelle des
+	 * deux cases le cardinal occupe, et deux roques indiscernables feraient
+	 * perdre le choix à la relecture — le même piège que la lettre de la pièce
+	 * a déjà réglé pour les coups ordinaires.
+	 */
+	{
+		const fresh = await Jocly.createMatch(GAME);
+		for (const want of ["Ng1-f3", "Ng8-f6", "e2-e3", "e7-e6", "Bf1-e2", "Bf8-e7"]) {
+			const list = await fresh.getPossibleMoves();
+			const said = await fresh.getMoveString(list);
+			await fresh.playMove(list[said.indexOf(want)]);
+		}
+		const list = await fresh.getPossibleMoves();
+		const said = await fresh.getMoveString(list);
+		const castles = [...new Set(said.filter((n) => /^O-O/.test(n)))];
+
+		t.check("le roque simple reste proposé", castles.includes("O-O"), true);
+		t.check("avec une variante par pièce et par case",
+			castles.filter((n) => /^O-O\/[CM][eh]1$/.test(n)).sort(),
+			["O-O/Ce1", "O-O/Ch1", "O-O/Me1", "O-O/Mh1"]);
+
+		// Jouer l'une d'elles : la tour et le roi bougent, et la pièce entrante
+		// prend la case nommée — pas l'autre.
+		const chosen = said.indexOf("O-O/Mh1");
+		const gate = list[chosen].en;
+		await fresh.playMove(list[chosen]);
+		const board = fresh.game.mBoard;
+		const h1 = fresh.game.cbVar.geometry.PosByName("h1");
+		t.check("la pièce entrante occupe la case nommée", board.board[h1] >= 0, true);
+		t.check("et sa porte est vide", board.board[gate] < 0, true);
+
+		/*
+		 * LES DEUX CASES SE FERMENT. Au roque deux pièces bougent ; ne fermer
+		 * que celle du roi laisserait la tour faire entrer une pièce longtemps
+		 * après avoir roqué.
+		 */
+		t.check("les deux cases libérées sont fermées",
+			[board.entranceSquares[fresh.game.cbVar.geometry.PosByName("e1")],
+				board.entranceSquares[h1]], [false, false]);
+	}
+
 	t.done("Seirawan++");
 })();
