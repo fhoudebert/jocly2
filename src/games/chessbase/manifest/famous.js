@@ -816,6 +816,7 @@ exports.games = {
 				},
 				"module": "chessbase",
 				"plazza": "true",
+                "thumbnail": "res/rules/famous/seirawan-thumbnail.png",
 				"released": 1758153600,
 				"gameOptions": config_model_gameOptions,
 				"js": modelScripts_seirawan,
