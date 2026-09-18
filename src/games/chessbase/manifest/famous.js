@@ -119,6 +119,16 @@ var modelScripts_28 = [
 	"famous/chess960-model.js"
 ]
 
+// Seirawan++ : les echecs plus deux pieces peu courantes qui entrent en jeu.
+// Rien de special a charger -- le mecanisme d'entree tient dans le fichier du
+// jeu, ce qui n'etait pas le cas de la version dont il est tire.
+var modelScripts_seirawan = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"fairy-piece-model.js",
+	"famous/seirawan-model.js"
+]
+
 var modelScripts_crazyhouse = [
 	"base-model.js",
 	"grid-geo-model.js",
@@ -788,6 +798,45 @@ exports.games = {
 			}
 		},
 		"viewScripts": config_view_js_28
+	},
+
+	"seirawan++-chess": {
+		"name": "seirawan++-chess",
+		"modelScripts": modelScripts_seirawan,
+		"config": {
+			"status": true,
+			"model": {
+				"title": {
+					"en": "Seirawan++ Chess",
+					"fr": "Échecs Seirawan++"
+				},
+				"summary": {
+					"en": "Chess with two uncommon pieces waiting to enter the game",
+					"fr": "Les échecs, plus deux pièces peu courantes qui attendent d’entrer en jeu."
+				},
+				"module": "chessbase",
+				"plazza": "true",
+				"released": 1758153600,
+				"gameOptions": config_model_gameOptions,
+				"js": modelScripts_seirawan,
+				"levels": config_model_levels_5
+			},
+			"view": {
+				"title-en": "Chessbase view",
+				"xdView": true,
+				"css": config_view_css,
+				"preferredRatio": 1,
+				"useShowMoves": true,
+				"useShowLastMove": true,
+				"useNotation": true,
+				"module": "chessbase",
+				"js": config_view_js_crazyhouse,
+				"skins": config_view_skins_preload,
+				"defaultOptions": config_view_defaultOptions,
+				"switchable": true
+			}
+		},
+		"viewScripts": config_view_js_crazyhouse
 	},
 
 	"crazyhouse": {
