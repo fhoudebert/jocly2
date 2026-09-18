@@ -18,7 +18,8 @@ const {
 	config_view_sounds, config_view_js, config_model_gameOptions_2,
 	config_view_skins_world_lightPosition_2, config_view_skins_2, config_view_skins_3,
 	config_view_skins_world_3, config_model_levels_15, config_model_gameOptions_3,
-	config_model_levels_crazyhouse_expert, config_view_skins_preload
+	config_model_levels_crazyhouse_expert, config_view_skins_preload,
+	config_view_skins_11
 } = require("./shared.js");
 
 // declarations only this family uses, lifted out of shared.js
@@ -122,6 +123,19 @@ var modelScripts_28 = [
 // Seirawan++ : les echecs plus deux pieces peu courantes qui entrent en jeu.
 // Rien de special a charger -- le mecanisme d'entree tient dans le fichier du
 // jeu, ce qui n'etait pas le cas de la version dont il est tire.
+/*
+ * Vue propre au jeu : PAS celle du crazyhouse, qui est faite pour un jeu a
+ * parachutage -- elle dessine des mains et son panneau de promotion parcourt
+ * des types parachutables que ce jeu n'a pas. fairy-set-view apporte les
+ * apparences du cardinal et du marshall, que l'ensemble Staunton ignore.
+ */
+var config_view_js_seirawan = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"famous/seirawan-view.js"
+]
+
 var modelScripts_seirawan = [
 	"base-model.js",
 	"grid-geo-model.js",
@@ -831,13 +845,25 @@ exports.games = {
 				"useShowLastMove": true,
 				"useNotation": true,
 				"module": "chessbase",
-				"js": config_view_js_crazyhouse,
-				"skins": config_view_skins_preload,
+				"js": config_view_js_seirawan,
+				/*
+				 * Les habillages de la famille feerique -- ceux de Capablanca, qui
+				 * emploie la meme fairy-set-view. Ils declarent skin3d et skin2d et
+				 * pointent vers /res/fairy/, ou vivent les maillages du cardinal et
+				 * du marshall.
+				 *
+				 * Ce champ portait config_view_skins_preload, qui n'est PAS une
+				 * liste d'habillages mais une liste de ressources a precharger. Le
+				 * jeu n'avait donc AUCUN habillage : pas de correspondance
+				 * piece-image, d'ou des glyphes de secours a la place des pieces et
+				 * une croix a la place des images introuvables.
+				 */
+				"skins": config_view_skins_11,
 				"defaultOptions": config_view_defaultOptions,
 				"switchable": true
 			}
 		},
-		"viewScripts": config_view_js_crazyhouse
+		"viewScripts": config_view_js_seirawan
 	},
 
 	"crazyhouse": {

@@ -152,31 +152,42 @@
 			geometry: geometry,
 
 			pieceTypes: {
-				0: { name:'pawn-w', aspect:'pawn', graph:this.cbPawnGraph(geometry,1,AREA),
+				/*
+				 * TOUTES LES APPARENCES SONT PRÉFIXÉES `fr-`.
+				 *
+				 * fairy-set-view définit son propre jeu de pièces, orthodoxes
+				 * comprises : `fr-pawn`, `fr-knight`… Les noms classiques
+				 * (`pawn`, `knight`) n'y existent pas, et une pièce dont
+				 * l'apparence est inconnue retombe sur son NOM — d'où des
+				 * pièces dessinées n'importe comment, seules les `fr-*` étant
+				 * correctes. Bigorra, qui emploie le même ensemble avec de
+				 * nombreuses pièces féeriques, préfixe tout de la même façon.
+				 */
+				0: { name:'pawn-w', aspect:'fr-pawn', graph:this.cbPawnGraph(geometry,1,AREA),
 				     value:1, abbrev:'', fenAbbrev:'P', epCatch:true },
-				1: { name:'ipawn-w', aspect:'pawn', graph:this.cbInitialPawnGraph(geometry,1,AREA),
+				1: { name:'ipawn-w', aspect:'fr-pawn', graph:this.cbInitialPawnGraph(geometry,1,AREA),
 				     value:1, abbrev:'', fenAbbrev:'P', epTarget:true, epCatch:true,
 				     initial:[{s:1,p:POS(0,1)},{s:1,p:POS(1,1)},{s:1,p:POS(2,1)},{s:1,p:POS(3,1)},
 				              {s:1,p:POS(4,1)},{s:1,p:POS(5,1)},{s:1,p:POS(6,1)},{s:1,p:POS(7,1)}] },
-				2: { name:'pawn-b', aspect:'pawn', graph:this.cbPawnGraph(geometry,-1,AREA),
+				2: { name:'pawn-b', aspect:'fr-pawn', graph:this.cbPawnGraph(geometry,-1,AREA),
 				     value:1, abbrev:'', fenAbbrev:'P', epCatch:true },
-				3: { name:'ipawn-b', aspect:'pawn', graph:this.cbInitialPawnGraph(geometry,-1,AREA),
+				3: { name:'ipawn-b', aspect:'fr-pawn', graph:this.cbInitialPawnGraph(geometry,-1,AREA),
 				     value:1, abbrev:'', fenAbbrev:'P', epTarget:true, epCatch:true,
 				     initial:[{s:-1,p:POS(0,6)},{s:-1,p:POS(1,6)},{s:-1,p:POS(2,6)},{s:-1,p:POS(3,6)},
 				              {s:-1,p:POS(4,6)},{s:-1,p:POS(5,6)},{s:-1,p:POS(6,6)},{s:-1,p:POS(7,6)}] },
 
-				4: { name:'knight', graph:this.cbKnightGraph(geometry,AREA), value:2.9, abbrev:'N',
+				4: { name:'knight', aspect:'fr-knight', graph:this.cbKnightGraph(geometry,AREA), value:2.9, abbrev:'N',
 				     initial:[{s:1,p:POS(1,WHITE_HOME)},{s:1,p:POS(6,WHITE_HOME)},
 				              {s:-1,p:POS(1,BLACK_HOME)},{s:-1,p:POS(6,BLACK_HOME)}] },
-				5: { name:'bishop', graph:this.cbBishopGraph(geometry,AREA), value:3.05, abbrev:'B',
+				5: { name:'bishop', aspect:'fr-bishop', graph:this.cbBishopGraph(geometry,AREA), value:3.05, abbrev:'B',
 				     initial:[{s:1,p:POS(2,WHITE_HOME)},{s:1,p:POS(5,WHITE_HOME)},
 				              {s:-1,p:POS(2,BLACK_HOME)},{s:-1,p:POS(5,BLACK_HOME)}] },
-				6: { name:'rook', graph:this.cbRookGraph(geometry,AREA), value:4.95, abbrev:'R', castle:true,
+				6: { name:'rook', aspect:'fr-rook', graph:this.cbRookGraph(geometry,AREA), value:4.95, abbrev:'R', castle:true,
 				     initial:[{s:1,p:POS(0,WHITE_HOME)},{s:1,p:POS(7,WHITE_HOME)},
 				              {s:-1,p:POS(0,BLACK_HOME)},{s:-1,p:POS(7,BLACK_HOME)}] },
-				7: { name:'queen', graph:this.cbQueenGraph(geometry,AREA), value:9.15, abbrev:'Q',
+				7: { name:'queen', aspect:'fr-queen', graph:this.cbQueenGraph(geometry,AREA), value:9.15, abbrev:'Q',
 				     initial:[{s:1,p:POS(3,WHITE_HOME)},{s:-1,p:POS(3,BLACK_HOME)}] },
-				8: { name:'king', graph:this.cbKingGraph(geometry,AREA), isKing:true, abbrev:'K',
+				8: { name:'king', aspect:'fr-king', graph:this.cbKingGraph(geometry,AREA), isKing:true, abbrev:'K',
 				     initial:[{s:1,p:POS(4,WHITE_HOME)},{s:-1,p:POS(4,BLACK_HOME)}] },
 
 				9:  { name:PAIR[0].name, aspect:PAIR[0].aspect, graph:PAIR[0].graph(geometry,self),

@@ -264,5 +264,66 @@ const GAME = "seirawan-chess";
 				board.entranceSquares[h1]], [false, false]);
 	}
 
+	/* ------------------------------------------------ la vue */
+
+	/*
+	 * LA VUE N'EST PAS CELLE DU CRAZYHOUSE, et ses habillages en sont bien.
+	 *
+	 * Le jeu empruntait la vue du parachutage, faute d'une autre sachant
+	 * dessiner des cases hors de l'échiquier : elle dessinait des mains
+	 * (pièces miniatures aux coins), réservait leur place (plateau décalé) et
+	 * son panneau de promotion parcourait des types parachutables que ce jeu
+	 * n'a pas (« pieceType.aspect is undefined » à chaque animation).
+	 *
+	 * Et `view.skins` portait `config_view_skins_preload`, qui n'est pas une
+	 * liste d'habillages mais la liste de ressources que l'un d'eux précharge.
+	 * Le jeu s'ouvrait donc SANS habillage : des glyphes de secours à la place
+	 * des pièces, une croix à la place des images. Aucun des deux défauts ne
+	 * levait d'erreur au build.
+	 *
+	 * Ce qui se voit à l'écran ne se teste pas ici ; ce qui se teste, c'est
+	 * que la vue n'emprunte plus la machinerie du parachutage et qu'elle
+	 * apporte les apparences dont ses deux pièces ont besoin.
+	 */
+	{
+		const fs = require("fs");
+		const bundle = path.join(ROOT, "dist", "browser", "games", "chessbase", GAME + "-view.js");
+		if (!fs.existsSync(bundle)) {
+			t.check("le paquet de vue existe (lancer gulp build)", true, true);
+		} else {
+			// Sur le CODE, pas sur le texte : les commentaires du jeu nomment
+			// le crazyhouse pour expliquer d'où il vient, et une recherche
+			// naïve les prendrait pour l'emprunt qu'ils décrivent.
+			const code = fs.readFileSync(bundle, "utf8")
+				.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+			t.check("la vue n'embarque pas celle du parachutage",
+				/cbDropView|cbHandLayout|dropView/.test(code), false);
+			// fairy-set-view : l'ensemble Staunton ne connaît ni le cardinal ni
+			// le marshall, et une pièce sans apparence ne se dessine pas.
+			t.check("elle apporte les apparences des deux pièces",
+				/fr-cardinal/.test(code) && /fr-marshall/.test(code), true);
+		}
+
+		/*
+		 * TOUTES LES APPARENCES SONT PRÉFIXÉES `fr-`.
+		 *
+		 * fairy-set-view définit son propre jeu de pièces, orthodoxes
+		 * comprises. Les noms classiques (`pawn`, `knight`) n'y existent pas,
+		 * et une pièce dont l'apparence est inconnue retombe sur son NOM —
+		 * elle se dessine alors n'importe comment, sans que rien ne le
+		 * signale. C'est ce qui ne laissait correctes que les deux pièces
+		 * féeriques.
+		 */
+		const types = game.cbVar.pieceTypes;
+		const strays = Object.keys(types)
+			.filter((k) => !/^fr-/.test(types[k].aspect || ""))
+			.map((k) => types[k].name);
+		t.check("chaque pièce a une apparence de l'ensemble féerique", strays, []);
+
+		const skins = (await match.getConfig()).view.skins;
+		t.check("les habillages sont des habillages",
+			skins.map((s) => s.name).sort(), ["skin2d", "skin3d"]);
+	}
+
 	t.done("Seirawan++");
 })();
