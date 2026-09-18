@@ -537,7 +537,27 @@
 		}
 
 		var last = board.lastMove;
-		place("lastfrom", last && last.f);
+
+		/*
+		 * UN SEUL COUP, DONC DEUX MARQUES OU AUCUNE.
+		 *
+		 * `f` est le discriminant, et lui seul : InitialPosition pose
+		 * `{f:-1, t:0, c:null}` -- un mannequin dont le commentaire dit qu'il
+		 * est la pour ne jamais etre pris pour une capture. Il ne doit pas
+		 * davantage etre pris pour un coup.
+		 *
+		 * Or `t` y vaut ZERO, qui est une case parfaitement valide. La marque
+		 * d'arrivee, controlee toute seule, se posait donc sur la case 0 des
+		 * l'ouverture de la partie -- visible au crazyhouse, dont la geometrie
+		 * fait 12x8 pour loger les prisonniers : le joueur voyait une case de
+		 * la reserve marquee avant d'avoir joue le moindre coup.
+		 *
+		 * Le controle par marque etait la faute : elles decrivent le MEME
+		 * coup, elles ne peuvent pas etre valides separement.
+		 */
+		var played = last && typeof last.f == "number"
+			&& last.f >= 0 && last.f < this.g.boardSize;
+		place("lastfrom", played ? last.f : undefined);
 		/*
 		 * La case d'arrivee du roque n'est pas `t` telle quelle : un coup de
 		 * roque empile la case du roi dans les 16 bits BAS et un nombre de pas
@@ -548,7 +568,7 @@
 		 * borne ci-dessus la ferait simplement disparaitre : le coup le plus
 		 * spectaculaire de la partie serait le seul a n'etre pas marque.
 		 */
-		place("lastto", last && typeof last.t == "number" ? last.t & 0xffff : undefined);
+		place("lastto", played && typeof last.t == "number" ? last.t & 0xffff : undefined);
 	}
 
 	View.Game.cbMakeDisplaySpecForPiece = function(aGame,pos,piece) {

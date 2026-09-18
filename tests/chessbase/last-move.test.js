@@ -189,10 +189,24 @@ t.check("un roque est marque sur la vraie case du roi",
  * meme champ, a -2. Marquer l'une ou l'autre poserait l'anneau n'importe ou,
  * ou ferait tomber la vue.
  */
+/*
+ * AVANT LE PREMIER COUP, AUCUNE DES DEUX -- et c'est la seconde qui manquait.
+ *
+ * Le mannequin d'InitialPosition vaut `{f:-1, t:0, c:null}`. `f` est bien
+ * ecarte, mais `t` y vaut ZERO, qui est une case parfaitement valide :
+ * controlee toute seule, la marque d'arrivee se posait donc sur la case 0 des
+ * l'ouverture. Visible au crazyhouse, dont la geometrie fait 12x8 pour loger
+ * les prisonniers -- une case de la reserve marquee avant le moindre coup.
+ *
+ * Les deux marques decrivent le MEME coup : elles ne peuvent pas etre valides
+ * separement.
+ */
 t.check("avant le premier coup, aucune marque",
-	show({ f: -1, t: 0, c: null }).from.base.visible, false);
+	[show({ f: -1, t: 0, c: null }).from.base.visible,
+		show({ f: -1, t: 0, c: null }).to.base.visible], [false, false]);
 t.check("pendant un prelude non plus",
-	show({ f: -2, t: 0, c: null }).from.base.visible, false);
+	[show({ f: -2, t: 0, c: null }).from.base.visible,
+		show({ f: -2, t: 0, c: null }).to.base.visible], [false, false]);
 // Une case hors du plateau ne se marque pas non plus : mieux vaut une marque
 // manquante qu'une marque posee a cote du damier.
 t.check("ni une case hors du plateau",
@@ -202,7 +216,14 @@ t.check("ni une case hors du plateau",
 // exact, aucun coup n'ayant ete joue.
 t.check("ni sur une position sans dernier coup",
 	[show(undefined).from.base.visible, show(undefined).to.base.visible], [false, false]);
-t.check("ni sur un champ incomplet", show({ t: 5 }).from.base.visible, false);
+t.check("ni sur un champ incomplet",
+	[show({ t: 5 }).from.base.visible, show({ t: 5 }).to.base.visible], [false, false]);
+
+// La case 0 EST une case : c'est ce qui rendait le mannequin trompeur. Un vrai
+// coup qui y arrive doit donc bien etre marque.
+t.check("mais la case 0 se marque quand un coup y arrive",
+	[show({ f: 12, t: 0, c: null }).from.base.visible,
+		show({ f: 12, t: 0, c: null }).to.base.visible], [true, true]);
 
 /* --------------------------------------------------------- l'option */
 
