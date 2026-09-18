@@ -69,6 +69,36 @@ check("no summary is empty",
  * `summary` above already is. What must not happen is neither - a game with no
  * title at all is a blank line in every list that shows it.
  */
+/*
+ * UN NOM DE JEU TRAVERSE DES URL, et c'est ce qui limite les caractères qu'il
+ * peut porter. Il voyage dans la barre d'adresse d'une fenêtre de partie
+ * (`play.html?game=…`), dans les liens d'invitation, dans les noms de fichiers
+ * exportés.
+ *
+ * Le `+` est le piège : dans une chaîne de requête il vaut ESPACE. Un jeu
+ * nommé « seirawan++-chess » arrivait donc comme « seirawan  -chess » et la
+ * fenêtre échouait sur « Game not found » — pas à la déclaration, pas au
+ * build, seulement à l'ouverture. Les enjolivures vont dans le TITRE, qui
+ * n'est jamais analysé ; l'identifiant reste sobre.
+ */
+check("game names survive a URL round trip",
+	games.filter((g) => decodeURIComponent(encodeURIComponent(g.name)) !== g.name
+		|| new URLSearchParams("game=" + g.name).get("game") !== g.name)
+		.map((g) => g.name), []);
+
+/*
+ * Et des caractères qu'un nom de fichier accepte partout : le build écrit
+ * `<module>/<nom>-model.js`, et un dist se copie entre systèmes.
+ *
+ * Les majuscules passent -- `fantasticXIII-chess` et `giga-chessII` en
+ * portent depuis toujours, et ni une URL ni un système de fichiers ne s'en
+ * plaint. Ce qui est refusé, ce sont les caractères qui ont un SENS ailleurs :
+ * `+` (un espace dans une requête), `%` (une séquence d'échappement), `&` `?`
+ * `#` (des séparateurs), `/` (un chemin), et l'espace.
+ */
+check("game names are plain", games.filter((g) => !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(g.name))
+	.map((g) => g.name), []);
+
 check("titles are still declared",
 	games.filter((g) => !g.config.model["title-en"] && !g.config.model.title)
 		.map((g) => g.name), []);

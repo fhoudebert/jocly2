@@ -1,35 +1,12 @@
 /*
- * Seirawan++ : les échecs orthodoxes, plus deux pièces peu courantes qui
+ * Seirawan++ : les échecs orthodoxes, plus deux pièces féériques qui
  * attendent hors du plateau et entrent au premier mouvement d'une pièce de la
  * rangée arrière.
  *
- * LE BUT DU JEU N'EST PAS LA VARIANTE, C'EST LA DÉCOUVERTE. On joue sur un
- * échiquier ordinaire, avec des règles ordinaires, et l'on apprend deux pièces
- * de plus. La paire est donc une DONNÉE (voir PAIRS) et non du code : un
+ * Outre la découverte de la variante, l’intérêt est de se familiariser avec de nouvelles pièces féériques du répertoire. On joue sur un échiquier ordinaire, avec des règles ordinaires, et l'on apprend deux pièces importantes de variantes de jocly. La paire est donc une DONNÉE (voir PAIRS) et non du code : un
  * prélude la choisira, et chaque paire renvoie à la variante d'où elle vient —
  * l'éléphant et le canon du shako, le kirin et le phénix du chu shogi.
  *
- * ── Ce qui a changé depuis la version 1 ──────────────────────────────────────
- *
- * Ce fichier ré-exprime un modèle écrit pour le jocly v1, où le mécanisme
- * d'entrée n'était PAS dans le jeu mais dans le socle partagé. Trois écarts, et
- * aucun ne se voyait à la lecture du bloc de règles :
- *
- *  1. `entranceSquares` — la mémoire de « cette case peut-elle encore faire
- *     entrer une pièce ? » — était initialisée, consommée et restaurée dans
- *     base-model.js. Elle vit ici.
- *
- *  2. `promote()` y rendait un objet `{promos, entrance}`. Le socle actuel
- *     attend un TABLEAU de types : `promo.length` y décide de tout. Ce retour
- *     n'aurait déclenché aucune branche — pas d'erreur, simplement plus aucun
- *     coup de promotion. L'entrée passe donc par GenerateMoves, et promote()
- *     retrouve son rôle ordinaire.
- *
- *  3. L'entrée y était encodée dans un entier (`entrance > 999`, `> 1999`)
- *     mêlant la case et le cas du roque. Ici un champ `en` porte la case de la
- *     porte, et rien d'autre.
- *
- * ── Le point qui ne se voit pas à l'œil ──────────────────────────────────────
  *
  * La pièce qui entre se pose sur la case que la pièce déplacée vient de
  * QUITTER. Un coup avec entrée laisse donc cette case occupée, là où un coup

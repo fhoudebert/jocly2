@@ -800,8 +800,8 @@ exports.games = {
 		"viewScripts": config_view_js_28
 	},
 
-	"seirawan++-chess": {
-		"name": "seirawan++-chess",
+	"seirawan-chess": {
+		"name": "seirawan-chess",
 		"modelScripts": modelScripts_seirawan,
 		"config": {
 			"status": true,

@@ -19,7 +19,7 @@ const ROOT = path.join(__dirname, "..", "..");
 const Jocly = require(path.join(ROOT, "dist", "node", "jocly.core.js"));
 const t = require(path.join(ROOT, "tests", "fairy", "harness.js")).runner();
 
-const GAME = "seirawan++-chess";
+const GAME = "seirawan-chess";
 
 (async function () {
 

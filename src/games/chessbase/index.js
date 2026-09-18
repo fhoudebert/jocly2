@@ -121,5 +121,5 @@ exports.games = [
 	locust["minjiku-shogi"],
 	historical["acedrex-chess"],
 	famous["crazyhouse"],
-	famous["seirawan++-chess"],
+	famous["seirawan-chess"],
 ];
