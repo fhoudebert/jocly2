@@ -89,6 +89,34 @@
 	 */
 	geometry.handWidth = 2; geometry.handHeight = 0;
 
+	/*
+	 * LE NOM DES CASES, décalé de deux colonnes.
+	 *
+	 * La grille fait douze colonnes, mais l'échiquier commence à la troisième :
+	 * sans correction, le pion `a` s'appelle « c2 » et chaque notation de ce
+	 * jeu est illisible pour qui connaît les échecs.
+	 *
+	 * Le crazyhouse, sur la même grille, fait la même correction -- mais dans
+	 * sa propre réécriture de Move.ToString, avec un `Name()` qui calcule
+	 * `95 + C(pos)`. Il ne pouvait pas faire autrement : il avait de toute
+	 * façon à réécrire la notation pour les parachutages, la promotion et le
+	 * roque.
+	 *
+	 * Ici il n'y a rien à réécrire : la notation des échecs du socle convient,
+	 * avec sa désambiguïsation et ses roques. On corrige donc à la SOURCE, sur
+	 * la géométrie, et tout ce qui nomme une case en profite -- la notation,
+	 * l'export FEN de la case en passant, la lecture d'un coup écrit.
+	 */
+	var rawPosName = geometry.PosName, rawPosByName = geometry.PosByName;
+	geometry.PosName = function(pos) {
+		return String.fromCharCode(95 + geometry.C(pos)) + (geometry.R(pos) + 1);
+	};
+	geometry.PosByName = function(str) {
+		var m = /^([a-z])([0-9]+)$/.exec(str);
+		if(!m) return -1;
+		return POS(m[1].charCodeAt(0) - 97, parseInt(m[2],10) - 1);
+	};
+
 	var AREA = {};
 	for(var r=0;r<8;r++)
 		for(var f=0;f<8;f++)

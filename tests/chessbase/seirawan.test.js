@@ -92,6 +92,24 @@ const GAME = "seirawan++-chess";
 	t.check("et nomme la pièce qui entre",
 		entering.every((n) => /\/[CM]$/.test(n)), true);
 
+	/*
+	 * LES CASES PORTENT LEUR NOM D'ÉCHECS.
+	 *
+	 * La grille fait douze colonnes, mais l'échiquier commence à la troisième :
+	 * sans correction, le pion `a` s'appelle « c2 » et chaque notation de ce
+	 * jeu est illisible. La correction est faite sur la GÉOMÉTRIE, donc la
+	 * notation du socle, l'export FEN et la lecture d'un coup écrit en
+	 * profitent ensemble — là où le crazyhouse doit la refaire dans sa propre
+	 * réécriture de ToString, n'ayant de toute façon pas le choix.
+	 */
+	t.check("l'ouverture s'écrit comme aux échecs",
+		names.filter((n) => /^a2-a[34]$/.test(n)).length, 2);
+	t.check("et le cavalier part bien de b1",
+		entering.some((n) => /^Nb1-/.test(n)), true);
+	// Aller-retour : un coup écrit se relit sur la même case.
+	t.check("un nom de case se relit",
+		game.cbVar.geometry.PosName(game.cbVar.geometry.PosByName("e1")), "e1");
+
 	// Seules les pièces de la rangée arrière ouvrent une entrée : un coup de
 	// pion n'en propose aucune.
 	const pawnWithEntrance = names.filter((n) => /^[a-h]\d/.test(n) && /\//.test(n));
