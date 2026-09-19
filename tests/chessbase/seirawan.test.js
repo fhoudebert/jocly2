@@ -519,6 +519,40 @@ const match = await started();
 				seen[a] = variant.pieceTypes[k].name;
 			}
 			t.check("aucune lettre n'est portée par deux pièces", clashes, []);
+
+			/*
+			 * UNE PIÈCE PARTAGÉE N'EST DÉCLARÉE QU'UNE FOIS.
+			 *
+			 * Le marshall paraît dans deux arrangements — la paire d'origine
+			 * et celle du Khan. Deux déclarations auraient demandé deux
+			 * lettres et deux types, pour une pièce qui se dessine pareil :
+			 * un joueur qui la rencontre dans les deux arrangements doit
+			 * reconnaître LA MÊME, c'est tout l'objet de ce jeu.
+			 */
+			const names = Object.keys(variant.pieceTypes).map((k) => variant.pieceTypes[k].name);
+			t.check("aucun type n'est déclaré deux fois",
+				names.filter((n, i) => names.indexOf(n) !== i), []);
+			t.check("et le marshall n'existe qu'en un exemplaire",
+				names.filter((n) => n === "marshall").length, 1);
+		}
+
+		/*
+		 * L'ARRANGEMENT QUI EMPRUNTE écrit la lettre de la pièce empruntée.
+		 *
+		 * La chaîne du prélude est construite APRÈS la résolution des
+		 * reprises : l'écrire depuis les données brutes donnerait une lettre
+		 * inexistante pour la pièce partagée, et le prélude retyperait sur du
+		 * vide — la case resterait avec la pièce de l'arrangement précédent,
+		 * en silence.
+		 */
+		{
+			const m = await started(3);
+			const gates = [];
+			for (const p of m.game.mBoard.pieces)
+				if (p && /^gate-/.test(variant.pieceTypes[p.t].name || ""))
+					gates.push(variant.pieceTypes[p.t].name);
+			t.check("l'arrangement du Khan pose bien le marshall partagé",
+				[...new Set(gates)].sort(), ["gate-crowned-knight", "gate-marshall"]);
 		}
 		t.check("deux lettres par arrangement",
 			dialog.setups.every((s) => s.length === 2), true);

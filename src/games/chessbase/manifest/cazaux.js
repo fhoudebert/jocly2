@@ -62,6 +62,9 @@ var config_view_js_29 = [
 var modelScripts_tera = [
 	"base-model.js",
 	"grid-geo-model.js",
+	// Le navire y vit desormais, avec les autres graphes feeriques, au
+	// lieu d'etre recopie dans chaque jeu qui l'emploie.
+	"fairy-piece-model.js",
 	"cazaux/terachess-model.js"
 ]
 
@@ -75,6 +78,9 @@ var config_view_js_tera = [
 var modelScripts_giga = [
 	"base-model.js",
 	"grid-geo-model.js",
+	// Le navire y vit desormais, avec les autres graphes feeriques, au
+	// lieu d'etre recopie dans chaque jeu qui l'emploie.
+	"fairy-piece-model.js",
 	"cazaux/gigachess-model.js"
 ]
 

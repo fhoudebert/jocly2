@@ -171,8 +171,17 @@
 		"khan": [
 			{ name:'crowned-knight', fen:'J', aspect:'fr-crowned-knight', value:8,
 			  graph: function(g,self) { return self.cbSymmetricGraph(g,[10,11,21],AREA); } },
-			{ name:'khan-marshall', fen:'W', aspect:'fr-proper-marshall', value:9,
-			  graph: function(g,self) { return self.cbMarshallGraph(g,AREA); } },
+			/*
+			 * LE MÊME MARSHALL QUE LA PREMIÈRE PAIRE, pas un second.
+			 *
+			 * Une paire peut REPRENDRE une pièce déjà déclarée : `same` dit
+			 * laquelle, et aucun type n'est créé. Deux marshalls auraient
+			 * demandé deux lettres, deux entrées dans la table, et se
+			 * seraient dessinés pareil -- un joueur qui les rencontre dans
+			 * deux arrangements doit reconnaître LA MÊME pièce, c'est tout
+			 * l'objet de ce jeu.
+			 */
+			{ same:'marshall' },
 		],
 	};
 
@@ -197,6 +206,7 @@
 	var ENTERS = {};          // forme en attente -> forme de jeu
 	var ABBREV = {};          // type -> lettre, pour la notation
 	var GATE_OF = {};         // type en attente -> rang dans sa paire (0 ou 1)
+	var SETUPS = [];          // chaîne d'abréviations, une par arrangement
 
 	function pairTypes(index) {
 		var base = FIRST_PAIR_TYPE + index * 4;
@@ -298,9 +308,10 @@
 				panelWidth: 2,
 				// En minuscules : ce sont les formes EN ATTENTE que le prélude
 				// pose aux portes, pas les pièces de jeu.
-				setups: PAIR_KEYS.map(function(key) {
-					return (PAIRS[key][0].fen + PAIRS[key][1].fen).toLowerCase();
-				}),
+				// Rempli à la déclaration des types, une fois les reprises
+				// résolues : une paire qui emprunte une pièce à une autre doit
+				// écrire LA LETTRE DE CELLE-CI, pas une nouvelle.
+				setups: SETUPS,
 				squares: {
 					1:  [GATE(0,WHITE_HOME), GATE(1,WHITE_HOME)],
 					'-1':[GATE(0,BLACK_HOME), GATE(1,BLACK_HOME)],
@@ -317,9 +328,23 @@
 		 * Seule la PREMIÈRE paire est posée aux portes. Le prélude retypera
 		 * ces mêmes pièces selon l'arrangement choisi ; il n'en crée aucune.
 		 */
+		/*
+		 * Les types déjà déclarés, par nom : une paire qui reprend une pièce
+		 * d'une paire précédente y pointe au lieu d'en créer une seconde.
+		 */
+		var byName = {};
+
 		PAIR_KEYS.forEach(function(key, index) {
 			var pair = PAIRS[key], t = pairTypes(index);
 			pair.forEach(function(piece, rank) {
+				if(piece.same !== undefined) {
+					// Reprise : les deux types existent déjà, on ne fait que
+					// les désigner pour cet arrangement.
+					var reused = byName[piece.same];
+					t.play[rank] = reused.play;
+					t.gate[rank] = reused.gate;
+					return;
+				}
 				variant.pieceTypes[t.play[rank]] = {
 					name: piece.name, aspect: piece.aspect, value: piece.value,
 					abbrev: piece.fen, graph: piece.graph(geometry, self),
@@ -362,7 +387,12 @@
 				ABBREV[t.play[rank]] = piece.fen;
 				ABBREV[t.gate[rank]] = piece.fen;
 				GATE_OF[t.gate[rank]] = rank;
+				byName[piece.name] = { play: t.play[rank], gate: t.gate[rank] };
 			});
+			// La chaîne de l'arrangement, une fois les reprises résolues.
+			SETUPS[index] = pair.map(function(piece, rank) {
+				return ABBREV[t.gate[rank]].toLowerCase();
+			}).join("");
 		});
 
 		return variant;

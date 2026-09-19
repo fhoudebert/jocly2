@@ -16,7 +16,10 @@ const H = require("./harness.js");
 
 const SETS = {
 	metamachy: ["base-model.js", "grid-geo-model.js", "cazaux/metamachy-model.js"],
-	terachess: ["base-model.js", "grid-geo-model.js", "cazaux/terachess-model.js"],
+	// fairy-piece-model.js porte desormais cbShipGraph, qui etait recopie dans
+	// chaque jeu l'employant. Meme liste que le manifeste.
+	terachess: ["base-model.js", "grid-geo-model.js", "fairy-piece-model.js",
+		"cazaux/terachess-model.js"],
 };
 
 const load = (name) => H.context(SETS[name]);
