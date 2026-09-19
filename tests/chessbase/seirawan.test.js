@@ -496,7 +496,7 @@ const match = await started();
 		const variant = (await started()).game.cbVar;
 		const dialog = variant.prelude[0];
 		t.check("le panneau a deux colonnes", dialog.panelWidth, 2);
-		t.check("un arrangement par paire", dialog.setups.length >= 6, true);
+		t.check("un arrangement par paire", dialog.setups.length >= 9, true);
 
 		/*
 		 * LES LETTRES SONT UNIQUES, et c'est une contrainte de la variante et
@@ -519,6 +519,22 @@ const match = await started();
 				seen[a] = variant.pieceTypes[k].name;
 			}
 			t.check("aucune lettre n'est portée par deux pièces", clashes, []);
+
+			/*
+			 * ET IL EN RESTE. Une seule table de types contient toutes les
+			 * paires, donc chaque pièce consomme une lettre de l'alphabet.
+			 * Quatre ont déjà dû changer par rapport à leur jeu d'origine — le
+			 * blaireau, le bélier, le faucon, le mammouth — parce que la leur
+			 * était prise ici.
+			 *
+			 * Cette assertion dit où en est la réserve. Quand elle échouera,
+			 * ce ne sera pas une régression : ce sera le signal qu'une paire
+			 * de plus demande autre chose qu'une lettre unique.
+			 */
+			const free = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")
+				.filter((c) => !seen[c]);
+			t.check("il reste des lettres pour d'autres paires (" + free.join("") + ")",
+				free.length > 0, true);
 
 			/*
 			 * UNE PIÈCE PARTAGÉE N'EST DÉCLARÉE QU'UNE FOIS.

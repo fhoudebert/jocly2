@@ -140,6 +140,48 @@
 			{ name:'cannon', fen:'X', aspect:'fr-cannon', value:3,
 			  graph: function(g,self) { return self.cbXQCannonGraph(g,AREA); } },
 		],
+		/*
+		 * Timurid. Le navire prendrait « X » dans son jeu d'origine, mais
+		 * cette lettre est ici celle du canon du Shako : il reçoit « V ».
+		 *
+		 * Les lettres n'ont de sens QUE dans cette variante -- une seule table
+		 * de types les contient toutes -- et rien n'oblige à retrouver celles
+		 * des jeux d'origine. Ce qui doit rester fidèle, c'est le mouvement et
+		 * l'apparence : c'est par eux qu'on reconnaîtra la pièce ailleurs.
+		 */
+		"timurid": [
+			{ name:'ship', fen:'V', aspect:'fr-ship', value:5,
+			  graph: function(g,self) { return self.cbShipGraph(g,AREA); } },
+			{ name:'snake', fen:'S', aspect:'fr-cobra', value:3.7,
+			  graph: function(g,self) { return self.cbSnakeGraph(g,AREA); } },
+		],
+		/*
+		 * Patchanka. Le blaireau y porte « B » et le bélier « R », pris ici
+		 * par le fou et la tour : ils reçoivent « A » et « L ».
+		 */
+		"patchanka": [
+			{ name:'badger', fen:'A', aspect:'fr-badger', value:5.3,
+			  graph: function(g,self) { return self.cbSymmetricGraph(g,[-11,20],AREA); } },
+			{ name:'ram', fen:'L', aspect:'fr-ram', value:6.3,
+			  graph: function(g,self) { return self.cbSymmetricGraph(g,[-10,22],AREA); } },
+		],
+		/*
+		 * Fantastic XIII. Le faucon y porte « H », pris par le phénix du chu
+		 * shogi, et le mammouth « M », pris par le marshall : « F » et « W ».
+		 */
+		"fantastic": [
+			{ name:'hawk', fen:'F', aspect:'fr-hawk', value:5.5,
+			  graph: function(g,self) { return self.cbShortRangeGraph(g,[
+				[-3,3],[-2,2],[0,2],[2,2],[3,3],[0,3],
+				[-2,0],[-3,0],[2,0],[3,0],[0,-2],[0,-3],
+				[2,-2],[3,-3],[-2,-2],[-3,-3]],AREA); } },
+			{ name:'mammoth', fen:'W', aspect:'fr-mammoth', value:6.2,
+			  graph: function(g,self) { return self.cbMergeGraphs(g,
+				self.cbKingGraph(g,AREA),
+				self.cbShortRangeGraph(g,[
+					[-2,-2],[0,-2],[-2,2],[0,2],[2,2],[2,0],
+					[-2,0],[2,-2]],AREA)); } },
+		],
 		// Chu shogi
 		"chu": [
 			{ name:'phoenix', fen:'H', aspect:'fr-phoenix', value:2.9,
@@ -189,7 +231,7 @@
 	// que le prélude enregistre. Il ne doit donc plus changer une fois des
 	// parties sauvegardées — un arrangement est désigné par son rang.
 	var PAIR_KEYS = ["marshall-cardinal", "rhino-griffon", "elephant-cannon", "khan",
-		"chu", "spartan"];
+		"chu", "spartan", "timurid", "patchanka", "fantastic"];
 
 	/*
 	 * TOUTES LES PAIRES SONT DÉCLARÉES, pas seulement celle qui commence.
