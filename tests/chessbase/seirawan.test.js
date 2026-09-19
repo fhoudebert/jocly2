@@ -569,6 +569,32 @@ const match = await started();
 			t.check("et chaque ressource préchargée existe", absent, []);
 		}
 
+		/*
+		 * L'ÉCLAIRAGE 3D EST ADOUCI, et il l'est POUR CE JEU SEULEMENT.
+		 *
+		 * Le monde de Capablanca est partagé par quatre-vingts jeux : on en
+		 * dérive une copie plutôt que de le modifier. Ce test garde les deux
+		 * moitiés — que le réglage soit bien appliqué ici, et que l'original
+		 * n'ait pas bougé.
+		 */
+		{
+			const shared = require("../../src/games/chessbase/manifest/shared.js");
+			const world = skins.find((s) => s["3d"]).world;
+			t.check("l'ambiante relève les ombres",
+				world.ambientLightColor > shared.config_view_skins_world.ambientLightColor, true);
+			t.check("les ombres portées sont plus claires",
+				world.lightShadowDarkness < shared.config_view_skins_world.lightShadowDarkness, true);
+			// Mais elles existent encore : les supprimer aplatirait les pièces.
+			t.check("sans disparaître", world.lightShadowDarkness > 0 && world.lightCastShadow, true);
+			// Et la lumière du ciel ne bouge pas : c'est elle qui donne son
+			// relief au plateau.
+			t.check("la lumière du ciel est inchangée",
+				world.skyLightIntensity, shared.config_view_skins_world.skyLightIntensity);
+			t.check("et le monde partagé n'a pas été modifié",
+				[shared.config_view_skins_world.ambientLightColor,
+					shared.config_view_skins_world.lightShadowDarkness], [0x222222, 0.55]);
+		}
+
 		t.check("les habillages sont des habillages",
 			skins.map((s) => s.name).sort(), ["skin2d", "skin3d"]);
 	}

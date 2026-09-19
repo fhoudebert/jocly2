@@ -235,12 +235,38 @@ var config_view_skins_preload_seirawan = config_view_skins_preload_10.concat([
 	"image|/res/fairy/crowned-knight/crowned-knight-normalmap.jpg"
 ])
 
+/*
+ * ÉCLAIRAGE ADOUCI : moins d'ombre, moins de contraste.
+ *
+ * Le monde 3D partage celui de Capablanca, que quatre-vingts jeux emploient :
+ * on en derive une copie plutot que de le modifier, pour que le reglage
+ * n'affecte que ce jeu.
+ *
+ * Trois valeurs changent, et chacune agit sur une chose precise :
+ *
+ *   - `ambientLightColor` passe de 0x222222 a 0x3a3a3a : la lumiere ambiante
+ *     releve les zones les plus sombres, donc elle REDUIT l'ecart entre
+ *     ombres et lumieres. C'est le levier principal du contraste ;
+ *   - `lightShadowDarkness` de 0.55 a 0.35 : les ombres portees s'eclaircissent
+ *     sans disparaitre -- les supprimer aplatirait les pieces ;
+ *   - `lightIntensity` de 1.3 a 1.15 : la lumiere principale frappe moins fort,
+ *     ce qui adoucit les reflets sur les pieces claires.
+ *
+ * La lumiere du ciel ne bouge pas : c'est elle qui donne son relief au
+ * plateau, et la baisser rendrait les cases plates.
+ */
+var config_view_skins_world_seirawan = Object.assign({}, config_view_skins_world, {
+	lightIntensity: 1.15,
+	lightShadowDarkness: 0.35,
+	ambientLightColor: 0x3a3a3a,
+})
+
 var config_view_skins_seirawan = [
 	// Le 3D de Capablanca, avec NOTRE liste de prechargement.
 	{
 		"name": "skin3d", "title": "3D Classic", "3d": true,
 		"preload": config_view_skins_preload_seirawan,
-		"world": config_view_skins_world,
+		"world": config_view_skins_world_seirawan,
 		"camera": config_view_skins_camera
 	},
 	config_view_skins_9
