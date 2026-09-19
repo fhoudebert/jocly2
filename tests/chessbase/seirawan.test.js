@@ -53,8 +53,17 @@ const GAME = "seirawan-chess";
 	 * inaccessible.
 	 */
 	{
+		/*
+		 * Les cases d'attente lues dans le MANIFESTE plutôt qu'écrites ici :
+		 * elles ont déjà changé une fois — deux colonnes au lieu de quatre,
+		 * l'échiquier ramené à gauche — et des indices recopiés auraient rendu
+		 * le test muet sans cesser de passer.
+		 */
 		const gates = [];
-		for (const r of [0, 7]) for (const n of [10, 11]) gates.push(r * 12 + n);
+		for (const k of Object.keys(game.cbVar.pieceTypes))
+			if (/^gate-/.test(game.cbVar.pieceTypes[k].name || ""))
+				(game.cbVar.pieceTypes[k].initial || []).forEach((p) => gates.push(p.p));
+		t.check("les quatre cases d'attente sont connues", gates.length, 4);
 		const all = await match.getPossibleMoves();
 		t.check("aucun coup ne mène à une case d'attente",
 			all.filter((m) => gates.includes(m.t & 0xffff)).length, 0);

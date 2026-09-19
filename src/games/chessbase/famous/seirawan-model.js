@@ -51,7 +51,16 @@
 	 * elles ne se déplacent jamais d'elles-mêmes. C'est un coup d'une pièce de
 	 * la rangée arrière qui les fait entrer.
 	 */
-	var GRID = 12;                          // 8 colonnes de jeu + 4 hors jeu
+	/*
+	 * DIX COLONNES : les huit de l'échiquier, plus deux d'attente à droite.
+	 *
+	 * Le crazyhouse en réserve QUATRE -- deux de chaque côté -- parce qu'il a
+	 * deux mains à montrer, une par joueur, et qu'elles se remplissent. Ici
+	 * rien ne se parachute : deux cases par camp suffisent, et elles ne
+	 * bougent jamais. Les deux colonnes de gauche n'auraient rien à contenir
+	 * et poussaient l'échiquier hors du centre.
+	 */
+	var GRID = 10;                          // 8 colonnes de jeu + 2 d'attente
 	var geometry = Model.Game.cbBoardGeometryGrid(GRID,8);
 
 	/*
@@ -64,46 +73,26 @@
 	 * pas, et le charger pour une géométrie ferait échouer la création de la
 	 * partie.
 	 */
-	geometry.handWidth = 2; geometry.handHeight = 0;
-
 	/*
-	 * LE NOM DES CASES, décalé de deux colonnes.
-	 *
-	 * La grille fait douze colonnes, mais l'échiquier commence à la troisième :
-	 * sans correction, le pion `a` s'appelle « c2 » et chaque notation de ce
-	 * jeu est illisible pour qui connaît les échecs.
-	 *
-	 * Le crazyhouse, sur la même grille, fait la même correction -- mais dans
-	 * sa propre réécriture de Move.ToString, avec un `Name()` qui calcule
-	 * `95 + C(pos)`. Il ne pouvait pas faire autrement : il avait de toute
-	 * façon à réécrire la notation pour les parachutages, la promotion et le
-	 * roque.
-	 *
-	 * Ici il n'y a rien à réécrire : la notation des échecs du socle convient,
-	 * avec sa désambiguïsation et ses roques. On corrige donc à la SOURCE, sur
-	 * la géométrie, et tout ce qui nomme une case en profite -- la notation,
-	 * l'export FEN de la case en passant, la lecture d'un coup écrit.
+	 * Les colonnes d'attente sont à DROITE, après l'échiquier : rien à
+	 * réserver à gauche, donc rien à décaler.
 	 */
-	var rawPosName = geometry.PosName, rawPosByName = geometry.PosByName;
-	geometry.PosName = function(pos) {
-		return String.fromCharCode(95 + geometry.C(pos)) + (geometry.R(pos) + 1);
-	};
-	geometry.PosByName = function(str) {
-		var m = /^([a-z])([0-9]+)$/.exec(str);
-		if(!m) return -1;
-		return POS(m[1].charCodeAt(0) - 97, parseInt(m[2],10) - 1);
-	};
+	geometry.handWidth = 0; geometry.handHeight = 0;
+
+	// Les colonnes d'attente venant APRÈS l'échiquier, la colonne `a` est bien
+	// la première : le nommage du socle convient tel quel, et la correction
+	// qu'imposaient deux colonnes à gauche n'a plus lieu d'être.
 
 	var AREA = {};
 	for(var r=0;r<8;r++)
 		for(var f=0;f<8;f++)
-			AREA[(r*GRID + f + 2).toString()] = 1;
+			AREA[(r*GRID + f).toString()] = 1;
 
 	/** La case du fichier `f` (0 = a) sur la rangée `r` (0 = rangée 1). */
-	function POS(f,r) { return r*GRID + f + 2; }
+	function POS(f,r) { return r*GRID + f; }
 
 	/** Une case d'attente : hors de la zone de jeu, à droite de l'échiquier. */
-	function GATE(n,r) { return r*GRID + 10 + n; }
+	function GATE(n,r) { return r*GRID + 8 + n; }
 
 	var WHITE_HOME = 0, BLACK_HOME = 7;     // rangées arrière
 
