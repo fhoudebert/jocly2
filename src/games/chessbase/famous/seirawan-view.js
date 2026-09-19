@@ -27,6 +27,23 @@
 		var boardDelta = {
 			notationMode: 'in',
 		};
+		/*
+		 * LA BANDE D'ATTENTE A SA PROPRE COULEUR.
+		 *
+		 * Le damier se peint depuis `boardLayout`, dont chaque caractère
+		 * désigne une couleur de `colorFill`. Les deux colonnes d'attente y
+		 * entrent donc avec un symbole à elles -- « = » -- plutôt que par un
+		 * dessin ajouté après coup : c'est le même mécanisme que pour les
+		 * cases du jeu, et il vaut pour la 2D comme pour la 3D.
+		 *
+		 * La teinte est volontairement HORS de la gamme du damier. Reprendre
+		 * l'une des deux couleurs de cases ferait lire la bande comme un
+		 * prolongement de l'échiquier, ce qu'elle n'est pas : aucune pièce ne
+		 * s'y déplace, et rien ne peut y être joué.
+		 */
+		boardDelta.colorFill = $.extend({}, this.cbGridBoardClassic2D.colorFill, {
+			"=": "#8C7B68",
+		});
 		var board3d = $.extend(true,{},this.cbGridBoardClassic3DMargin,boardDelta);
 		var board2d = $.extend(true,{},this.cbGridBoardClassic2DNoMargin,boardDelta);
 
@@ -40,15 +57,24 @@
 			 * du damier. Les y ajouter les ferait peindre en cases de jeu, et
 			 * un joueur y verrait un prolongement de l'échiquier.
 			 */
+			/*
+			 * Dix colonnes : les huit du damier, puis les deux d'attente.
+			 *
+			 * Elles étaient absentes de ce dessin, donc peintes du fond du
+			 * plateau -- une zone blanche sans limite, où les deux pièces
+			 * semblaient flotter. Les y faire figurer avec leur propre symbole
+			 * leur donne un cadre, sans les faire passer pour des cases
+			 * jouables.
+			 */
 			boardLayout: [
-				".#.#.#.#",
-				"#.#.#.#.",
-				".#.#.#.#",
-				"#.#.#.#.",
-				".#.#.#.#",
-				"#.#.#.#.",
-				".#.#.#.#",
-				"#.#.#.#.",
+				".#.#.#.#==",
+				"#.#.#.#.==",
+				".#.#.#.#==",
+				"#.#.#.#.==",
+				".#.#.#.#==",
+				"#.#.#.#.==",
+				".#.#.#.#==",
+				"#.#.#.#.==",
 			],
 			board: {
 				"2d": { draw: this.cbDrawBoardFn(board2d) },

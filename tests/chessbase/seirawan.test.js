@@ -431,6 +431,35 @@ const GAME = "seirawan-chess";
 				said.filter((n) => /^Nb1-c3/.test(n)).some((n) => /=/.test(n)), false);
 		}
 
+		/*
+		 * LA BANDE D'ATTENTE FIGURE DANS LE DESSIN DU PLATEAU.
+		 *
+		 * Le damier se peint depuis `boardLayout`, dont chaque caractère
+		 * désigne une couleur. Les deux colonnes d'attente en étaient absentes
+		 * et prenaient donc le fond du plateau — une zone sans limite où les
+		 * deux pièces semblaient flotter.
+		 *
+		 * Leur symbole doit rester DISTINCT de ceux du damier : reprendre
+		 * l'une de ses deux couleurs ferait lire la bande comme un
+		 * prolongement de l'échiquier, ce qu'elle n'est pas — aucune pièce ne
+		 * s'y déplace.
+		 */
+		{
+			// Lu dans la SOURCE de la vue : boardLayout vit dans cbDefineView,
+			// que Node ne charge pas -- la vue ne tourne que dans le
+			// navigateur.
+			const source = require("fs").readFileSync(
+				path.join(ROOT, "src", "games", "chessbase", "famous", "seirawan-view.js"), "utf8");
+			const block = /boardLayout:\s*\[([\s\S]*?)\]/.exec(source);
+			t.check("le dessin du plateau est déclaré", !!block, true);
+			const rows = (block ? block[1].match(/"[^"]+"/g) || [] : []).map((r) => r.slice(1, -1));
+			t.check("le dessin couvre les huit rangées", rows.length, 8);
+			t.check("et les dix colonnes, bande comprise",
+				[...new Set(rows.map((r) => r.length))], [10]);
+			t.check("la bande a son propre symbole",
+				rows.every((r) => /==$/.test(r) && !/==/.test(r.slice(0, 8))), true);
+		}
+
 		const skins = (await match.getConfig()).view.skins;
 		t.check("les habillages sont des habillages",
 			skins.map((s) => s.name).sort(), ["skin2d", "skin3d"]);
