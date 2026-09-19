@@ -182,6 +182,24 @@
 					[-2,-2],[0,-2],[-2,2],[0,2],[2,2],[2,0],
 					[-2,0],[2,-2]],AREA)); } },
 		],
+		/*
+		 * Évêque couronné et calife.
+		 *
+		 * ATTENTION : le calife se déplace comme le cardinal -- fou plus
+		 * cavalier -- mais sous un autre nom et une autre figure. C'est
+		 * délibéré ici : le jeu sert à RECONNAÎTRE des pièces, et le même
+		 * mouvement porte des noms différents selon les variantes. Si vous
+		 * préférez n'en avoir qu'une, remplacez cette entrée par
+		 * `{ same:'cardinal' }`, comme le Khan le fait pour le marshall.
+		 */
+		"crowned-bishop": [
+			{ name:'missionnary', fen:'Y', aspect:'fr-crowned-bishop', value:6,
+			  graph: function(g,self) { return self.cbMergeGraphs(g,
+				self.cbKingGraph(g,AREA), self.cbBishopGraph(g,AREA)); } },
+			{ name:'caliph', fen:'Z', aspect:'fr-caliph', value:7,
+			  graph: function(g,self) { return self.cbMergeGraphs(g,
+				self.cbBishopGraph(g,AREA), self.cbKnightGraph(g,AREA)); } },
+		],
 		// Chu shogi
 		"chu": [
 			{ name:'phoenix', fen:'H', aspect:'fr-phoenix', value:2.9,
@@ -231,7 +249,7 @@
 	// que le prélude enregistre. Il ne doit donc plus changer une fois des
 	// parties sauvegardées — un arrangement est désigné par son rang.
 	var PAIR_KEYS = ["marshall-cardinal", "rhino-griffon", "elephant-cannon", "khan",
-		"chu", "spartan", "timurid", "patchanka", "fantastic"];
+		"chu", "spartan", "timurid", "patchanka", "fantastic", "crowned-bishop"];
 
 	/*
 	 * TOUTES LES PAIRES SONT DÉCLARÉES, pas seulement celle qui commence.
@@ -347,7 +365,10 @@
 			 * relirait les anciennes parties avec les mauvaises pièces.
 			 */
 			prelude: [{
-				panelWidth: 2,
+				// Trois colonnes : dix arrangements tiennent en quatre rangées
+				// plutôt qu'en cinq, et le panneau reste lisible d'un coup
+				// d'œil.
+				panelWidth: 3,
 				// En minuscules : ce sont les formes EN ATTENTE que le prélude
 				// pose aux portes, pas les pièces de jeu.
 				// Rempli à la déclaration des types, une fois les reprises

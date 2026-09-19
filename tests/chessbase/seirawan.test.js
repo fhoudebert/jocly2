@@ -495,8 +495,10 @@ const match = await started();
 	{
 		const variant = (await started()).game.cbVar;
 		const dialog = variant.prelude[0];
-		t.check("le panneau a deux colonnes", dialog.panelWidth, 2);
-		t.check("un arrangement par paire", dialog.setups.length >= 9, true);
+		// Trois colonnes : dix arrangements tiennent en quatre rangées plutôt
+		// qu'en cinq.
+		t.check("le panneau a trois colonnes", dialog.panelWidth, 3);
+		t.check("un arrangement par paire", dialog.setups.length >= 10, true);
 
 		/*
 		 * LES LETTRES SONT UNIQUES, et c'est une contrainte de la variante et
@@ -531,10 +533,23 @@ const match = await started();
 			 * ce ne sera pas une régression : ce sera le signal qu'une paire
 			 * de plus demande autre chose qu'une lettre unique.
 			 */
+			/*
+			 * LA RÉSERVE EST ÉPUISÉE, et ce test le dit plutôt que de le
+			 * cacher. Une seule table de types contient toutes les paires,
+			 * donc chaque pièce consomme une lettre ; six ont déjà dû changer
+			 * par rapport à leur jeu d'origine parce que la leur était prise.
+			 *
+			 * `P` est le pion et `O` se confond avec zéro dans un FEN : il n'y
+			 * a plus de lettre utilisable. La onzième paire demandera autre
+			 * chose — des abréviations à deux caractères pour les formes en
+			 * attente, ou un prélude à deux étages qui choisit d'abord une
+			 * famille. Cette assertion échouera alors, et ce sera le bon
+			 * moment pour trancher.
+			 */
 			const free = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("")
-				.filter((c) => !seen[c]);
-			t.check("il reste des lettres pour d'autres paires (" + free.join("") + ")",
-				free.length > 0, true);
+				.filter((c) => !seen[c] && c !== "O" && c !== "P");
+			t.check("les lettres encore utilisables (" + (free.join("") || "aucune") + ")",
+				free.length, 0);
 
 			/*
 			 * UNE PIÈCE PARTAGÉE N'EST DÉCLARÉE QU'UNE FOIS.
