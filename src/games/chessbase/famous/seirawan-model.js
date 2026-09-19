@@ -267,6 +267,31 @@
 	var ABBREV = {};          // type -> lettre, pour la notation
 	var GATE_OF = {};         // type en attente -> rang dans sa paire (0 ou 1)
 	var SETUPS = [];          // chaîne d'abréviations, une par arrangement
+	var TYPE_PAIR = {};       // type (jeu ou attente) -> rang de sa paire
+	var PAIR_PLAY = [];       // rang de la paire -> ses deux types de jeu
+
+	/**
+	 * Les deux pièces que CETTE partie fait découvrir.
+	 *
+	 * Lues du plateau plutôt que d'un réglage retenu : le prélude retype les
+	 * pièces en attente, et rien d'autre n'enregistre le choix. Une pièce de la
+	 * paire suffit à la reconnaître, qu'elle attende encore à sa porte ou
+	 * qu'elle soit déjà entrée en jeu.
+	 *
+	 * Faute d'en trouver une -- les quatre prises, ce qui est rare mais
+	 * possible -- on rend la première paire. Un choix de promotion inhabituel
+	 * vaut mieux qu'une erreur, et à ce stade plus aucune de ces pièces n'est
+	 * en jeu de toute façon.
+	 */
+	function pairInPlay(board) {
+		for(var i=0;i<board.pieces.length;i++) {
+			var piece = board.pieces[i];
+			if(!piece || piece.s === 0) continue;
+			var rank = TYPE_PAIR[piece.t];
+			if(rank !== undefined) return PAIR_PLAY[rank];
+		}
+		return PAIR_PLAY[0];
+	}
 
 	function pairTypes(index) {
 		var base = FIRST_PAIR_TYPE + index * 4;
@@ -322,12 +347,25 @@
 
 			// Ordinaire : le socle attend un tableau, et l'entrée ne passe plus
 			// par ici (voir GenerateMoves).
+			/*
+			 * LA PROMOTION OFFRE LA PAIRE EN JEU, pas une paire figée.
+			 *
+			 * Elle nommait CARDINAL et MARSHALL, les deux types de la première
+			 * paire -- écrits en dur avant que le prélude n'existe. Depuis, ces
+			 * deux constantes ont disparu avec la table de types engendrée :
+			 * un pion atteignant la dernière rangée levait une ReferenceError,
+			 * et la partie s'arrêtait là.
+			 *
+			 * Un pion promu doit pouvoir devenir l'une des deux pièces que
+			 * cette partie fait découvrir -- c'est tout l'objet du jeu -- et
+			 * elles dépendent de l'arrangement choisi.
+			 */
 			promote: function(aGame,piece,move) {
 				if(piece.t==1) return [0];
 				if(piece.t==3) return [2];
-				if(piece.t==0 && geometry.R(move.t)==BLACK_HOME) return [4,5,6,7,CARDINAL,MARSHALL];
-				if(piece.t==2 && geometry.R(move.t)==WHITE_HOME) return [4,5,6,7,CARDINAL,MARSHALL];
-				return [];
+				var last = piece.t==0 ? BLACK_HOME : piece.t==2 ? WHITE_HOME : -1;
+				if(last < 0 || geometry.R(move.t) != last) return [];
+				return [4,5,6,7].concat(pairInPlay(this));
 			},
 
 			castle: (function() {
@@ -452,6 +490,15 @@
 				GATE_OF[t.gate[rank]] = rank;
 				byName[piece.name] = { play: t.play[rank], gate: t.gate[rank] };
 			});
+			PAIR_PLAY[index] = [t.play[0], t.play[1]];
+			t.play.concat(t.gate).forEach(function(type) {
+				// Une pièce partagée appartient à sa paire d'ORIGINE : le
+				// marshall du Khan est celui de la première paire, et c'est
+				// elle qu'il désigne. Sans ce garde, la dernière paire qui
+				// l'emprunte l'emporterait.
+				if(TYPE_PAIR[type] === undefined) TYPE_PAIR[type] = index;
+			});
+
 			// La chaîne de l'arrangement, une fois les reprises résolues.
 			SETUPS[index] = pair.map(function(piece, rank) {
 				return ABBREV[t.gate[rank]].toLowerCase();

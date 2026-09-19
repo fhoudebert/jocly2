@@ -616,5 +616,40 @@ const match = await started();
 		}
 	}
 
+	/* ------------------------------------------------ la promotion */
+
+	/*
+	 * UN PION PROMU PEUT DEVENIR LA PAIRE EN JEU.
+	 *
+	 * La liste nommait deux constantes écrites en dur avant que le prélude
+	 * n'existe — les types de la première paire. Elles ont disparu avec la
+	 * table de types engendrée : un pion atteignant la dernière rangée levait
+	 * une ReferenceError et la partie s'arrêtait là. Pas une promotion fausse :
+	 * une partie interrompue.
+	 *
+	 * La paire est lue du PLATEAU, seul endroit où le choix du prélude
+	 * subsiste : une pièce suffit à la reconnaître, qu'elle attende encore à sa
+	 * porte ou qu'elle soit déjà entrée.
+	 */
+	{
+		const variant = (await started()).game.cbVar;
+		for (let setup = 0; setup < variant.prelude[0].setups.length; setup++) {
+			const m = await started(setup);
+			const types = m.game.cbVar.pieceTypes;
+			// Un pion blanc arrivant sur la dernière rangée.
+			const promo = m.game.cbVar.promote.call(m.game.mBoard, m.game,
+				{ t: 0 }, { t: 7 * 10 });
+			t.check("l'arrangement " + setup + " promeut aussi en ses deux pièces",
+				promo.length, 6);
+			const offered = promo.slice(4).map((x) => types[x].name).sort();
+			// Les deux mêmes que celles qui attendent aux portes.
+			const waiting = [];
+			for (const p of m.game.mBoard.pieces)
+				if (p && /^gate-/.test(types[p.t].name || ""))
+					waiting.push(types[p.t].name.replace(/^gate-/, ""));
+			t.check("  et ce sont celles qui attendent", offered, [...new Set(waiting)].sort());
+		}
+	}
+
 	t.done("Seirawan++");
 })();
