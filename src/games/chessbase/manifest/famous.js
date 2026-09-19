@@ -828,6 +828,9 @@ exports.games = {
 					"en": "Chess with two uncommon pieces waiting to enter the game",
 					"fr": "Les échecs, plus deux pièces peu courantes qui attendent d’entrer en jeu."
 				},
+				"rules": {
+                    "fr": "res/rules/famous/seirawan_fr.html"
+				},
 				"module": "chessbase",
 				"plazza": "true",
                 "thumbnail": "res/rules/famous/seirawan-thumbnail.png",
