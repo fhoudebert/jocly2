@@ -23,7 +23,24 @@ const GAME = "seirawan-chess";
 
 (async function () {
 
-	const match = await Jocly.createMatch(GAME);
+/*
+ * Le prélude d'abord : la partie s'ouvre sur le choix de la paire de pièces à
+ * découvrir, et rien ne se joue avant. Deux demi-coups — la réponse, puis le
+ * passage de trait — comme pour tout prélude de jocly.
+ */
+async function started(setup) {
+	const m = await Jocly.createMatch(GAME);
+	for (let ply = 0; ply < 2; ply++) {
+		const list = await m.getPossibleMoves();
+		const said = await m.getMoveString(list);
+		if (!said.every((n) => /^(#\d+|--)$/.test(n))) break;
+		const want = said.indexOf("#" + (setup === undefined ? 0 : setup));
+		await m.playMove(list[want >= 0 ? want : 0]);
+	}
+	return m;
+}
+
+const match = await started();
 	const game = match.game;
 	const board = game.mBoard;
 
@@ -238,7 +255,7 @@ const GAME = "seirawan-chess";
 	 * a déjà réglé pour les coups ordinaires.
 	 */
 	{
-		const fresh = await Jocly.createMatch(GAME);
+		const fresh = await started();
 		for (const want of ["Ng1-f3", "Ng8-f6", "e2-e3", "e7-e6", "Bf1-e2", "Bf8-e7"]) {
 			const list = await fresh.getPossibleMoves();
 			const said = await fresh.getMoveString(list);
@@ -364,7 +381,7 @@ const GAME = "seirawan-chess";
 
 			// Une partie neuve : celle du dessus a avancé, et les coups qu'on
 			// avait relevés à l'ouverture n'y existent plus.
-			const start = await Jocly.createMatch(GAME);
+			const start = await started();
 			const list = await start.getPossibleMoves();
 			const said = await start.getMoveString(list);
 			const ref = list[said.findIndex((n) => /\//.test(n))];
@@ -418,7 +435,7 @@ const GAME = "seirawan-chess";
 		 * en attente qui entre — la notation le dit, et la position aussi.
 		 */
 		{
-			const fresh2 = await Jocly.createMatch(GAME);
+			const fresh2 = await started();
 			const list = await fresh2.getPossibleMoves();
 			const said = await fresh2.getMoveString(list);
 			const k = said.indexOf("Nb1-c3/C");
@@ -463,6 +480,52 @@ const GAME = "seirawan-chess";
 		const skins = (await match.getConfig()).view.skins;
 		t.check("les habillages sont des habillages",
 			skins.map((s) => s.name).sort(), ["skin2d", "skin3d"]);
+	}
+
+	/* ------------------------------------------------ le prélude */
+
+	/*
+	 * LE PRÉLUDE : quelle paire de pièces on veut découvrir.
+	 *
+	 * Il ne crée rien — il RETYPE les pièces posées aux portes, en lisant une
+	 * chaîne d'abréviations. C'est pourquoi les vingt types existent dès la
+	 * définition de la variante, et pourquoi seule la première paire est
+	 * placée au départ.
+	 */
+	{
+		const variant = (await started()).game.cbVar;
+		const dialog = variant.prelude[0];
+		t.check("le panneau a deux colonnes", dialog.panelWidth, 2);
+		t.check("un arrangement par paire", dialog.setups.length >= 4, true);
+		t.check("deux lettres par arrangement",
+			dialog.setups.every((s) => s.length === 2), true);
+
+		/*
+		 * LES LETTRES SONT EN MINUSCULE, et ce n'est pas cosmétique.
+		 *
+		 * Le prélude cherche le type dont `abbrev` vaut la lettre, et il prend
+		 * LE PREMIER pour les blancs, LE DERNIER pour les noirs — une
+		 * convention faite pour les variantes asymétriques. Forme de jeu et
+		 * forme en attente partageant une lettre, les blancs recevaient la
+		 * pièce JOUANTE et les noirs celle en attente : un camp se retrouvait
+		 * sans entrée possible, l'autre non. Silencieusement.
+		 */
+		t.check("elles désignent les formes en attente",
+			dialog.setups.every((s) => s === s.toLowerCase()), true);
+
+		// Et chaque arrangement donne bien ses deux pièces, aux deux camps.
+		for (let setup = 0; setup < dialog.setups.length; setup++) {
+			const m = await started(setup);
+			const list = await m.getPossibleMoves();
+			const said = await m.getMoveString(list);
+			t.check("l'arrangement " + setup + " permet d'entrer",
+				said.filter((n) => /\//.test(n)).length > 0, true);
+			const gates = [];
+			for (const p of m.game.mBoard.pieces)
+				if (p && /^gate-/.test(variant.pieceTypes[p.t].name || "")) gates.push(p.t);
+			t.check("  et quatre pièces attendent", gates.length, 4);
+			t.check("  les mêmes des deux côtés", new Set(gates).size, 2);
+		}
 	}
 
 	t.done("Seirawan++");

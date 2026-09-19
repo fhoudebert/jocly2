@@ -108,36 +108,77 @@
 	 * nouvelle entrée doit respecter.
 	 */
 	var PAIRS = {
+		/*
+		 * Chaque paire renvoie à la variante d'où elle vient : reconnaître un
+		 * cardinal ici doit rendre le Capablanca lisible ensuite, un rhinocéros
+		 * le Fantastic XIII, un canon le Shako.
+		 *
+		 * `fen` est la lettre de la pièce EN ATTENTE, et c'est elle que le
+		 * prélude écrit dans sa chaîne d'arrangement : une lettre par pièce,
+		 * distincte des orthodoxes (P N B R Q K) et de l'autre pièce de la
+		 * paire. Les graphes et les apparences sont ceux de
+		 * fairy-piece-model.js et fairy-set-view.js -- on ne recrée pas une
+		 * pièce qui existe déjà ailleurs dans chessbase.
+		 */
 		"marshall-cardinal": [
 			{ name:'cardinal', fen:'C', aspect:'fr-cardinal', value:7,
-			  graph: function(g,self) { return self.cbMergeGraphs(g,self.cbBishopGraph(g,AREA),self.cbKnightGraph(g,AREA)); } },
-			{ name:'marshall', fen:'M', aspect:'fr-marshall', value:9,
-			  graph: function(g,self) { return self.cbMergeGraphs(g,self.cbRookGraph(g,AREA),self.cbKnightGraph(g,AREA)); } },
+			  graph: function(g,self) { return self.cbCardinalGraph(g,AREA); } },
+			{ name:'marshall', fen:'M', aspect:'fr-proper-marshall', value:9,
+			  graph: function(g,self) { return self.cbMarshallGraph(g,AREA); } },
+		],
+		// Fantastic XIII
+		"rhino-griffon": [
+			{ name:'rhino', fen:'U', aspect:'fr-rhino', value:7.8,
+			  graph: function(g,self) { return self.cbRhinoGraph(g,AREA); } },
+			{ name:'griffon', fen:'G', aspect:'fr-griffon', value:8.3,
+			  graph: function(g,self) { return self.cbGriffonGraph(g,AREA); } },
+		],
+		// Shako
+		"elephant-cannon": [
+			{ name:'elephant', fen:'E', aspect:'fr-proper-elephant', value:3.35,
+			  graph: function(g,self) { return self.cbElephantGraph(g,AREA); } },
+			{ name:'cannon', fen:'X', aspect:'fr-cannon', value:3,
+			  graph: function(g,self) { return self.cbXQCannonGraph(g,AREA); } },
+		],
+		// Khan
+		"khan": [
+			{ name:'crowned-knight', fen:'J', aspect:'fr-crowned-knight', value:8,
+			  graph: function(g,self) { return self.cbSymmetricGraph(g,[10,11,21],AREA); } },
+			{ name:'khan-marshall', fen:'W', aspect:'fr-proper-marshall', value:9,
+			  graph: function(g,self) { return self.cbMarshallGraph(g,AREA); } },
 		],
 	};
 
-	var PAIR = PAIRS["marshall-cardinal"];
+	// L'ordre des paires : celui du panneau, et celui des numéros d'arrangement
+	// que le prélude enregistre. Il ne doit donc plus changer une fois des
+	// parties sauvegardées — un arrangement est désigné par son rang.
+	var PAIR_KEYS = ["marshall-cardinal", "rhino-griffon", "elephant-cannon", "khan"];
 
-	// Types : 0-8 comme aux échecs orthodoxes, puis les deux pièces de la paire
-	// et leurs formes en attente.
-	var CARDINAL = 9, MARSHALL = 10, GATE_CARDINAL = 11, GATE_MARSHALL = 12;
+	/*
+	 * TOUTES LES PAIRES SONT DÉCLARÉES, pas seulement celle qui commence.
+	 *
+	 * Le prélude ne crée pas de pièces : il RETYPE celles qui attendent aux
+	 * portes, en lisant une chaîne d'abréviations. Les vingt types doivent donc
+	 * exister dès la définition de la variante, et seul le placement initial
+	 * désigne la paire par défaut.
+	 *
+	 * Types 0-8 : les échecs orthodoxes. Puis, pour chaque paire, ses deux
+	 * pièces de jeu suivies de leurs deux formes en attente.
+	 */
+	var FIRST_PAIR_TYPE = 9;
+	var ENTERS = {};          // forme en attente -> forme de jeu
+	var ABBREV = {};          // type -> lettre, pour la notation
+	var GATE_OF = {};         // type en attente -> rang dans sa paire (0 ou 1)
 
-	// Quelle piece attend sur quelle porte : fixe par le placement initial, et
-	// c'est ce qui permet a la notation de la nommer sans consulter le plateau.
-	var GATE_LETTER = {};
-	GATE_LETTER[GATE(0,WHITE_HOME)] = PAIR[0].fen;
-	GATE_LETTER[GATE(1,WHITE_HOME)] = PAIR[1].fen;
-	GATE_LETTER[GATE(0,BLACK_HOME)] = PAIR[0].fen;
-	GATE_LETTER[GATE(1,BLACK_HOME)] = PAIR[1].fen;
-	var ENTERS = {};
-	ENTERS[GATE_CARDINAL] = CARDINAL;
-	ENTERS[GATE_MARSHALL] = MARSHALL;
-
+	function pairTypes(index) {
+		var base = FIRST_PAIR_TYPE + index * 4;
+		return { play: [base, base+1], gate: [base+2, base+3] };
+	}
 	Model.Game.cbDefine = function() {
 		var self = this;
 		var empty = this.cbEmptyGraph(geometry);
 
-		return {
+		var variant = {
 			geometry: geometry,
 
 			pieceTypes: {
@@ -179,24 +220,6 @@
 				8: { name:'king', aspect:'fr-king', graph:this.cbKingGraph(geometry,AREA), isKing:true, abbrev:'K',
 				     initial:[{s:1,p:POS(4,WHITE_HOME)},{s:-1,p:POS(4,BLACK_HOME)}] },
 
-				9:  { name:PAIR[0].name, aspect:PAIR[0].aspect, graph:PAIR[0].graph(geometry,self),
-				      value:PAIR[0].value, abbrev:PAIR[0].fen },
-				10: { name:PAIR[1].name, aspect:PAIR[1].aspect, graph:PAIR[1].graph(geometry,self),
-				      value:PAIR[1].value, abbrev:PAIR[1].fen },
-
-				/*
-				 * Les formes en attente : même apparence, GRAPHE VIDE. Elles ne
-				 * jouent pas ; elles entrent. Leur valeur est celle de la pièce
-				 * qu'elles deviendront — l'évaluation doit voir qu'un camp qui
-				 * a encore ses deux pièces en porte n'est pas en retard de
-				 * matériel.
-				 */
-				11: { name:'gate-'+PAIR[0].name, aspect:PAIR[0].aspect, graph:empty,
-				      value:PAIR[0].value, abbrev:PAIR[0].fen, fenAbbrev:PAIR[0].fen+'!',
-				      initial:[{s:1,p:GATE(0,WHITE_HOME)},{s:-1,p:GATE(0,BLACK_HOME)}] },
-				12: { name:'gate-'+PAIR[1].name, aspect:PAIR[1].aspect, graph:empty,
-				      value:PAIR[1].value, abbrev:PAIR[1].fen, fenAbbrev:PAIR[1].fen+'!',
-				      initial:[{s:1,p:GATE(1,WHITE_HOME)},{s:-1,p:GATE(1,BLACK_HOME)}] },
 			},
 
 			// Ordinaire : le socle attend un tableau, et l'entrée ne passe plus
@@ -225,7 +248,96 @@
 					 r:[POS(6,BLACK_HOME),POS(5,BLACK_HOME)], n:"O-O"};
 				return c;
 			})(),
+
+			/*
+			 * LE PRÉLUDE : quelle paire de pièces on veut découvrir.
+			 *
+			 * Il ne crée rien. Il RETYPE les pièces posées sur les deux cases
+			 * d'attente de chaque camp, en lisant une chaîne d'abréviations --
+			 * une lettre par case, dans l'ordre de `squares`. C'est pourquoi
+			 * les vingt types doivent exister avant lui.
+			 *
+			 * `panelWidth: 2` donne deux colonnes, comme au Timurid.
+			 * `persistent` garde le choix d'une partie à la suivante : on
+			 * explore une paire sur plusieurs parties, pas sur un coup.
+			 *
+			 * L'ordre des arrangements est celui de PAIR_KEYS, et un
+			 * arrangement est désigné par son RANG dans une partie
+			 * sauvegardée : insérer une paire ailleurs qu'à la fin
+			 * relirait les anciennes parties avec les mauvaises pièces.
+			 */
+			prelude: [{
+				panelWidth: 2,
+				// En minuscules : ce sont les formes EN ATTENTE que le prélude
+				// pose aux portes, pas les pièces de jeu.
+				setups: PAIR_KEYS.map(function(key) {
+					return (PAIRS[key][0].fen + PAIRS[key][1].fen).toLowerCase();
+				}),
+				squares: {
+					1:  [GATE(0,WHITE_HOME), GATE(1,WHITE_HOME)],
+					'-1':[GATE(0,BLACK_HOME), GATE(1,BLACK_HOME)],
+				},
+				persistent: true,
+			}, 0],
 		};
+
+		/*
+		 * Les vingt types des paires, engendrés ici plutôt qu'écrits à la
+		 * main : quatre lignes de données par paire suffisent alors à en
+		 * ajouter une, ce qui est tout l'objet du prélude.
+		 *
+		 * Seule la PREMIÈRE paire est posée aux portes. Le prélude retypera
+		 * ces mêmes pièces selon l'arrangement choisi ; il n'en crée aucune.
+		 */
+		PAIR_KEYS.forEach(function(key, index) {
+			var pair = PAIRS[key], t = pairTypes(index);
+			pair.forEach(function(piece, rank) {
+				variant.pieceTypes[t.play[rank]] = {
+					name: piece.name, aspect: piece.aspect, value: piece.value,
+					abbrev: piece.fen, graph: piece.graph(geometry, self),
+				};
+				/*
+				 * La forme en attente : même apparence, GRAPHE VIDE. Elle ne
+				 * joue pas ; elle entre. Sa valeur est celle de la pièce
+				 * qu'elle deviendra — l'évaluation doit voir qu'un camp qui a
+				 * encore ses deux pièces en porte n'est pas en retard de
+				 * matériel.
+				 *
+				 * Son abréviation FEN porte un « ! » pour la distinguer de la
+				 * forme de jeu, qui partage sa lettre.
+				 */
+				/*
+				 * SON ABRÉVIATION EST EN MINUSCULE, et c'est ce qui la rend
+				 * désignable sans ambiguïté.
+				 *
+				 * Le prélude cherche le type dont `abbrev` vaut la lettre de
+				 * l'arrangement, et il prend LE PREMIER pour les blancs, LE
+				 * DERNIER pour les noirs -- une convention faite pour les
+				 * variantes asymétriques. Forme de jeu et forme en attente
+				 * partageant la même lettre, les blancs recevaient la pièce
+				 * JOUANTE et les noirs celle en attente : un camp se
+				 * retrouvait sans entrée possible, l'autre non.
+				 *
+				 * Une lettre propre lève l'ambiguïté. Elle ne sert qu'ici :
+				 * une pièce en attente ne se déplace jamais, donc son
+				 * abréviation n'apparaît dans aucune notation, et le FEN garde
+				 * la sienne avec son « ! ».
+				 */
+				variant.pieceTypes[t.gate[rank]] = {
+					name: 'gate-' + piece.name, aspect: piece.aspect, value: piece.value,
+					abbrev: piece.fen.toLowerCase(), fenAbbrev: piece.fen + '!', graph: empty,
+					initial: index === 0
+						? [{s:1,p:GATE(rank,WHITE_HOME)},{s:-1,p:GATE(rank,BLACK_HOME)}]
+						: [],
+				};
+				ENTERS[t.gate[rank]] = t.play[rank];
+				ABBREV[t.play[rank]] = piece.fen;
+				ABBREV[t.gate[rank]] = piece.fen;
+				GATE_OF[t.gate[rank]] = rank;
+			});
+		});
+
+		return variant;
 	}
 
 	/** Un graphe qui ne mène nulle part : les pièces en attente ne jouent pas. */
@@ -480,7 +592,10 @@
 			text = text.replace(/=[A-Z]$/, "");
 		if(this.en !== undefined) {
 			text = text.replace(/=[A-Z]$/, "");
-			text += "/" + GATE_LETTER[this.en];
+			// La lettre de la pièce qui entre, lue de son type : elle dépend
+			// de l'arrangement choisi au prélude, donc une table figée des
+			// portes ne conviendrait plus.
+			text += "/" + (ABBREV[this.ei] || "?");
 			// Au roque seulement, la case : « O-O » ne dit pas laquelle des
 			// deux cases libérées la pièce occupe, et deux roques qui ne
 			// diffèrent que par là s'écriraient pareil.

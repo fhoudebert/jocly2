@@ -133,6 +133,7 @@ var config_view_js_seirawan = [
 	"base-view.js",
 	"grid-board-view.js",
 	"fairy-set-view.js",
+	"prelude-view.js",
 	"famous/seirawan-view.js"
 ]
 
@@ -140,6 +141,9 @@ var modelScripts_seirawan = [
 	"base-model.js",
 	"grid-geo-model.js",
 	"fairy-piece-model.js",
+	// Le prelude : le choix de la paire de pieces a decouvrir, avant le
+	// premier coup. Il RETYPE les pieces en attente ; il n'en cree aucune.
+	"prelude-model.js",
 	"famous/seirawan-model.js"
 ]
 
