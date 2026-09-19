@@ -316,6 +316,20 @@
 					var variant = aGame.CreateMove(move);
 					variant.en = gates[g];
 					variant.et = targets[k];
+					/*
+					 * LE TYPE DE LA PIÈCE QUI ENTRE, porté par le coup.
+					 *
+					 * La vue a besoin de le connaître pour dessiner la case du
+					 * panneau de choix, et elle le reconstruisait du manifeste
+					 * -- en cherchant quelle pièce commence sur quelle case
+					 * d'attente. Cette reconstruction dépendait de données qui
+					 * ne lui parviennent pas toujours, et elle échouait en
+					 * silence : le panneau s'ouvrait sans les deux pièces.
+					 *
+					 * Le modèle, lui, le sait de source sûre. Il le dit.
+					 */
+					var waiting = this.board[gates[g]];
+					variant.ei = ENTERS[this.pieces[waiting].t];
 					extra.push(variant);
 				}
 			}
@@ -435,6 +449,10 @@
 		else this.en = move.en;
 		if(move.et === undefined) delete this.et;
 		else this.et = move.et;
+		// `ei` accompagne `en` : c'est la vue qui le lit, et un coup recopié
+		// sans lui rouvrirait un panneau incomplet.
+		if(move.ei === undefined) delete this.ei;
+		else this.ei = move.ei;
 	}
 
 })();

@@ -110,7 +110,24 @@
 				return plain;
 			}
 			/*
-			 * LA PIÈCE SE DÉDUIT DE LA PORTE, PAS DU PLATEAU.
+			 * LE COUP PORTE LE TYPE DE LA PIÈCE QUI ENTRE (`ei`).
+			 *
+			 * La vue le reconstruisait du manifeste — quelle pièce commence
+			 * sur quelle case d'attente — et cette reconstruction échouait en
+			 * silence : le panneau s'ouvrait avec la seule pièce déplacée. Le
+			 * modèle le sait de source sûre et le dit désormais ; il n'y a
+			 * plus rien à deviner ici.
+			 */
+			if(move.ei !== undefined && types[move.ei]) {
+				var direct = Copy(aGame, move);
+				direct.pr = move.ei;
+				return direct;
+			}
+			/*
+			 * Repli, pour un coup venu d'ailleurs sans `ei` : la pièce se
+			 * déduit de la porte.
+			 *
+			 * PAS DU PLATEAU.
 			 *
 			 * La vue ne partage pas le plateau du modèle : elle tourne dans
 			 * son propre cadre, où `aGame.mBoard` peut ne rien contenir. Lire

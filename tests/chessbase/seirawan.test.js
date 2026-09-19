@@ -371,7 +371,21 @@ const GAME = "seirawan-chess";
 			const panel = list.filter((m) => m.f === ref.f && m.t === ref.t);
 			t.check("le panneau compte trois cases", panel.length, 3);
 
-			const shown = panel.map((m) => (m.en === undefined ? moving[m.f] : enters[m.en]));
+			/*
+			 * LE COUP PORTE LUI-MÊME le type de la pièce qui entre (`ei`).
+			 *
+			 * La vue le reconstruisait du manifeste, et cette reconstruction
+			 * échouait en silence : le panneau s'ouvrait avec la seule pièce
+			 * déplacée, les deux cases d'entrée manquant. Le modèle le sait de
+			 * source sûre ; il le dit, et il n'y a plus rien à deviner de
+			 * l'autre côté.
+			 */
+			t.check("chaque coup avec entrée dit quelle pièce entre",
+				panel.filter((m) => m.en !== undefined && m.ei === undefined).length, 0);
+			t.check("et le coup sans entrée n'en dit aucune",
+				panel.filter((m) => m.en === undefined && m.ei !== undefined).length, 0);
+
+			const shown = panel.map((m) => (m.en === undefined ? moving[m.f] : m.ei));
 			t.check("aucune case sans apparence",
 				shown.filter((pr) => pr === undefined || !types[pr]).length, 0);
 			t.check("et ce sont la pièce déplacée et les deux en attente",
