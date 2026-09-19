@@ -128,7 +128,7 @@
 		],
 		// Fantastic XIII
 		"rhino-griffon": [
-			{ name:'rhino', fen:'U', aspect:'fr-rhino', value:7.8,
+			{ name:'rhino', fen:'U', aspect:'fr-rhino2', value:7.8,
 			  graph: function(g,self) { return self.cbRhinoGraph(g,AREA); } },
 			{ name:'griffon', fen:'G', aspect:'fr-griffon', value:8.3,
 			  graph: function(g,self) { return self.cbGriffonGraph(g,AREA); } },

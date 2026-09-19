@@ -172,7 +172,25 @@
 			shown.pr = entered;
 			return shown;
 		});
-		return SuperShowPromo.call(this, xdv, aGame, patched, who);
+		/*
+		 * UNE VIGNETTE PAR PIÈCE, pas une par coup.
+		 *
+		 * Le panneau place ses vignettes par leur RANG dans la liste, mais les
+		 * dessine dans un gadget nommé d'après le type (`promo#<pr>`). Au
+		 * roque, une même pièce apparaît deux fois -- une par case -- donc le
+		 * même gadget était positionné deux fois, la seconde l'emportant : des
+		 * emplacements vides, et une vignette manquante.
+		 *
+		 * On ne garde donc qu'un coup par type. La case, elle, se choisit
+		 * après, à l'étape suivante.
+		 */
+		var seen = {}, unique = [];
+		patched.forEach(function(move) {
+			if(move.pr === undefined || seen[move.pr]) return;
+			seen[move.pr] = true;
+			unique.push(move);
+		});
+		return SuperShowPromo.call(this, xdv, aGame, unique.length ? unique : patched, who);
 	}
 
 	/*
@@ -276,6 +294,12 @@
 					// revenir sur le choix de la pièce sans perdre son coup.
 					noAutoCancel: true,
 					skipable: false,
+					/*
+					 * Éclairage 2D ET 3D, comme les destinations ordinaires :
+					 * en 3D c'est l'anneau du `clicker` qui marque la case, et
+					 * s'en tenir au 2D laissait la case invisible sur un
+					 * plateau en relief.
+					 */
 					highlight: function(mode) {
 						xdv.updateGadget("cell#" + target, {
 							"2d": {
@@ -283,6 +307,27 @@
 								opacity: aGame.mShowMoves || mode == "cancel" ? 1 : 0,
 							},
 						});
+						xdv.updateGadget("clicker#" + target, {
+							"3d": {
+								materials: {
+									ring: {
+										color: mode == "select" ? aGame.cbTargetSelectColor : aGame.cbTargetCancelColor,
+										opacity: aGame.mShowMoves || mode == "cancel" ? 1 : 0,
+										transparent: !(aGame.mShowMoves || mode == "cancel"),
+									},
+								},
+								castShadow: aGame.mShowMoves || mode == "cancel",
+							},
+						});
+					},
+					/*
+					 * ET SON PENDANT. La machine à états appelle `unhighlight`
+					 * quand elle quitte une action : sans lui, elle avertit --
+					 * « No unhighlight function defined » -- et la case reste
+					 * allumée après coup.
+					 */
+					unhighlight: function() {
+						xdv.updateGadget("cell#" + target, { "2d": { classes: "" } });
 					},
 					execute: function(callback) {
 						$this.cbAnimate(xdv, aGame, move, function() { callback(); });

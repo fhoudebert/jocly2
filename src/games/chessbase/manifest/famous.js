@@ -142,28 +142,98 @@ var modelScripts_28 = [
  * deduisent pas : le phenix vit dans /birds/, le belier dans /farm/, le calife
  * dans /persons/, et trois pieces portent un prefixe « proper- ».
  */
-var seirawan_meshes = [
-	"cardinal/cardinal", "marshall/proper-marshall",
-	"rhino/rhino", "griffon/griffon",
-	"elephant/proper-elephant", "cannon/cannon",
-	"crowned-knight/crowned-knight",
-	"birds/phoenix", "giraffe/giraffe",
-	"crowned-rook/proper-crowned-rook", "machine/machine",
-	"ship/ship", "cobra/cobra",
-	"badger/badger", "farm/ram",
-	"hawk/hawk", "mammoth/mammoth",
-	"crowned-bishop/crowned-bishop", "persons/caliph"
-]
-
-var config_view_skins_preload_seirawan = config_view_skins_preload_10.concat(
-	seirawan_meshes.reduce(function(list, piece) {
-		var dir = piece.split("/")[0], file = piece.split("/")[1];
-		return list.concat([
-			"smoothedfilegeo|0|/res/fairy/" + dir + "/" + file + ".js",
-			"image|/res/fairy/" + dir + "/" + file + "-diffusemap.jpg",
-			"image|/res/fairy/" + dir + "/" + file + "-normalmap.jpg"
-		]);
-	}, []))
+/*
+ * Les chemins sont RECOPIES de fairy-set-view.js, ou chaque apparence declare
+ * son maillage et ses textures. Ils ne se deduisent PAS du nom de la piece :
+ *
+ *   - le phenix vit dans /birds/, le belier dans /farm/, le calife dans
+ *     /persons/ ;
+ *   - et surtout, les trois pieces en « proper- » partagent les textures de la
+ *     piece de base : proper-marshall.js s'habille de marshall-diffusemap.jpg,
+ *     et non de proper-marshall-diffusemap.jpg, qui n'existe pas.
+ *
+ * Une liste reconstruite depuis le nom du maillage donnait donc six chemins
+ * inexistants, et autant de 404 au chargement. Le test qui accompagne ce
+ * fichier relit fairy-set-view.js et compare.
+ */
+var config_view_skins_preload_seirawan = config_view_skins_preload_10.concat([
+	// fr-cardinal
+	"smoothedfilegeo|0|/res/fairy/cardinal/cardinal.js",
+	"image|/res/fairy/cardinal/cardinal-diffusemap.jpg",
+	"image|/res/fairy/cardinal/cardinal-normalmap.jpg",
+	// fr-proper-marshall
+	"smoothedfilegeo|0|/res/fairy/marshall/proper-marshall.js",
+	"image|/res/fairy/marshall/marshall-diffusemap.jpg",
+	"image|/res/fairy/marshall/marshall-normalmap.jpg",
+	// fr-rhino
+	"smoothedfilegeo|0|/res/fairy/rhino/rhino.js",
+	"image|/res/fairy/rhino/rhino-diffusemap.jpg",
+	"image|/res/fairy/rhino/rhino-normalmap.jpg",
+	// fr-griffon
+	"smoothedfilegeo|0|/res/fairy/griffon/griffon.js",
+	"image|/res/fairy/griffon/griffon-diffusemap.jpg",
+	"image|/res/fairy/griffon/griffon-normalmap.jpg",
+	// fr-proper-elephant
+	"smoothedfilegeo|0|/res/fairy/elephant/proper-elephant.js",
+	"image|/res/fairy/elephant/elephant-diffusemap.jpg",
+	"image|/res/fairy/elephant/elephant-normalmap.jpg",
+	// fr-cannon
+	"smoothedfilegeo|0|/res/fairy/cannon/cannon.js",
+	"image|/res/fairy/cannon/cannon-diffusemap.jpg",
+	"image|/res/fairy/cannon/cannon-normalmap.jpg",
+	// fr-crowned-knight
+	"smoothedfilegeo|0|/res/fairy/crowned-knight/crowned-knight.js",
+	"image|/res/fairy/crowned-knight/crowned-knight-diffusemap.jpg",
+	"image|/res/fairy/crowned-knight/crowned-knight-normalmap.jpg",
+	// fr-phoenix
+	"smoothedfilegeo|0|/res/fairy/birds/phoenix.js",
+	"image|/res/fairy/birds/phoenix-diffusemap.jpg",
+	"image|/res/fairy/birds/phoenix-normalmap.jpg",
+	// fr-giraffe
+	"smoothedfilegeo|0|/res/fairy/giraffe/giraffe.js",
+	"image|/res/fairy/giraffe/giraffe-diffusemap.jpg",
+	"image|/res/fairy/giraffe/giraffe-normalmap.jpg",
+	// fr-proper-crowned-rook
+	"smoothedfilegeo|0|/res/fairy/crowned-rook/proper-crowned-rook.js",
+	"image|/res/fairy/crowned-rook/crowned-rook-diffuse-map.jpg",
+	"image|/res/fairy/crowned-rook/crowned-rook-normal-map.jpg",
+	// fr-machine
+	"smoothedfilegeo|0|/res/fairy/machine/machine.js",
+	"image|/res/fairy/machine/machine-diffusemap.jpg",
+	"image|/res/fairy/machine/machine-normalmap.jpg",
+	// fr-ship
+	"smoothedfilegeo|0|/res/fairy/ship/ship.js",
+	"image|/res/fairy/ship/ship-diffusemap.jpg",
+	"image|/res/fairy/ship/ship-normalmap.jpg",
+	// fr-cobra
+	"smoothedfilegeo|0|/res/fairy/cobra/cobra.js",
+	"image|/res/fairy/cobra/cobra-diffusemap.jpg",
+	"image|/res/fairy/cobra/cobra-normalmap.jpg",
+	// fr-badger
+	"smoothedfilegeo|0|/res/fairy/badger/badger.js",
+	"image|/res/fairy/badger/badger-diffusemap.jpg",
+	"image|/res/fairy/badger/badger-normalmap.jpg",
+	// fr-ram
+	"smoothedfilegeo|0|/res/fairy/farm/ram.js",
+	"image|/res/fairy/farm/ram-diffusemap.jpg",
+	"image|/res/fairy/farm/ram-normalmap.jpg",
+	// fr-hawk
+	"smoothedfilegeo|0|/res/fairy/hawk/hawk.js",
+	"image|/res/fairy/hawk/hawk-diffusemap.jpg",
+	"image|/res/fairy/hawk/hawk-normalmap.jpg",
+	// fr-mammoth
+	"smoothedfilegeo|0|/res/fairy/mammoth/mammoth.js",
+	"image|/res/fairy/mammoth/mammoth-diffusemap.jpg",
+	"image|/res/fairy/mammoth/mammoth-normalmap.jpg",
+	// fr-crowned-bishop
+	"smoothedfilegeo|0|/res/fairy/crowned-bishop/crowned-bishop.js",
+	"image|/res/fairy/crowned-bishop/crowned-bishop-diffusemap.jpg",
+	"image|/res/fairy/crowned-bishop/crowned-bishop-normalmap.jpg",
+	// fr-caliph
+	"smoothedfilegeo|0|/res/fairy/persons/caliph.js",
+	"image|/res/fairy/persons/caliph-diffusemap.jpg",
+	"image|/res/fairy/persons/caliph-normalmap.jpg"
+])
 
 var config_view_skins_seirawan = [
 	// Le 3D de Capablanca, avec NOTRE liste de prechargement.

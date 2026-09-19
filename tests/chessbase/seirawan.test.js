@@ -494,6 +494,7 @@ const match = await started();
 		 * apparences réellement déclarées.
 		 */
 		{
+			const fs = require("fs");
 			const preload = skins.find((s) => s["3d"]).preload;
 			t.check("aucune ressource indéfinie",
 				preload.filter((r) => !r || /undefined/.test(r)).length, 0);
@@ -511,6 +512,28 @@ const match = await started();
 				if (js && !preload.some((r) => r.indexOf(js[1]) >= 0)) missing.push(aspect);
 			}
 			t.check("chaque pièce des paires est préchargée", [...new Set(missing)], []);
+
+			/*
+			 * ET CHAQUE RESSOURCE EXISTE SUR LE DISQUE.
+			 *
+			 * Les chemins ne se déduisent pas du nom : le phénix vit dans
+			 * /birds/, le bélier dans /farm/, et surtout les trois pièces en
+			 * « proper- » partagent les textures de la pièce de base —
+			 * proper-marshall.gltf s'habille de marshall-diffusemap.jpg. Une
+			 * liste reconstruite depuis le nom du maillage donnait six chemins
+			 * inexistants, et autant de 404 au chargement.
+			 *
+			 * Les maillages sont déclarés en .js et livrés en .gltf : la
+			 * conversion est faite au build, donc c'est le .gltf qu'on
+			 * cherche.
+			 */
+			const res = path.join(ROOT, "src", "games", "chessbase");
+			const absent = preload.filter((r) => {
+				const m = /\|(\/res\/.*)$/.exec(r);
+				if (!m) return false;
+				return !fs.existsSync(path.join(res, m[1].replace(/\.js$/, ".gltf")));
+			});
+			t.check("et chaque ressource préchargée existe", absent, []);
 		}
 
 		t.check("les habillages sont des habillages",
@@ -733,6 +756,19 @@ const match = await started();
 		t.check("et aucun coup ne fait entrer deux pièces",
 			withEntry.filter((m) => Array.isArray(m.en)).length, 0);
 
+		/*
+		 * LE PANNEAU DESSINE UNE VIGNETTE PAR PIÈCE, pas une par coup.
+		 *
+		 * Il place ses vignettes par leur RANG dans la liste mais les dessine
+		 * dans un gadget nommé d'après le TYPE. Au roque, une même pièce
+		 * apparaît deux fois — une par case — donc le même gadget était
+		 * positionné deux fois, la seconde l'emportant : des emplacements
+		 * vides, et la vignette « aucune entrée » qui manquait à l'appel.
+		 */
+		t.check("la vue ne garde qu'un coup par type pour le panneau",
+			/seen\[move\.pr\]/.test(require("fs").readFileSync(
+				path.join(ROOT, "src", "games", "chessbase", "famous", "seirawan-view.js"), "utf8")), true);
+
 		// L'étape existe côté vue, avec sa valeur initiale.
 		const view = require("fs").readFileSync(
 			path.join(ROOT, "src", "games", "chessbase", "famous", "seirawan-view.js"), "utf8");
@@ -740,6 +776,12 @@ const match = await started();
 			/spec\.initial\.et = null/.test(view), true);
 		t.check("et désigne les cases sur le plateau, pas dans un panneau",
 			/click: \["clicker#" \+ target\]/.test(view), true);
+		/*
+		 * `unhighlight` accompagne `highlight` : la machine à états l'appelle
+		 * en quittant une action, et sans lui elle avertit — « No unhighlight
+		 * function defined » — en laissant la case allumée après coup.
+		 */
+		t.check("et sait éteindre ce qu'elle a allumé", /unhighlight: function/.test(view), true);
 	}
 
 	t.done("Seirawan++");
