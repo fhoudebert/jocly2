@@ -385,12 +385,50 @@ const GAME = "seirawan-chess";
 			t.check("et le coup sans entrée n'en dit aucune",
 				panel.filter((m) => m.en === undefined && m.ei !== undefined).length, 0);
 
-			const shown = panel.map((m) => (m.en === undefined ? moving[m.f] : m.ei));
+			/*
+			 * CHAQUE CASE DOIT AVOIR UN `pr` -- et c'est lui qui la rend
+			 * CLIQUABLE, pas seulement dessinée.
+			 *
+			 * Le panneau du socle est indexé par le type de promotion : il ne
+			 * retient que les coups qui ont un `pr`, et la cible du clic
+			 * s'appelle « promo#<pr> ». Sans lui, les pièces se dessinaient
+			 * mais les clics écoutaient des cibles inexistantes -- ce que
+			 * aucune décoration de l'affichage ne pouvait corriger.
+			 *
+			 * Le coup sans entrée porte le type de la pièce qui bouge : la
+			 * seule valeur qui ne change rien, `piece.t = move.pr` étant alors
+			 * sans effet.
+			 */
+			t.check("chaque case du panneau est cliquable",
+				panel.filter((m) => m.pr === undefined).length, 0);
+			t.check("et les trois se distinguent",
+				new Set(panel.map((m) => m.pr)).size, 3);
+
+			const shown = panel.map((m) => m.pr);
 			t.check("aucune case sans apparence",
 				shown.filter((pr) => pr === undefined || !types[pr]).length, 0);
 			t.check("et ce sont la pièce déplacée et les deux en attente",
 				shown.map((pr) => types[pr].name).sort(),
 				["cardinal", "knight", "marshall"]);
+		}
+
+		/*
+		 * ET `pr` NE PROMEUT RIEN quand une entrée l'accompagne : il sert au
+		 * panneau, pas aux règles. Le cavalier reste cavalier, c'est la pièce
+		 * en attente qui entre — la notation le dit, et la position aussi.
+		 */
+		{
+			const fresh2 = await Jocly.createMatch(GAME);
+			const list = await fresh2.getPossibleMoves();
+			const said = await fresh2.getMoveString(list);
+			const k = said.indexOf("Nb1-c3/C");
+			await fresh2.playMove(list[k]);
+			const fen = await fresh2.getBoardState();
+			t.check("le cavalier est bien arrivé, entier", /2N7/.test(fen), true);
+			t.check("le cardinal a pris sa case", /^RCBQKBNR/.test(fen.split("/").pop()), true);
+			// Et la notation n'annonce pas une promotion qui n'a pas lieu.
+			t.check("aucune promotion dans la notation",
+				said.filter((n) => /^Nb1-c3/.test(n)).some((n) => /=/.test(n)), false);
 		}
 
 		const skins = (await match.getConfig()).view.skins;

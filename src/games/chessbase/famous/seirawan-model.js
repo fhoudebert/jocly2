@@ -309,6 +309,7 @@
 			 * laquelle.
 			 */
 			var targets = move.cg !== undefined ? [move.f, move.cg] : [move.f];
+			var offered = false;
 			for(var k=0;k<targets.length;k++) {
 				if(!this.entranceSquares[targets[k]]) continue;
 				for(var g=0;g<gates.length;g++) {
@@ -330,10 +331,38 @@
 					 */
 					var waiting = this.board[gates[g]];
 					variant.ei = ENTERS[this.pieces[waiting].t];
+					/*
+					 * `pr` EST CE QUI REND LA CASE CLIQUABLE.
+					 *
+					 * Le panneau du socle est indexé par le type de promotion :
+					 * il ne retient que les coups qui ont un `pr`, et la cible
+					 * du clic s'appelle « promo#<pr> ». Un coup sans `pr`
+					 * n'entre pas dans la table des actions -- les pièces se
+					 * dessinaient, mais les clics écoutaient des cibles
+					 * inexistantes.
+					 *
+					 * On lui en donne un, et ApplyMove le neutralise quand une
+					 * entrée l'accompagne : le cavalier ne devient pas
+					 * cardinal, c'est la pièce en attente qui entre. Voir la
+					 * surcharge plus bas.
+					 */
+					variant.pr = variant.ei;
 					extra.push(variant);
+					offered = true;
 				}
 			}
+			/*
+			 * LE COUP SANS ENTRÉE DOIT ÊTRE CLIQUABLE LUI AUSSI -- c'est le
+			 * choix « je déplace seulement ma pièce ». Il lui faut donc un
+			 * `pr`, et le seul qui ne change rien est LE SIEN : ApplyMove fait
+			 * `piece.t = move.pr`, ce qui est alors sans effet.
+			 */
+			if(offered && move.pr === undefined) {
+				var mover = this.pieces[this.board[move.f]];
+				if(mover) { move.pr = mover.t; move.pn = 1; }
+			}
 		}
+
 		for(var k=0;k<extra.length;k++)
 			this.mMoves.push(extra[k]);
 	}
@@ -351,9 +380,27 @@
 	 * sans savoir ce qu'il contient, donc une entrée de plus se défait comme
 	 * les autres.
 	 */
+	/*
+	 * `pr` NE VAUT PAS PROMOTION QUAND UNE ENTRÉE L'ACCOMPAGNE.
+	 *
+	 * Il n'est là que pour rendre la case du panneau cliquable : le socle
+	 * indexe ses actions par le type de promotion. Mais son ApplyMove ferait
+	 * `piece.t = move.pr`, et le cavalier deviendrait cardinal. On le retire
+	 * donc le temps de l'application, et on le remet ensuite -- le coup est
+	 * conservé, rejoué, comparé avec lui.
+	 */
+	function withoutPromo(move, body) {
+		if(move.en === undefined || move.pr === undefined) return body();
+		var kept = move.pr;
+		delete move.pr;
+		try { return body(); }
+		finally { move.pr = kept; }
+	}
+
 	var SuperQuickApply = Model.Board.cbQuickApply;
 	Model.Board.cbQuickApply = function(aGame,move) {
-		var undo = SuperQuickApply.apply(this,arguments);
+		var $this = this, args = arguments;
+		var undo = withoutPromo(move, function() { return SuperQuickApply.apply($this,args); });
 		if(move.en === undefined) return undo;
 		var index = this.board[move.en];
 		if(index < 0) return undo;
@@ -380,7 +427,8 @@
 	var SuperApplyMove = Model.Board.ApplyMove;
 	Model.Board.ApplyMove = function(aGame,move) {
 		var entering = move.en === undefined ? -1 : this.board[move.en];
-		SuperApplyMove.apply(this,arguments);
+		var $this = this, args = arguments;
+		withoutPromo(move, function() { SuperApplyMove.apply($this,args); });
 
 		// La case se ferme dès qu'elle est quittée, entrée ou non. Au roque
 		// DEUX pièces bougent : les deux cases se ferment, sans quoi la tour
@@ -422,7 +470,16 @@
 		 * partie relue aurait pris la premiere des deux. C'est exactement le
 		 * piege que le commentaire d'Equals decrit pour le roque.
 		 */
+		/*
+		 * `pr` n'annonce PAS une promotion ici : il sert à rendre la case du
+		 * panneau cliquable. Le socle écrit pourtant « =N » ou « =C », ce qui
+		 * ferait lire « Nb1-c3=N » -- un cavalier promu en cavalier. On
+		 * l'enlève, dans les deux cas : le coup simple (`pn`) et les entrées.
+		 */
+		if(this.pn !== undefined)
+			text = text.replace(/=[A-Z]$/, "");
 		if(this.en !== undefined) {
+			text = text.replace(/=[A-Z]$/, "");
 			text += "/" + GATE_LETTER[this.en];
 			// Au roque seulement, la case : « O-O » ne dit pas laquelle des
 			// deux cases libérées la pièce occupe, et deux roques qui ne
@@ -453,6 +510,8 @@
 		// sans lui rouvrirait un panneau incomplet.
 		if(move.ei === undefined) delete this.ei;
 		else this.ei = move.ei;
+		if(move.pn === undefined) delete this.pn;
+		else this.pn = move.pn;
 	}
 
 })();
