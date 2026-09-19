@@ -510,7 +510,17 @@ const match = await started();
 			 * écarté le marquis du Scirocco, dont `fr-ferz-knight` n'a pas de
 			 * modèle.
 			 */
-			const block3d = fairy.slice(fairy.length / 3);
+			/*
+			 * LE BLOC 3D COMMENCE À LA PREMIÈRE ENTRÉE QUI PORTE UN MAILLAGE.
+			 *
+			 * Je le cherchais au tiers du fichier — une approximation, et elle
+			 * était fausse de quatre cents lignes : « fr-ferz-knight » tombait
+			 * avant la coupure, le test le déclarait sans modèle 3D, et sur la
+			 * foi de ce faux négatif j'ai écarté le marquis. Une heuristique
+			 * qui décide à la place de l'auteur doit être exacte, ou ne pas
+			 * exister.
+			 */
+			const block3d = fairy.slice(fairy.indexOf("mesh: {"));
 			const noMesh = [], missing = [];
 			for (const k of Object.keys(types)) {
 				const aspect = types[k].aspect;
@@ -625,8 +635,15 @@ const match = await started();
 				if (graphs[key]) twins.push(graphs[key] + " et " + type.name);
 				else graphs[key] = type.name;
 			}
-			t.check("un seul doublon de mouvement, connu (" + twins.join(", ") + ")",
-				twins.length, 1);
+			/*
+			 * PLUS AUCUN DOUBLON. Le calife reprenait le mouvement du cardinal
+			 * — fou plus cavalier — et c'était doublement une erreur : le
+			 * calife combine en réalité le chameau et le fou, et le chameau
+			 * saute trop loin pour un plateau de huit cases. Le marquis, lui,
+			 * apporte un mouvement que nulle autre paire ne propose.
+			 */
+			t.check("aucune pièce n'en double une autre" + (twins.length ? " (" + twins.join(", ") + ")" : ""),
+				twins, []);
 
 			/*
 			 * ET IL EN RESTE. Une seule table de types contient toutes les

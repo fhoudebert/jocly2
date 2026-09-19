@@ -183,26 +183,27 @@
 					[-2,0],[2,-2]],AREA)); } },
 		],
 		/*
-		 * Évêque couronné et calife.
+		 * Évêque couronné et marquis (Scirocco).
 		 *
-		 * LE MARQUIS DU SCIROCCO DEVAIT PRENDRE CETTE PLACE, et il apporterait
-		 * un mouvement qu'aucune autre paire ne propose -- cavalier plus ferz,
-		 * là où le calife double celui du cardinal. Mais son apparence,
-		 * `fr-ferz-knight`, n'a PAS de maillage 3D dans fairy-set-view.js : la
-		 * pièce ne se dessinerait qu'en 2D, et ce jeu sert à reconnaître des
-		 * pièces.
+		 * Le calife occupait cette place, avec le mouvement du cardinal -- fou
+		 * plus cavalier -- ce qui en faisait un doublon. C'était d'ailleurs une
+		 * erreur : le calife combine le chameau et le fou, et le chameau saute
+		 * trop loin pour un plateau de huit cases.
 		 *
-		 * Le calife reste donc en place jusqu'à ce que le marquis ait un
-		 * modèle. Le test qui accompagne ce fichier vérifie que chaque pièce
-		 * en a un, et c'est lui qui a signalé le manque.
+		 * Le marquis apporte un mouvement qu'aucune autre paire ne propose :
+		 * cavalier plus ferz.
+		 *
+		 * Il porte « Ma » dans le Scirocco ; ici une seule lettre par pièce,
+		 * l'arrangement du prélude en lisant une par case. « Z » lui revient.
 		 */
 		"crowned-bishop": [
 			{ name:'missionnary', fen:'Y', aspect:'fr-crowned-bishop', value:6,
 			  graph: function(g,self) { return self.cbMergeGraphs(g,
 				self.cbKingGraph(g,AREA), self.cbBishopGraph(g,AREA)); } },
-			{ name:'caliph', fen:'Z', aspect:'fr-caliph', value:7,
+			{ name:'marquis', fen:'Z', aspect:'fr-ferz-knight', value:5,
 			  graph: function(g,self) { return self.cbMergeGraphs(g,
-				self.cbBishopGraph(g,AREA), self.cbKnightGraph(g,AREA)); } },
+				self.cbKnightGraph(g,AREA),
+				self.cbShortRangeGraph(g,[[1,1],[1,-1],[-1,1],[-1,-1]],AREA)); } },
 		],
 		// Chu shogi
 		"chu": [

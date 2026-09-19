@@ -209,10 +209,10 @@ var config_view_skins_preload_seirawan = config_view_skins_preload_10.concat([
 	"smoothedfilegeo|0|/res/fairy/crowned-bishop/crowned-bishop.js",
 	"image|/res/fairy/crowned-bishop/crowned-bishop-diffusemap.jpg",
 	"image|/res/fairy/crowned-bishop/crowned-bishop-normalmap.jpg",
-	// fr-caliph
-	"smoothedfilegeo|0|/res/fairy/persons/caliph.js",
-	"image|/res/fairy/persons/caliph-diffusemap.jpg",
-	"image|/res/fairy/persons/caliph-normalmap.jpg",
+	// fr-ferz-knight
+	"smoothedfilegeo|0|/res/fairy/knight/ferzknight.js",
+	"image|/res/fairy/knight/knight-diffusemap.jpg",
+	"image|/res/fairy/knight/knight-normalmap.jpg",
 	// fr-phoenix
 	"smoothedfilegeo|0|/res/fairy/birds/phoenix.js",
 	"image|/res/fairy/birds/phoenix-diffusemap.jpg",
