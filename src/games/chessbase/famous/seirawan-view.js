@@ -212,4 +212,86 @@
 		ENTERS_VIEW.__ready = true;
 	}
 
+	/*
+	 * UNE QUATRIÈME ÉTAPE DE SAISIE : où poser la pièce qui entre.
+	 *
+	 * La machine à états du socle enchaîne trois questions -- la case de
+	 * départ (`f`), celle d'arrivée (`t`), puis la promotion (`pr`) -- et
+	 * s'arrête là. Au roque, DEUX cases se libèrent, celle du roi et celle de
+	 * la tour, et le S-Chess laisse poser sur l'une ou l'autre : il faut une
+	 * question de plus.
+	 *
+	 * Elle ne prend pas la forme d'un second panneau. Les deux cases sont
+	 * désignées SUR LE PLATEAU, éclairées comme des destinations ordinaires --
+	 * c'est plus clair que deux vignettes identiques dans un panneau, et c'est
+	 * ainsi que la version 1 de ce jeu s'y prenait.
+	 *
+	 * Le modèle n'a rien à fournir de plus : les quatre variantes du roque
+	 * existent déjà, chacune avec son `et`. Cette étape choisit entre elles.
+	 */
+	var SuperInput = View.Board.xdInput;
+	View.Board.xdInput = function(xdv, aGame) {
+		var spec = SuperInput.apply(this, arguments);
+		var superGet = spec.getActions;
+		var $this = this;
+
+		// `et` rejoint f, t et pr : la machine remet toutes ces valeurs à null
+		// entre deux coups, donc la nôtre se réinitialise avec les autres.
+		spec.initial.et = null;
+
+		spec.getActions = function(moves, currentInput) {
+			/*
+			 * Tant que la pièce n'est pas choisie, le socle répond. C'est
+			 * important : sa branche `pr` gère aussi les vraies promotions, et
+			 * la réécrire ici les casserait.
+			 */
+			if(currentInput.pr == null || currentInput.et != null)
+				return superGet.call(this, moves, currentInput);
+
+			/*
+			 * La pièce est choisie. Reste-t-il un choix de case ? Seulement
+			 * pour un roque avec entrée : ailleurs la pièce se pose sur la
+			 * case quittée, et il n'y a rien à demander.
+			 */
+			var pending = moves.filter(function(move) {
+				return move.cg !== undefined && move.en !== undefined && move.et !== undefined;
+			});
+			if(pending.length < 2)
+				return superGet.call(this, moves, currentInput);
+
+			var actions = {};
+			pending.forEach(function(move) {
+				var target = move.et;
+				if(actions[target] !== undefined) {
+					actions[target].moves.push(move);
+					return;
+				}
+				actions[target] = {
+					et: target,
+					moves: [move],
+					click: ["clicker#" + target],
+					view: ["clicker#" + target],
+					validate: { et: target },
+					// Pas d'annulation automatique : le joueur doit pouvoir
+					// revenir sur le choix de la pièce sans perdre son coup.
+					noAutoCancel: true,
+					skipable: false,
+					highlight: function(mode) {
+						xdv.updateGadget("cell#" + target, {
+							"2d": {
+								classes: mode == "select" ? "cb-cell-select" : "cb-cell-cancel",
+								opacity: aGame.mShowMoves || mode == "cancel" ? 1 : 0,
+							},
+						});
+					},
+					execute: function(callback) {
+						$this.cbAnimate(xdv, aGame, move, function() { callback(); });
+					},
+				};
+			});
+			return actions;
+		};
+		return spec;
+	}
+
 })();

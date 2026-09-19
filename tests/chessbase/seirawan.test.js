@@ -478,6 +478,41 @@ const match = await started();
 		}
 
 		const skins = (await match.getConfig()).view.skins;
+		/*
+		 * LES DIX PAIRES SONT PRÉCHARGÉES, pas seulement la première.
+		 *
+		 * Le jeu empruntait les habillages de Capablanca, dont la liste couvre
+		 * exactement SES pièces — les orthodoxes, le cardinal et le marshall,
+		 * soit l'arrangement #0. Les neuf autres chargeaient leurs maillages et
+		 * leurs textures à la demande, au moment où la pièce entre en jeu,
+		 * c'est-à-dire pendant une animation.
+		 *
+		 * Les chemins ne se déduisent pas du nom : le phénix vit dans
+		 * /birds/, le bélier dans /farm/, le calife dans /persons/, et trois
+		 * pièces portent un préfixe « proper- ». C'est pourquoi la liste est
+		 * écrite et non calculée — et pourquoi ce test la confronte aux
+		 * apparences réellement déclarées.
+		 */
+		{
+			const preload = skins.find((s) => s["3d"]).preload;
+			t.check("aucune ressource indéfinie",
+				preload.filter((r) => !r || /undefined/.test(r)).length, 0);
+
+			const fairy = require("fs").readFileSync(
+				path.join(ROOT, "src", "games", "chessbase", "fairy-set-view.js"), "utf8");
+			const missing = [];
+			for (const k of Object.keys(types)) {
+				const aspect = types[k].aspect;
+				if (!aspect || /^fr-(pawn|knight|bishop|rook|queen|king)$/.test(aspect)) continue;
+				// Le maillage que fairy-set-view déclare pour cette apparence.
+				const at = fairy.indexOf('"' + aspect + '": {', fairy.length / 3);
+				if (at < 0) continue;
+				const js = /jsFile:\s*"([^"]+)"/.exec(fairy.slice(at, at + 400));
+				if (js && !preload.some((r) => r.indexOf(js[1]) >= 0)) missing.push(aspect);
+			}
+			t.check("chaque pièce des paires est préchargée", [...new Set(missing)], []);
+		}
+
 		t.check("les habillages sont des habillages",
 			skins.map((s) => s.name).sort(), ["skin2d", "skin3d"]);
 	}
@@ -649,6 +684,62 @@ const match = await started();
 					waiting.push(types[p.t].name.replace(/^gate-/, ""));
 			t.check("  et ce sont celles qui attendent", offered, [...new Set(waiting)].sort());
 		}
+	}
+
+	/* ------------------------------------------------ la saisie du roque */
+
+	/*
+	 * LA CASE DE POSE SE DEMANDE APRÈS LA PIÈCE.
+	 *
+	 * Au roque, deux cases se libèrent — celle du roi et celle de la tour — et
+	 * le S-Chess laisse poser sur l'une ou l'autre, mais UNE SEULE pièce par
+	 * coup. Le panneau du socle est indexé par `pr` : les deux variantes d'une
+	 * même pièce s'y confondent en une seule vignette, ce qui est voulu. La
+	 * case est choisie ensuite, par une quatrième étape de saisie qui éclaire
+	 * les deux départs sur le plateau.
+	 *
+	 * Ce que ce bloc vérifie, c'est ce dont cette étape a besoin : que le
+	 * modèle produise bien deux variantes par pièce, distinguées par `et` et
+	 * par rien d'autre. Le reste — l'enchaînement des clics — ne se teste pas
+	 * sans navigateur ; ce qui se teste ici, c'est qu'il ait de quoi choisir.
+	 */
+	{
+		const fresh3 = await started();
+		for (const want of ["Ng1-f3", "Ng8-f6", "e2-e3", "e7-e6", "Bf1-e2", "Bf8-e7"]) {
+			const list = await fresh3.getPossibleMoves();
+			const said = await fresh3.getMoveString(list);
+			await fresh3.playMove(list[said.indexOf(want)]);
+		}
+		const list = await fresh3.getPossibleMoves();
+		const said = await fresh3.getMoveString(list);
+		const castles = list.filter((m, i) => /^O-O\b/.test(said[i]));
+		const types = fresh3.game.cbVar.pieceTypes;
+
+		// Une vignette par pièce, plus celle du roque simple.
+		t.check("le panneau ne montre que trois choix",
+			new Set(castles.map((m) => m.pr)).size, 3);
+
+		// Et deux cases par pièce, pour l'étape suivante.
+		const withEntry = castles.filter((m) => m.en !== undefined);
+		t.check("chaque pièce a deux cases de pose", withEntry.length, 4);
+		t.check("distinguées par leur case et rien d'autre",
+			new Set(withEntry.map((m) => m.pr + ":" + m.et)).size, 4);
+
+		/*
+		 * UNE SEULE PIÈCE PAR COUP. Aucune variante ne porte deux entrées :
+		 * ce n'est pas un contrôle ajouté, c'est la forme même de la
+		 * génération — un coup n'a qu'un champ `en`.
+		 */
+		t.check("et aucun coup ne fait entrer deux pièces",
+			withEntry.filter((m) => Array.isArray(m.en)).length, 0);
+
+		// L'étape existe côté vue, avec sa valeur initiale.
+		const view = require("fs").readFileSync(
+			path.join(ROOT, "src", "games", "chessbase", "famous", "seirawan-view.js"), "utf8");
+		t.check("la vue déclare une étape de saisie pour la case",
+			/spec\.initial\.et = null/.test(view), true);
+		t.check("et désigne les cases sur le plateau, pas dans un panneau",
+			/click: \["clicker#" \+ target\]/.test(view), true);
 	}
 
 	t.done("Seirawan++");

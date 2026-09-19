@@ -19,7 +19,7 @@ const {
 	config_view_skins_world_lightPosition_2, config_view_skins_2, config_view_skins_3,
 	config_view_skins_world_3, config_model_levels_15, config_model_gameOptions_3,
 	config_model_levels_crazyhouse_expert, config_view_skins_preload,
-	config_view_skins_11
+	config_view_skins_11, config_view_skins_preload_10, config_view_skins_9
 } = require("./shared.js");
 
 // declarations only this family uses, lifted out of shared.js
@@ -129,6 +129,53 @@ var modelScripts_28 = [
  * des types parachutables que ce jeu n'a pas. fairy-set-view apporte les
  * apparences du cardinal et du marshall, que l'ensemble Staunton ignore.
  */
+/*
+ * LES RESSOURCES 3D DES DIX PAIRES, a precharger.
+ *
+ * Le jeu empruntait les habillages de Capablanca, dont la liste de
+ * prechargement couvre exactement SES pieces : les orthodoxes, le cardinal et
+ * le marshall. C'est l'arrangement #0 et lui seul ; les neuf autres chargeaient
+ * leurs maillages et leurs textures a la demande, au moment ou la piece entre
+ * en jeu -- c'est-a-dire au pire moment, pendant une animation.
+ *
+ * Les chemins suivent la declaration de fairy-set-view.js. Ils ne s'en
+ * deduisent pas : le phenix vit dans /birds/, le belier dans /farm/, le calife
+ * dans /persons/, et trois pieces portent un prefixe « proper- ».
+ */
+var seirawan_meshes = [
+	"cardinal/cardinal", "marshall/proper-marshall",
+	"rhino/rhino", "griffon/griffon",
+	"elephant/proper-elephant", "cannon/cannon",
+	"crowned-knight/crowned-knight",
+	"birds/phoenix", "giraffe/giraffe",
+	"crowned-rook/proper-crowned-rook", "machine/machine",
+	"ship/ship", "cobra/cobra",
+	"badger/badger", "farm/ram",
+	"hawk/hawk", "mammoth/mammoth",
+	"crowned-bishop/crowned-bishop", "persons/caliph"
+]
+
+var config_view_skins_preload_seirawan = config_view_skins_preload_10.concat(
+	seirawan_meshes.reduce(function(list, piece) {
+		var dir = piece.split("/")[0], file = piece.split("/")[1];
+		return list.concat([
+			"smoothedfilegeo|0|/res/fairy/" + dir + "/" + file + ".js",
+			"image|/res/fairy/" + dir + "/" + file + "-diffusemap.jpg",
+			"image|/res/fairy/" + dir + "/" + file + "-normalmap.jpg"
+		]);
+	}, []))
+
+var config_view_skins_seirawan = [
+	// Le 3D de Capablanca, avec NOTRE liste de prechargement.
+	{
+		"name": "skin3d", "title": "3D Classic", "3d": true,
+		"preload": config_view_skins_preload_seirawan,
+		"world": config_view_skins_world,
+		"camera": config_view_skins_camera
+	},
+	config_view_skins_9
+]
+
 var config_view_js_seirawan = [
 	"base-view.js",
 	"grid-board-view.js",
@@ -865,7 +912,7 @@ exports.games = {
 				 * piece-image, d'ou des glyphes de secours a la place des pieces et
 				 * une croix a la place des images introuvables.
 				 */
-				"skins": config_view_skins_11,
+				"skins": config_view_skins_seirawan,
 				"defaultOptions": config_view_defaultOptions,
 				"switchable": true
 			}
