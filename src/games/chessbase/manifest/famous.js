@@ -165,10 +165,10 @@ var config_view_skins_preload_seirawan = config_view_skins_preload_10.concat([
 	"smoothedfilegeo|0|/res/fairy/marshall/proper-marshall.js",
 	"image|/res/fairy/marshall/marshall-diffusemap.jpg",
 	"image|/res/fairy/marshall/marshall-normalmap.jpg",
-	// fr-rhino
-	"smoothedfilegeo|0|/res/fairy/rhino/rhino.js",
-	"image|/res/fairy/rhino/rhino-diffusemap.jpg",
-	"image|/res/fairy/rhino/rhino-normalmap.jpg",
+	// fr-rhino2
+	"smoothedfilegeo|0|/res/fairy/rhino/rhino2.js",
+	"image|/res/fairy/rhino/rhino2-diffusemap.jpg",
+	"image|/res/fairy/rhino/rhino2-normalmap.jpg",
 	// fr-griffon
 	"smoothedfilegeo|0|/res/fairy/griffon/griffon.js",
 	"image|/res/fairy/griffon/griffon-diffusemap.jpg",
@@ -181,26 +181,6 @@ var config_view_skins_preload_seirawan = config_view_skins_preload_10.concat([
 	"smoothedfilegeo|0|/res/fairy/cannon/cannon.js",
 	"image|/res/fairy/cannon/cannon-diffusemap.jpg",
 	"image|/res/fairy/cannon/cannon-normalmap.jpg",
-	// fr-crowned-knight
-	"smoothedfilegeo|0|/res/fairy/crowned-knight/crowned-knight.js",
-	"image|/res/fairy/crowned-knight/crowned-knight-diffusemap.jpg",
-	"image|/res/fairy/crowned-knight/crowned-knight-normalmap.jpg",
-	// fr-phoenix
-	"smoothedfilegeo|0|/res/fairy/birds/phoenix.js",
-	"image|/res/fairy/birds/phoenix-diffusemap.jpg",
-	"image|/res/fairy/birds/phoenix-normalmap.jpg",
-	// fr-giraffe
-	"smoothedfilegeo|0|/res/fairy/giraffe/giraffe.js",
-	"image|/res/fairy/giraffe/giraffe-diffusemap.jpg",
-	"image|/res/fairy/giraffe/giraffe-normalmap.jpg",
-	// fr-proper-crowned-rook
-	"smoothedfilegeo|0|/res/fairy/crowned-rook/proper-crowned-rook.js",
-	"image|/res/fairy/crowned-rook/crowned-rook-diffuse-map.jpg",
-	"image|/res/fairy/crowned-rook/crowned-rook-normal-map.jpg",
-	// fr-machine
-	"smoothedfilegeo|0|/res/fairy/machine/machine.js",
-	"image|/res/fairy/machine/machine-diffusemap.jpg",
-	"image|/res/fairy/machine/machine-normalmap.jpg",
 	// fr-ship
 	"smoothedfilegeo|0|/res/fairy/ship/ship.js",
 	"image|/res/fairy/ship/ship-diffusemap.jpg",
@@ -232,7 +212,27 @@ var config_view_skins_preload_seirawan = config_view_skins_preload_10.concat([
 	// fr-caliph
 	"smoothedfilegeo|0|/res/fairy/persons/caliph.js",
 	"image|/res/fairy/persons/caliph-diffusemap.jpg",
-	"image|/res/fairy/persons/caliph-normalmap.jpg"
+	"image|/res/fairy/persons/caliph-normalmap.jpg",
+	// fr-phoenix
+	"smoothedfilegeo|0|/res/fairy/birds/phoenix.js",
+	"image|/res/fairy/birds/phoenix-diffusemap.jpg",
+	"image|/res/fairy/birds/phoenix-normalmap.jpg",
+	// fr-giraffe
+	"smoothedfilegeo|0|/res/fairy/giraffe/giraffe.js",
+	"image|/res/fairy/giraffe/giraffe-diffusemap.jpg",
+	"image|/res/fairy/giraffe/giraffe-normalmap.jpg",
+	// fr-proper-crowned-rook
+	"smoothedfilegeo|0|/res/fairy/crowned-rook/proper-crowned-rook.js",
+	"image|/res/fairy/crowned-rook/crowned-rook-diffuse-map.jpg",
+	"image|/res/fairy/crowned-rook/crowned-rook-normal-map.jpg",
+	// fr-machine
+	"smoothedfilegeo|0|/res/fairy/machine/machine.js",
+	"image|/res/fairy/machine/machine-diffusemap.jpg",
+	"image|/res/fairy/machine/machine-normalmap.jpg",
+	// fr-crowned-knight
+	"smoothedfilegeo|0|/res/fairy/crowned-knight/crowned-knight.js",
+	"image|/res/fairy/crowned-knight/crowned-knight-diffusemap.jpg",
+	"image|/res/fairy/crowned-knight/crowned-knight-normalmap.jpg"
 ])
 
 var config_view_skins_seirawan = [

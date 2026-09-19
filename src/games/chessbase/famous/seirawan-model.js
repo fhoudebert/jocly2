@@ -185,12 +185,16 @@
 		/*
 		 * Évêque couronné et calife.
 		 *
-		 * ATTENTION : le calife se déplace comme le cardinal -- fou plus
-		 * cavalier -- mais sous un autre nom et une autre figure. C'est
-		 * délibéré ici : le jeu sert à RECONNAÎTRE des pièces, et le même
-		 * mouvement porte des noms différents selon les variantes. Si vous
-		 * préférez n'en avoir qu'une, remplacez cette entrée par
-		 * `{ same:'cardinal' }`, comme le Khan le fait pour le marshall.
+		 * LE MARQUIS DU SCIROCCO DEVAIT PRENDRE CETTE PLACE, et il apporterait
+		 * un mouvement qu'aucune autre paire ne propose -- cavalier plus ferz,
+		 * là où le calife double celui du cardinal. Mais son apparence,
+		 * `fr-ferz-knight`, n'a PAS de maillage 3D dans fairy-set-view.js : la
+		 * pièce ne se dessinerait qu'en 2D, et ce jeu sert à reconnaître des
+		 * pièces.
+		 *
+		 * Le calife reste donc en place jusqu'à ce que le marquis ait un
+		 * modèle. Le test qui accompagne ce fichier vérifie que chaque pièce
+		 * en a un, et c'est lui qui a signalé le manque.
 		 */
 		"crowned-bishop": [
 			{ name:'missionnary', fen:'Y', aspect:'fr-crowned-bishop', value:6,
@@ -403,10 +407,11 @@
 			 * relirait les anciennes parties avec les mauvaises pièces.
 			 */
 			prelude: [{
-				// Trois colonnes : dix arrangements tiennent en quatre rangées
-				// plutôt qu'en cinq, et le panneau reste lisible d'un coup
-				// d'œil.
-				panelWidth: 3,
+				// Deux colonnes : dix arrangements y forment cinq rangées de
+				// deux, une paire par ligne. Sur trois colonnes, la dernière
+				// rangée restait incomplète et les paires se lisaient moins
+				// bien.
+				panelWidth: 2,
 				// En minuscules : ce sont les formes EN ATTENTE que le prélude
 				// pose aux portes, pas les pièces de jeu.
 				// Rempli à la déclaration des types, une fois les reprises

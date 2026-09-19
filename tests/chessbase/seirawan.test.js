@@ -501,17 +501,40 @@ const match = await started();
 
 			const fairy = require("fs").readFileSync(
 				path.join(ROOT, "src", "games", "chessbase", "fairy-set-view.js"), "utf8");
-			const missing = [];
+			/*
+			 * CHAQUE PIÈCE A UN MAILLAGE 3D, ET IL EST PRÉCHARGÉ.
+			 *
+			 * Les deux vont ensemble : une apparence absente du bloc 3D de
+			 * fairy-set-view.js ne se dessine qu'en 2D, et ce jeu sert
+			 * justement à reconnaître des pièces. C'est ce contrôle qui a
+			 * écarté le marquis du Scirocco, dont `fr-ferz-knight` n'a pas de
+			 * modèle.
+			 */
+			const block3d = fairy.slice(fairy.length / 3);
+			const noMesh = [], missing = [];
 			for (const k of Object.keys(types)) {
 				const aspect = types[k].aspect;
 				if (!aspect || /^fr-(pawn|knight|bishop|rook|queen|king)$/.test(aspect)) continue;
-				// Le maillage que fairy-set-view déclare pour cette apparence.
-				const at = fairy.indexOf('"' + aspect + '": {', fairy.length / 3);
-				if (at < 0) continue;
-				const js = /jsFile:\s*"([^"]+)"/.exec(fairy.slice(at, at + 400));
-				if (js && !preload.some((r) => r.indexOf(js[1]) >= 0)) missing.push(aspect);
+				const at = block3d.indexOf('"' + aspect + '": {');
+				if (at < 0) { noMesh.push(aspect); continue; }
+				/*
+				 * Borné au bloc de CETTE apparence : une lecture sur un nombre
+				 * fixe de caractères débordait sur l'entrée suivante et
+				 * attribuait son maillage à la précédente — « fr-rhino » se
+				 * voyait affecter celui de « fr-rhino2 », et le test accusait
+				 * une pièce innocente.
+				 */
+				let depth = 0, end = at;
+				for (let i = block3d.indexOf("{", at); i < block3d.length; i++) {
+					if (block3d[i] === "{") depth++;
+					else if (block3d[i] === "}" && --depth === 0) { end = i; break; }
+				}
+				const js = /jsFile:\s*"([^"]+)"/.exec(block3d.slice(at, end));
+				if (!js) { noMesh.push(aspect); continue; }
+				if (!preload.some((r) => r.indexOf(js[1]) >= 0)) missing.push(aspect);
 			}
-			t.check("chaque pièce des paires est préchargée", [...new Set(missing)], []);
+			t.check("chaque pièce a un maillage 3D", [...new Set(noMesh)], []);
+			t.check("et il est préchargé", [...new Set(missing)], []);
 
 			/*
 			 * ET CHAQUE RESSOURCE EXISTE SUR LE DISQUE.
@@ -553,9 +576,9 @@ const match = await started();
 	{
 		const variant = (await started()).game.cbVar;
 		const dialog = variant.prelude[0];
-		// Trois colonnes : dix arrangements tiennent en quatre rangées plutôt
-		// qu'en cinq.
-		t.check("le panneau a trois colonnes", dialog.panelWidth, 3);
+		// Deux colonnes : dix arrangements y forment cinq rangées de deux, une
+		// paire par ligne. Sur trois, la dernière rangée restait incomplète.
+		t.check("le panneau a deux colonnes", dialog.panelWidth, 2);
 		t.check("un arrangement par paire", dialog.setups.length >= 10, true);
 
 		/*
@@ -579,6 +602,31 @@ const match = await started();
 				seen[a] = variant.pieceTypes[k].name;
 			}
 			t.check("aucune lettre n'est portée par deux pièces", clashes, []);
+
+			/*
+			 * DEUX PIÈCES DE MÊME MOUVEMENT : le calife reprend celui du
+			 * cardinal, fou plus cavalier.
+			 *
+			 * Ce n'est pas tenu pour une faute ici : le jeu sert à reconnaître
+			 * des pièces, et la même marche porte des noms différents selon
+			 * les variantes. Mais c'est un doublon, et il occupe une des dix
+			 * places -- le marquis du Scirocco apporterait un mouvement
+			 * nouveau, s'il avait un maillage 3D.
+			 *
+			 * On compte donc les doublons sans les interdire : le jour où l'on
+			 * veut les bannir, ce chiffre dit combien il y en a.
+			 */
+			const graphs = {};
+			const twins = [];
+			for (const k of Object.keys(variant.pieceTypes)) {
+				const type = variant.pieceTypes[k];
+				if (!type.graph || /^gate-/.test(type.name || "")) continue;
+				const key = JSON.stringify(type.graph);
+				if (graphs[key]) twins.push(graphs[key] + " et " + type.name);
+				else graphs[key] = type.name;
+			}
+			t.check("un seul doublon de mouvement, connu (" + twins.join(", ") + ")",
+				twins.length, 1);
 
 			/*
 			 * ET IL EN RESTE. Une seule table de types contient toutes les
