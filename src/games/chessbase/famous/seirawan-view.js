@@ -89,17 +89,43 @@
 		if(!ENTERS_VIEW.__ready) IndexGates(types);
 		var patched = promoMoves.map(function(move) {
 			if(move.pr !== undefined) return move;
-			if(move.en === undefined) return move;
-			// La pièce qui entre, reconnue à sa porte : c'est elle que la case
-			// du panneau doit montrer.
-			var index = aGame.mBoard ? aGame.mBoard.board[move.en] : -1;
-			var piece = index >= 0 ? aGame.mBoard.pieces[index] : null;
-			if(!piece) return move;
-			var entered = ENTERS_VIEW[piece.t];
+			/*
+			 * LE COUP SANS ENTRÉE EST UN CHOIX, et c'est la case qui manquait.
+			 *
+			 * Le panneau présente « plusieurs façons d'achever ce coup » :
+			 * faire entrer le cardinal, faire entrer le marshall, ou n'en
+			 * faire entrer aucun. Ce dernier n'a ni `pr` ni `en` — d'où
+			 * `pieceTypes[undefined]` et la fenêtre vide dès l'ouverture,
+			 * avant même la première case.
+			 *
+			 * On lui donne l'apparence de la pièce qui BOUGE : c'est ce que le
+			 * joueur choisit en la sélectionnant — déplacer le cavalier, et
+			 * rien d'autre.
+			 */
+			if(move.en === undefined) {
+				var moved = MOVING_TYPE[move.f];
+				if(moved === undefined || !types[moved]) return move;
+				var plain = Copy(aGame, move);
+				plain.pr = moved;
+				return plain;
+			}
+			/*
+			 * LA PIÈCE SE DÉDUIT DE LA PORTE, PAS DU PLATEAU.
+			 *
+			 * La vue ne partage pas le plateau du modèle : elle tourne dans
+			 * son propre cadre, où `aGame.mBoard` peut ne rien contenir. Lire
+			 * la pièce posée sur la case d'attente ne marchait donc pas, et
+			 * l'override rendait le coup inchangé -- sans `pr`, donc avec la
+			 * même erreur qu'avant.
+			 *
+			 * La correspondance est fixe : chaque case d'attente est la
+			 * position INITIALE d'un type précis, et le manifeste la déclare.
+			 */
+			var entered = ENTERS_VIEW[move.en];
 			if(entered === undefined || !types[entered]) return move;
 			// `pr` n'est lu ici que pour choisir l'apparence ; le coup joué
 			// reste celui d'origine, entrée comprise.
-			var shown = aGame.CreateMove(move);
+			var shown = Copy(aGame, move);
 			shown.pr = entered;
 			return shown;
 		});
@@ -112,6 +138,22 @@
 	 * on le relit ici des types eux-mêmes -- une pièce en attente porte le nom
 	 * de celle qu'elle deviendra, préfixé de « gate- ».
 	 */
+	/** Copie d'un coup, en gardant son prototype quand la vue sait en créer. */
+	function Copy(aGame, move) {
+		return typeof aGame.CreateMove === "function"
+			? aGame.CreateMove(move) : Object.assign({}, move);
+	}
+
+	/*
+	 * Quelle pièce occupe quelle case au départ — pour que la case « aucune
+	 * entrée » du panneau montre la pièce qu'on déplace.
+	 *
+	 * Reconstruit du manifeste, comme les portes : seule la rangée arrière
+	 * nous intéresse, et c'est la seule dont les pièces peuvent déclencher une
+	 * entrée.
+	 */
+	var MOVING_TYPE = {};
+
 	var ENTERS_VIEW = {};
 	function IndexGates(types) {
 		for(var t in types) {
@@ -120,6 +162,10 @@
 			for(var u in types)
 				if(types[u].name === m[1]) ENTERS_VIEW[t] = parseInt(u,10);
 		}
+		for(var t2 in types)
+			(types[t2].initial || []).forEach(function(start) {
+				if(MOVING_TYPE[start.p] === undefined) MOVING_TYPE[start.p] = parseInt(t2,10);
+			});
 		ENTERS_VIEW.__ready = true;
 	}
 

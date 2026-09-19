@@ -329,6 +329,56 @@ const GAME = "seirawan-chess";
 			.map((k) => types[k].name);
 		t.check("chaque pièce a une apparence de l'ensemble féerique", strays, []);
 
+		/*
+		 * LES TROIS CASES DU PANNEAU ONT CHACUNE UNE APPARENCE.
+		 *
+		 * La vue ouvre son panneau de choix dès que plusieurs coups partagent
+		 * la même case de départ et la même case d'arrivée — c'est le choix de
+		 * promotion, et les variantes d'entrée sont exactement cela. Chaque
+		 * case y est dessinée d'après le `pr` du coup ; celles qui n'en ont pas
+		 * donnent `pieceTypes[undefined]`, et le panneau s'ouvre VIDE avec son
+		 * seul bouton d'annulation.
+		 *
+		 * Deux coups sur trois manquaient de `pr` : celui qui fait entrer une
+		 * pièce, et surtout celui qui n'en fait entrer aucune — le choix « je
+		 * déplace seulement ma pièce ».
+		 *
+		 * Les deux correspondances sont reconstruites du MANIFESTE, comme la
+		 * vue le fait : la pièce qui entre depuis sa case d'attente, la pièce
+		 * qui bouge depuis sa case de départ. La vue tourne dans son propre
+		 * cadre et n'a pas accès au plateau du modèle — c'est ce qui faisait
+		 * échouer la première version.
+		 */
+		{
+			const enters = {}, moving = {};
+			for (const k of Object.keys(types)) {
+				const m = /^gate-(.+)$/.exec(types[k].name || "");
+				if (m) {
+					const entered = Object.keys(types).find((u) => types[u].name === m[1]);
+					(types[k].initial || []).forEach((p) => { enters[p.p] = Number(entered); });
+				}
+				(types[k].initial || []).forEach((p) => {
+					if (moving[p.p] === undefined) moving[p.p] = Number(k);
+				});
+			}
+
+			// Une partie neuve : celle du dessus a avancé, et les coups qu'on
+			// avait relevés à l'ouverture n'y existent plus.
+			const start = await Jocly.createMatch(GAME);
+			const list = await start.getPossibleMoves();
+			const said = await start.getMoveString(list);
+			const ref = list[said.findIndex((n) => /\//.test(n))];
+			const panel = list.filter((m) => m.f === ref.f && m.t === ref.t);
+			t.check("le panneau compte trois cases", panel.length, 3);
+
+			const shown = panel.map((m) => (m.en === undefined ? moving[m.f] : enters[m.en]));
+			t.check("aucune case sans apparence",
+				shown.filter((pr) => pr === undefined || !types[pr]).length, 0);
+			t.check("et ce sont la pièce déplacée et les deux en attente",
+				shown.map((pr) => types[pr].name).sort(),
+				["cardinal", "knight", "marshall"]);
+		}
+
 		const skins = (await match.getConfig()).view.skins;
 		t.check("les habillages sont des habillages",
 			skins.map((s) => s.name).sort(), ["skin2d", "skin3d"]);
