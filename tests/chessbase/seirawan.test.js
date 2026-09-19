@@ -496,7 +496,30 @@ const match = await started();
 		const variant = (await started()).game.cbVar;
 		const dialog = variant.prelude[0];
 		t.check("le panneau a deux colonnes", dialog.panelWidth, 2);
-		t.check("un arrangement par paire", dialog.setups.length >= 4, true);
+		t.check("un arrangement par paire", dialog.setups.length >= 6, true);
+
+		/*
+		 * LES LETTRES SONT UNIQUES, et c'est une contrainte de la variante et
+		 * non des jeux d'origine.
+		 *
+		 * Toutes les paires vivent dans UNE table de types : deux pièces
+		 * partageant une lettre rendraient l'arrangement du prélude ambigu —
+		 * il cherche le type dont l'abréviation vaut la lettre — et le FEN
+		 * illisible. Deux pièces ont donc dû changer de lettre par rapport à
+		 * leur jeu d'origine : la tour couronnée du Spartan (« G », pris par
+		 * le griffon) et sa machine (« W », pris par le marshall du Khan).
+		 */
+		{
+			const seen = {};
+			const clashes = [];
+			for (const k of Object.keys(variant.pieceTypes)) {
+				const a = variant.pieceTypes[k].abbrev;
+				if (!a) continue;
+				if (seen[a]) clashes.push(a + " : " + seen[a] + " et " + variant.pieceTypes[k].name);
+				seen[a] = variant.pieceTypes[k].name;
+			}
+			t.check("aucune lettre n'est portée par deux pièces", clashes, []);
+		}
 		t.check("deux lettres par arrangement",
 			dialog.setups.every((s) => s.length === 2), true);
 

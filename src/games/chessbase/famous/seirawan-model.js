@@ -140,6 +140,33 @@
 			{ name:'cannon', fen:'X', aspect:'fr-cannon', value:3,
 			  graph: function(g,self) { return self.cbXQCannonGraph(g,AREA); } },
 		],
+		// Chu shogi
+		"chu": [
+			{ name:'phoenix', fen:'H', aspect:'fr-phoenix', value:2.9,
+			  graph: function(g,self) { return self.cbSymmetricGraph(g,[10,22],AREA); } },
+			// Même pièce, même icône que le kirin du Minjiku shogi.
+			{ name:'kirin', fen:'I', aspect:'fr-giraffe', value:3.1,
+			  graph: function(g,self) { return self.cbSymmetricGraph(g,[11,20],AREA); } },
+		],
+		/*
+		 * Spartan. Deux lettres changent par rapport au jeu d'origine : la
+		 * tour couronnée y porte « G », déjà pris ici par le griffon, et la
+		 * machine « W », pris par le marshall du Khan.
+		 *
+		 * Les lettres doivent être uniques dans CETTE variante, puisqu'une
+		 * seule table de types les contient toutes : deux pièces partageant
+		 * une lettre rendraient l'arrangement du prélude ambigu, et le FEN
+		 * illisible.
+		 */
+		"spartan": [
+			{ name:'crowned-rook', fen:'T', aspect:'fr-proper-crowned-rook', value:7,
+			  graph: function(g,self) { return self.cbMergeGraphs(g,
+				self.cbRookGraph(g,AREA),
+				self.cbShortRangeGraph(g,[[1,1],[-1,1],[1,-1],[-1,-1]],AREA)); } },
+			{ name:'machine', fen:'D', aspect:'fr-machine', value:3,
+			  graph: function(g,self) { return self.cbShortRangeGraph(g,
+				[[-1,0],[-2,0],[1,0],[2,0],[0,1],[0,2],[0,-1],[0,-2]],AREA); } },
+		],
 		// Khan
 		"khan": [
 			{ name:'crowned-knight', fen:'J', aspect:'fr-crowned-knight', value:8,
@@ -152,7 +179,8 @@
 	// L'ordre des paires : celui du panneau, et celui des numéros d'arrangement
 	// que le prélude enregistre. Il ne doit donc plus changer une fois des
 	// parties sauvegardées — un arrangement est désigné par son rang.
-	var PAIR_KEYS = ["marshall-cardinal", "rhino-griffon", "elephant-cannon", "khan"];
+	var PAIR_KEYS = ["marshall-cardinal", "rhino-griffon", "elephant-cannon", "khan",
+		"chu", "spartan"];
 
 	/*
 	 * TOUTES LES PAIRES SONT DÉCLARÉES, pas seulement celle qui commence.
