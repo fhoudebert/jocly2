@@ -368,7 +368,7 @@ exports.games = {
 				},
 				"module": "chessbase",
 				"plazza": "true",
-				"thumbnail": "res/rules/shogi/shogi-thumb.png",
+				"thumbnail": "res/rules/shogi/kotaishi-thumb.png",
 				"released": 1396536978,
 				"credits": {
 					"en": "res/rules/shogi/kotaishi-credits.html"
