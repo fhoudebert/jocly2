@@ -432,6 +432,49 @@
 				},
 				persistent: true,
 			}, 0],
+
+			/*
+			 * LE CHOIX SE LIT SUR LE PLATEAU, donc une position chargée n'a
+			 * pas à le redemander : les deux pièces en attente DISENT la
+			 * paire, et le prélude ne ferait que les retyper -- en écrasant
+			 * au passage celles d'une position importée. Sans ce drapeau,
+			 * rouvrir un FEN de S-Chess rouvrait le panneau des dix
+			 * arrangements, et le premier coup du fichier n'était légal dans
+			 * aucun d'eux.
+			 *
+			 * C'est le même contrat que Capablanca ou Timurid : voir
+			 * prelude-model.js, cbPreludeFromBoard.
+			 */
+			cbPreludeFromBoard: true,
+
+			/*
+			 * LES PIONS D'UNE POSITION IMPORTEE, comme aux échecs classiques
+			 * (famous/classic-model.js, même correctif).
+			 *
+			 * Un FEN écrit « P » pour les deux types de pion -- celui qui peut
+			 * avancer de deux cases et celui qui ne le peut plus -- et le
+			 * socle retient le dernier déclaré. Un pion relu sur g3 se
+			 * retrouvait donc « initial » et proposait g3-g5 : un coup que
+			 * personne ne peut jouer, dans une position par ailleurs juste.
+			 * La rangée tranche, elle, et elle seule.
+			 */
+			importGame: function(initial) {
+				initial.pieces.forEach(function(piece) {
+					// La casse du FEN dit le camp ; le type suit.
+					if(piece.s == 1 && (piece.t == 2 || piece.t == 3)) piece.t = 0;
+					if(piece.s == -1 && (piece.t == 0 || piece.t == 1)) piece.t = 2;
+					var rank = geometry.R(piece.p);
+					if(piece.s == 1 && piece.t <= 1) {
+						piece.t = rank == 1 ? 1 : 0;
+						piece.m = rank != 1;
+					}
+					if(piece.s == -1 && (piece.t == 2 || piece.t == 3)) {
+						piece.t = rank == 6 ? 3 : 2;
+						piece.m = rank != 6;
+					}
+				});
+				return true;
+			},
 		};
 
 		/*
@@ -543,6 +586,13 @@
 			this.entranceSquares[POS(f,WHITE_HOME)] = true;
 			this.entranceSquares[POS(f,BLACK_HOME)] = true;
 		}
+		// Une position IMPORTEE dit lesquelles sont encore ouvertes (voir
+		// Import). Sans cela, charger un milieu de partie rouvrait les seize
+		// portes, et une piece entrait la ou la regle ne le permet plus.
+		var imported = aGame.mInitial && aGame.mInitial.entranceSquares;
+		if(imported)
+			for(var pos in this.entranceSquares)
+				this.entranceSquares[pos] = !!imported[pos];
 	}
 
 	var SuperCopyFrom = Model.Board.CopyFrom;
@@ -863,9 +913,172 @@
 
 		// Prise en passant et compteurs : ceux du FEN ordinaire. Les colonnes
 		// d'attente étant à DROITE, la case de passage garde son nom.
-		var std = this.ExportBoardState(aGame).split(" ");
+		var std = SuperExportBoardState.apply(this, arguments).split(" ");
 		return rows.join("/") + "[" + pocket + "] " + (this.mWho > 0 ? "w" : "b") + " "
 			+ (field || "-") + " " + (std[3] || "-") + " " + (std[4] || "0") + " " + (std[5] || "1");
+	}
+
+	/*
+	 * ET C'EST AUSSI LE FEN DE CE JEU, pas seulement celui du moteur.
+	 *
+	 * La grille interne en écrit un autre -- dix colonnes, les pièces en
+	 * attente en « C! » -- et il perd ce qui ne s'y lit pas : LES CASES ENCORE
+	 * OUVERTES À L'ENTRÉE. Une position sauvegardée en milieu de partie se
+	 * rouvrait donc avec ses seize portes rouvertes, et une pièce entrait là
+	 * où la règle ne le permet plus.
+	 *
+	 * Le FEN du S-Chess, lui, les porte : c'est tout l'objet de son champ de
+	 * roque. Il est de surcroît celui que PyChess et Fairy-Stockfish écrivent,
+	 * donc une position échangée avec eux traverse sans traduction -- aux
+	 * lettres près, qui restent celles de jocly (voir PAIRS) puisqu'elles
+	 * dépendent de l'arrangement.
+	 *
+	 * L'ancienne forme reste LUE (voir Import) : les parties déjà
+	 * enregistrées s'ouvrent comme avant.
+	 */
+	var SuperExportBoardState = Model.Board.ExportBoardState;
+	Model.Board.ExportBoardState = function(aGame) {
+		return this.ExportFairyFen(aGame);
+	}
+
+	/*
+	 * ─── Le FEN du S-Chess, en LECTURE ──────────────────────────────────────
+	 *
+	 * Le socle lit une grille : autant de rangées que la géométrie, et une
+	 * lettre par case. Le FEN du S-Chess en diffère sur deux points, et les
+	 * deux portent du SENS :
+	 *
+	 *   - les pièces en attente sont en POCHE, entre crochets, et non sur des
+	 *     cases -- « …/RNBQKBNR[CMcm] » ;
+	 *   - les cases encore ouvertes à l'entrée sont dans le champ du roque,
+	 *     une lettre de colonne chacune -- « KQBCDFGkqbcdfg ». K et Q y
+	 *     couvrent déjà e1/h1 et e1/a1, comme le moteur les écrit.
+	 *
+	 * On le ramène donc à la grille avant de le confier au socle, et on garde
+	 * les portes de côté pour InitialPosition. Un FEN de la grille (dix
+	 * colonnes, « C! ») passe tel quel : les deux formes se distinguent aux
+	 * crochets, et les parties enregistrées avant ce changement s'ouvrent
+	 * comme avant.
+	 */
+	function readSChessFen(data) {
+		var parts = String(data || "").split(" ");
+		if(parts.length != 6) return null;
+		var board = /^([^\[\]]+)\[([A-Za-z]*)\]$/.exec(parts[0]);
+		if(!board) return null;
+		var rows = board[1].split("/");
+		if(rows.length != 8) return null;
+
+		// Les deux pièces qui attendent encore, par camp, dans l'ordre des
+		// portes. Une pièce déjà entrée ne figure plus en poche ; celle qui
+		// reste prend la première porte, qui ne se distingue en rien de
+		// l'autre.
+		var waiting = { 1: [], '-1': [] };
+		board[2].split("").forEach(function(letter) {
+			var side = letter === letter.toUpperCase() ? 1 : -1;
+			if(waiting[side].length < 2) waiting[side].push(letter);
+		});
+		/*
+		 * LA POCHE DOIT DÉSIGNER UN SEUL ARRANGEMENT.
+		 *
+		 * C'est elle qui choisit la paire, le prélude ne se rejouant pas sur
+		 * une position chargée. Un FEN venu d'ailleurs porte les lettres de
+		 * SON alphabet -- PyChess écrit « [HEhe] » pour le faucon et
+		 * l'éléphant du S-Chess -- et ces deux lettres-là existent ici aussi,
+		 * mais dans DEUX arrangements différents : le phénix du chu et
+		 * l'éléphant du shako. Accepté tel quel, le fichier ouvrait une
+		 * partie plausible avec les mauvaises pièces, et rien ne le disait.
+		 *
+		 * On refuse donc ce qu'aucun arrangement ne contient : à l'appelant de
+		 * traduire les lettres avant (Tabulon le fait, `pieceMap`).
+		 */
+		if(!oneArrangement(board[2])) return null;
+
+		// La grille : huit colonnes de jeu, puis les deux d'attente.
+		var grid = rows.map(function(row, index) {
+			var home = index === 0 ? -1 : (index === 7 ? 1 : 0);
+			var gates = home === 0 ? [] : waiting[home];
+			var cells = gates.map(function(letter) { return letter + "!"; });
+			var empty = 2 - cells.length;
+			if(!cells.length) return addEmpty(row, 2);
+			return addEmpty(row, 0) + cells.join("") + (empty ? empty : "");
+		});
+		if(grid.some(function(row) { return row === null; })) return null;
+
+		return { fen: [grid.join("/")].concat(parts.slice(1)).join(" "),
+		         entranceSquares: readGates(parts[2]) };
+	}
+
+	/** Ajoute `count` cases vides à une rangée, en fusionnant les chiffres. */
+	function addEmpty(row, count) {
+		var cells = row.match(/\d+|\+?[A-Za-z!]/g);
+		if(!cells) return null;
+		// Largeur réelle de la rangée : elle DOIT faire huit cases, sinon ce
+		// n'est pas un échiquier de S-Chess et mieux vaut ne rien convertir.
+		var width = cells.reduce(function(n, cell) {
+			return n + (/^\d+$/.test(cell) ? parseInt(cell, 10) : 1);
+		}, 0);
+		if(width !== 8) return null;
+		if(!count) return row;
+		var last = /(\d+)$/.exec(row);
+		return last ? row.slice(0, -last[1].length) + (parseInt(last[1], 10) + count) : row + count;
+	}
+
+	/*
+	 * Les cases ouvertes à l'entrée, lues du champ de roque.
+	 *
+	 * Une lettre de colonne dit « cette case peut encore faire entrer une
+	 * pièce » ; K et Q, eux, disent le roque ET les cases qu'il couvre --
+	 * e1 et h1 pour K, e1 et a1 pour Q. C'est ainsi que Fairy-Stockfish les
+	 * écrit, et ExportFairyFen les omet pour cette raison.
+	 */
+	function readGates(field) {
+		var open = {};
+		for(var f = 0; f < 8; f++) {
+			open[POS(f, WHITE_HOME)] = false;
+			open[POS(f, BLACK_HOME)] = false;
+		}
+		String(field || "").split("").forEach(function(letter) {
+			var side = letter === letter.toUpperCase() ? 1 : -1;
+			var home = side > 0 ? WHITE_HOME : BLACK_HOME;
+			var lower = letter.toLowerCase();
+			if(lower === "k") { open[POS(4, home)] = true; open[POS(7, home)] = true; return; }
+			if(lower === "q") { open[POS(4, home)] = true; open[POS(0, home)] = true; return; }
+			var file = lower.charCodeAt(0) - 97;
+			if(file >= 0 && file < 8) open[POS(file, home)] = true;
+		});
+		return open;
+	}
+
+	/** Les lettres de la poche appartiennent-elles toutes à un même arrangement ? */
+	function oneArrangement(pocket) {
+		var letters = pocket.toUpperCase().split("");
+		if(!letters.length) return true;
+		return SETUPS.some(function(setup) {
+			var pair = setup.toUpperCase();
+			return letters.every(function(letter) { return pair.indexOf(letter) >= 0; });
+		});
+	}
+
+	var SuperImport = Model.Game.Import;
+	Model.Game.Import = function(format, data) {
+		var read = format === "pjn" ? readSChessFen(data) : null;
+		if(!read) {
+			/*
+			 * UNE POCHE QU'ON N'A PAS SU LIRE EST UN REFUS, pas un repli.
+			 * Confié tel quel, le socle se plaint du crochet dans une rangée
+			 * mais poursuit : il rend un échiquier SANS les pièces en
+			 * attente, et la partie s'ouvre, muette et fausse. Mieux vaut
+			 * l'erreur de lecture, que l'appelant sait montrer.
+			 */
+			if(format === "pjn" && /\[[A-Za-z]*\]/.test(String(data || "")))
+				return { status: false, error: 'parse' };
+			return SuperImport.apply(this, arguments);
+		}
+		var result = SuperImport.call(this, format, read.fen);
+		// Les portes voyagent avec la position : InitialPosition les pose.
+		if(result && result.status && result.initial)
+			result.initial.entranceSquares = read.entranceSquares;
+		return result;
 	}
 
 	/* ─── Le coup se lit ────────────────────────────────────────────────────── */

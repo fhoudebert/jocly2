@@ -59,9 +59,17 @@ const match = await started();
 	t.check("l'échiquier fait 8 rangées", game.cbVar.geometry.height, 8);
 	t.check("avec des colonnes hors jeu", game.cbVar.geometry.width > 8, true);
 
+	/*
+	 * LE FEN DE CE JEU EST CELUI DU S-CHESS : l'échiquier seul, et les pièces
+	 * en attente EN POCHE. Il portait la grille interne -- dix colonnes, les
+	 * pièces en attente écrites « C! » -- qui perdait les cases encore
+	 * ouvertes à l'entrée, donc ne se relisait pas. Les deux formes se lisent
+	 * toujours (voir Import) ; c'est celle-ci qui s'écrit.
+	 */
 	const fen = await match.getBoardState();
-	t.check("les quatre pièces attendent de côté",
-		[/rnbqkbnrc!m!/.test(fen), /RNBQKBNRC!M!/.test(fen)], [true, true]);
+	t.check("l'échiquier fait huit colonnes",
+		fen.split(" ")[0].split("/")[0].replace(/\[.*/, ""), "rnbqkbnr");
+	t.check("les quatre pièces attendent en poche", /\[CMcm\]/.test(fen), true);
 
 	/*
 	 * AUCUN COUP NE MÈNE À UNE PORTE. C'est l'assertion qui manquait, et elle
@@ -148,8 +156,8 @@ const match = await started();
 	await match.playMove(moves[index]);
 
 	const after = await match.getBoardState();
-	t.check("une porte s'est vidée",
-		(after.match(/[CM]!/g) || []).length, (fen.match(/[CM]!/g) || []).length - 1);
+	const pocket = (text) => (/\[([A-Za-z]*)\]/.exec(text) || ["", ""])[1].length;
+	t.check("une pièce a quitté la poche", pocket(after), pocket(fen) - 1);
 	t.check("et la case quittée est occupée", game.mBoard.board[from] >= 0, true);
 
 	/*
@@ -441,7 +449,7 @@ const match = await started();
 			const k = said.indexOf("Nb1-c3/C");
 			await fresh2.playMove(list[k]);
 			const fen = await fresh2.getBoardState();
-			t.check("le cavalier est bien arrivé, entier", /2N7/.test(fen), true);
+			t.check("le cavalier est bien arrivé, entier", /2N5/.test(fen), true);
 			t.check("le cardinal a pris sa case", /^RCBQKBNR/.test(fen.split("/").pop()), true);
 			// Et la notation n'annonce pas une promotion qui n'a pas lieu.
 			t.check("aucune promotion dans la notation",
