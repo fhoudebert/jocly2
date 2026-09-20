@@ -3,6 +3,18 @@
 	Run with:  node tests/tenjiku.js
 */
 
+/*
+ * Ce qui suit a besoin du build (dist/node/jocly.core.js). Sans lui, la suite
+ * SAUTE au lieu de s'arreter sur une trace : tests/run.js compte alors un
+ * « skipped », et un depot fraichement clone ne se presente plus avec des
+ * echecs qui n'en sont pas. Meme garde que les autres suites qui chargent le
+ * build.
+ */
+const fsBuild = require("fs");
+if(!fsBuild.existsSync(require("path").join(__dirname, "..", "..", "dist", "node", "jocly.core.js"))) {
+	console.log("SKIP - no build yet: run npx gulp build first");
+	process.exit(0);
+}
 var Jocly = require("../../");
 
 var passed=0, failed=0;

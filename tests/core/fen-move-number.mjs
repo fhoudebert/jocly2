@@ -1,4 +1,11 @@
 // Le numero de coup d'un FEN charge doit survivre a l'aller-retour.
+// Le build est necessaire ici ; sans lui la suite SAUTE (tests/run.js compte un
+// « skipped ») au lieu de s'arreter sur une trace d'import.
+import { existsSync } from 'fs';
+if (!existsSync(new URL('../../dist/node/jocly.core.js', import.meta.url))) {
+	console.log('SKIP - no build yet: run npx gulp build first');
+	process.exit(0);
+}
 const Jocly = await import('../../dist/node/jocly.core.js');
 let P=0,F=0; const ok=(c,m)=>{c?(P++,console.log('\u2713',m)):(F++,console.log('\u2717 ECHEC:',m));};
 

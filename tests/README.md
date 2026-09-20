@@ -50,11 +50,40 @@ A suite that needs a family it does not belong to reaches across rather than
 gaining a second harness: `shogi/chu-shogi.test.js` uses the khans one because
 Chu Shogi is a chessbase model like the rest.
 
-## Two suites that fail for a reason of their own
+## What a suite must do
 
-`shogi/tenjiku.js` reports "Game tenjiku-shogi not found", and
-`shogi/tenjiku-view.js` fails its last check, "the game is in exports.games".
-Same cause: `src/games/chessbase/manifest/shogi.js` declares the game but
-`src/games/chessbase/index.js` never lists it, so it is absent from the module.
-Adding `shogi["tenjiku-shogi"]` to that list is all the two suites are waiting
-for - they pass every other check.
+Two rules, learned from suites that broke them:
+
+- **it must be able to fail.** Six suites under `cubic/` printed what they
+  found and exited zero whatever it was - `realmate.js` would have printed
+  "winner DRAW" without a word, `play2.js` counted captured Kings and
+  published them as a statistic. They counted among the suites that pass.
+  Every suite now asserts; the printouts stay, they say where to look when a
+  check falls;
+- **it must run when `tests/run.js` starts it.**
+  `crazyhouse/roundtrip-campaign.js` gated its three campaigns on a
+  command-line argument the runner does not pass, so `npm test` ran it and it
+  checked nothing. With no argument it now plays all three - 330 positions,
+  written and read back, hands included.
+
+A suite that needs `npx gulp build` says `SKIP` and exits zero. That contract
+held for six of the eighteen that load the build: the other twelve stopped on
+an import trace, and a freshly cloned repository greeted its owner with twelve
+failures that were not. They all skip now.
+
+## The manifest snapshot
+
+`core/manifest-split.test.js` guarded the splitting of `index.js` with a
+digest per game. That split is done, and a digest cannot tell a regression
+from an intended edit: every manifest change failed it, and the only possible
+answer was `--update`, which re-blesses what was just written.
+
+It keeps what a digest does not cover: the list of games **in order** (the
+examples walk it unsorted, so a game moved or dropped shows on screen and
+nowhere else in the tests), the size of the split pieces, and - new - that
+**every declared resource exists on disk**. That last one found eleven dead
+declarations the digest had compared happily as text: four games shipping no
+credits because a `res/rules/` prefix was missing, and four missing pages
+still listed as `KNOWN_GAPS` in the suite, to be written or dropped.
+
+`--update` is now needed only when a game is added, removed or moved.

@@ -35,8 +35,34 @@ function check(name, SCRIPTS, plies, trials, seed0){
     }
   }
   console.log(name+": "+checked+" positions, deepest hand "+deep+", mismatches "+bad);
+  return bad;
 }
+/*
+ * CETTE SUITE NE FAISAIT RIEN.
+ *
+ * Les trois campagnes etaient conditionnees a un argument de ligne de
+ * commande, que tests/run.js ne passe pas : lancee par la suite complete,
+ * elle n'imprimait rien, ne verifiait rien, et comptait parmi les suites qui
+ * passent. Sans argument, elle les joue donc toutes les trois -- c'est ce
+ * qu'elle est faite pour faire -- et un argument n'en garde qu'une, pour
+ * boucler vite sur une famille pendant une mise au point.
+ *
+ * Et une discordance ECHOUE : elle signifie qu'une position ne se relit pas
+ * comme elle s'est ecrite, main comprise. C'est exactement ce que cette
+ * campagne cherche, et elle le comptait sans en tirer de verdict.
+ */
+const FAMILIES = {
+	cz:    ["crazyhouse", ["base-model.js","grid-geo-model.js","drop-model.js","famous/crazyhouse-model.js"], 90, 5, 12345],
+	shogi: ["shogi",      ["base-model.js","grid-geo-model.js","drop-model.js","shogi/shogi-model.js"], 120, 6, 777],
+	mini:  ["mini-shogi", ["base-model.js","grid-geo-model.js","drop-model.js","shogi/mini-shogi-model.js"], 120, 5, 4242],
+};
 const which = process.argv[2];
-if(which==="cz") check("crazyhouse", ["base-model.js","grid-geo-model.js","drop-model.js","famous/crazyhouse-model.js"], 90, 5, 12345);
-if(which==="shogi") check("shogi", ["base-model.js","grid-geo-model.js","drop-model.js","shogi/shogi-model.js"], 120, 6, 777);
-if(which==="mini") check("mini-shogi", ["base-model.js","grid-geo-model.js","drop-model.js","shogi/mini-shogi-model.js"], 120, 5, 4242);
+const wanted = which ? [which] : Object.keys(FAMILIES);
+let bad = 0;
+for(const key of wanted) {
+	if(!FAMILIES[key]) { console.log("famille inconnue : " + key); process.exit(2); }
+	bad += check(...FAMILIES[key]);
+}
+console.log(bad ? ("FAILED: " + bad + " position(s) ne se relisent pas comme elles s'ecrivent")
+	: "ok   aller-retour du FEN verifie sur " + wanted.join(", "));
+process.exit(bad ? 1 : 0);

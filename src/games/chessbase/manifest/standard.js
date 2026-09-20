@@ -440,7 +440,9 @@ exports.games = {
 				"thumbnail": "res/rules/standard/romanchenko-thumb.png",
 				"released": 1403535377,
 				"credits": {
-					"en": "standard/romanchenko-credits.html"
+					// Meme prefixe manquant qu'au-dessus : le fichier est bien
+					// dans res/rules/standard/.
+					"en": "res/rules/standard/romanchenko-credits.html"
 				},
 				"gameOptions": config_model_gameOptions_2,
 				"obsolete": false,
