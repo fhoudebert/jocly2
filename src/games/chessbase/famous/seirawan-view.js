@@ -259,6 +259,54 @@
 
 		spec.getActions = function(moves, currentInput) {
 			/*
+			 * L'ARRIVÉE D'UN ROQUE OUVRE LE PANNEAU, comme celle d'un coup.
+			 *
+			 * Le socle ouvre le panneau de choix dans l'`execute` de l'étape
+			 * d'arrivée : il anime la pièce, puis appelle cbShowPromo s'il
+			 * reste plusieurs façons d'achever le coup. Mais pour un roque il
+			 * REMPLACE cet `execute` par une simple animation -- aux échecs
+			 * un roque n'a jamais de suite. Ici il en a une : le roque seul,
+			 * ou avec l'une des deux pièces en attente.
+			 *
+			 * L'étape suivante (`pr`) proposait donc bien ses vignettes, mais
+			 * sans que le panneau ait été posé : pas de fond blanc, pas de
+			 * croix pour annuler, et seulement les vignettes qu'un panneau
+			 * PRÉCÉDENT avait habillées -- celles des pièces en attente,
+			 * jamais celle du roi, qui n'y était encore jamais apparu. Au
+			 * premier coup d'une partie, aucune ne se serait vue.
+			 *
+			 * On rend au roque l'`execute` du coup ordinaire : animer, puis
+			 * ouvrir le panneau avec tous les coups de l'action. Le roi y
+			 * figure pour « roquer sans faire entrer de pièce » (son `pr` est
+			 * celui que le modèle pose sur le coup sans entrée), exactement
+			 * comme le cavalier figure pour « déplacer le cavalier seul ».
+			 */
+			if(currentInput.f != null && currentInput.t == null) {
+				var arrivals = superGet.call(this, moves, currentInput);
+				for(var key in arrivals) {
+					(function(action) {
+						var castles = action.moves.filter(function(move) {
+							return move.cg !== undefined;
+						});
+						if(castles.length < 2) return;
+						// l'animation est celle du roque seul : la pièce qui
+						// entre n'est posée qu'une fois choisie
+						var shown = castles.filter(function(move) {
+							return move.en === undefined;
+						})[0] || castles[0];
+						action.execute = function(callback) {
+							var board = this;
+							board.cbAnimate(xdv, aGame, shown, function() {
+								aGame.cbShowPromo(xdv, aGame, castles, board.mWho);
+								callback();
+							});
+						};
+					})(arrivals[key]);
+				}
+				return arrivals;
+			}
+
+			/*
 			 * Tant que la pièce n'est pas choisie, le socle répond. C'est
 			 * important : sa branche `pr` gère aussi les vraies promotions, et
 			 * la réécrire ici les casserait.

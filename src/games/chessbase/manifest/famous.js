@@ -221,10 +221,11 @@ var config_view_skins_preload_seirawan = config_view_skins_preload_10.concat([
 	"smoothedfilegeo|0|/res/fairy/giraffe/giraffe.js",
 	"image|/res/fairy/giraffe/giraffe-diffusemap.jpg",
 	"image|/res/fairy/giraffe/giraffe-normalmap.jpg",
-	// fr-proper-crowned-rook
-	"smoothedfilegeo|0|/res/fairy/crowned-rook/proper-crowned-rook.js",
-	"image|/res/fairy/crowned-rook/crowned-rook-diffuse-map.jpg",
-	"image|/res/fairy/crowned-rook/crowned-rook-normal-map.jpg",
+	// fr-crowned-rook (8a009ea : plus fr-proper-crowned-rook -- autre
+	// maillage, et textures SANS tiret : -diffusemap, -normalmap)
+	"smoothedfilegeo|0|/res/fairy/crowned-rook/crowned-rook.js",
+	"image|/res/fairy/crowned-rook/crowned-rook-diffusemap.jpg",
+	"image|/res/fairy/crowned-rook/crowned-rook-normalmap.jpg",
 	// fr-machine
 	"smoothedfilegeo|0|/res/fairy/machine/machine.js",
 	"image|/res/fairy/machine/machine-diffusemap.jpg",
