@@ -227,7 +227,7 @@
 		 * illisible.
 		 */
 		"spartan": [
-			{ name:'crowned-rook', fen:'T', aspect:'fr-proper-crowned-rook', value:7,
+			{ name:'crowned-rook', fen:'T', aspect:'fr-crowned-rook', value:7,
 			  graph: function(g,self) { return self.cbMergeGraphs(g,
 				self.cbRookGraph(g,AREA),
 				self.cbShortRangeGraph(g,[[1,1],[-1,1],[1,-1],[-1,-1]],AREA)); } },
