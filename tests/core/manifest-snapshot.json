@@ -1,6 +1,6 @@
 {
-	"bytes": 377112,
-	"digest": "be3b5ba8a0054b5d",
+	"bytes": 379916,
+	"digest": "c9f573ab98d4ff87",
 	"games": [
 		{
 			"name": "classic-chess",
@@ -340,7 +340,7 @@
 		},
 		{
 			"name": "seirawan-chess",
-			"digest": "785b99f6225628e4"
+			"digest": "ccfa70d61dd174f0"
 		}
 	]
 }

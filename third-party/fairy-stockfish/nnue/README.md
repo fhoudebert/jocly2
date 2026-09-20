@@ -44,6 +44,7 @@ with them, they are right and it is stale:
 | `kyotoshogi.nnue`       | kyoto-shogi          | kyotoshogi                      |
 | `makruk.nnue`           | makruk               | makruk                          |
 | `minishogi.nnue`        | mini-shogi           | minishogi                       |
+| `seirawan.nnue`         | seirawan-chess       | jocly-seirawan-marshall-cardinal |
 | `shako.nnue`            | shako-chess          | shako                           |
 | `shogi.nnue`            | shogi                | shogi                           |
 | `spartan.nnue`          | spartan-chess        | spartan                         |

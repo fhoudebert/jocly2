@@ -614,52 +614,6 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		}
 
 		/*
-		 * Fairy-Stockfish spells a *piece* promotion shogi-style, with a
-		 * trailing "+" (c9d10+), where Jocly names the piece it turns into
-		 * (c9d10H). Pawn promotions agree - both write the letter - so this
-		 * only concerns games declaring promotedPieceType, i.e. currently
-		 * Timurid. Such a promotion is mandatory and has a single target, so
-		 * the from/to pair identifies the move on its own; match on it
-		 * exactly rather than leaving a systematic notation difference to be
-		 * settled by edit distance below. If it turns out ambiguous, fall
-		 * through to the fuzzy match rather than guessing.
-		 */
-		if (uciMove.charAt(uciMove.length - 1) === "+") {
-			var prefix = uciMove.slice(0, -1);
-			var promotions = [];
-			engineStrings.forEach(function (str, index) {
-				var s = str.toLowerCase();
-				if (s === prefix || (s.length === prefix.length + 1 && s.indexOf(prefix) === 0))
-					promotions.push(index);
-			});
-			if (promotions.length === 1)
-				return candidates[promotions[0]];
-		}
-
-		/*
-		 * Fairy-Stockfish spells a *piece* promotion shogi-style, with a
-		 * trailing "+" (c9d10+), where Jocly names the piece it turns into
-		 * (c9d10H). Pawn promotions agree - both write the letter - so this
-		 * only concerns games declaring promotedPieceType, i.e. currently
-		 * Timurid. Such a promotion is mandatory and has a single target, so
-		 * the from/to pair identifies the move on its own; match on it
-		 * exactly rather than leaving a systematic notation difference to be
-		 * settled by edit distance below. If it turns out ambiguous, fall
-		 * through to the fuzzy match rather than guessing.
-		 */
-		if (uciMove.charAt(uciMove.length - 1) === "+") {
-			var prefix = uciMove.slice(0, -1);
-			var promotions = [];
-			engineStrings.forEach(function (str, index) {
-				var s = str.toLowerCase();
-				if (s === prefix || (s.length === prefix.length + 1 && s.indexOf(prefix) === 0))
-					promotions.push(index);
-			});
-			if (promotions.length === 1)
-				return candidates[promotions[0]];
-		}
-
-		/*
 		 * An exact match first. The fuzzy pass below exists for notation
 		 * differences, not for disagreements about the position, and it cannot
 		 * tell the two apart: asked for a move Jocly does not have, it returns
@@ -823,7 +777,16 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 			return;
 		}
 
-		var fen = level.pocketGeometry ? BuildShogiStyleFen(aGame, level.dropPromoted) : aGame.mBoard.ExportBoardState(aGame);
+		/*
+		 * A model whose internal board is not the engine's can say so itself:
+		 * Seirawan++ keeps its waiting pieces in extra columns and needs the
+		 * S-Chess FEN (pocket, gating files in the castling field), which no
+		 * generic export can guess. When the board provides ExportFairyFen(),
+		 * it wins over both generic paths.
+		 */
+		var fen = (typeof aGame.mBoard.ExportFairyFen == "function")
+			? aGame.mBoard.ExportFairyFen(aGame, level)
+			: level.pocketGeometry ? BuildShogiStyleFen(aGame, level.dropPromoted) : aGame.mBoard.ExportBoardState(aGame);
 		var pieceMaps = BuildPieceMaps(level.pieceMap);
 		var fenForEngine = TranslitFen(fen, pieceMaps.toFairy);
 		var entry;

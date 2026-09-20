@@ -198,8 +198,11 @@
 		 */
 		"crowned-bishop": [
 			{ name:'missionnary', fen:'Y', aspect:'fr-crowned-bishop', value:6,
-			  graph: function(g,self) { return self.cbMergeGraphs(g,
-				self.cbKingGraph(g,AREA), self.cbBishopGraph(g,AREA)); } },
+			  // Wazir + fou, et non roi + fou : les deux graphes offraient
+			  // chacun le pas diagonal, et chaque case voisine en diagonale
+			  // sortait DEUX fois de la génération. Même écriture que le
+			  // dragon-horse de fairy-piece-model.js.
+			  graph: function(g,self) { return self.cbSymmetricGraph(g,[-11,10],AREA); } },
 			{ name:'marquis', fen:'Z', aspect:'fr-ferz-knight', value:5,
 			  graph: function(g,self) { return self.cbMergeGraphs(g,
 				self.cbKnightGraph(g,AREA),
@@ -297,6 +300,10 @@
 		}
 		return PAIR_PLAY[0];
 	}
+
+	// La table des types, retenue à la définition : la notation du moteur en
+	// a besoin pour écrire une promotion, et un coup ne connaît pas sa partie.
+	var cbTypes = null;
 
 	function pairTypes(index) {
 		var base = FIRST_PAIR_TYPE + index * 4;
@@ -511,6 +518,7 @@
 			}).join("");
 		});
 
+		cbTypes = variant.pieceTypes;
 		return variant;
 	}
 
@@ -723,6 +731,18 @@
 			this.entranceSquares[move.f] = false;
 		if(move.cg !== undefined && this.entranceSquares[move.cg])
 			this.entranceSquares[move.cg] = false;
+		/*
+		 * Une pièce PRISE sur sa case de départ n'a jamais bougé, mais la case
+		 * ne fait plus rien entrer : c'est la règle du S-Chess, et celle de
+		 * Fairy-Stockfish. Sans cela, la pièce adverse qui l'a prise faisait
+		 * entrer SA pièce en attente dans le camp adverse en repartant, et
+		 * une pièce qui reprenait sur la case héritait d'un droit d'entrée.
+		 */
+		// Seulement sur une PRISE : les coups du prélude n'ont pas de vraie
+		// case d'arrivée (t vaut 0, soit a1), et fermaient a1 à tort.
+		var landed = move.t & 0xffff;
+		if(move.c != null && this.entranceSquares[landed])
+			this.entranceSquares[landed] = false;
 
 		if(entering < 0) return;
 		var into = entranceTarget(move);
@@ -739,10 +759,121 @@
 		this.zSign ^= aGame.bKey(piece);
 	}
 
+	/* ─── Le niveau Expert : la position telle que Fairy-Stockfish la lit ──── */
+
+	/*
+	 * LE FEN DU S-CHESS, pas celui d'ExportBoardState.
+	 *
+	 * ExportBoardState décrit la grille interne : dix colonnes, et les pièces
+	 * en attente écrites « C! ». C'est ce qu'il faut pour sauvegarder une
+	 * partie, pas pour la confier au moteur, qui attend la notation du
+	 * S-Chess :
+	 *
+	 *   rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[CMcm] w KQBCDFGkqbcdfg - 0 1
+	 *
+	 *   - l'échiquier 8x8 seul, et les pièces en attente EN POCHE ;
+	 *   - dans le champ du roque, les droits de roque PUIS les cases encore
+	 *     ouvertes à l'entrée, une lettre de colonne chacune.
+	 *
+	 * jocly.fairy.js appelle cette méthode quand le modèle la fournit.
+	 *
+	 * Trois règles de ce champ, toutes vérifiées contre le moteur embarqué
+	 * (tests/fairy/seirawan-perft.test.js) :
+	 *
+	 *   1. Les droits de roque sont RECALCULÉS depuis les pièces (roi et tour
+	 *      qui n'ont pas bougé). Le champ d'ExportBoardState annonçait un
+	 *      petit roque dont la tour était partie ; le moteur le jouait alors
+	 *      avec la tour qu'il trouvait sur l'aile.
+	 *   2. Les colonnes e, a et h ne s'écrivent pas quand un droit de roque les
+	 *      couvre déjà : K dit à la fois « roque » et « entrée possible en e1
+	 *      et h1 ». C'est ainsi que le moteur les écrit.
+	 *   3. Un camp dont les deux pièces sont entrées n'écrit PLUS aucune case.
+	 *      Le moteur lit alors une lettre de colonne restante comme un droit
+	 *      de roque (notation Shredder) : un « h » après le départ du roi en
+	 *      f8 lui faisait jouer f8-h8.
+	 */
+	var KING = 8, ROOK = 6;
+
+	Model.Board.ExportFairyFen = function(aGame) {
+		var $this = this;
+		var types = aGame.cbVar.pieceTypes;
+
+		function pieceAt(f,r) {
+			var index = $this.board[POS(f,r)];
+			return index < 0 ? null : $this.pieces[index];
+		}
+		function letter(piece, abbrev) {
+			return piece.s > 0 ? abbrev.toUpperCase() : abbrev.toLowerCase();
+		}
+
+		var rows = [];
+		for(var r=7; r>=0; r--) {
+			var row = "", empty = 0;
+			for(var f=0; f<8; f++) {
+				var piece = pieceAt(f,r);
+				if(!piece) { empty++; continue; }
+				if(empty) { row += empty; empty = 0; }
+				var type = types[piece.t];
+				row += letter(piece, type.fenAbbrev || type.abbrev);
+			}
+			if(empty) row += empty;
+			rows.push(row);
+		}
+
+		// La poche : ce qui attend encore aux portes, dans l'ordre des portes.
+		var pocket = "", waiting = { 1: 0, '-1': 0 };
+		[1,-1].forEach(function(who) {
+			gatesOf(who).forEach(function(gate) {
+				var index = $this.cbGatePiece(aGame, gate, who);
+				if(index < 0) return;
+				pocket += letter($this.pieces[index], ABBREV[$this.pieces[index].t]);
+				waiting[who]++;
+			});
+		});
+
+		function unmoved(f,r,t,who) {
+			var piece = pieceAt(f,r);
+			return !!piece && piece.t === t && piece.s === who && !piece.m;
+		}
+		function rights(who, home) {
+			var up = who > 0 ? "KQ" : "kq", out = "";
+			if(!unmoved(4,home,KING,who)) return out;
+			if(unmoved(7,home,ROOK,who)) out += up[0];
+			if(unmoved(0,home,ROOK,who)) out += up[1];
+			return out;
+		}
+		function gates(who, home, castling) {
+			var out = "";
+			if(!waiting[who]) return out;                       // règle 3
+			for(var f=0; f<8; f++) {
+				if(!$this.entranceSquares[POS(f,home)]) continue;
+				var piece = pieceAt(f,home);
+				if(!piece || piece.s !== who) continue;
+				// règle 2
+				if(f === 4 && castling.length) continue;
+				if(f === 7 && castling.indexOf(who > 0 ? "K" : "k") >= 0) continue;
+				if(f === 0 && castling.indexOf(who > 0 ? "Q" : "q") >= 0) continue;
+				var file = String.fromCharCode(97 + f);
+				out += who > 0 ? file.toUpperCase() : file;
+			}
+			return out;
+		}
+		var white = rights(1, WHITE_HOME), black = rights(-1, BLACK_HOME);
+		var field = white + gates(1, WHITE_HOME, white) + black + gates(-1, BLACK_HOME, black);
+
+		// Prise en passant et compteurs : ceux du FEN ordinaire. Les colonnes
+		// d'attente étant à DROITE, la case de passage garde son nom.
+		var std = this.ExportBoardState(aGame).split(" ");
+		return rows.join("/") + "[" + pocket + "] " + (this.mWho > 0 ? "w" : "b") + " "
+			+ (field || "-") + " " + (std[3] || "-") + " " + (std[4] || "0") + " " + (std[5] || "1");
+	}
+
 	/* ─── Le coup se lit ────────────────────────────────────────────────────── */
 
 	var SuperMoveToString = Model.Move.ToString;
 	Model.Move.ToString = function(format) {
+		if(format === "engine")
+			return engineFormat(this);
 		var text = SuperMoveToString.apply(this,arguments);
 		/*
 		 * Notation du S-Chess : la LETTRE de la piece entrante suit le coup
@@ -775,6 +906,39 @@
 			// diffèrent que par là s'écriraient pareil.
 			if(this.cg !== undefined)
 				text += geometry.PosName(entranceTarget(this));
+		}
+		return text;
+	}
+
+	/*
+	 * LA NOTATION DU MOTEUR, celle de Fairy-Stockfish pour le S-Chess.
+	 *
+	 *   b1c3    le cavalier seul : PAS de lettre. Le `pr` que porte ce coup ne
+	 *           sert qu'au panneau (voir GenerateMoves) ; le socle l'écrivait,
+	 *           « b1c3N », et aucun coup du moteur ne lui correspondait.
+	 *   b1c3c   le cavalier part, le cardinal entre : la lettre de la pièce
+	 *           ENTRANTE, en minuscule.
+	 *   e1g1c   roque, entrée sur la case du ROI ;
+	 *   h1e1c   roque, entrée sur la case de la TOUR : le moteur l'écrit
+	 *           depuis la tour vers le roi, seul moyen de distinguer les deux.
+	 *   e7e8q   promotion : la lettre de la pièce obtenue.
+	 *
+	 * Tout passe par ResolveMove() de jocly.fairy.js, qui cherche d'abord une
+	 * correspondance EXACTE : une notation approchée y serait rattrapée par la
+	 * distance d'édition, mais au prix d'un avertissement par coup et d'un
+	 * mauvais choix possible.
+	 */
+	function engineFormat(move) {
+		var name = function(pos) { return geometry.PosName(pos); };
+		var text = name(move.f) + name(move.t & 0xffff);
+		if(move.en !== undefined) {
+			if(move.cg !== undefined && entranceTarget(move) === move.cg)
+				text = name(move.cg) + name(move.f);
+			return text + (ABBREV[move.ei] || "?").toLowerCase();
+		}
+		if(move.pr !== undefined && move.pn === undefined) {
+			var type = cbTypes && cbTypes[move.pr];
+			if(type && type.abbrev) text += type.abbrev.toLowerCase();
 		}
 		return text;
 	}
