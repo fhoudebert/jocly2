@@ -345,7 +345,16 @@ var config_model_levels_seirawan_expert = {
 	// « setup » vaut aGame.cbVar.prelude[0].persistent. L'ordre est celui de
 	// PAIR_KEYS dans famous/seirawan-model.js.
 	"variants": [
-		{ "setup": 0, "variant": "jocly-seirawan-marshall-cardinal", "pieceMap": { "C": "H", "M": "E" }, "evalFile": "nnue/seirawan.nnue" },
+		/*
+		 * `pgnVariant` : le nom STANDARD de cet arrangement, celui qu'écrivent
+		 * PyChess et Fairy-Stockfish dans [Variant]. La section
+		 * jocly-seirawan-marshall-cardinal n'est qu'un alias de « seirawan »
+		 * pour le moteur ; un PGN, lui, doit dire « seirawan » pour être relu
+		 * ailleurs -- et un PGN « seirawan » venu d'ailleurs doit rouvrir CET
+		 * arrangement. `pieceMap` fait le reste : H(awk) = cardinal,
+		 * E(lephant) = marshall.
+		 */
+		{ "setup": 0, "variant": "jocly-seirawan-marshall-cardinal", "pgnVariant": "seirawan", "pieceMap": { "C": "H", "M": "E" }, "evalFile": "nnue/seirawan.nnue" },
 		{ "setup": 1, "variant": "jocly-seirawan-rhino-griffon" },
 		{ "setup": 2, "variant": "jocly-seirawan-elephant-cannon" },
 		{ "setup": 3, "variant": "jocly-seirawan-khan" },

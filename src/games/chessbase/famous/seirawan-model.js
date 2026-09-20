@@ -893,10 +893,20 @@
 		 * ferait lire « Nb1-c3=N » -- un cavalier promu en cavalier. On
 		 * l'enlève, dans les deux cas : le coup simple (`pn`) et les entrées.
 		 */
-		if(this.pn !== undefined)
+		/*
+		 * L'ÉCHEC D'ABORD MIS DE CÔTÉ. Le socle l'écrit en dernier, APRÈS la
+		 * promotion : « Qd1-h5=Q+ ». Les deux remplacements cherchaient
+		 * « =X » en fin de chaîne et ne le trouvaient donc pas dès que le
+		 * coup donnait échec -- le « =Q » restait, et l'entrée s'écrivait
+		 * derrière l'échec : « Qd1-h5=C+/C ». On retire l'échec, on corrige,
+		 * puis on le remet À LA FIN, là où le SAN du S-Chess le place
+		 * (« Qh5/E+ », comme Fairy-Stockfish et PyChess).
+		 */
+		var check = /[+#]$/.exec(text);
+		if(check) text = text.slice(0, -1);
+		if(this.pn !== undefined || this.en !== undefined)
 			text = text.replace(/=[A-Z]$/, "");
 		if(this.en !== undefined) {
-			text = text.replace(/=[A-Z]$/, "");
 			// La lettre de la pièce qui entre, lue de son type : elle dépend
 			// de l'arrangement choisi au prélude, donc une table figée des
 			// portes ne conviendrait plus.
@@ -907,7 +917,7 @@
 			if(this.cg !== undefined)
 				text += geometry.PosName(entranceTarget(this));
 		}
-		return text;
+		return check ? text + check[0] : text;
 	}
 
 	/*
