@@ -1091,7 +1091,7 @@ exports.games = (function() {
 					"rules": "rules-thai-draughts.html",
 					"maxLevel": 20,
 					"plazza": "true",
-					"thumbnail": "draughts8-thumb3d.png",
+					"thumbnail": "thumbnail-checkers-thai.png",
 					"module": "checkers",
 					"description": "description.html",
 					"credits": "credits.html",
