@@ -224,10 +224,6 @@ exports.games = {
 					"en": "res/rules/standard/losing-rules.html",
 					"fr": "res/rules/standard/losing-rules_fr.html",
 				},
-				"credits": {
-					"en": "res/rules/standard/credits.html",
-					"fr": "res/rules/standard/credits-fr.html"
-				},
 				"gameOptions": config_model_gameOptions,
 				"js": [
 					"base-model.js",

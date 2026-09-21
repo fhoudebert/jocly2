@@ -93,30 +93,20 @@ for(const game of games) {
 	}
 }
 /*
- * L'ARDOISE, nommee et bornee.
+ * Aucune exception : toute ressource declaree doit exister.
  *
- * Quatre pages manquent pour de bon -- les credits du jeu qui perd et les
- * descriptions de quatre shogi -- et on ne les invente pas ici : il faut soit
- * les ecrire, soit retirer la declaration. En attendant, elles sont listees,
- * ce qui a deux effets : la suite reste verte sur un defaut connu, et
- * l'ardoise ne peut pas grossir sans que personne ne s'en apercoive.
+ * Il y en avait onze qui manquaient, tenues un temps dans une liste de
+ * defauts connus. Cinq etaient un prefixe res/rules/ oublie, corrige ; les
+ * six autres designaient des pages qui n'ont jamais ete ecrites -- les
+ * credits du jeu qui perd, les descriptions de quatre shogi -- et ce sont les
+ * DECLARATIONS qui sont parties : une promesse qu'on ne tient pas vaut moins
+ * que pas de promesse du tout, et le build les sautait de toute facon en
+ * silence.
  *
- * Elle se nettoie aussi : une entree comblee fait echouer la verification
- * suivante, qui demande a ce que la liste soit raccourcie. Une ardoise qu'on
- * ne relit jamais finit par decrire un etat qui n'existe plus.
+ * La liste n'a donc plus lieu d'etre. Si une ressource vient a manquer, c'est
+ * ici que ca se verra, sans ardoise ou la ranger.
  */
-const KNOWN_GAPS = [
-	"losing-chess -> res/rules/standard/credits.html",
-	"losing-chess -> res/rules/standard/credits-fr.html",
-	"shogi -> res/rules/shogi/shogi-description.html",
-	"kotaishi-shogi -> res/rules/shogi/shogi-description.html",
-	"mini-shogi -> res/rules/shogi/mini-shogi-description.html",
-	"chu-shogi -> res/rules/shogi/chu-shogi-description.html",
-];
-check("no NEW resource is declared and missing",
-	missing.filter((m) => KNOWN_GAPS.indexOf(m) < 0), []);
-check("and the known gaps are still gaps - fill the page or drop the line, then shorten this list",
-	KNOWN_GAPS.filter((m) => missing.indexOf(m) < 0), []);
+check("every declared resource exists on disk", missing, []);
 
 // the split is only worth doing if the pieces stay small
 const size = (p) => fs.readFileSync(p, "utf8").split("\n").length;

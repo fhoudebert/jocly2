@@ -202,6 +202,9 @@ function RunSearch(engine, options) {
 			var ponderUci = null;
 			var lastInfo = null;
 			var aborted = false;
+			// Vrai des que NOTRE « go » est parti : avant, aucune reponse ne
+			// peut nous appartenir.
+			var searching = false;
 
 			function onLine(line) {
 				if (typeof line !== "string")
@@ -244,6 +247,10 @@ function RunSearch(engine, options) {
 						options.progress(pct);
 					}
 				} else if (line.indexOf("bestmove ") === 0) {
+					// Un « bestmove » recu AVANT notre « go » n'est pas le
+					// notre : voir la barriere isready plus bas.
+					if (!searching)
+						return;
 					var m = /^bestmove\s+(\S+)(?:\s+ponder\s+(\S+))?/.exec(line);
 					if (m) {
 						bestMoveUci = m[1];
@@ -291,11 +298,51 @@ function RunSearch(engine, options) {
 				engine.postMessage("setoption name Skill Level value " + options.skillLevel);
 			if (options.chess960)
 				engine.postMessage("setoption name UCI_Chess960 value true");
-			engine.postMessage("position fen " + options.fen);
-			if (options.moveTimeMs)
-				engine.postMessage("go movetime " + options.moveTimeMs);
-			else
-				engine.postMessage("go depth " + (options.depth || 12));
+			/*
+			 * UNE BARRIERE ENTRE LES REGLAGES ET LA RECHERCHE.
+			 *
+			 * A chaque recherche on renvoie la variante (UCI_Variant), et
+			 * Fairy-Stockfish repond par une ligne « info string variant ... ».
+			 * Dans le build wasm, cette ligne arrive parfois COLLEE a un reste
+			 * de la sortie precedente : « bestmove g8f6 ponder d2d4info string
+			 * variant ... ». Elle commence donc par « bestmove », et l'ecouteur
+			 * la prenait pour la reponse de la recherche qui n'avait meme pas
+			 * commence -- le coup de la position PRECEDENTE. ResolveMove, ne le
+			 * trouvant pas, jouait « le plus proche » : l'Expert jouait par
+			 * moments au hasard, et seule la console le disait.
+			 *
+			 * Mesure dans un navigateur, paire rhinoceros-griffon, vingt coups
+			 * par partie : 17 reponses perimees sur 20 sans ce correctif ; avec,
+			 * aucune sur dix parties. Toutes les ini maison sont concernees (les
+			 * neuf autres paires du Seirawan++, et tout jeu a customVariantIni).
+			 *
+			 * D'ou deux gardes : isready/readyok, la barriere que le protocole
+			 * UCI prevoit, attendue AVANT la position et le « go » ; et aucun
+			 * « bestmove » accepte avant notre propre « go ».
+			 */
+			var synced = false;
+			var afterSync = function (line) {
+				if (synced || line !== "readyok")
+					return;
+				synced = true;
+				engine.removeMessageListener(afterSync);
+				// Arretee avant d'avoir commence : il n'y aura pas de
+				// « bestmove » a attendre, la promesse doit se regler ici.
+				if (aborted) {
+					engine.removeMessageListener(onLine);
+					RunSearch.currentStop = null;
+					reject({ aborted: true });
+					return;
+				}
+				engine.postMessage("position fen " + options.fen);
+				searching = true;
+				if (options.moveTimeMs)
+					engine.postMessage("go movetime " + options.moveTimeMs);
+				else
+					engine.postMessage("go depth " + (options.depth || 12));
+			};
+			engine.addMessageListener(afterSync);
+			engine.postMessage("isready");
 
 			// exposed so onmessage's "Stop" handler can interrupt this search
 			RunSearch.currentStop = function () {

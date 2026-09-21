@@ -83,7 +83,10 @@ examples walk it unsorted, so a game moved or dropped shows on screen and
 nowhere else in the tests), the size of the split pieces, and - new - that
 **every declared resource exists on disk**. That last one found eleven dead
 declarations the digest had compared happily as text: four games shipping no
-credits because a `res/rules/` prefix was missing, and four missing pages
-still listed as `KNOWN_GAPS` in the suite, to be written or dropped.
+credits because a `res/rules/` prefix was missing (fixed), and six
+declarations of pages that were never written - the credits of losing chess,
+the descriptions of four shogi - which were dropped: a game without a
+description is a normal case (nineteen others have none), a link to nothing
+is not.
 
 `--update` is now needed only when a game is added, removed or moved.

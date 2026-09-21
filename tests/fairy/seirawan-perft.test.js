@@ -49,8 +49,37 @@ const JoclyFairy = require(path.join(ROOT, "dist", "node", "jocly.fairy.js")).Jo
 const t = require("./harness.js").runner();
 
 const GAME = "seirawan-chess";
+/*
+ * CE QUE COUTE CETTE SUITE, ET CE QUI EST MESURE.
+ *
+ * C'est la plus lente du depot. Deux postes :
+ *
+ *   - la comparaison coup par coup (points 1-3), environ 5 s. Six parties par
+ *     paire ne sont pas un chiffre rond : a trois, la paire 4 ne voit aucun
+ *     roque (199 / 0 / 84), et « zero divergence » n'y dit plus rien. Les
+ *     compteurs affiches a chaque paire sont la pour ca ;
+ *   - le chemin complet (point 4), manifeste -> jocly.fairy.js -> moteur ->
+ *     ResolveMove, sur trois paires : la native, puis deux ini maison aux
+ *     pieces coudees. Vingt coups chacune, parce qu'a dix le moteur ne fait
+ *     presque rien entrer, et que l'entree est ce que la derniere
+ *     verification cherche.
+ *
+ * LE TEMPS DE REFLEXION EST DE 50 ms, contre 150 auparavant. On verifie que le
+ * coup rendu est LEGAL et qu'il se retrouve, pas qu'il est bon, et 50 ms
+ * suffisent sur trois executions -- zero reponse perimee, trois a sept
+ * entrees jouees par le moteur.
+ *
+ * Ce qui paraissait exiger du temps n'en exigeait pas : les reponses perimees
+ * qu'on voyait en dessous de 150 ms -- et parfois a 150 ms -- venaient d'une
+ * ligne « bestmove » collee a la sortie suivante du moteur, pas de sa hate.
+ * Voir la barriere isready du fournisseur, et jocly.fairyworker.js qui a le
+ * meme correctif.
+ */
 const GAMES_PER_PAIR = +(process.env.SEIRAWAN_GAMES || 6);
 const PLIES = +(process.env.SEIRAWAN_PLIES || 80);
+const AI_PAIRS = [0, 1, 6];
+const AI_PLIES = +(process.env.SEIRAWAN_AI_PLIES || 20);
+const AI_MOVETIME = +(process.env.SEIRAWAN_AI_MOVETIME || 50);
 
 /* ---- le niveau, tel que le manifeste le déclare ---- */
 
@@ -114,6 +143,12 @@ function wasmProvider(engine) {
 					session.send("setoption name UCI_Variant value " + message.variant);
 					if(typeof message.skillLevel === "number")
 						session.send("setoption name Skill Level value " + message.skillLevel);
+					// La meme barriere que jocly.fairyworker.js : la ligne
+					// « info string variant » qui suit UCI_Variant arrive
+					// parfois collee a un reste de la sortie precedente,
+					// « bestmove ... » compris, et serait prise pour la
+					// reponse. On la laisse passer avant de chercher.
+					await session.ask("isready", (l) => l === "readyok");
 					session.send("position fen " + message.fen);
 					const out = await session.ask("go movetime " + (message.moveTimeMs || 200),
 						(l) => l.indexOf("bestmove") === 0);
@@ -275,14 +310,36 @@ for(let setup = 0; setup < 10; setup++) {
 
 /* ------------------------------ 4 : le chemin complet, par machineSearch() */
 
+/*
+ * LE REPLI SILENCIEUX DE ResolveMove.
+ *
+ * Quand le coup du moteur ne figure pas dans la liste de jocly, jocly.fairy.js
+ * joue « le plus proche » et le dit en console -- rien d'autre. Le coup reste
+ * legal, donc toutes les verifications de cette partie passaient : un moteur
+ * qui regarde un autre echiquier que nous serait resté invisible ici, alors
+ * que c'est precisement ce que cette suite cherche. On ecoute donc ce que
+ * jocly.fairy.js ecrit en console. C'est ainsi qu'est apparu le defaut de la
+ * ligne « bestmove » collee (voir le fournisseur) : jusque-la, dix-huit
+ * reponses perimees sur vingt coups passaient pour une partie normale.
+ */
+const warnings = [];
+// console.ERROR, pas console.warn : c'est la que jocly.fairy.js l'ecrit, et
+// une garde branchee ailleurs resterait muette.
+const realError = console.error;
+console.error = function (...args) {
+	const text = args.join(" ");
+	if(/not among Jocly's legal moves/.test(text)) warnings.push(text.split("\n")[0]);
+	realError.apply(console, args);
+};
+
 JoclyFairy.setEngineProvider(wasmProvider(engine));
 let enteredTotal = 0;
-for(const setup of [0, 1, 6]) {
+for(const setup of AI_PAIRS) {
 	const match = await started(setup);
 	const level = Object.assign({}, match.game.config.model.levels
-		.filter((l) => l.ai === "fairy-stockfish")[0], { moveTimeMs: 150 });
+		.filter((l) => l.ai === "fairy-stockfish")[0], { moveTimeMs: AI_MOVETIME });
 	let played = 0, fallbacks = 0, entered = 0;
-	for(let ply = 0; ply < 20; ply++) {
+	for(let ply = 0; ply < AI_PLIES; ply++) {
 		const result = await match.machineSearch({ level });
 		if(result.fairyFallback) { fallbacks++; break; }
 		if(!result.move) break;
@@ -294,15 +351,21 @@ for(const setup of [0, 1, 6]) {
 		await match.playMove(result.move);
 		played++;
 	}
-	t.check("paire " + setup + " : l'Expert joue 20 coups légaux, sans repli", [played, fallbacks], [20, 0]);
+	t.check("paire " + setup + " : l'Expert joue " + AI_PLIES + " coups légaux, sans repli",
+		[played, fallbacks], [AI_PLIES, 0]);
 	t.check("paire " + setup + " : le moteur a reçu la variante de la paire",
 		wasmProvider.last && wasmProvider.last.lastVariant, levelFor(setup).variant);
 	console.log("    (" + entered + " entrée(s) jouée(s) par le moteur)");
 	enteredTotal += entered;
 }
-// Le moteur entre ses pièces tôt ou tard : si AUCUNE entrée ne revient en
-// vingt coups sur trois paires, c'est que la notation ne se retrouve plus.
+// Le moteur entre ses pièces tôt ou tard : si AUCUNE entrée ne revient sur
+// les trois paires, c'est que la notation ne se retrouve plus. Le compteur
+// est affiché paire par paire : s'il tombe à zéro partout, c'est ce qu'il
+// faut regarder avant de rallonger les parties.
 t.ok("des entrées jouées par le moteur ont été reconnues (" + enteredTotal + ")", enteredTotal > 0);
+console.error = realError;
+t.check("aucun coup du moteur n'a été rattrapé par « le plus proche »",
+	warnings.slice(0, 3), []);
 JoclyFairy.setEngineProvider(null);
 
 t.done("Seirawan++ Expert");
