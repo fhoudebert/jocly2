@@ -627,10 +627,47 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		 * enough that refusing to move would be worse - but it is no longer
 		 * silent.
 		 */
-		var exact = engineStrings.map(function (str) { return str.toLowerCase(); })
-			.indexOf(uciMove.toLowerCase());
-		if (exact >= 0)
-			return candidates[exact];
+		var wanted = uciMove.toLowerCase();
+		var lowered = engineStrings.map(function (str) { return str.toLowerCase(); });
+		var exacts = [];
+		lowered.forEach(function (str, index) { if (str === wanted) exacts.push(index); });
+		/*
+		 * UN ROQUE ET UN PAS DE ROI PEUVENT S'ECRIRE PAREIL.
+		 *
+		 * Quand le roi roque d'une seule case -- au Malett, c1 vers b1 --
+		 * le format « engine » ecrit le roque « c1b1 », exactement comme le
+		 * pas de roi c1-b1. Fairy-Stockfish, lui, ne s'y trompe pas : dans ce
+		 * cas il ecrit le roque ROI-PREND-TOUR (« c1a1 »), et reserve « c1b1 »
+		 * au pas de roi. Deux consequences ici :
+		 *
+		 *   - « c1b1 » exact designe donc le pas de roi : on le prefere au
+		 *     roque quand les deux s'ecrivent ainsi, au lieu de prendre le
+		 *     premier de la liste ;
+		 *   - « c1a1 » n'existait dans aucune ecriture de jocly, et la
+		 *     recherche approchee jouait... le pas de roi. L'Expert voulait
+		 *     roquer, il deplacait son roi. On essaie donc aussi l'ecriture
+		 *     roi-prend-tour, pour les seuls roques.
+		 *
+		 * Trouve en rejouant toutes les ini maison contre le vrai moteur :
+		 * trois coups « rattrapes » par partie au Malett.
+		 */
+		if (exacts.length) {
+			for (var e = 0; e < exacts.length; e++)
+				if (candidates[exacts[e]].cg === undefined)
+					return candidates[exacts[e]];
+			return candidates[exacts[0]];
+		}
+		if (!useChess960Format) {
+			for (var c = 0; c < candidates.length; c++) {
+				var cand = candidates[c];
+				if (cand.cg === undefined)
+					continue;
+				var s960 = (typeof cand.ToString == "function") ? cand.ToString("engine960")
+					: aGame.CreateMove(cand).ToString("engine960");
+				if (s960.toLowerCase() === wanted)
+					return cand;
+			}
+		}
 
 		var bestIndex = -1, bestDist = Infinity;
 		engineStrings.forEach(function (str, index) {

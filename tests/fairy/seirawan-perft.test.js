@@ -150,11 +150,19 @@ function wasmProvider(engine) {
 					// reponse. On la laisse passer avant de chercher.
 					await session.ask("isready", (l) => l === "readyok");
 					session.send("position fen " + message.fen);
-					const out = await session.ask("go movetime " + (message.moveTimeMs || 200),
-						(l) => l.indexOf("bestmove") === 0);
+					// Et, comme le worker, une reponse BIEN FORMEE seulement :
+					// le reste colle peut aussi s'accrocher apres readyok.
+					const wellFormed = (l) => {
+						const at = l.lastIndexOf("bestmove ");
+						if(at < 0) return false;
+						const tail = l.slice(at);
+						return /^bestmove\s+\S+(?:\s+ponder\s+\S+)?\s*$/.test(tail) && !/info/.test(tail);
+					};
+					const out = await session.ask("go movetime " + (message.moveTimeMs || 200), wellFormed);
 					worker.lastFen = message.fen;
 					worker.lastVariant = message.variant;
-					reply({ type: "Done", data: { bestMoveUci: out[out.length - 1].split(/\s+/)[1] } });
+					const last = out[out.length - 1];
+					reply({ type: "Done", data: { bestMoveUci: last.slice(last.lastIndexOf("bestmove ")).split(/\s+/)[1] } });
 				}).catch((err) => reply({ type: "Error", error: String(err) }));
 			},
 		};

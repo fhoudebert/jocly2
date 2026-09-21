@@ -238,7 +238,10 @@ function RunSearch(engine, options) {
 						"check that the deployed .nnue file matches this engine build. Engine said: " + line));
 					return;
 				}
-				if (line.indexOf("info ") === 0) {
+				// Une ligne « info » qui porte un « bestmove » colle derriere
+				// est traitee comme un bestmove : sinon la vraie reponse s'y
+				// perdrait, et la recherche ne finirait jamais.
+				if (line.indexOf("info ") === 0 && line.indexOf("bestmove ") < 0) {
 					lastInfo = line;
 					var mDepth = /\bdepth (\d+)/.exec(line);
 					if (mDepth && options.progress) {
@@ -246,16 +249,34 @@ function RunSearch(engine, options) {
 						var pct = Math.min(95, Math.round((parseInt(mDepth[1], 10) / targetDepth) * 100));
 						options.progress(pct);
 					}
-				} else if (line.indexOf("bestmove ") === 0) {
+				} else if (line.indexOf("bestmove ") >= 0) {
 					// Un « bestmove » recu AVANT notre « go » n'est pas le
 					// notre : voir la barriere isready plus bas.
 					if (!searching)
 						return;
-					var m = /^bestmove\s+(\S+)(?:\s+ponder\s+(\S+))?/.exec(line);
-					if (m) {
-						bestMoveUci = m[1];
-						ponderUci = m[2] || null;
-					}
+					/*
+					 * Et meme apres, on ne prend qu'une ligne BIEN FORMEE.
+					 *
+					 * Le reste colle de la sortie precedente (voir plus bas)
+					 * peut s'accrocher a n'importe quelle ligne imprimee
+					 * ensuite -- le plus souvent « info string variant »,
+					 * avant readyok, mais une fois sur une douzaine de
+					 * parties apres : l'Expert jouait encore deux coups
+					 * perimes malgre la barriere. Une vraie reponse a deux
+					 * ou quatre mots ; un reste colle en a d'autres derriere
+					 * lui.
+					 *
+					 * C'est le DERNIER « bestmove » de la ligne qui compte :
+					 * si un reste venait s'accrocher DEVANT la vraie reponse,
+					 * l'ignorer tout entiere laisserait la recherche sans
+					 * reponse, et l'interface « en reflexion » pour de bon.
+					 */
+					var tail = line.slice(line.lastIndexOf("bestmove "));
+					var m = /^bestmove\s+(\S+)(?:\s+ponder\s+(\S+))?\s*$/.exec(tail);
+					if (!m || /info/.test(tail))
+						return;
+					bestMoveUci = m[1];
+					ponderUci = m[2] || null;
 					engine.removeMessageListener(onLine);
 					RunSearch.currentStop = null;
 					if (aborted)
@@ -311,10 +332,12 @@ function RunSearch(engine, options) {
 			 * trouvant pas, jouait « le plus proche » : l'Expert jouait par
 			 * moments au hasard, et seule la console le disait.
 			 *
-			 * Mesure dans un navigateur, paire rhinoceros-griffon, vingt coups
-			 * par partie : 17 reponses perimees sur 20 sans ce correctif ; avec,
-			 * aucune sur dix parties. Toutes les ini maison sont concernees (les
-			 * neuf autres paires du Seirawan++, et tout jeu a customVariantIni).
+			 * Mesure dans un navigateur, sur le vrai worker : les quarante
+			 * combinaisons jeu/arrangement qui declarent un customVariantIni
+			 * (quinze jeux), seize coups chacune. Sans ce correctif, une passe
+			 * rend des reponses perimees au Malett, au Timurid et au
+			 * Seirawan++ -- jamais les memes deux fois, c'est une course. Avec,
+			 * deux passes completes, 1262 coups : aucune.
 			 *
 			 * D'ou deux gardes : isready/readyok, la barriere que le protocole
 			 * UCI prevoit, attendue AVANT la position et le « go » ; et aucun
