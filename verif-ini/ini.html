@@ -1,0 +1,26 @@
+<!doctype html><html><head><meta charset="utf-8"><script src="dist/jocly.js"></script></head><body>
+<script>
+window.run = async function(game, setup, plies, moveTime){
+  const errors=[]; const oe=console.error; console.error=function(...a){ errors.push(String(a[0]).split('\n')[0]); oe.apply(console,a); };
+  try {
+    const m = await Jocly.createMatch(game);
+    for (let d=0; d<4; d++){ const mv=await m.getPossibleMoves(); const n=await m.getMoveString(mv);
+      if(!n.length || !n.every(x=>/^(#\d+|--)$/.test(x))) break;
+      const i = setup==='-' ? -1 : n.indexOf('#'+setup); await m.playMove(mv[i>=0?i:0]); }
+    const cfg = await m.getConfig();
+    const base = cfg.model.levels.find(l=>l.ai==='fairy-stockfish');
+    const level = Object.assign({}, base, { moveTimeMs: moveTime });
+    let played=0, fallback=0;
+    for (let p=0;p<plies;p++){
+      const r = await m.machineSearch({ level });
+      if (r.fairyFallback) { fallback++; break; }
+      if (!r.move) break;
+      const res = await m.playMove(r.move); played++;
+      if (res && res.finished) break;
+    }
+    return { played, fallback, stale: errors.filter(e=>/not among/.test(e)).length, sample: errors.slice(0,3) };
+  } catch(e) { return { error: String(e && e.message || e) }; }
+  finally { console.error = oe; }
+};
+window.ready = true;
+</script></body></html>
