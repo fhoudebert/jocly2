@@ -74,7 +74,8 @@ exports.games = {
 					"fr": "XVIIIe siècle, Russie"
 				},
 				"rules": {
-					"en": "res/rules/amazon/amazon-rules.html"
+					"en": "res/rules/amazon/amazon-rules.html",
+                    "fr": "res/rules/amazon/amazon-rules_fr.html"
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -87,9 +88,7 @@ exports.games = {
 				"obsolete": false,
 				"js": modelScripts_41,
 				"levels": config_model_levels_5_amazon_expert,
-				"description": {
-					"en": "res/rules/amazon/amazon-description.html"
-				}
+
 			},
 			"view": {
 				"title-en": "Chessbase view",
