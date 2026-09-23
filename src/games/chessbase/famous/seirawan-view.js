@@ -240,9 +240,7 @@
 	 * question de plus.
 	 *
 	 * Elle ne prend pas la forme d'un second panneau. Les deux cases sont
-	 * désignées SUR LE PLATEAU, éclairées comme des destinations ordinaires --
-	 * c'est plus clair que deux vignettes identiques dans un panneau, et c'est
-	 * ainsi que la version 1 de ce jeu s'y prenait.
+	 * désignées SUR LE PLATEAU, éclairées comme des destinations ordinaires
 	 *
 	 * Le modèle n'a rien à fournir de plus : les quatre variantes du roque
 	 * existent déjà, chacune avec son `et`. Cette étape choisit entre elles.

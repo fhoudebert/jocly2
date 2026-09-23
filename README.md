@@ -69,7 +69,8 @@ Related projects:
 The original project is no longer maintained; it lives on as **[jocly2](https://github.com/fhoudebert/jocly2)**.
 
 The Expert level uses [Fairy-Stockfish](https://github.com/fairy-stockfish/Fairy-Stockfish) by Fabian Fichter, derived from Stockfish. 
-The Champion level for draughts use [Scan](https://hjetten.home.xs4all.nl/scan/scan.html) maintained by Fabien Letouzey  
-The Go levels use [KataGo](https://github.com/lightvector/KataGo) by David J. Wu, under the MIT licence. Copyright (c) 2019 David J. Wu. Neither the engine nor a neural network is shipped with Jocly; see `third-party/katago/README.md`.
+The Champion level for draughts use [Scan](https://hjetten.home.xs4all.nl/scan/scan.html) maintained by Fabien Letouzey.
+The Go levels use [KataGo](https://github.com/lightvector/KataGo) by David J. Wu, under the MIT licence. Copyright (c) 2019 David J. Wu. 
+
 
 Game artwork under `chessbase/res` is **CC BY-SA 3.0**.
