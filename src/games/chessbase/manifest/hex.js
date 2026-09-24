@@ -160,7 +160,8 @@ exports.games = {
 					"fr": "Échecs hexagonaux"
 				},
 				"rules": {
-					"en": "res/rules/brusky/brusky-rules.html"
+					"en": "res/rules/brusky/brusky-rules.html",
+                    "fr": "res/rules/brusky/brusky-rules_fr.html"
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -226,7 +227,8 @@ exports.games = {
 					"fr": "Échecs hexagonaux"
 				},
 				"rules": {
-					"en": "res/rules/devasa/devasa-rules.html"
+					"en": "res/rules/devasa/devasa-rules.html",
+                    "fr": "res/rules/devasa/devasa-rules_fr.html"
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -238,9 +240,6 @@ exports.games = {
 				"gameOptions": config_model_gameOptions,
 				"obsolete": false,
 				"js": modelScripts_19,
-				"description": {
-					"en": "res/rules/devasa/devasa-description.html"
-				},
 				"levels": config_model_levels_15
 			},
 			"view": {
@@ -300,7 +299,8 @@ exports.games = {
 					"fr": "Échecs hexagonaux"
 				},
 				"rules": {
-					"en": "res/rules/mccooey/mccooey-rules.html"
+					"en": "res/rules/mccooey/mccooey-rules.html",
+					"fr": "res/rules/mccooey/mccooey-rules_fr.html"
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -312,9 +312,6 @@ exports.games = {
 				"gameOptions": config_model_gameOptions,
 				"obsolete": false,
 				"js": modelScripts_20,
-				"description": {
-					"en": "res/rules/mccooey/mccooey-description.html"
-				},
 				"levels": config_model_levels_15
 			},
 			"view": {
@@ -356,7 +353,8 @@ exports.games = {
 					"fr": "Échecs hexagonaux"
 				},
 				"rules": {
-					"en": "res/rules/shafran/shafran-rules.html"
+					"en": "res/rules/shafran/shafran-rules.html",
+                    "fr": "res/rules/shafran/shafran-rules_fr.html"
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -368,9 +366,6 @@ exports.games = {
 				"gameOptions": config_model_gameOptions,
 				"obsolete": false,
 				"js": modelScripts_21,
-				"description": {
-					"en": "res/rules/shafran/shafran-description.html"
-				},
 				"levels": config_model_levels_15
 			},
 			"view": {
