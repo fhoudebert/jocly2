@@ -2,11 +2,7 @@
 
 Quinze jeux décrivent leur variante Fairy-Stockfish par un `customVariantIni`
 plutôt que par une variante intégrée au moteur — les mini-échecs, Capablanca,
-Timurid, Patchanka, Khan, Seirawan++… Ce sont eux qui ont révélé deux fautes
-invisibles à l'œil : une réponse du moteur prise pour celle de la position
-précédente, et un roque écrit roi-prend-tour que jocly ne savait pas relire.
-Dans les deux cas le coup joué à la place restait légal, la partie continuait,
-et seule la console protestait.
+Timurid, Patchanka, Khan, Seirawan++… 
 
 Deux vérifications, selon le moteur.
 
@@ -39,10 +35,10 @@ trois fichiers de ce répertoire le font, à la main :
     npx playwright install chromium    # une fois : télécharge le navigateur
     npx gulp build                     # le dist que la page charge
 
-    ln -s ../dist/browser verif-ini/dist   # la page lit dist/jocly.js
-    node verif-ini/serve.js &              # sert ce répertoire avec COOP/COEP
-    node verif-ini/ini.mjs apres 0 10      # les variantes 0 à 10
-    node verif-ini/ini.mjs apres 10 20     # etc., par tranches de dix
+    ln -s ../dist/browser tools/verif-ini/dist   # la page lit dist/jocly.js
+    node tools/verif-ini/serve.js &              # sert ce répertoire avec COOP/COEP
+    node tools/verif-ini/ini.mjs apres 0 10      # les variantes 0 à 10
+    node tools/verif-ini/ini.mjs apres 10 20     # etc., par tranches de dix
 
 `serve.js` sert le répertoire sur le port 8778 avec les deux en-têtes sans
 lesquels le moteur ne démarre pas. `ini.html` porte la fonction `run(jeu,
