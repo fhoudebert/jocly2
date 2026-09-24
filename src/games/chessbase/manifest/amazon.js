@@ -161,7 +161,8 @@ exports.games = {
 					"fr": "Gustav Johan Billberg, 1839"
 				},
 				"rules": {
-					"en": "res/rules/amazon/gustav3-rules.html"
+					"en": "res/rules/amazon/gustav3-rules.html",
+                    "fr": "res/rules/amazon/gustav3-rules_fr.html"
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -252,7 +253,8 @@ exports.games = {
 					"fr": "Ralph Betza et Philip Cohen, 1978-1979"
 				},
 				"rules": {
-					"en": "res/rules/amazon/tutti-frutti-rules.html"
+					"en": "res/rules/amazon/tutti-frutti-rules.html",
+                    "fr": "res/rules/amazon/tutti-frutti-rules_fr.html"
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -264,9 +266,6 @@ exports.games = {
 				"gameOptions": config_model_gameOptions,
 				"obsolete": false,
 				"js": modelScripts_48,
-				"description": {
-					"en": "res/rules/amazon/tutti-frutti-description.html"
-				},
 				"levels": config_model_levels_5_tuttifrutti_expert
 			},
 			"view": {
