@@ -101,7 +101,8 @@ exports.games = {
 					"fr": "Échecs en 10x10 (1984)"
 				},
 				"rules": {
-					"en": "res/rules/decimal/grand-rules.html"
+					"en": "res/rules/decimal/grand-rules.html",
+                    "fr": "res/rules/decimal/grand-rules_fr.html",
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -113,9 +114,6 @@ exports.games = {
 				"gameOptions": config_model_gameOptions,
 				"obsolete": false,
 				"js": modelScripts_34,
-				"description": {
-					"en": "res/rules/decimal/grand-description.html"
-				},
 				"levels": config_model_levels_5_grand_expert
 			},
 			"view": {
@@ -274,7 +272,8 @@ exports.games = {
 					"fr": "Échecs en 11x10 (1987)"
 				},
 				"rules": {
-					"en": "res/rules/wildebeest/wildebeest-rules.html"
+					"en": "res/rules/wildebeest/wildebeest-rules.html",
+                    "fr": "res/rules/wildebeest/wildebeest-rules_fr.html"
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -286,9 +285,6 @@ exports.games = {
 				"gameOptions": config_model_gameOptions,
 				"obsolete": false,
 				"js": modelScripts_37,
-				"description": {
-					"en": "res/rules/wildebeest/wildebeest-description.html"
-				},
 				"levels": config_model_levels_5_wildebeest_expert
 			},
 			"view": {
