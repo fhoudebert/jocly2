@@ -795,9 +795,6 @@ exports.games = {
 				},
 				"gameOptions": config_model_gameOptions_2,
 				"js": modelScripts_106,
-				"description": {
-					"en": "res/rules/shogi/tori-shogi-description.html"
-				},
 				"levels": config_model_levels_15_torishogi_expert
 			},
 			"view": {

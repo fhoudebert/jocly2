@@ -177,7 +177,8 @@ exports.games = (function() {
 					"released": 1409239768,
 					"plazza": "true",
 					"rules": {
-						"en": "rules-reversi.html"
+						"en": "rules-reversi.html",
+                        "fr": "rules-reversi_fr.html",
 					},
 					"credits": config_model_credits,
 					"description": config_model_description,
@@ -227,7 +228,8 @@ exports.games = (function() {
 					"released": 1409239768,
 					"plazza": "true",
 					"rules": {
-						"en": "rules-reversi6.html"
+						"en": "rules-reversi6.html",
+                        "fr": "rules-reversi6_fr.html"
 					},
 					"credits": config_model_credits,
 					"description": config_model_description,
@@ -286,7 +288,8 @@ exports.games = (function() {
 					"released": 1409239768,
 					"plazza": "true",
 					"rules": {
-						"en": "rules-reversi4.html"
+						"en": "rules-reversi4.html",
+                        "fr": "rules-reversi4_fr.html",
 					},
 					"credits": config_model_credits,
 					"description": config_model_description,
@@ -345,7 +348,8 @@ exports.games = (function() {
 					"released": 1409239768,
 					"plazza": "true",
 					"rules": {
-						"en": "rules-reversi10.html"
+						"en": "rules-reversi10.html",
+                        "fr": "rules-reversi10_fr.html",
 					},
 					"credits": config_model_credits,
 					"description": config_model_description,
@@ -395,7 +399,8 @@ exports.games = (function() {
 					"released": 1409239768,
 					"plazza": "true",
 					"rules": {
-						"en": "rules-cross.html"
+						"en": "rules-cross.html",
+                        "fr": "rules-cross_fr.html",
 					},
 					"credits": config_model_credits,
 					"description": config_model_description,
@@ -463,7 +468,8 @@ exports.games = (function() {
 					"released": 1409239768,
 					"plazza": "true",
 					"rules": {
-						"en": "rules-cross10.html"
+						"en": "rules-cross10.html",
+						"fr": "rules-cross10_fr.html",
 					},
 					"credits": config_model_credits,
 					"description": config_model_description,
@@ -551,7 +557,8 @@ exports.games = (function() {
 					"released": 1409239768,
 					"plazza": "true",
 					"rules": {
-						"en": "rules-turnover.html"
+						"en": "rules-turnover.html",
+						"fr": "rules-turnover_fr.html"
 					},
 					"credits": config_model_credits,
 					"description": config_model_description,
