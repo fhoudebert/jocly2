@@ -312,9 +312,6 @@ exports.games = {
 				"obsolete": false,
 				"js": modelScripts_4,
 				"levels": config_model_levels_5_mini4x4_expert,
-				"description": {
-					"en": "res/rules/mini/mini4x4-description.html"
-				}
 			},
 			"view": {
 				"title-en": "Chessbase view",
@@ -369,9 +366,6 @@ exports.games = {
 				"obsolete": false,
 				"js": modelScripts_minichess4x5,
 				"levels": config_model_levels_5_minichess4x5_expert,
-				"description": {
-					"en": "res/rules/mini/minichess4x5-description.html"
-				}
 			},
 			"view": {
 				"title-en": "Chessbase view",
@@ -429,9 +423,6 @@ exports.games = {
 				"obsolete": false,
 				"js": modelScripts_9,
 				"levels": config_model_levels_5_losalamos_expert,
-				"description": {
-					"en": "res/rules/mini/los-alamos-description.html"
-				}
 			},
 			"view": {
 				"title-en": "Chessbase view",
@@ -486,9 +477,6 @@ exports.games = {
 				"obsolete": false,
 				"js": modelScripts_10,
 				"levels": config_model_levels_5_attack_expert,
-				"description": {
-					"en": "res/rules/mini/attack-description.html"
-				}
 			},
 			"view": {
 				"title-en": "Chessbase view",

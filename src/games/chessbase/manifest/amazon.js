@@ -174,9 +174,6 @@ exports.games = {
 				"gameOptions": config_model_gameOptions,
 				"obsolete": false,
 				"js": modelScripts_43,
-				"description": {
-					"en": "res/rules/amazon/gustav3-description.html"
-				},
 				"levels": config_model_levels_5_gustav3_expert
 			},
 			"view": {

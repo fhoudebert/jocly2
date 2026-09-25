@@ -173,9 +173,6 @@ exports.games = {
 				"gameOptions": config_model_gameOptions,
 				"obsolete": false,
 				"js": modelScripts_18,
-				"description": {
-					"en": "res/rules/brusky/brusky-description.html"
-				},
 				"levels": config_model_levels_15
 			},
 			"view": {

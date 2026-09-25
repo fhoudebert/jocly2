@@ -1,82 +1,18 @@
 
 /*
- * Language of this page. control.html and control_fr.html share this script,
- * so the page says which one it is: window.JOCLY_LANG if set, otherwise the
- * lang attribute of <html> ("fr-CA" and the like being cut down to "fr").
- */
-function PageLang() {
-    var lang = window.JOCLY_LANG ||
-        (document.documentElement.getAttribute("lang") || "en");
-    return lang.toLowerCase().split("-")[0];
-}
-
-/*
- * Reads a translatable manifest field. Game manifests give summary as
- * { en: "...", fr: "..." }, so printing it straight would show
- * "[object Object]". Falls back to English, then to whatever translation
- * exists, and passes plain strings through untouched.
- */
-function Localized(field) {
-    if(field == null)
-        return "";
-    if(typeof field == "string")
-        return field;
-    var lang = PageLang();
-    if(field[lang])
-        return field[lang];
-    if(field.en)
-        return field.en;
-    var first = Object.keys(field)[0];
-    return first ? field[first] : "";
-}
-
-/*
- * The handful of strings this page builds itself.
+ * Translation: see js/i18n.js, loaded before this script, and lang/*.json.
  *
- * Everything else it displays comes from the manifests, which carry their own
- * translations and are read through Localized() below. These do not: they are
- * written here, so they are translated here.
- *
- * Keyed by the English string, the way mogichex/lang/fr.json does it, and
- * with its wording - "Partie nulle", "Facile", "Moyen", "Fort", "Rapide" - so
- * that a player moving between the two reads the same words.
- */
-var TRANSLATIONS = {
-    fr: {
-        "A playing": "A joue",
-        "B playing": "B joue",
-        "A wins": "A gagne",
-        "B wins": "B gagne",
-        "Draw": "Partie nulle",
-        "Random": "Aléatoire",
-        "Easy": "Facile",
-        "Fast": "Rapide",
-        "Medium": "Moyen",
-        "Strong": "Fort",
-        "Expert": "Expert",
-        "Loading\u2026": "Chargement\u2026",
-        "No rules available for this game.": "Pas de règles disponibles pour ce jeu.",
-    },
-};
-
-/*
- * Translates one of them, or gives it back untouched.
- *
- * A level label may carry a timing - "Fast [1sec]" - which is not a word and
- * must not be translated away, so the bracketed part is set aside and put
- * back. A label with no entry (a game with levels of its own) also comes back
- * as it was: showing English is better than showing nothing.
+ * T() translates a string this page writes itself - the English text is the
+ * key, and lang/en.json lists them all. Localized() reads a translatable
+ * manifest field ({ en: "...", fr: "..." }), which carries its own
+ * translations. Both follow the language i18n.js settled on.
  */
 function T(text) {
-    var table = TRANSLATIONS[PageLang()];
-    if(!table || text == null)
-        return text;
-    if(table[text])
-        return table[text];
-    var timed = /^(.*?)(\s*\[[^\]]*\])$/.exec(text);
-    if(timed && table[timed[1]])
-        return table[timed[1]] + timed[2];
-    return text;
+    return JoclyI18n.T(text);
+}
+
+function Localized(field) {
+    return JoclyI18n.localized(field);
 }
 
 /*
@@ -134,7 +70,7 @@ function LoadRules(config, container) {
  * WHY IT IS THE CLIENT THAT WRITES THE SENTENCE: Jocly has no translations.
  * A verdict drawn by a game's own view could only ever be English, so the
  * views state the margin as a stone and a number and leave the words to
- * whoever has a dictionary - here, TRANSLATIONS above.
+ * whoever has a dictionary - here, lang/*.json through T().
  *
  * Any game without a score answers with its board notation, or rejects. Both
  * land on the plain verdict, which is what this function displayed before.
@@ -163,7 +99,7 @@ function NotifyWinner(match, winner) {
  * The tenth is the point - it is what tells a search that is running from one
  * that has finished and not handed back.
  *
- * The unit does not go through TRANSLATIONS: "s" is written the same in both
+ * The unit does not go through T(): "s" is written the same in both
  * languages, and a readout that refreshes ten times a second is not where to
  * put the dictionary to work.
  */
@@ -419,6 +355,15 @@ function ResolveLevelParam(levels, wanted) {
 }
 
 $(document).ready(function () {
+    // the page's own texts first, then the game: nothing below writes a
+    // string before the language is known
+    JoclyI18n.load().then(function () {
+        JoclyI18n.apply();
+        Start();
+    });
+});
+
+function Start() {
     var progressBar = document.getElementById("progress-bar");
     // URLSearchParams rather than a regexp on the whole href: with a second
     // parameter in play the order stops being predictable, and ?level=expert
@@ -433,10 +378,11 @@ $(document).ready(function () {
         // get game configuration to setup control UI
         match.getConfig()
             .then( (config) => {
-                // titles are English-only in the manifests, so the summary is
-                // what carries the game's name in the reader's language
+                // the title in the reader's language when the manifest gives
+                // one ("title": { en, fr }), else the English "title-en"; the
+                // summary follows the same language
                 $("#game-title").show().empty()
-                    .append($("<div>").text(config.model["title-en"]))
+                    .append($("<div>").text(Localized(config.model.title || config.model["title-en"])))
                     .append($("<div>").addClass("game-title-summary").text(Localized(config.model.summary)));
                 $("#close-games span").show();
 
@@ -461,7 +407,7 @@ $(document).ready(function () {
                 var viewOptions = config.view;
                 // fills Skins dropdown with available skins
                 viewOptions.skins.forEach(function(skin) {
-                    $("<option/>").attr("value",skin.name).text(skin.title).appendTo($("#options-skin"));
+                    $("<option/>").attr("value",skin.name).text(T(skin.title)).appendTo($("#options-skin"));
                 });
                 $("#options").show();
 
@@ -805,5 +751,5 @@ $(document).ready(function () {
                 $("#mode-panel").show();
             });
     });
-});
+}
 

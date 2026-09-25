@@ -3,7 +3,7 @@
  *
  *   node tests/browser/control-panels.test.js
  *
- * control.html and control_fr.html hold the game list and the rules in the
+ * control.html holds the game list and the rules in the
  * same slot beside the board: opening one hides the controls, closing it puts
  * them back. Only one of the three may be on screen at a time, and a click on
  * one link must not act as a click on the other - which is what happened when
@@ -101,7 +101,8 @@ function page(file) {
 	};
 }
 
-for(const file of ["control.html", "control_fr.html"]) {
+// control_fr.html is only a redirect to control.html?lang=fr now
+for(const file of ["control.html"]) {
 	console.log("\n" + file);
 
 	(() => {

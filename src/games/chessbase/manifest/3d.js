@@ -119,7 +119,7 @@ exports.games = {
 				"skins": [
 					{
 						"name": "skin3d",
-						"title": "3D ClaDssic",
+						"title": "3D Classic",
 						"3d": true,
 						"preload": [
 							"smoothedfilegeo|0|/res/ring-target.js",
