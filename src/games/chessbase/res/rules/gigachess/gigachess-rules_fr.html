@@ -1,0 +1,260 @@
+<style>
+.piece-graph {
+	height: auto;
+	max-width: 300px;
+	margin: 0 auto;
+	display: block;
+}
+.piece-icon {
+	width : 70px;
+	height : auto;
+	float : left;
+	margin-right : 10px;
+}
+.piece-icon-promo {
+	width : 50px;
+	height : 50px;
+}
+#promo{
+	width : 200px;
+	margin: 0 auto;
+}
+</style>
+<h1>Position initiale</h1>
+
+<p>Le plateau est un échiquier de 14 x 14 cases, avec une case blanche à l'extrémité droite de chaque joueur.</p>
+
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/gigachess/gigachess-start.png'>
+</p>
+
+<p>Chaque camp dispose de 48 pièces :</p>
+<ul>
+    <li>2 Arcs, 2 Canons, 2 Chameaux, 2 Navires, 1 Buffle, 1 Lion, 1 Griffon, 1 Amazone, 1 Maréchal, 1 Cardinal sur la 1re rangée,</li>
+    <li>1 Roi, 1 Dame, 2 Princes, 2 Fous, 2 Cavaliers, 2 Tours, 2 Éléphants, 2 Machines sur la 2e rangée,</li>
+    <li>6 Caporaux sur la 3e rangée et 14 Pions sur les 3e et 4e rangées.</li>
+</ul>
+
+<p>Le Roi blanc est placé au centre de la deuxième rangée, sur une case noire, tandis que le Roi noir se trouve sur une case blanche. La Dame est également placée au centre, à côté du Roi. L'Amazone se trouve juste derrière le Roi. Sur la 1re rangée se trouve le « côté animal », avec le Griffon, le Lion et le Buffle, de l'intérieur vers l'extérieur, et le « côté cavalier », avec l'Amazone, le Maréchal et le Cardinal dans cet ordre. Sur la 3e rangée, les Caporaux occupent les six colonnes centrales.</p>
+
+<p>Toutes les pièces à courte portée (ainsi que le Navire) peuvent être promues.</p>
+
+
+<h1>Pièces</h1>
+
+<h2>Roi</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/king.png"/>
+</p>
+<p class='piece-details'>Exactement comme aux échecs classiques.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/king.png'>
+</p>
+
+<h2>Dame</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/queen.png"/>
+</p>
+<p class='piece-details'>Exactement comme aux échecs classiques.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/queen.png'>
+</p>
+
+<h2>Fou</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/bishop.png"/>
+</p>
+<p class='piece-details'>Exactement comme aux échecs classiques.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/bishop.png'>
+</p>
+
+<h2>Cavalier</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/knight.png"/>
+</p>
+<p class='piece-details'>Se déplace comme aux échecs classiques. De plus, lorsqu'un Cavalier atteint la dernière rangée, il est promu en Buffle.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/knight.png'>
+</p>
+
+<h2>Tour</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/rook.png"/>
+</p>
+<p class='piece-details'>Exactement comme aux échecs classiques.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/rook.png'>
+</p>
+
+<h2>Éléphant</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/elephant.png"/>
+</p>
+<p class='piece-details'>Comme dans Shako. Dans cette variante, lorsqu'un Éléphant atteint la dernière rangée, il est promu en Lion.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/elephant.png'>
+</p>
+
+<h2>Machine</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/machine.png"/>
+</p>
+<p class='piece-details'>C'est l'équivalent orthogonal de l'Éléphant : elle se déplace d'une ou de deux cases orthogonalement, en sautant par-dessus la première case si celle-ci est occupée. Elle combine ainsi les mouvements de l'ancien Dabbaba et du Vizir, que l'on trouve dans d'anciennes variantes des échecs musulmans. Dans cette variante, lorsqu'une Machine atteint la dernière rangée, elle est promue en Lion.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/machine.png'>
+</p>
+
+<h2>Lion</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/lion.png"/>
+</p>
+<p class='piece-details'>Comme dans Metamachy, cette pièce s'inspire (avec quelques simplifications) du Shōgi Chū, la variante la plus populaire des échecs japonais. Ici, le Lion peut se déplacer comme un Roi (d'une seule case dans n'importe quelle direction), ou sauter jusqu'à une position située à deux cases, dans n'importe quelle direction orthogonale ou diagonale, ou encore effectuer un saut de Cavalier comme aux échecs classiques. (Le Lion possède donc la même portée, mais il est plus limité que le Lion du Shōgi Chū, qui peut se déplacer deux fois au cours d'un même tour.)</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/lion.png'>
+</p>
+
+<h2>Aigle / Griffon</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/griffon.png"/>
+</p>
+<p class='piece-details'>Comme dans Metamachy, il se déplace d'une case en diagonale puis continue d'un nombre quelconque de cases verticalement ou horizontalement. Il ne peut effectuer qu'une seule case en diagonale. Il ne peut pas sauter et son déplacement doit commencer par le mouvement diagonal. Cette pièce est presque aussi puissante que la Dame et s'inspire de la Girafe des échecs de Tamerlan et de l'Aanca du Grande Acedrex d'Alphonse X.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/griffon.png'>
+</p>
+
+<h2>Navire</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/ship.png"/>
+</p>
+<p class='piece-details'>Inventé à l'origine pour Tamerlane 2000, il se déplace d'une case en diagonale puis continue d'un nombre quelconque de cases verticalement, jamais horizontalement. Il ne peut se déplacer que d'une seule case en diagonale. Il ne peut pas sauter et doit commencer son déplacement par l'étape diagonale. Le Navire est plus limité que le Griffon (qui peut se déplacer horizontalement). Néanmoins, sa puissance de déplacement est comparable à celle de la Tour et du Fou. Lorsqu'un Navire atteint la dernière rangée, il est promu en Griffon.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/ship.png'>
+</p>
+
+<h2>Chameau</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/camel.png"/>
+</p>
+<p class='piece-details'>Comme dans Metamachy, c'est une pièce bien connue des grands jeux d'échecs musulmans médiévaux, comme les échecs de Tamerlan. Elle saute jusqu'à la case opposée d'un rectangle de 2x4, comme un Cavalier allongé, quelles que soient les pièces présentes sur les cases intermédiaires. À noter qu'elle reste toujours sur la même couleur de case. Lorsqu'un Chameau atteint la dernière rangée, il est promu en Buffle.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/camel.png'>
+</p>
+
+<h2>Canon</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/cannon.png"/>
+</p>
+<p class='piece-details'>Comme au Xiangqi, au Shako et au Metamachy. (Également appelé Pao par les compositeurs de problèmes.)</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/cannon.png'>
+</p>
+
+<h2>Arc</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/bow.png"/>
+</p>
+<p class='piece-details'>C'est l'équivalent diagonal du Canon chinois. Il se déplace comme un Fou et a besoin d'une pièce intermédiaire entre lui et sa victime pour pouvoir la capturer. L'Arc saute par-dessus la pièce intermédiaire et prend la victime sur sa case. La pièce intermédiaire reste intacte. (Également appelé Vao par les compositeurs de problèmes.)</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/bow.png'>
+</p>
+
+<h2>Buffle</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/buffalo.png"/>
+</p>
+<p class='piece-details'>Combine les sauts du Cavalier (3x2), du Chameau (4x2) et du Taureau (voir Terachess) (4x3).</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/buffalo.png'>
+</p>
+
+<h2>Maréchal</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/marshall.png"/>
+</p>
+<p class='piece-details'>Combine les déplacements de la Tour et du Cavalier. Cette pièce apparaît dans de très nombreuses variantes des échecs depuis Carrera, Bird, Capablanca et bien d'autres, comme Grand Chess ou Gothic Chess (sous de nombreux autres noms : Champion, Garde, Impératrice, Concubine, Chancelier, etc.). Le terme « Chancelier » est toutefois parfois évité, car il prête à confusion : Capablanca l'a utilisé une fois pour T+C et une autre fois pour F+C. C'est l'Éléphant des échecs de Seirawan.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/marshall.png'>
+</p>
+
+<h2>Cardinal</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/cardinal.png"/>
+</p>
+<p class='piece-details'>Combine les déplacements du Fou et du Cavalier. Cette pièce apparaît dans de très nombreuses variantes des échecs depuis Carrera, Bird, Capablanca, Modern et bien d'autres, comme Grand Chess ou Gothic Chess (sous de nombreux autres noms : Centaure, Ministre, Écuyer, Janus, Archevêque, Princesse, Chancelier, etc.). C'est le Faucon des échecs de Seirawan.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/cardinal.png'>
+</p>
+
+<h2>Amazone</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/amazon.png"/>
+</p>
+<p class='piece-details'>La pièce la plus puissante du plateau, elle combine les déplacements de la Dame et du Cavalier. Elle était utilisée dans le Grand Chess turco-indien (sous le nom de Girafe).</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/amazon.png'>
+</p>
+
+<h1>Tableau des promotions</h1>
+
+<div id="promo">
+<table>
+<tr>
+<td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-pawn.png'></td>
+<td>se promeut en</td>
+<td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-queen.png'></td>
+</tr>
+<tr>
+<td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-corporal.png'></td>
+<td>se promeut en</td>
+<td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-queen.png'></td>
+</tr>
+<tr>
+<td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-admiral.png'></td>
+<td>se promeut en</td>
+<td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-amazon.png'></td>
+</tr>
+<tr>
+<td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-knight.png'></td>
+<td>se promeut en</td>
+<td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-buffalo.png'></td>
+</tr>
+<tr>
+<td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-camel.png'></td>
+<td>se promeut en</td>
+<td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-buffalo.png'></td>
+</tr>
+<tr>
+<td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-elephant.png'></td>
+<td>se promeut en</td>
+<td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-lion.png'></td>
+</tr>
+<tr>
+<td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-machine.png'></td>
+<td>se promeut en</td>
+<td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-lion.png'></td>
+</tr>
+<tr>
+<td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-ship.png'></td>
+<td>se promeut en</td>
+<td><img class='piece-icon-promo' src='{GAME}/res/fairy/icons/w-griffon.png'></td>
+</tr>
+</table>
+</div>

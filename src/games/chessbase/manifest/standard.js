@@ -373,7 +373,8 @@ exports.games = {
 					"fr": "Variante d’échecs 4x8 de Peter Krystufek (1986)"
 				},
 				"rules": {
-					"en": "res/rules/demi/demi-rules.html"
+					"en": "res/rules/demi/demi-rules.html",
+                    "fr": "res/rules/demi/demi-rules_fr.html",
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -386,9 +387,6 @@ exports.games = {
 				"obsolete": false,
 				"js": modelScripts_39,
 				"levels": config_model_levels_5_demi_expert,
-				"description": {
-					"en": "res/rules/demi/demi-description.html"
-				}
 			},
 			"view": {
 				"title-en": "Chessbase view",
@@ -429,7 +427,8 @@ exports.games = {
 					"fr": "Variante d’échecs 8x8 décalés de V. Romanchenko"
 				},
 				"rules": {
-					"en": "res/rules/standard/romanchenko-rules.html"
+					"en": "res/rules/standard/romanchenko-rules.html",
+					"fr": "res/rules/standard/romanchenko-rules_fr.html",
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -444,9 +443,6 @@ exports.games = {
 				"obsolete": false,
 				"js": modelScripts_40,
 				"levels": config_model_levels_5,
-				"description": {
-					"en": "res/rules/standard/romanchenko-description.html"
-				}
 			},
 			"view": {
 				"title-en": "Chessbase view",
@@ -487,7 +483,8 @@ exports.games = {
 					"fr": "Une immense variante d’échecs en 16x16"
 				},
 				"rules": {
-					"en": "res/rules/standard/sweet16-rules.html"
+					"en": "res/rules/standard/sweet16-rules.html",
+					"fr": "res/rules/standard/sweet16-rules_fr.html",
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -504,9 +501,6 @@ exports.games = {
 				},
 				"obsolete": false,
 				"js": modelScripts_49,
-				"description": {
-					"en": "res/rules/standard/sweet16-description.html"
-				},
 				"levels": config_model_levels_5
 			},
 			"view": {

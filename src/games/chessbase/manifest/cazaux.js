@@ -394,7 +394,8 @@ exports.games = {
 					"fr": "Variante d’échecs sur un tablier inhabituel"
 				},
 				"rules": {
-					"en": "res/rules/rollerball/rollerball-rules.html"
+					"en": "res/rules/rollerball/rollerball-rules.html",
+                    "fr": "res/rules/rollerball/rollerball-rules_fr.html",
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -424,9 +425,6 @@ exports.games = {
 				},
 				"obsolete": false,
 				"js": modelScripts_27,
-				"description": {
-					"en": "res/rules/rollerball/rollerball-description.html"
-				},
 				"levels": config_model_levels_5
 			},
 			"view": {
@@ -505,7 +503,7 @@ exports.games = {
 				},
 				"rules": {
 					"en": "res/rules/metamachy/metamachy-rules.html",
-                        "fr": "res/rules/metamachy/metamachy-rules_fr.html"
+                    "fr": "res/rules/metamachy/metamachy-rules_fr.html"
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -611,7 +609,8 @@ exports.games = {
 					"fr": "Échecs en 16x16 avec des pièces féeriques"
 				},
 				"rules": {
-					"en": "res/rules/terachess/terachess-rules.html"
+					"en": "res/rules/terachess/terachess-rules.html",
+                    "fr": "res/rules/terachess/terachess-rules_fr.html",
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -753,7 +752,8 @@ exports.games = {
 					"fr": "Échecs en 14x14 avec des pièces féeriques"
 				},
 				"rules": {
-					"en": "res/rules/gigachess/gigachess-rules.html"
+					"en": "res/rules/gigachess/gigachess-rules.html",
+                    "fr": "res/rules/gigachess/gigachess-rules_fr.html",
 				},
 				"module": "chessbase",
 				"plazza": "true",
