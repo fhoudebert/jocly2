@@ -285,7 +285,8 @@ exports.games = {
 					"fr": "Échecs en 12x12 avec des pièces féeriques"
 				},
 				"rules": {
-					"en": "res/rules/duodecimal/leychessalpha-rules.html"
+					"en": "res/rules/duodecimal/leychessalpha-rules.html",
+                    "fr": "res/rules/duodecimal/leychessalpha-rules_fr.html",
 				},
 				"module": "chessbase",
 				"plazza": "true",

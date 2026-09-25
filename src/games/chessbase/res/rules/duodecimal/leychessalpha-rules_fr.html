@@ -1,0 +1,202 @@
+<style>
+    .piece-graph {
+        height: auto;
+        max-width: 100%;
+        margin: 0 auto;
+        display: block;
+    }
+
+    .piece-icon {
+        width: 70px;
+        height: auto;
+        float: left;
+        margin-right: 10px;
+    }
+    .piece-icon-promo {
+        width: 50px;
+        height: 50px;
+    }
+
+    #promo {
+        width: 200px;
+        margin: 0 auto;
+    }
+</style>
+<h1 style="font-size:300%;">Règles du LeyChessAlpha</h1>
+<h1>Position de départ</h1>
+<img src="{GAME}/res/visuals/leychessalpha-600x600-2d.jpg" alt="Your Browser suck:(" style="width:320px;height:320px;">
+<h1>Pièces</h1>
+<h2>Roi</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/king.png"/>
+</p>
+<p class='piece-details'>Exactement comme aux échecs classiques.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/king.png'>
+</p>
+<h2>Dame</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/queen.png"/>
+</p>
+<p class='piece-details'>Exactement comme aux échecs classiques.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/queen.png'>
+</p>
+<h2>Fou</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/bishop.png"/>
+</p>
+<p class='piece-details'>Exactement comme aux échecs classiques.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/bishop.png'>
+</p>
+<h2>Cavalier</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/knight.png"/>
+</p>
+<p class='piece-details'>Se déplace comme aux échecs classiques.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/knight.png'>
+</p>
+<h2>Tour</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/rook.png"/>
+</p>
+<p class='piece-details'>Exactement comme aux échecs classiques.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/rook.png'>
+</p>
+<h2>Pion</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/pawn.png"/>
+</p>
+<p class='piece-details'>Le Pion est presque identique à celui des échecs classiques. Il y a cependant une différence : il peut avancer d'une ou de deux cases depuis N'IMPORTE QUELLE position sur l'échiquier. En revanche, sa prise reste inchangée : une case en diagonale vers l'avant. Par conséquent, la prise en passant est possible chaque fois que le Pion, le Caporal ou le Prince adverse a avancé de deux cases.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/pawn.png'>
+</p>
+<h2>Prince</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/admiral.png"/>
+</p>
+<p class='piece-details'>Cette pièce est simplement un Roi non royal combiné à un Pion. On la trouve dans le Metamachy et elle est inspirée de jeux médiévaux comme le Courier chess, une ancienne variante des échecs jouée en Allemagne, où elle est appelée « Man ». Elle se déplace d'une case dans n'importe quelle direction, comme le Roi, mais sans être soumise aux contraintes de l'échec. Comme le Pion, elle peut ici avancer sans prendre jusqu'à la deuxième case en ligne droite. Lorsque le Prince atteint la dernière rangée, il est promu en Empereur.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/leychess/lcb/prince.png' style="width:50%;height:50%;">
+</p>
+<h2>Éléphant</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/elephant.png"/>
+</p>
+<p class='piece-details'>Comme au Shako.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/elephant.png'>
+</p>
+<h2>Lion</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/lion.png"/>
+</p>
+<p class='piece-details'>Comme dans le Metamachy, lui-même inspiré (avec quelques simplifications) du Chu Shogi, la variante la plus populaire des échecs japonais. Ici, le Lion peut se déplacer comme un Roi (d'une seule case dans n'importe quelle direction), ou sauter vers une case située à deux cases de distance, dans n'importe quelle direction orthogonale ou diagonale, ou encore effectuer un saut de Cavalier comme aux échecs classiques. Le Lion possède donc la même portée, mais est plus limité que celui du Chu Shogi, qui peut effectuer deux déplacements au cours d'un même tour.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/lion.png'>
+</p>
+<h2>Aigle (Griffon)</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/eagle.png"/>
+</p>
+<p class='piece-details'>Comme dans le Metamachy, il se déplace d'une case en diagonale puis poursuit son déplacement d'un nombre indéfini de cases verticalement ou horizontalement. Il ne peut effectuer qu'une seule case en diagonale. Il ne peut pas sauter et le trajet libre doit commencer par le déplacement en diagonale. Cette pièce est presque aussi puissante que la Dame et s'inspire de la Girafe des échecs de Tamerlan et de l'Aanca du Grande Acedrex d'Alphonse X.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/eagle.png'>
+</p>
+<h2>Chameau</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/camel.png"/>
+</p>
+<p class='piece-details'>Comme dans le Metamachy, il s'agit d'une pièce bien connue des grands échecs musulmans médiévaux, notamment des échecs de Tamerlan. Il saute jusqu'à la case opposée d'un rectangle de 2 × 4 cases, comme un Cavalier à déplacement allongé. Le contenu des cases intermédiaires n'a aucune importance. Notez qu'il reste toujours sur des cases de même couleur.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/camel.png'>
+</p>
+<h2>Canon</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/cannon.png"/>
+</p>
+<p class='piece-details'>Comme au Xiangqi, au Shako et au Metamachy. (Également appelé « Pao » par les problémistes.)</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/cannon.png'>
+</p>
+<h2>Chancelier (Maréchal)</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/marshall.png"/>
+</p>
+<p class='piece-details'>Il combine les déplacements de la Tour et du Cavalier. On le retrouve dans de très nombreuses variantes des échecs depuis Carrera, Bird, Capablanca et bien d'autres, comme le Grand Chess ou le Gothic Chess. Il porte de nombreux autres noms : Champion, Garde, Impératrice, Concubine, Chancelier, etc. Le nom « Chancelier » est parfois privilégié, mais il peut prêter à confusion puisque Capablanca l'a utilisé une fois pour la combinaison Tour + Cavalier et une autre fois pour la combinaison Fou + Cavalier. C'est l'Éléphant des échecs de Seirawan.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/marshall.png'>
+</p>
+<h2>Cardinal</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/cardinal.png"/>
+</p>
+<p class='piece-details'>Il combine les déplacements du Fou et du Cavalier. On le retrouve dans de très nombreuses variantes des échecs depuis Carrera, Bird, Capablanca, Modern et bien d'autres, comme le Grand Chess ou le Gothic Chess. Il porte de nombreux autres noms : Centaure, Ministre, Écuyer, Janus, Archevêque, Princesse, Chancelier, etc. C'est le Faucon des échecs de Seirawan.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/cardinal.png'>
+</p>
+<h2>Commandant (amazone)</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/amazon.png"/>
+</p>
+<p class='piece-details'>Il combine les déplacements de la Dame et du Cavalier. Il était utilisé dans le Grand Chess turco-indien, sous le nom de Girafe.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/amazon.png'>
+</p>
+<h2>Phare</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/lighthouse.png"/>
+</p>
+<p class='piece-details'>Il combine l'Étoile et la Dame.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/leychess/lcb/lighthouse.png'>
+</p>
+<h2>Licorne</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/unicorn.png"/>
+</p>
+<p class='piece-details'>La Licorne combine le Chameau, le Lion et l'Antilope. De plus, elle peut effectuer un nombre illimité de sauts comme un Cavalier, toujours dans la même direction, à la manière du Knightrider.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/leychess/lcb/unicorn.png' >
+</p>
+<h2>Dragon</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/fairy/icons/w-dragon.png'>
+</p>
+<p class='piece-details'>Le Dragon combine la Dame et l'Aigle.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/leychess/lcb/dragon.png' >
+</p>
+<h2>Empereur</h2>
+<p>
+<img class='piece-icon' src='{GAME}/res/fairy/icons/w-emperor.png'>
+</p>
+<p class='piece-details'>L'Empereur combine le Dragon, la Licorne et le Phare. Cela signifie qu'il possède les mouvements de toutes les pièces. Il n'est possible d'obtenir un Empereur qu'en promouvant un Prince.</p>
+<div style='clear:both'></div>
+<h1>Promotion</h1>
+<h2>Pion</h2>
+<img alt='Restart your Browser' src='{GAME}/res/rules/graphs/leychess/lca/pawnpromo.png'>
+<h2>Prince</h2>
+<img alt='Restart your Browser' src='{GAME}/res/rules/graphs/leychess/lca/princepromo.png'>
+
