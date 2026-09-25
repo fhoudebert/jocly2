@@ -21,7 +21,8 @@
   },
   "scripts": {
     "build": "gulp build --prod",
-    "test": "node tests/run.js"
+    "test": "node tests/run.js",
+    "three": "node tools/three/build-three.js"
   },
   "devDependencies": {
     "@babel/core": "^7.23.6",
@@ -42,6 +43,7 @@
     "jsdom": "^24.0.0",
     "merge-stream": "^1.0.1",
     "minimist": "^1.2.8",
+    "three": "0.186.1",
     "through2": "^2.0.5",
     "vinyl": "^3.0.0",
     "vinyl-buffer": "^1.0.1",

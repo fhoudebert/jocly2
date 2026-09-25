@@ -264,13 +264,13 @@ JocGame.prototype.AttachElement = function (element, options) {
 		Promise.all([
 			window.BrowserScriptLoader.import("jquery.js"),
 			window.BrowserScriptLoader.import("three.js").then(function (threeExports) {
-				// third-party/three.js is the CommonJS build (three.cjs)
-				// as of r161 -- a plain `'use strict'; exports.X = X;`
-				// module, not a UMD bundle that attaches itself to
-				// `window.THREE` on its own (that stopped being an
-				// option once build/three.js/three.min.js were removed
-				// from the three.js package in r161). Do that attachment
-				// explicitly here instead.
+				// third-party/three.js is generated from three.module.js by
+				// tools/three/build-three.js (`npm run three`): an IIFE that
+				// copies the THREE namespace into the `exports` object
+				// BrowserScriptLoader hands in. The package's own
+				// build/three.cjs cannot be used any more - since r186 it is
+				// a require(esm) shim for Node only. Attach the namespace to
+				// `window.THREE` here, where every other script expects it.
 				if (typeof window.THREE === "undefined")
 					window.THREE = threeExports;
 				// ColorManagement.enabled defaults to true since r152

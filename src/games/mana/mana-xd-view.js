@@ -266,7 +266,7 @@
                                 function(font) {
                                 var gg=new THREE.TextGeometry(""+pos,{
                                     size: 0.2,
-                                    height: 0.05,
+                                    depth: 0.05,
                                     curveSegments: 6,
                                     font: font,
 

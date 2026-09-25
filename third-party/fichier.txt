@@ -8,6 +8,7 @@ Projector.js
 StereoEffect.js
 SubdivisionModifier.js
 three.js
+three-addons.js
 threex.domevent.js
 threex.domevent.object3d.js
 tween.fix.js

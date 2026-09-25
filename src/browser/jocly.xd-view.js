@@ -3544,7 +3544,7 @@ if (window.JoclyXdViewCleanup)
 		// migration path.
 		//renderer.shadowMapEnabled = true;
 		renderer.shadowMap.enabled = true;
-		renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+		renderer.shadowMap.type = THREE.PCFShadowMap; // PCFSoftShadowMap removed (r186), PCF is soft since r182
 		//renderer.physicallyBasedShading = true; // gives high level of shininess specular
 		//renderer.shadowMapCascade = true;
 

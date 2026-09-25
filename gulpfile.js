@@ -522,10 +522,9 @@ gulp.task("build-browser-xdview", function () {
 		srcLib + "JoclyOrbitControls.js",
 		lib + "DeviceOrientationControls.js",
 		lib + "Projector.js",
-		lib + "BufferGeometryUtils.js",
-		lib + "GLTFLoader.js",
-		lib + "FontLoader.js",
-		lib + "TextGeometry.js",
+		// GLTFLoader, BufferGeometryUtils, FontLoader, TextGeometry: bundled
+		// from three/examples/jsm by tools/three/build-three.js
+		lib + "three-addons.js",
 		lib + "threex.domevent.js",
 		lib + "threex.domevent.object3d.js",
 		lib + "StereoEffect.js",
