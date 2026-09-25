@@ -331,8 +331,20 @@
 
 			prelude: [{
 				panelWidth: 2, // two buttons per row 
-				panelBackground: "/res/rules/duodecimal/timurid-parameter-panel.png",
+				/*
+				 * The names are written under the buttons, like Kotaishi Shogi
+				 * does, instead of being painted on a background picture
+				 * (timurid-parameter-panel.png): the picture was drawn for
+				 * one layout of the buttons and could not follow a change of
+				 * piece set or of button size. Read in rows: the left column
+				 * holds the four arrangements, the right one their Wild
+				 * counterparts.
+				 */
 				setups: ["XAX","HQH","XYX","HLH","XSX","HUH","XDX","HCH"], 
+				labels: ["Herat", "Wild Herat",
+					"Babur", "Wild Babur",
+					"Mirza", "Wild Mirza",
+					"Samarkand", "Wild Samarkand"],
 				castle: [ undefined, undefined, undefined, undefined, undefined, undefined, undefined],
 				squares: { 1:[15,18,20], '-1':[99,102,104] },
 				//participants: promoChoice, // adapt the auto-generated promotion choice to the selected variant
