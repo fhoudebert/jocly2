@@ -9,8 +9,6 @@ const merge = require('merge-stream');
 const mergeSequential = require('./merge-sequential.js');
 const rename = require("gulp-rename");
 const concat = require('gulp-concat');
-const terser = require('gulp-terser');
-const babelCore = require('@babel/core');
 const esbuild = require('esbuild');
 const buffer = require("vinyl-buffer");
 const source = require('vinyl-source-stream');
@@ -34,7 +32,7 @@ function readSrc(globs, options) {
  * Source maps of the development build (not --prod), without gulp-sourcemaps:
  * unmaintained, it pulls css/source-map-resolve/decode-uri-component (and
  * postcss in its 3.x) that npm audit flags. mapInit() starts an identity map
- * the way sourcemaps.init() did; babel, concat and terser extend it as they
+ * the way sourcemaps.init() did; esbuild and concat extend it as they
  * go; gulp.dest() writes it next to the file - DEST_MAPS below - with the
  * same `//# sourceMappingURL=` comment.
  */
@@ -69,33 +67,59 @@ function mapName() {
 	});
 }
 /*
- * Babel 8 without gulp-babel (whose peer dependency stops at Babel 7): the
- * transform of each file, its map composed with the one the file already
- * carries (dev build) - what gulp-babel did through vinyl-sourcemaps-apply.
+ * esbuild in place of Babel (down-levelling) and terser (minification): one
+ * tool, already used here for the bundles, much faster, and no dependency
+ * tree of its own.
+ *
+ *   target  - syntax newer than ES2020 is rewritten. Browsers older than
+ *             that (Safari 14, Chrome 80, Firefox 80) are not worth more:
+ *             Babel 8's "defaults" had already left ES5 behind. A list of
+ *             browser versions is not used: esbuild then refuses code it
+ *             cannot lower for a known engine bug (destructured arrow
+ *             parameters, in jocly.core.js). null: leave the syntax alone.
+ *   minify  - --prod only. Top-level names of these plain scripts are NOT
+ *             renamed (esbuild never does for non-module code, as terser
+ *             did not by default): the games and the loader find each other
+ *             through them.
+ *
+ * In the development build the file's map is handed in as an inline
+ * sourceMappingURL, which esbuild composes with its own - what gulp-babel did
+ * through vinyl-sourcemaps-apply.
  */
-function babel(options) {
+const JS_TARGET = "es2020";
+function esbuildJS(options) {
 	return through.obj(function (file, enc, next) {
 		if (file.isNull())
 			return next(null, file);
 		var withMap = !!file.sourceMap;
-		babelCore.transformAsync(file.contents.toString(), Object.assign({
-			filename: file.path,
-			filenameRelative: file.relative,
-			sourceMaps: withMap,
-			inputSourceMap: withMap ? file.sourceMap : undefined,
-			babelrc: false,
-			configFile: false,
-		}, options)).then(function (result) {
+		var code = file.contents.toString();
+		if (withMap)
+			code += "\n//# sourceMappingURL=data:application/json;base64," +
+				Buffer.from(JSON.stringify(file.sourceMap)).toString("base64");
+		var name = file.relative.split(path.sep).join("/");
+		esbuild.transform(code, {
+			loader: "js",
+			sourcefile: name,
+			target: options.target || "esnext",
+			minify: !!options.minify,
+			charset: "utf8",
+			legalComments: "inline",
+			sourcemap: withMap ? "external" : false,
+			logLevel: "silent",
+		}).then(function (result) {
 			file.contents = Buffer.from(result.code);
 			if (withMap && result.map) {
-				var name = file.relative.split(path.sep).join("/");
-				result.map.file = name;
-				file.sourceMap = result.map;
+				var map = JSON.parse(result.map);
+				map.file = name;
+				file.sourceMap = map;
 			}
 			next(null, file);
 		}, function (err) {
-			err.message = file.relative + ": " + err.message;
-			next(err);
+			// the located messages, not just "Transform failed with 2 errors"
+			var detail = (err.errors || []).map(function (e) {
+				return (e.location ? name + ":" + e.location.line + ":" + e.location.column + ": " : name + ": ") + e.text;
+			}).join("\n");
+			next(new Error(detail || name + ": " + err.message));
 		});
 	});
 }
@@ -280,8 +304,7 @@ function HandleModuleGames(modelOnly) {
 					.pipe(prependVirtualFile('_', modulifyHeaders[which]))
 					.pipe(concat(fileName))
 					.pipe(gulpif(!argv.prod, mapName()))
-					.pipe(gulpif(argv.prod, terser()))
-					.on('error', function (err) { log(colors.red('[Error]'), err.toString()); })
+					.pipe(gulpif(argv.prod, esbuildJS({ minify: true })))
 					.pipe(through.obj(function (file, enc, next) {
 						push(file);
 						next();
@@ -327,20 +350,15 @@ gulp.task("build-node-games", function () {
 		.pipe(gulp.dest("dist/node/games", DEST_MAPS));
 });
 
-function ProcessJS(stream, concatName, skipBabel) {
+function ProcessJS(stream, concatName, skipTranspile) {
 	if (!argv.prod && concatName)
 		stream = stream.pipe(mapInit());
-	if (!skipBabel)
-		stream = stream.pipe(babel({
-			presets: ["@babel/preset-env"],
-			compact: !!argv.prod
+	// skipTranspile: third-party code copied as it is written, minified only
+	if (!skipTranspile || argv.prod)
+		stream = stream.pipe(esbuildJS({
+			target: skipTranspile ? null : JS_TARGET,
+			minify: !!argv.prod,
 		}));
-	if (argv.prod)
-		stream = stream.pipe(terser())
-			.on('error', function (err) {
-				log(colors.red('[Error]'), err.toString());
-				this.emit('end');
-			});
 	if (concatName)
 		stream = stream.pipe(concat(concatName));
 	if (!argv.prod && concatName)
@@ -423,10 +441,9 @@ gulp.task("build-browser-core", function () {
 	// a plain string - no need for vinyl-source-stream/vinyl-buffer's
 	// stream-to-vinyl dance, which only exists to adapt browserify's own
 	// streaming bundle() API. The result is still routed through the
-	// same ProcessJS (babel + terser) pipeline as before: esbuild is
-	// asked to bundle only, not to transpile or minify, so babel still
-	// does the ES2015+ -> target downleveling and terser still does the
-	// same minification as for every other bundle produced here.
+	// same ProcessJS pipeline as every other bundle produced here: this
+	// call bundles only, the target and the minification (esbuildJS) are
+	// applied there, identically for all.
 	var joclyBundleResult = esbuild.buildSync({
 		entryPoints: ["src/browser/jocly.js"],
 		bundle: true,
@@ -444,7 +461,7 @@ gulp.task("build-browser-core", function () {
 	var joclyBrowserStream = ProcessJS(joclyBundleStream);
 
 	// NOTE: joclyCoreStream and joclyExtraScriptsStream are intentionally
-	// combined into a single readSrc()/babel pipeline below, rather than
+	// combined into a single readSrc()/esbuild pipeline below, rather than
 	// kept as separate streams merged afterwards. Running many concurrent
 	// babel/browserify streams through merge-stream (5-6 in this task)
 	// causes it to occasionally lose files entirely (race in how it counts
