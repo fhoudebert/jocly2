@@ -78,7 +78,8 @@ exports.games = {
 					"fr": "Échiquier en anneau"
 				},
 				"rules": {
-					"en": "res/rules/circular/circular-rules.html"
+					"en": "res/rules/circular/circular-rules.html",
+                    "fr": "res/rules/circular/circular-rules_fr.html",
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -249,7 +250,8 @@ exports.games = {
 					"fr": "Échecs cylindriques"
 				},
 				"rules": {
-					"en": "res/rules/cylinder/cylinder-rules.html"
+					"en": "res/rules/cylinder/cylinder-rules.html",
+                    "fr": "res/rules/cylinder/cylinder-rules_fr.html",
 				},
 				"module": "chessbase",
 				"plazza": "true",
