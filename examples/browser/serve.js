@@ -17,12 +17,16 @@
  *
  * Nothing here is needed in production; the .htaccess next to this file does
  * the same job under Apache. This exists so the check can be run without one.
+ *
+ * It serves the WHOLE repository, so it is also the server of every other
+ * page that needs the same headers - tools/verif-ini/ini.html among them
+ * (see tools/verif-ini/README.md). One server, one port, one set of headers:
+ * keep it that way rather than growing a second copy next to another page.
  */
 
 const http = require("http");
 const fs = require("fs");
 const path = require("path");
-const url = require("url");
 
 const ROOT = path.join(__dirname, "..", "..");     // repository root
 const PORT = parseInt(process.argv[2] || "8422", 10);
@@ -45,7 +49,7 @@ const TYPES = {
 };
 
 http.createServer(function (request, response) {
-	const pathname = decodeURIComponent(url.parse(request.url).pathname);
+	const pathname = decodeURIComponent(new URL(request.url, "http://localhost").pathname);
 	// serve the whole repository, so the page can reach dist/ as well
 	let file = path.join(ROOT, path.normalize(pathname).replace(/^(\.\.[\/\\])+/, ""));
 	if(file.indexOf(ROOT) !== 0)
@@ -61,7 +65,13 @@ http.createServer(function (request, response) {
 	});
 }).listen(PORT, function () {
 	console.log("serving " + ROOT + " cross-origin isolated");
-	console.log("  http://localhost:" + PORT + "/examples/browser/fairy-check.html");
+	[
+		"/examples/browser/control.html",
+		"/examples/browser/fairy-check.html",
+		"/tools/verif-ini/ini.html",
+	].forEach(function (page) {
+		console.log("  http://localhost:" + PORT + page);
+	});
 });
 
 function respond(response, status, type, body) {

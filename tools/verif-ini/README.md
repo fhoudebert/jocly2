@@ -29,23 +29,26 @@ Le chemin du navigateur est un autre code (`src/browser/jocly.fairyworker.js`),
 et c'est là que vivait la réponse périmée. Il n'y a pas de suite automatique :
 le moteur wasm exige les en-têtes `Cross-Origin-Opener-Policy` et
 `Cross-Origin-Embedder-Policy`, donc un vrai serveur et un vrai navigateur. Les
-trois fichiers de ce répertoire le font, à la main :
+deux fichiers de ce répertoire le font, avec le serveur des exemples, à la main :
 
     npm install -D playwright          # une fois
     npx playwright install chromium    # une fois : télécharge le navigateur
     npx gulp build                     # le dist que la page charge
 
-    ln -s ../dist/browser tools/verif-ini/dist   # la page lit dist/jocly.js
-    node tools/verif-ini/serve.js &              # sert ce répertoire avec COOP/COEP
-    node tools/verif-ini/ini.mjs apres 0 10      # les variantes 0 à 10
-    node tools/verif-ini/ini.mjs apres 10 20     # etc., par tranches de dix
+    node examples/browser/serve.js &           # sert le dépôt avec COOP/COEP
+    node tools/verif-ini/ini.mjs apres 0 10    # les couples 0 à 10
+    node tools/verif-ini/ini.mjs apres 10 20   # etc., par tranches de dix
 
-`serve.js` sert le répertoire sur le port 8778 avec les deux en-têtes sans
-lesquels le moteur ne démarre pas. `ini.html` porte la fonction `run(jeu,
-arrangement, coups, ms)` qu'exécute la page. `ini.mjs` ouvre Chromium, parcourt
-une tranche de la liste et écrit le bilan dans
-`/tmp/ini-results-<étiquette>.json`. Par tranches, parce qu'une page qui ouvre
-quarante moteurs wasm d'affilée devient très lente.
+Le serveur est celui de `examples/browser/serve.js` : il sert tout le dépôt
+(port 8422 par défaut, `JOCLY_PORT` pour `ini.mjs` si on en change) avec les
+deux en-têtes sans lesquels le moteur ne démarre pas. `ini.html` charge donc
+directement `/dist/browser/jocly.js`, sans lien symbolique. La page porte la
+fonction `run(jeu, arrangement, coups, ms)` et la fonction `targets()`, qui
+dresse la liste des couples jeu/arrangement à `customVariantIni` — même
+énumération que `tests/fairy/native-engine.test.js`. `ini.mjs` ouvre Chromium,
+parcourt une tranche de cette liste et écrit le bilan dans
+`<tmp>/ini-results-<étiquette>.json`. Par tranches, parce qu'une page qui
+ouvre quarante moteurs wasm d'affilée devient très lente.
 
 Ce répertoire est un outil de passage : le binaire n'a pas vocation à rester
 dans le dépôt.

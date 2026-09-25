@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset="utf-8"><script src="dist/jocly.js"></script></head><body>
+<!doctype html><html><head><meta charset="utf-8"><script src="/dist/browser/jocly.js"></script></head><body>
 <script>
 window.run = async function(game, setup, plies, moveTime){
   const errors=[]; const oe=console.error; console.error=function(...a){ errors.push(String(a[0]).split('\n')[0]); oe.apply(console,a); };
@@ -21,6 +21,25 @@ window.run = async function(game, setup, plies, moveTime){
     return { played, fallback, stale: errors.filter(e=>/not among/.test(e)).length, sample: errors.slice(0,3) };
   } catch(e) { return { error: String(e && e.message || e) }; }
   finally { console.error = oe; }
+};
+// Les couples jeu/arrangement dont le niveau Expert repose sur un
+// customVariantIni - meme enumeration que tests/fairy/native-engine.test.js.
+window.targets = async function(){
+  const list = [];
+  for (const name of Object.keys(await Jocly.listGames())) {
+    const config = await Jocly.getGameConfig(name).catch(() => null);
+    if (!config) continue;
+    for (const level of config.model.levels || []) {
+      if (level.ai !== 'fairy-stockfish') continue;
+      if (Array.isArray(level.variants)) {
+        for (const v of level.variants)
+          if (v.customVariantIni || level.customVariantIni)
+            list.push([name, v.setup == null ? '-' : v.setup, v.variant]);
+      } else if (level.customVariantIni)
+        list.push([name, '-', level.variant]);
+    }
+  }
+  return list;
 };
 window.ready = true;
 </script></body></html>
