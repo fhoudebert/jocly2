@@ -385,7 +385,7 @@
 	}
 
 	OriginalToString = Model.Move.ToString;
-	Model.Move.ToString = function() {
+	Model.Move.ToString = function(format) {
 		var v = geometry.handHeight, w = geometry.width;
 		var f = geometry.C(this.f);
 		var result = 'fail';
@@ -413,6 +413,19 @@
 			 */
 			if(this.pr!==undefined && promotedTypes[this.pr])
 				result += '+';
+			/*
+			 * For Fairy-Stockfish ("engine" formats) a drop names the piece
+			 * that LANDS, the face included: "+L@b4" for a lance dropped on
+			 * its promoted face, "N@c4" for the gold-faced piece put down as
+			 * a knight. The trailing '+' above says the same thing for
+			 * people, but not for every face - the two drops of the Kyoto
+			 * "+N" (gold/knight) both printed "+N@c4" - and the engine never
+			 * found its move among them.
+			 */
+			if(format=="engine" || format=="engine960") {
+				var landing = (this.pr!==undefined && dropNames[this.pr]!==undefined) ? dropNames[this.pr] : name;
+				result = landing + '@' + String.fromCharCode(95+f) + (geometry.R(this.t)+1-v);
+			}
 		} else {
 			var move = { f:this.f - 2 - v*w, t:this.t - 2 - v*w, c:this.c, a:this.a }; // offset coords
 			result = OriginalToString.apply(move, arguments);

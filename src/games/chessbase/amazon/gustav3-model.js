@@ -152,4 +152,52 @@
 		};
 	}
 			
+
+	/*
+	 * Fairy-Stockfish's gustav3 marks the a- and j-file squares of ranks 2 to
+	 * 7 as walls ("*" in its FEN): only the corners carry the amazons. Jocly
+	 * keeps them empty and forbids them through `confine` above, and its
+	 * generic FEN writes them as ordinary empty squares - so the engine saw
+	 * two open files and played moves Jocly does not have: the amazon down
+	 * the j-file ("j8j1"), a bishop into a wall ("g8a2"). Same FEN with the
+	 * walls put back.
+	 */
+	Model.Board.ExportFairyFen = function(aGame) {
+		var fields = this.ExportBoardState(aGame).split(" ");
+		var rows = fields[0].split("/");
+		for(var i = 0; i < rows.length; i++) {
+			var rank = geometry.height - 1 - i; // FEN lists rank 8 first
+			if(rank < 1 || rank > geometry.height - 2)
+				continue;
+			var cells = [];
+			rows[i].replace(/(\d+)|([^\d])/g, function(all, digits, piece) {
+				if(digits)
+					for(var n = parseInt(digits); n > 0; n--)
+						cells.push("");
+				else
+					cells.push(piece);
+			});
+			[0, geometry.width - 1].forEach(function(col) {
+				if(cells[col] === "")
+					cells[col] = "*";
+			});
+			var out = "", empty = 0;
+			cells.forEach(function(cell) {
+				if(cell === "")
+					empty++;
+				else {
+					if(empty)
+						out += empty;
+					empty = 0;
+					out += cell;
+				}
+			});
+			if(empty)
+				out += empty;
+			rows[i] = out;
+		}
+		fields[0] = rows.join("/");
+		return fields.join(" ");
+	}
+
 })();

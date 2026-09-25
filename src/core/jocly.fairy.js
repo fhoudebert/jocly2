@@ -627,7 +627,16 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		 * enough that refusing to move would be worse - but it is no longer
 		 * silent.
 		 */
+		/*
+		 * Kyoto Shogi turns a piece over at every move, and Fairy-Stockfish
+		 * says so both ways: "+" when it goes to its promoted face, "-" when
+		 * it comes back (e5d4-). Jocly writes the first and leaves the second
+		 * implicit, so a trailing "-" is dropped before matching - otherwise
+		 * every such move went through the approximate match below.
+		 */
 		var wanted = uciMove.toLowerCase();
+		if (wanted.charAt(wanted.length - 1) === "-")
+			wanted = wanted.slice(0, -1);
 		var lowered = engineStrings.map(function (str) { return str.toLowerCase(); });
 		var exacts = [];
 		lowered.forEach(function (str, index) { if (str === wanted) exacts.push(index); });
@@ -821,6 +830,21 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		 * generic export can guess. When the board provides ExportFairyFen(),
 		 * it wins over both generic paths.
 		 */
+		/*
+		 * A single legal move needs no engine. This is not only a shortcut:
+		 * it is also the case of a game's opening setup move - chess960's
+		 * random arrangement, written "--" - where the engine, handed the
+		 * plain start position, would answer with a chess move ("e2e4")
+		 * matching nothing.
+		 */
+		aGame.mBoard.mMoves = [];
+		aGame.mBoard.GenerateMoveObjects(aGame);
+		if (aGame.mBoard.mMoves && aGame.mBoard.mMoves.length === 1) {
+			aGame.mBestMoves = [aGame.mBoard.mMoves[0]];
+			JocUtil.schedule(aGame, "Done", {});
+			return;
+		}
+
 		var fen = (typeof aGame.mBoard.ExportFairyFen == "function")
 			? aGame.mBoard.ExportFairyFen(aGame, level)
 			: level.pocketGeometry ? BuildShogiStyleFen(aGame, level.dropPromoted) : aGame.mBoard.ExportBoardState(aGame);
