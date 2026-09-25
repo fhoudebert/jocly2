@@ -10,7 +10,7 @@ const mergeSequential = require('./merge-sequential.js');
 const rename = require("gulp-rename");
 const concat = require('gulp-concat');
 const terser = require('gulp-terser');
-const babel = require('gulp-babel');
+const babelCore = require('@babel/core');
 const esbuild = require('esbuild');
 const buffer = require("vinyl-buffer");
 const source = require('vinyl-source-stream');
@@ -66,6 +66,37 @@ function mapName() {
 				file.contents = Buffer.concat([file.contents, Buffer.from("\n")]);
 		}
 		next(null, file);
+	});
+}
+/*
+ * Babel 8 without gulp-babel (whose peer dependency stops at Babel 7): the
+ * transform of each file, its map composed with the one the file already
+ * carries (dev build) - what gulp-babel did through vinyl-sourcemaps-apply.
+ */
+function babel(options) {
+	return through.obj(function (file, enc, next) {
+		if (file.isNull())
+			return next(null, file);
+		var withMap = !!file.sourceMap;
+		babelCore.transformAsync(file.contents.toString(), Object.assign({
+			filename: file.path,
+			filenameRelative: file.relative,
+			sourceMaps: withMap,
+			inputSourceMap: withMap ? file.sourceMap : undefined,
+			babelrc: false,
+			configFile: false,
+		}, options)).then(function (result) {
+			file.contents = Buffer.from(result.code);
+			if (withMap && result.map) {
+				var name = file.relative.split(path.sep).join("/");
+				result.map.file = name;
+				file.sourceMap = result.map;
+			}
+			next(null, file);
+		}, function (err) {
+			err.message = file.relative + ": " + err.message;
+			next(err);
+		});
 	});
 }
 const DEST_MAPS = { sourcemaps: argv.prod ? false : "." };
@@ -568,20 +599,11 @@ gulp.task("build-browser-xdview", function () {
 		lib + "tween.js",
 		lib + "tween.fix.js",
 		srcLib + "JoclyOrbitControls.js",
-		lib + "DeviceOrientationControls.js",
-		lib + "Projector.js",
 		// GLTFLoader, BufferGeometryUtils, FontLoader, TextGeometry: bundled
 		// from three/examples/jsm by tools/three/build-three.js
 		lib + "three-addons.js",
 		lib + "threex.domevent.js",
 		lib + "threex.domevent.object3d.js",
-		lib + "StereoEffect.js",
-		lib + "AnaglyphEffect.js",
-		srcLib + "VRGamepad.js",
-		lib + "VRControls.js",
-		lib + "VREffect.js",
-		lib + "OBJLoader.js",
-		lib + "MTLLoader.js",
 		lib + "kalman.js",
 		src + "browser/jocly.ar.js",
 		src + "browser/jocly.state-machine.js",

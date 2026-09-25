@@ -72,7 +72,6 @@ THREEx.DomEvent	= function(camera)
 {
 	this._camera	= camera || null;
 	this._domElement= null;
-	this._projector	= new THREE.Projector();
 	this._selected	= null;
 	this._boundObjs	= {};
 	this.setBoundContext('_');

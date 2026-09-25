@@ -844,8 +844,7 @@
 					"mSounds": "sounds",
 					"mShowMoves": "showMoves",
 					"mShowLastMove": "showLastMove",
-					"mAutoComplete": "autoComplete",
-					"mAnaglyph": "anaglyph"
+					"mAutoComplete": "autoComplete"
 				}
 				for (var o in optDefs)
 					if (typeof options[optDefs[o]] != "undefined")
@@ -872,8 +871,7 @@
 			var promise = new Promise(function (resolve, reject) {
 				var options = {
 					skin: self.game.mSkin,
-					sounds: self.game.mSounds,
-					anaglyph: self.game.mAnaglyph
+					sounds: self.game.mSounds
 				}
 				if (self.game.mViewOptions.useNotation)
 					options.notation = !!self.game.mNotation;

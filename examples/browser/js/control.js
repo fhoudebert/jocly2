@@ -496,13 +496,6 @@ function Start() {
                                     window.localStorage.setItem(gameName+".options",JSON.stringify(opts));
                             });
 
-                            $("#anaglyph-input").on("change",function() {
-                                if($(this).is(":checked"))
-                                    match.viewControl("enterAnaglyph");
-                                else
-                                    match.viewControl("exitAnaglyph");
-                            });
-
                             // dropdown to change the players (user/machine)
                             $("#mode").on("change",()=>{
                                 if(window.localStorage)

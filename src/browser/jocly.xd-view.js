@@ -2742,7 +2742,6 @@ if (window.JoclyXdViewCleanup)
 				threeCtx.camera.updateProjectionMatrix();
 			} else {
 				threeCtx.renderer.setSize(this.mGeometry.width, this.mGeometry.height);
-				threeCtx.anaglyphEffect.setSize(this.mGeometry.width, this.mGeometry.height);
 				threeCtx.camera.aspect = this.mGeometry.width / this.mGeometry.height;
 				threeCtx.camera.updateProjectionMatrix();
 			}
@@ -2979,24 +2978,11 @@ if (window.JoclyXdViewCleanup)
 		options = options || {};
 		var promise = new Promise(function (resolve, reject) {
 			switch (cmd) {
+				// The anaglyph (red/cyan) view was removed with the VR modes:
+				// the commands stay accepted, and do nothing, so that a client
+				// still sending them does not get a rejected promise.
 				case "enterAnaglyph":
-					if (threeCtx) {
-						threeCtx.anaglyph = true;
-						var factor = 2.5;
-						threeCtx.scene.scale.set(1 / factor, 1 / factor, 1 / factor);
-						threeCtx.camera.scale.set(factor, factor, factor);
-						threeCtx.animControl.trigger();
-					};
-					resolve();
-					break;
-
 				case "exitAnaglyph":
-					if (threeCtx) {
-						threeCtx.anaglyph = false;
-						threeCtx.scene.scale.set(1, 1, 1);
-						threeCtx.camera.scale.set(1, 1, 1);
-						threeCtx.animControl.trigger();
-					};
 					resolve();
 					break;
 
@@ -3532,8 +3518,6 @@ if (window.JoclyXdViewCleanup)
 		renderer.setSize(area.width(), area.height());
 		//renderer.setClearColor( scene.fog.color, 1 );
 
-		var projector = new THREE.Projector();
-
 		area.append($(renderer.domElement));
 
 		renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -3547,42 +3531,6 @@ if (window.JoclyXdViewCleanup)
 		renderer.shadowMap.type = THREE.PCFShadowMap; // PCFSoftShadowMap removed (r186), PCF is soft since r182
 		//renderer.physicallyBasedShading = true; // gives high level of shininess specular
 		//renderer.shadowMapCascade = true;
-
-		var stereo = false;
-		var stereoEffect = new THREE.StereoEffect(renderer);
-		stereoEffect.setSize(area.width(), area.height());
-
-		var anaglyphEffect = new THREE.AnaglyphEffect(renderer);
-		anaglyphEffect.setSize(area.width(), area.height());
-
-		var gamepads = new VRGamepads({
-			camera: camera,
-			scene: scene,
-			resBase: aGame.config.baseURL + "res/vr/",
-			drag: function (position, direction, pointerObject, pointerRescale) {
-				var intersectPoint = null;
-				var pointedObject = null;
-				VRGetIntersect(position, direction, function (object, point) {
-					intersectPoint = point;
-					pointedObject = object;
-				});
-				return intersectPoint ? {
-					point: intersectPoint,
-					object: pointedObject
-				} : null;
-			},
-			click: function (position, direction) {
-				VRGetIntersect(position, direction, function (object, point) {
-					if (object)
-						THREE.Object3D._threexDomEvent._notify("mouseup", object, null, point);
-				});
-			},
-			move: function (step) {
-				body.position.add(step);
-			}
-		});
-
-		var vrRay = new THREE.Raycaster();
 
 		var camAnim = !!aGame.mViewOptions.camAnim;
 
@@ -3608,13 +3556,6 @@ if (window.JoclyXdViewCleanup)
 				}
 			},
 			stop: function (delay) {
-				if (threeCtx && vr.vrEffect && vr.vrEffect.isPresenting) {
-					if (this.animateTimer != null) {
-						clearTimeout(this.animateTimer);
-						this.animateTimer = null;
-					}
-					return;
-				}
 				if (delay === undefined)
 					delay = 200;
 				var now = Date.now();
@@ -3676,44 +3617,13 @@ if (window.JoclyXdViewCleanup)
 					TWEEN.update();
 					if (showStats)
 						t0 = Date.now();
-					if (vr.vrEffect && vr.vrEffect.isPresenting) {
-						gamepads.update();
-						var harborpad = gamepads.getHarborPad();
-						if (harborpad) {
-							harborpad.visible = false;
-							harborpad.getWorldPosition(ctx.harbor.position);
-							var scale = (harborpad.getAxes()[1] + 1.1) * .03;
-							ctx.harbor.scale.set(scale, scale, scale);
-							harborpad.getWorldQuaternion(ctx.harbor.quaternion);
-						} else {
-							ctx.harbor.position.set(0, 0, 0);
-							ctx.harbor.scale.set(1, 1, 1);
-							ctx.harbor.quaternion.copy(ctx.defaultHarborQuaternion);
-						}
-						vr.vrControls.update();
-						vr.vrEffect.render(scene, camera);
-					} else {
-						if (!arStream) {
-							ctx.harbor.position.set(0, 0, 0);
-							ctx.harbor.scale.set(1, 1, 1);
-							ctx.harbor.quaternion.copy(ctx.defaultHarborQuaternion);
-						}
-						/*
-                        if(gamepads)
-                            gamepads.clearAll();
-						*/
-						if (!arStream) {
-							cameraControls.update();
-							cameraOrientationControls.update();
-						}
-						if (stereo) {
-							gamepads.update();
-							stereoEffect.render(scene, camera);
-						} else if (ctx.anaglyph || aGame.mAnaglyph)
-							anaglyphEffect.render(scene, camera);
-						else
-							renderer.render(scene, camera);
+					if (!arStream) {
+						ctx.harbor.position.set(0, 0, 0);
+						ctx.harbor.scale.set(1, 1, 1);
+						ctx.harbor.quaternion.copy(ctx.defaultHarborQuaternion);
+						cameraControls.update();
 					}
+					renderer.render(scene, camera);
 					if (showStats) {
 						t1 = Date.now();
 						renderSum += t1 - t0;
@@ -3741,26 +3651,6 @@ if (window.JoclyXdViewCleanup)
 		});
 		cameraControls.camTarget.set(0, 0.8, 0);
 
-		var canOrientation = false;
-		// Le mode VR/cardboard n'a de sens que sur un device tactile ; on évite
-		// d'enregistrer le listener 'deviceorientation' sur desktop, ce qui
-		// supprime le warning "OrientationEventWarning" de Firefox (API
-		// dépréciée/désactivée côté navigateur) et l'overhead inutile pour
-		// tous les visiteurs qui ne s'en servent jamais.
-		var supportsOrientation = (typeof window.DeviceOrientationEvent !== "undefined")
-			&& window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
-		var cameraOrientationControls = supportsOrientation
-			? new THREE.DeviceOrientationControls(body, function (controls) {
-				if (typeof vr != "undefined")
-					animControl.trigger();
-				if (!canOrientation && controls.enabled) {
-					canOrientation = true;
-					area.find(".vr-button").show();
-				}
-			})
-			: { update: function () {}, connect: function () {}, disconnect: function () {} };
-
-
 		if (typeof cameraControls.addEventListener == "function")
 			cameraControls.addEventListener('change', function () {
 				animControl.trigger();
@@ -3781,119 +3671,9 @@ if (window.JoclyXdViewCleanup)
 			body: body,
 			harbor: harbor,
 			defaultHarborQuaternion: harbor.quaternion.clone(),
-			anaglyphEffect: anaglyphEffect,
-			anaglyph: false
 		};
 
-		function VRGetIntersect(position, direction, callback) {
-			var threexDomEvent = THREE.Object3D._threexDomEvent;
-			vrRay.set(position, direction);
-			try {
-				var intersects = vrRay.intersectObjects(threexDomEvent._boundObjs[threexDomEvent._boundContext]);
-			} catch (e) {
-				return callback(null, null);
-			}
-			if (intersects.length == 0)
-				return callback(null, null);
-			var intersect = intersects[0];
-			var object3d = threexDomEvent.getRootObject(intersect.object);
-			var objectCtx = threexDomEvent._objectCtxGet(object3d);
-			if (!objectCtx)
-				callback(null, null);
-			else
-				callback(object3d, intersect.point);
-		}
-
-		function VRSetup(ctx) {
-
-			function LookAtHarbor() {
-				vr.vrControls.resetPose();
-			}
-
-			function MakeButton() {
-				ctx.vrButton = document.createElement("img");
-				ctx.vrButton.className = "vr-button";
-				ctx.vrButton.setAttribute("data-vr-enter-src", aGame.config.baseURL + "res/vr/vr-enter.png");
-				ctx.vrButton.setAttribute("data-vr-exit-src", aGame.config.baseURL + "res/vr/vr-exit.png");
-				ctx.vrButton.setAttribute("src", ctx.vrButton.getAttribute("data-vr-enter-src"));
-				Object.assign(ctx.vrButton.style, {
-					position: "absolute",
-					bottom: "8px",
-					right: "8px",
-					cursor: "pointer",
-					"z-index": 2147483647
-				});
-				area[0].appendChild(ctx.vrButton);
-			}
-
-			function CardboardVR() {
-				MakeButton();
-				ctx.vrButton.style.display = "none";
-				ctx.vrButton.addEventListener("click", function () {
-					if (stereo) {
-						stereo = false;
-						ctx.vrButton.setAttribute("src", ctx.vrButton.getAttribute("data-vr-enter-src"));
-						var size = renderer.getSize();
-						renderer.setViewport(0, 0, size.width, size.height);
-					} else {
-						stereo = true;
-						ctx.vrButton.setAttribute("src", ctx.vrButton.getAttribute("data-vr-exit-src"));
-					}
-					animControl.trigger();
-				});
-			}
-
-			function PureVR() {
-				MakeButton();
-				var vrControls = new THREE.VRControls(ctx.camera);
-				vr.vrControls = vrControls;
-				if (window.lastVrEffect) {
-					if (window.lastVrEffect.isPresenting)
-						window.lastVrEffect.exitPresent();
-				}
-				var vrEffect = new THREE.VREffect(ctx.renderer);
-				vr.vrEffect = vrEffect;
-				window.lastVrEffect = vrEffect;
-
-				window.addEventListener('vrdisplaypresentchange', function (event) {
-					ctx.animControl.trigger()
-				}, false);
-
-				ctx.vrButton.addEventListener("click", function () {
-					if (vrEffect.isPresenting) {
-						vrEffect.exitPresent();
-						ctx.vrButton.setAttribute("src", ctx.vrButton.getAttribute("data-vr-enter-src"));
-					} else {
-						vrEffect.requestPresent();
-						ctx.vrButton.setAttribute("src", ctx.vrButton.getAttribute("data-vr-exit-src"));
-						LookAtHarbor();
-					}
-					animControl.trigger();
-				});
-
-			}
-
-			vr = {};
-
-			if (typeof navigator.getVRDisplays != "undefined") {
-				navigator.getVRDisplays()
-					.then(function (displays) {
-						if (displays.length == 0)
-							CardboardVR();
-						else
-							PureVR();
-					}).catch(function () {
-						CardboardVR();
-					});
-			} else
-				CardboardVR();
-
-			return vr;
-		}
-
-		var vr = VRSetup(ctx);
-
-		return $.extend(ctx, vr);
+		return ctx;
 	}
 
 
