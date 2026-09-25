@@ -343,9 +343,10 @@ t.check("et xdInit cree le gadget",
 		games.filter((g) => !!g.config.view.useShowMoves !== !!g.config.view.useShowLastMove)
 			.map((g) => g.name), []);
 
-	// Le client de reference sait la montrer, dans les deux langues : une page
+	// Le client de reference sait la montrer, dans toutes ses langues : une page
 	// traduite qui oublie une option la rend inaccessible a ses lecteurs.
-	["control.html", "control_fr.html"].forEach((page) => {
+	// control_fr.html only redirects to control.html?lang=fr now
+	["control.html"].forEach((page) => {
 		const html = fs.readFileSync(path.join(ROOT, "examples", "browser", page), "utf8");
 		t.check(page + " porte la case a cocher",
 			/id="options-lastmove-input"/.test(html), true);
