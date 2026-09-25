@@ -159,7 +159,7 @@
 			frameShape.holes.push(holeShape);
 
 			var extrudeSettings = {
-				amount: .4 , // main extrusion thickness
+				depth: .4 , // main extrusion thickness ("amount" before three r98: ignored since, the frame came out 1 thick)
 				steps: 1 , // nb of main extrusion steps
 				bevelSize: bevelSize, 
 				bevelThickness:.04,
@@ -180,7 +180,7 @@
 				//ambient: '#000000',
 			});
 			var frameObj = new THREE.Mesh( frameGeo , blackMat);
-			frameObj.position.y=-extrudeSettings.amount-.01;
+			frameObj.position.y=-extrudeSettings.depth-.01;
 			mesh.add(frameObj);
 			var bottom = new THREE.Mesh(new THREE.BoxGeometry(cx,cy,0.1),blackMat);
 			bottom.rotation.x=Math.PI/2;
