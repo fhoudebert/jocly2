@@ -187,7 +187,8 @@ exports.games = {
 					"fr": "Échecs en 14x10 (1747)"
 				},
 				"rules": {
-					"en": "res/rules/dukerutland/dukerutland-rules.html"
+					"en": "res/rules/dukerutland/dukerutland-rules.html",
+                    "fr": "res/rules/dukerutland/dukerutland-rules_fr.html"
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -199,9 +200,6 @@ exports.games = {
 				"gameOptions": config_model_gameOptions,
 				"obsolete": false,
 				"js": modelScripts_42,
-				"description": {
-					"en": "res/rules/dukerutland/dukerutland-description.html"
-				},
 				"levels": config_model_levels_5
 			},
 			"view": {

@@ -1,4 +1,16 @@
+/*
+ * Soixante parties au hasard : ce que le moteur ne doit JAMAIS faire.
+ *
+ *   node tests/cubic/play2.js
+ *
+ * La suite comptait deja les deux fautes graves -- une exception, un roi
+ * capture -- mais les imprimait dans un JSON et sortait a 0 : « kingCapture:3 »
+ * passait pour une statistique. Elles echouent desormais. Les compteurs
+ * restent affiches : ce sont eux qui disent si la campagne a vraiment
+ * exerce les mecanismes (promotions, roques, prises).
+ */
 const H=require("./harness.js");
+const t=require("../fairy/harness.js").runner();
 const sb=H.loadModel(["base-model.js","cubic-geo-model.js","3d/cubic-model.js"]);
 const game=H.newGame(sb); const geo=game.cbVar.geometry, DRAW=sb.JocGame.DRAW, nm=p=>geo.PosName(p);
 function rng(s){return()=>{s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff;};}
@@ -21,3 +33,13 @@ for(let gi=0;gi<60;gi++){ const board=H.newBoard(sb,game); const rand=rng(999+gi
 }
 console.log(JSON.stringify(S));
 console.log("avg plies:",(S.plies/S.games).toFixed(0),"| decisive:",S.whiteMate+S.blackMate,"| draws:",S.draw);
+t.check("aucune exception en soixante parties", S.crash, 0);
+// Un roi pris est une faute de regle, pas une statistique : la partie aurait
+// du s'arreter avant.
+t.check("aucun roi capture", S.kingCapture, 0);
+// Et la campagne doit avoir exerce ce qu'elle pretend couvrir, sinon les deux
+// verifications ci-dessus ne prouvent rien.
+t.ok("les prises ont ete jouees", S.captures > 100);
+t.ok("les promotions aussi", S.promos > 0);
+t.ok("et les roques", S.castles > 0);
+t.done("Cubic : campagne au hasard");

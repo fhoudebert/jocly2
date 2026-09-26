@@ -74,7 +74,8 @@ exports.games = {
 					"fr": "XVIIIe siècle, Russie"
 				},
 				"rules": {
-					"en": "res/rules/amazon/amazon-rules.html"
+					"en": "res/rules/amazon/amazon-rules.html",
+                    "fr": "res/rules/amazon/amazon-rules_fr.html"
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -87,9 +88,7 @@ exports.games = {
 				"obsolete": false,
 				"js": modelScripts_41,
 				"levels": config_model_levels_5_amazon_expert,
-				"description": {
-					"en": "res/rules/amazon/amazon-description.html"
-				}
+
 			},
 			"view": {
 				"title-en": "Chessbase view",
@@ -162,7 +161,8 @@ exports.games = {
 					"fr": "Gustav Johan Billberg, 1839"
 				},
 				"rules": {
-					"en": "res/rules/amazon/gustav3-rules.html"
+					"en": "res/rules/amazon/gustav3-rules.html",
+                    "fr": "res/rules/amazon/gustav3-rules_fr.html"
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -174,9 +174,6 @@ exports.games = {
 				"gameOptions": config_model_gameOptions,
 				"obsolete": false,
 				"js": modelScripts_43,
-				"description": {
-					"en": "res/rules/amazon/gustav3-description.html"
-				},
 				"levels": config_model_levels_5_gustav3_expert
 			},
 			"view": {
@@ -253,7 +250,8 @@ exports.games = {
 					"fr": "Ralph Betza et Philip Cohen, 1978-1979"
 				},
 				"rules": {
-					"en": "res/rules/amazon/tutti-frutti-rules.html"
+					"en": "res/rules/amazon/tutti-frutti-rules.html",
+                    "fr": "res/rules/amazon/tutti-frutti-rules_fr.html"
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -265,9 +263,6 @@ exports.games = {
 				"gameOptions": config_model_gameOptions,
 				"obsolete": false,
 				"js": modelScripts_48,
-				"description": {
-					"en": "res/rules/amazon/tutti-frutti-description.html"
-				},
 				"levels": config_model_levels_5_tuttifrutti_expert
 			},
 			"view": {

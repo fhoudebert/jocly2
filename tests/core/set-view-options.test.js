@@ -107,8 +107,11 @@ setViewOptions.call(p, { skin: "skin3d" }).then(() => {
 		}).then(() => {
 			t.check("the options still reach the game",
 				[r.game.mSkin, r.game.mNotation, r.game.mSounds,
-					r.game.mShowMoves, r.game.mAutoComplete, r.game.mAnaglyph],
-				["skin2d", true, false, true, true, false]);
+					r.game.mShowMoves, r.game.mAutoComplete],
+				["skin2d", true, false, true, true]);
+			// the anaglyph view is gone: a client still sending the option
+			// is not refused, the option is simply not written
+			t.check("anaglyph is ignored", r.game.mAnaglyph, undefined);
 
 			const s = proxy(false);
 			return setViewOptions.call(s, {}).then(() => {

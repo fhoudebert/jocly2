@@ -14,6 +14,68 @@
 
 	Model.Game.minimumBridge = 0; // for anti-trading rule of double capturing piece
 
+	/*
+	 * Le navire et le serpent, ici plutot que recopies dans chaque jeu.
+	 *
+	 * Ces deux graphes etaient definis a l'identique dans cinq modeles --
+	 * bigorra, terachess, gigachess, fantasticXIII et timurid -- chacun
+	 * inatteignable depuis les autres. Un sixieme jeu qui en aurait besoin
+	 * n'avait d'autre choix que d'en faire une sixieme copie.
+	 *
+	 * La version retenue est celle du TIMURID, la seule corrigee : les quatre
+	 * autres bornaient la glissade avec des variables locales a leur fichier,
+	 * ce qui ne vaut que sur un plateau CARRE. Les quatre sont carres, donc
+	 * rien ne change pour eux ; le prochain plateau rectangulaire aurait
+	 * herite du defaut.
+	 */
+	Model.Game.cbShipGraph = function(geometry,confine){
+		var $this=this;
+
+		var flags = $this.cbConstants.FLAG_MOVE | $this.cbConstants.FLAG_CAPTURE;
+		var graph={};
+		for(var pos=0;pos<geometry.boardSize;pos++) {
+			graph[pos]=[];
+			[[-1,-1],[-1,1],[1,-1],[1,1]].forEach(function(delta) { // loop on all 4 diagonals
+				var pos1=geometry.Graph(pos,delta);
+				if(pos1!=null && confine && (!(pos in confine) || !(pos1 in confine))) pos1=null;
+				if(pos1!=null) {
+					for(var dir=1;dir<2;dir++) { // dir=0 for row, dir=1 for column
+						// The ride runs along a file, so its length is bounded
+						// by the number of ranks. On the old square board the
+						// two bounds coincided and either constant would do.
+						var nbMax = (dir==0) ? geometry.width : geometry.height;
+						var away=[] // hold the sliding line
+						for(var n=1;n<nbMax;n++) {
+							var delta2=[];
+							delta2[dir]=delta[dir]*n;
+							delta2[1-dir]=0; // delta2 is now only about moving orthogonally, away from the piece
+							var pos2=geometry.Graph(pos1,delta2);
+							// Confined boards (Seirawan++'s waiting columns): the
+							// ride ends where the playing area does.
+							if(pos2!=null && confine && !(pos2 in confine)) break;
+							if(pos2!=null) {
+								if(n==1) // possible to slide at least 1 cell, make sure the diagonal cell is not occupied, but cannot move to this cell
+									away.push(pos1 | $this.cbConstants.FLAG_STOP);
+								away.push(pos2 | flags);
+							}
+						}
+						if(away.length>0)
+							graph[pos].push($this.cbTypedArray(away));
+					}
+				}
+			});
+		}
+		return $this.cbMergeGraphs(geometry,
+		   $this.cbShortRangeGraph(geometry,[[-1,-1],[-1,1],[1,-1],[1,1]],confine),
+		   graph
+		);
+	}
+
+	Model.Game.cbSnakeGraph = function(geometry,confine){
+		var $this=this;
+        return $this.cbSkiGraph(geometry,[[0,1],[0,-1]],1,undefined,undefined,confine);
+	}
+
 	Model.Game.cbSkiGraph = function(geometry, stepSet, bend, flags1, flags2, confine, range) { // two-stage slider move, possibly bent
 
 		var graph = {};
@@ -54,9 +116,9 @@
 		if(!flags2) flags2 = c.FLAG_MOVE | c.FLAG_CAPTURE;
 		if(!range) range=Infinity;
 		for(pos=0; pos<geometry.boardSize; pos++) {
+			graph[pos] = []; // every square gets an entry, even outside `confine`
 			if(confine && !(pos in confine))
 				continue;
-			graph[pos] = [];
 			stepSet.forEach(function(vec){
 				SkiSlide(pos, vec, flags2, bend, flags1, range);
 				if(bend&3 && bend>0) SkiSlide(pos, vec, flags2, -bend, flags1, range, true); // for bent: both forks
@@ -141,11 +203,11 @@
 	}
 	
 	Model.Game.cbGriffonGraph = function(geometry,confine) {
-		return this.cbSkiGraph(geometry,[[1,1],[1,-1],[-1,1],[-1,-1]],1);
+		return this.cbSkiGraph(geometry,[[1,1],[1,-1],[-1,1],[-1,-1]],1,undefined,undefined,confine);
 	}
 
 	Model.Game.cbRhinoGraph = function(geometry,confine) {
-		return this.cbSkiGraph(geometry,[[1,0],[0,1],[-1,0],[0,-1]],1);
+		return this.cbSkiGraph(geometry,[[1,0],[0,1],[-1,0],[0,-1]],1,undefined,undefined,confine);
 	}
 
 	// Osprey: leaps two squares orthogonally, jumping whatever stands in

@@ -559,6 +559,20 @@
 			var promise = new Promise(function (resolve, reject) {
 				if (self.area)
 					self.game.GameDestroyView();
+				/*
+				 * ET LA PARTIE ELLE-MEME, pas seulement sa vue.
+				 *
+				 * GameDestroyGame() rend le worker d'IA et le moteur
+				 * Fairy-Stockfish (voir JoclyFairy.releaseEngine, tenu dans
+				 * une WeakMap : rien ne le ramasse tout seul). Sans cet
+				 * appel, destroy() ne liberait rien du tout en mode direct --
+				 * ce que fait Node, et ce que fait le navigateur dans
+				 * l'iframe. Mesure avec le moteur NATIF, une partie par
+				 * variante : un processus fairy-stockfish reste vivant apres
+				 * chaque destroy(), et trente-huit parties de suite ont fini
+				 * par epuiser la memoire de la machine.
+				 */
+				self.game.GameDestroyGame();
 				resolve();
 			});
 			return promise;
@@ -830,8 +844,7 @@
 					"mSounds": "sounds",
 					"mShowMoves": "showMoves",
 					"mShowLastMove": "showLastMove",
-					"mAutoComplete": "autoComplete",
-					"mAnaglyph": "anaglyph"
+					"mAutoComplete": "autoComplete"
 				}
 				for (var o in optDefs)
 					if (typeof options[optDefs[o]] != "undefined")
@@ -858,8 +871,7 @@
 			var promise = new Promise(function (resolve, reject) {
 				var options = {
 					skin: self.game.mSkin,
-					sounds: self.game.mSounds,
-					anaglyph: self.game.mAnaglyph
+					sounds: self.game.mSounds
 				}
 				if (self.game.mViewOptions.useNotation)
 					options.notation = !!self.game.mNotation;

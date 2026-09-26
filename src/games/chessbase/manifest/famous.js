@@ -18,7 +18,8 @@ const {
 	config_view_sounds, config_view_js, config_model_gameOptions_2,
 	config_view_skins_world_lightPosition_2, config_view_skins_2, config_view_skins_3,
 	config_view_skins_world_3, config_model_levels_15, config_model_gameOptions_3,
-	config_model_levels_crazyhouse_expert, config_view_skins_preload
+	config_model_levels_crazyhouse_expert, config_view_skins_preload,
+	config_view_skins_11, config_view_skins_preload_10, config_view_skins_9
 } = require("./shared.js");
 
 // declarations only this family uses, lifted out of shared.js
@@ -117,6 +118,272 @@ var modelScripts_28 = [
 	"base-model.js",
 	"grid-geo-model.js",
 	"famous/chess960-model.js"
+]
+
+// Seirawan++ : les echecs plus deux pieces peu courantes qui entrent en jeu.
+// Rien de special a charger -- le mecanisme d'entree tient dans le fichier du
+// jeu, ce qui n'etait pas le cas de la version dont il est tire.
+/*
+ * Vue propre au jeu : PAS celle du crazyhouse, qui est faite pour un jeu a
+ * parachutage -- elle dessine des mains et son panneau de promotion parcourt
+ * des types parachutables que ce jeu n'a pas. fairy-set-view apporte les
+ * apparences du cardinal et du marshall, que l'ensemble Staunton ignore.
+ */
+/*
+ * LES RESSOURCES 3D DES DIX PAIRES, a precharger.
+ *
+ * Le jeu empruntait les habillages de Capablanca, dont la liste de
+ * prechargement couvre exactement SES pieces : les orthodoxes, le cardinal et
+ * le marshall. C'est l'arrangement #0 et lui seul ; les neuf autres chargeaient
+ * leurs maillages et leurs textures a la demande, au moment ou la piece entre
+ * en jeu -- c'est-a-dire au pire moment, pendant une animation.
+ *
+ * Les chemins suivent la declaration de fairy-set-view.js. Ils ne s'en
+ * deduisent pas : le phenix vit dans /birds/, le belier dans /farm/, le calife
+ * dans /persons/, et trois pieces portent un prefixe « proper- ».
+ */
+/*
+ * Les chemins sont RECOPIES de fairy-set-view.js, ou chaque apparence declare
+ * son maillage et ses textures. Ils ne se deduisent PAS du nom de la piece :
+ *
+ *   - le phenix vit dans /birds/, le belier dans /farm/, le calife dans
+ *     /persons/ ;
+ *   - et surtout, les trois pieces en « proper- » partagent les textures de la
+ *     piece de base : proper-marshall.js s'habille de marshall-diffusemap.jpg,
+ *     et non de proper-marshall-diffusemap.jpg, qui n'existe pas.
+ *
+ * Une liste reconstruite depuis le nom du maillage donnait donc six chemins
+ * inexistants, et autant de 404 au chargement. Le test qui accompagne ce
+ * fichier relit fairy-set-view.js et compare.
+ */
+var config_view_skins_preload_seirawan = config_view_skins_preload_10.concat([
+	// fr-cardinal
+	"smoothedfilegeo|0|/res/fairy/cardinal/cardinal.js",
+	"image|/res/fairy/cardinal/cardinal-diffusemap.jpg",
+	"image|/res/fairy/cardinal/cardinal-normalmap.jpg",
+	// fr-proper-marshall
+	"smoothedfilegeo|0|/res/fairy/marshall/proper-marshall.js",
+	"image|/res/fairy/marshall/marshall-diffusemap.jpg",
+	"image|/res/fairy/marshall/marshall-normalmap.jpg",
+	// fr-rhino2
+	"smoothedfilegeo|0|/res/fairy/rhino/rhino2.js",
+	"image|/res/fairy/rhino/rhino2-diffusemap.jpg",
+	"image|/res/fairy/rhino/rhino2-normalmap.jpg",
+	// fr-griffon
+	"smoothedfilegeo|0|/res/fairy/griffon/griffon.js",
+	"image|/res/fairy/griffon/griffon-diffusemap.jpg",
+	"image|/res/fairy/griffon/griffon-normalmap.jpg",
+	// fr-proper-elephant
+	"smoothedfilegeo|0|/res/fairy/elephant/proper-elephant.js",
+	"image|/res/fairy/elephant/elephant-diffusemap.jpg",
+	"image|/res/fairy/elephant/elephant-normalmap.jpg",
+	// fr-cannon
+	"smoothedfilegeo|0|/res/fairy/cannon/cannon.js",
+	"image|/res/fairy/cannon/cannon-diffusemap.jpg",
+	"image|/res/fairy/cannon/cannon-normalmap.jpg",
+	// fr-ship
+	"smoothedfilegeo|0|/res/fairy/ship/ship.js",
+	"image|/res/fairy/ship/ship-diffusemap.jpg",
+	"image|/res/fairy/ship/ship-normalmap.jpg",
+	// fr-cobra
+	"smoothedfilegeo|0|/res/fairy/cobra/cobra.js",
+	"image|/res/fairy/cobra/cobra-diffusemap.jpg",
+	"image|/res/fairy/cobra/cobra-normalmap.jpg",
+	// fr-badger
+	"smoothedfilegeo|0|/res/fairy/badger/badger.js",
+	"image|/res/fairy/badger/badger-diffusemap.jpg",
+	"image|/res/fairy/badger/badger-normalmap.jpg",
+	// fr-ram
+	"smoothedfilegeo|0|/res/fairy/farm/ram.js",
+	"image|/res/fairy/farm/ram-diffusemap.jpg",
+	"image|/res/fairy/farm/ram-normalmap.jpg",
+	// fr-hawk
+	"smoothedfilegeo|0|/res/fairy/hawk/hawk.js",
+	"image|/res/fairy/hawk/hawk-diffusemap.jpg",
+	"image|/res/fairy/hawk/hawk-normalmap.jpg",
+	// fr-mammoth
+	"smoothedfilegeo|0|/res/fairy/mammoth/mammoth.js",
+	"image|/res/fairy/mammoth/mammoth-diffusemap.jpg",
+	"image|/res/fairy/mammoth/mammoth-normalmap.jpg",
+	// fr-crowned-bishop
+	"smoothedfilegeo|0|/res/fairy/crowned-bishop/crowned-bishop.js",
+	"image|/res/fairy/crowned-bishop/crowned-bishop-diffusemap.jpg",
+	"image|/res/fairy/crowned-bishop/crowned-bishop-normalmap.jpg",
+	// fr-ferz-knight
+	"smoothedfilegeo|0|/res/fairy/knight/ferzknight.js",
+	"image|/res/fairy/knight/knight-diffusemap.jpg",
+	"image|/res/fairy/knight/knight-normalmap.jpg",
+	// fr-phoenix
+	"smoothedfilegeo|0|/res/fairy/birds/phoenix.js",
+	"image|/res/fairy/birds/phoenix-diffusemap.jpg",
+	"image|/res/fairy/birds/phoenix-normalmap.jpg",
+	// fr-giraffe
+	"smoothedfilegeo|0|/res/fairy/giraffe/giraffe.js",
+	"image|/res/fairy/giraffe/giraffe-diffusemap.jpg",
+	"image|/res/fairy/giraffe/giraffe-normalmap.jpg",
+	// fr-crowned-rook (8a009ea : plus fr-proper-crowned-rook -- autre
+	// maillage, et textures SANS tiret : -diffusemap, -normalmap)
+	"smoothedfilegeo|0|/res/fairy/crowned-rook/crowned-rook.js",
+	"image|/res/fairy/crowned-rook/crowned-rook-diffusemap.jpg",
+	"image|/res/fairy/crowned-rook/crowned-rook-normalmap.jpg",
+	// fr-machine
+	"smoothedfilegeo|0|/res/fairy/machine/machine.js",
+	"image|/res/fairy/machine/machine-diffusemap.jpg",
+	"image|/res/fairy/machine/machine-normalmap.jpg",
+	// fr-crowned-knight
+	"smoothedfilegeo|0|/res/fairy/crowned-knight/crowned-knight.js",
+	"image|/res/fairy/crowned-knight/crowned-knight-diffusemap.jpg",
+	"image|/res/fairy/crowned-knight/crowned-knight-normalmap.jpg"
+])
+
+/*
+ * ÉCLAIRAGE ADOUCI : moins d'ombre, moins de contraste.
+ *
+ * Le monde 3D partage celui de Capablanca, que quatre-vingts jeux emploient :
+ * on en derive une copie plutot que de le modifier, pour que le reglage
+ * n'affecte que ce jeu.
+ *
+ * Trois valeurs changent, et chacune agit sur une chose precise :
+ *
+ *   - `ambientLightColor` passe de 0x222222 a 0x3a3a3a : la lumiere ambiante
+ *     releve les zones les plus sombres, donc elle REDUIT l'ecart entre
+ *     ombres et lumieres. C'est le levier principal du contraste ;
+ *   - `lightShadowDarkness` de 0.55 a 0.35 : les ombres portees s'eclaircissent
+ *     sans disparaitre -- les supprimer aplatirait les pieces ;
+ *   - `lightIntensity` de 1.3 a 1.15 : la lumiere principale frappe moins fort,
+ *     ce qui adoucit les reflets sur les pieces claires.
+ *
+ * La lumiere du ciel ne bouge pas : c'est elle qui donne son relief au
+ * plateau, et la baisser rendrait les cases plates.
+ */
+var config_view_skins_world_seirawan = Object.assign({}, config_view_skins_world, {
+	lightIntensity: 1.15,
+	lightShadowDarkness: 0.35,
+	ambientLightColor: 0x3a3a3a,
+})
+
+var config_view_skins_seirawan = [
+	// Le 3D de Capablanca, avec NOTRE liste de prechargement.
+	{
+		"name": "skin3d", "title": "3D Classic", "3d": true,
+		"preload": config_view_skins_preload_seirawan,
+		"world": config_view_skins_world_seirawan,
+		"camera": config_view_skins_camera
+	},
+	config_view_skins_9
+]
+
+/*
+ * LE NIVEAU EXPERT DE SEIRAWAN++ : Fairy-Stockfish, une variante par paire.
+ *
+ * Le S-Chess est natif chez Fairy-Stockfish (« seirawan » : faucon et
+ * éléphant en poche, entrée sur la case que quitte une pièce de la rangée
+ * arrière). Chaque paire du prélude en est une variante qui ne change QUE
+ * les deux pièces en poche. D'où :
+ *
+ *   - la paire 0 (cardinal, marshall) EST le S-Chess : faucon = cardinal
+ *     (BN), éléphant = marshall (RN). Sa section hérite de [seirawan] sans
+ *     rien changer ; seules les lettres diffèrent -- d'où la pieceMap -- et
+ *     elle profite du réseau NNUE « seirawan » quand il est déposé dans
+ *     third-party/fairy-stockfish/nnue (même jeu de pièces, même plateau :
+ *     jocly.fairyworker.js le réécrit sous le nom de la variante) ;
+ *   - les neuf autres héritent de [seirawan], retirent faucon et éléphant et
+ *     déclarent leurs deux pièces en Betza. Les lettres sont celles de Jocly
+ *     (famous/seirawan-model.js, PAIRS), donc aucune pieceMap.
+ *
+ * Chaque Betza a été lu dans le graphe de la pièce, pas déduit de son nom :
+ *   rhinocéros [W?B], griffon [F?R], navire v[F?R], serpent v[W?B] -- les
+ *   pièces coudées que le build embarqué comprend (voir Timurid) ;
+ *   canon mRcpR (celui du xiangqi) ; éléphant du Shako FA ;
+ *   cavalier couronné WFN ; phénix WA ; kirin FD ; tour couronnée RF ;
+ *   machine WD ; blaireau BD ; bélier RA ; faucon du Fantastic ADGH ;
+ *   mammouth KAD ; missionnaire BW ; marquis NF.
+ *
+ * Tout est vérifié coup pour coup contre le moteur embarqué, promotions,
+ * entrées et roques compris : tests/fairy/seirawan-perft.test.js.
+ */
+function config_model_levels_seirawan_section(name, a, b) {
+	var la = a.charAt(0), lb = b.charAt(0);
+	return [
+		"[" + name + ":seirawan]",
+		"archbishop = -",
+		"chancellor = -",
+		"customPiece1 = " + a,
+		"customPiece2 = " + b,
+		"promotionPieceTypes = nbrq" + la + lb,
+		// La poche dans l'ordre où le moteur la réécrit (le dernier type
+		// déclaré d'abord) : tests/core/fairy-inis.test.js compare la
+		// position qu'il annonce à celle-ci, caractère pour caractère.
+		"startFen = rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR[" + lb.toUpperCase() + la.toUpperCase()
+			+ lb + la + "] w KQBCDFGkqbcdfg - 0 1",
+		""
+	].join("\n");
+}
+var config_model_levels_seirawan_ini = [
+	// La paire 0 : le S-Chess tel quel, sous un nom à elle. Une section sans
+	// clé suffit ; elle permet de ne déclarer l'ini QU'UNE FOIS, sur le
+	// niveau, au lieu de le recopier dans chacune des dix entrées.
+	"[jocly-seirawan-marshall-cardinal:seirawan]\n",
+	config_model_levels_seirawan_section("jocly-seirawan-rhino-griffon", "u:[W?B]", "g:[F?R]"),
+	config_model_levels_seirawan_section("jocly-seirawan-elephant-cannon", "e:FA", "x:mRcpR"),
+	config_model_levels_seirawan_section("jocly-seirawan-khan", "j:WFN", "m:RN"),
+	config_model_levels_seirawan_section("jocly-seirawan-chu", "h:WA", "i:FD"),
+	config_model_levels_seirawan_section("jocly-seirawan-spartan", "t:RF", "d:WD"),
+	config_model_levels_seirawan_section("jocly-seirawan-timurid", "v:v[F?R]", "s:v[W?B]"),
+	config_model_levels_seirawan_section("jocly-seirawan-patchanka", "a:BD", "l:RA"),
+	config_model_levels_seirawan_section("jocly-seirawan-fantastic", "f:ADGH", "w:KAD"),
+	config_model_levels_seirawan_section("jocly-seirawan-crowned-bishop", "y:BW", "z:NF")
+].join("\n");
+var config_model_levels_seirawan_expert = {
+	"name": "expert",
+	"label": "Expert",
+	"ai": "fairy-stockfish",
+	"skillLevel": 20,
+	"moveTimeMs": 1000,
+	"customVariantIni": config_model_levels_seirawan_ini,
+	// La paire est choisie au prélude : jocly.fairy.js prend l'entrée dont
+	// « setup » vaut aGame.cbVar.prelude[0].persistent. L'ordre est celui de
+	// PAIR_KEYS dans famous/seirawan-model.js.
+	"variants": [
+		/*
+		 * `pgnVariant` : le nom STANDARD de cet arrangement, celui qu'écrivent
+		 * PyChess et Fairy-Stockfish dans [Variant]. La section
+		 * jocly-seirawan-marshall-cardinal n'est qu'un alias de « seirawan »
+		 * pour le moteur ; un PGN, lui, doit dire « seirawan » pour être relu
+		 * ailleurs -- et un PGN « seirawan » venu d'ailleurs doit rouvrir CET
+		 * arrangement. `pieceMap` fait le reste : H(awk) = cardinal,
+		 * E(lephant) = marshall.
+		 */
+		{ "setup": 0, "variant": "jocly-seirawan-marshall-cardinal", "pgnVariant": "seirawan", "pieceMap": { "C": "H", "M": "E" }, "evalFile": "nnue/seirawan.nnue" },
+		{ "setup": 1, "variant": "jocly-seirawan-rhino-griffon" },
+		{ "setup": 2, "variant": "jocly-seirawan-elephant-cannon" },
+		{ "setup": 3, "variant": "jocly-seirawan-khan" },
+		{ "setup": 4, "variant": "jocly-seirawan-chu" },
+		{ "setup": 5, "variant": "jocly-seirawan-spartan" },
+		{ "setup": 6, "variant": "jocly-seirawan-timurid" },
+		{ "setup": 7, "variant": "jocly-seirawan-patchanka" },
+		{ "setup": 8, "variant": "jocly-seirawan-fantastic" },
+		{ "setup": 9, "variant": "jocly-seirawan-crowned-bishop" }
+	]
+}
+var config_model_levels_5_seirawan_expert = config_model_levels_5.concat([config_model_levels_seirawan_expert]);
+
+var config_view_js_seirawan = [
+	"base-view.js",
+	"grid-board-view.js",
+	"fairy-set-view.js",
+	"prelude-view.js",
+	"famous/seirawan-view.js"
+]
+
+var modelScripts_seirawan = [
+	"base-model.js",
+	"grid-geo-model.js",
+	"fairy-piece-model.js",
+	// Le prelude : le choix de la paire de pieces a decouvrir, avant le
+	// premier coup. Il RETYPE les pieces en attente ; il n'en cree aucune.
+	"prelude-model.js",
+	"famous/seirawan-model.js"
 ]
 
 var modelScripts_crazyhouse = [
@@ -788,6 +1055,61 @@ exports.games = {
 			}
 		},
 		"viewScripts": config_view_js_28
+	},
+
+	"seirawan-chess": {
+		"name": "seirawan-chess",
+		"modelScripts": modelScripts_seirawan,
+		"config": {
+			"status": true,
+			"model": {
+				"title": {
+					"en": "Seirawan++ Chess",
+					"fr": "Échecs Seirawan++"
+				},
+				"summary": {
+					"en": "Chess with two uncommon pieces waiting to enter the game",
+					"fr": "Les échecs, plus deux pièces peu courantes qui attendent d’entrer en jeu."
+				},
+				"rules": {
+                    "fr": "res/rules/famous/seirawan_fr.html"
+				},
+				"module": "chessbase",
+				"plazza": "true",
+                "thumbnail": "res/rules/famous/seirawan-thumbnail.png",
+				"released": 1758153600,
+				"gameOptions": config_model_gameOptions,
+				"js": modelScripts_seirawan,
+				"levels": config_model_levels_5_seirawan_expert
+			},
+			"view": {
+				"title-en": "Chessbase view",
+				"xdView": true,
+				"css": config_view_css,
+				"preferredRatio": 1,
+				"useShowMoves": true,
+				"useShowLastMove": true,
+				"useNotation": true,
+				"module": "chessbase",
+				"js": config_view_js_seirawan,
+				/*
+				 * Les habillages de la famille feerique -- ceux de Capablanca, qui
+				 * emploie la meme fairy-set-view. Ils declarent skin3d et skin2d et
+				 * pointent vers /res/fairy/, ou vivent les maillages du cardinal et
+				 * du marshall.
+				 *
+				 * Ce champ portait config_view_skins_preload, qui n'est PAS une
+				 * liste d'habillages mais une liste de ressources a precharger. Le
+				 * jeu n'avait donc AUCUN habillage : pas de correspondance
+				 * piece-image, d'ou des glyphes de secours a la place des pieces et
+				 * une croix a la place des images introuvables.
+				 */
+				"skins": config_view_skins_seirawan,
+				"defaultOptions": config_view_defaultOptions,
+				"switchable": true
+			}
+		},
+		"viewScripts": config_view_js_seirawan
 	},
 
 	"crazyhouse": {

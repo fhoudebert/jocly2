@@ -382,7 +382,7 @@ const ready = () => new Promise((r) => setTimeout(r, 5));
 	// Looked for in what the build actually copies, not in the file text: the
 	// gulpfile explains in a comment why the threaded build is left out, and a
 	// plain search would match that comment and pass for the wrong reason.
-	const copied = (gulp.match(/gulp\.src\(\[[^\]]*\]/g) || []).join(" ");
+	const copied = (gulp.match(/(?:gulp\.src|readSrc)\(\[[^\]]*\]/g) || []).join(" ");
 	t.check("and the threaded one is not, since nothing loads it",
 		/kataeval-mt/.test(copied), false);
 	t.check("the plain one is in a copied list", /kataeval\.wasm/.test(copied), true);

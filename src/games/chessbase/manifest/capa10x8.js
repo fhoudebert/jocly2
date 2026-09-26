@@ -53,7 +53,8 @@ exports.games = {
 					"fr": "Capablanca, Janus, Carrera, Gothic…"
 				},
 				"rules": {
-					"en": "res/rules/capa10x8/capablanca-rules.html"
+					"en": "res/rules/capa10x8/capablanca-rules.html",
+                    "fr": "res/rules/capa10x8/capablanca-rules_fr.html",
 				},
 				"module": "chessbase",
 				"plazza": "true",

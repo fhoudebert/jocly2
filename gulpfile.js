@@ -3,17 +3,12 @@ const path = require('path');
 const fs = require('fs');
 
 const gulp = require('gulp');
-const debug = require('gulp-debug');
-const del = require("del");
 const through = require('through2');
 const Vinyl = require("vinyl");
 const merge = require('merge-stream');
 const mergeSequential = require('./merge-sequential.js');
 const rename = require("gulp-rename");
 const concat = require('gulp-concat');
-const sourcemaps = require('gulp-sourcemaps');
-const terser = require('gulp-terser');
-const babel = require('gulp-babel');
 const esbuild = require('esbuild');
 const buffer = require("vinyl-buffer");
 const source = require('vinyl-source-stream');
@@ -21,6 +16,114 @@ const argv = require('minimist')(process.argv.slice(2));
 const gulpif = require('gulp-if');
 const colors = require('ansi-colors');
 const log = require('fancy-log');
+
+/*
+ * gulp 5 reads files as UTF-8 TEXT by default (vinyl-fs 4, `encoding:
+ * "utf8"`): every image, sound, wasm or network file copied through
+ * gulp.src()/gulp.dest() comes out silently corrupted - 1851 files of dist/
+ * on the first try, with a build that reports success. gulp 4 read Buffers
+ * untouched; `encoding: false` restores exactly that, for every source.
+ */
+function readSrc(globs, options) {
+	return gulp.src(globs, Object.assign({ encoding: false }, options));
+}
+
+/*
+ * Source maps of the development build (not --prod), without gulp-sourcemaps:
+ * unmaintained, it pulls css/source-map-resolve/decode-uri-component (and
+ * postcss in its 3.x) that npm audit flags. mapInit() starts an identity map
+ * the way sourcemaps.init() did; esbuild and concat extend it as they
+ * go; gulp.dest() writes it next to the file - DEST_MAPS below - with the
+ * same `//# sourceMappingURL=` comment.
+ */
+function mapInit() {
+	return through.obj(function (file, enc, next) {
+		if (file.isBuffer() && !file.sourceMap) {
+			var name = file.relative.split(path.sep).join("/");
+			file.sourceMap = {
+				version: 3,
+				file: name,
+				names: [],
+				mappings: "",
+				sources: [name],
+				sourcesContent: [file.contents.toString()],
+			};
+		}
+		next(null, file);
+	});
+}
+// concat keeps the map of its first input, named after that input: name it
+// after the output, as sourcemaps.write() did
+function mapName() {
+	return through.obj(function (file, enc, next) {
+		if (file.sourceMap) {
+			file.sourceMap.file = path.basename(file.relative);
+			// gulp.dest() appends its //# sourceMappingURL= comment right
+			// after the last byte: give it a line of its own
+			if (file.isBuffer() && file.contents[file.contents.length - 1] !== 10)
+				file.contents = Buffer.concat([file.contents, Buffer.from("\n")]);
+		}
+		next(null, file);
+	});
+}
+/*
+ * esbuild in place of Babel (down-levelling) and terser (minification): one
+ * tool, already used here for the bundles, much faster, and no dependency
+ * tree of its own.
+ *
+ *   target  - syntax newer than ES2020 is rewritten. Browsers older than
+ *             that (Safari 14, Chrome 80, Firefox 80) are not worth more:
+ *             Babel 8's "defaults" had already left ES5 behind. A list of
+ *             browser versions is not used: esbuild then refuses code it
+ *             cannot lower for a known engine bug (destructured arrow
+ *             parameters, in jocly.core.js). null: leave the syntax alone.
+ *   minify  - --prod only. Top-level names of these plain scripts are NOT
+ *             renamed (esbuild never does for non-module code, as terser
+ *             did not by default): the games and the loader find each other
+ *             through them.
+ *
+ * In the development build the file's map is handed in as an inline
+ * sourceMappingURL, which esbuild composes with its own - what gulp-babel did
+ * through vinyl-sourcemaps-apply.
+ */
+const JS_TARGET = "es2020";
+function esbuildJS(options) {
+	return through.obj(function (file, enc, next) {
+		if (file.isNull())
+			return next(null, file);
+		var withMap = !!file.sourceMap;
+		var code = file.contents.toString();
+		if (withMap)
+			code += "\n//# sourceMappingURL=data:application/json;base64," +
+				Buffer.from(JSON.stringify(file.sourceMap)).toString("base64");
+		var name = file.relative.split(path.sep).join("/");
+		esbuild.transform(code, {
+			loader: "js",
+			sourcefile: name,
+			target: options.target || "esnext",
+			minify: !!options.minify,
+			charset: "utf8",
+			legalComments: "inline",
+			sourcemap: withMap ? "external" : false,
+			logLevel: "silent",
+		}).then(function (result) {
+			file.contents = Buffer.from(result.code);
+			if (withMap && result.map) {
+				var map = JSON.parse(result.map);
+				map.file = name;
+				file.sourceMap = map;
+			}
+			next(null, file);
+		}, function (err) {
+			// the located messages, not just "Transform failed with 2 errors"
+			var detail = (err.errors || []).map(function (e) {
+				return (e.location ? name + ":" + e.location.line + ":" + e.location.column + ": " : name + ": ") + e.text;
+			}).join("\n");
+			next(new Error(detail || name + ": " + err.message));
+		});
+	});
+}
+const DEST_MAPS = { sourcemaps: argv.prod ? false : "." };
 
 const modulifyHeaders = {
 	model:
@@ -175,7 +278,7 @@ function HandleModuleGames(modelOnly) {
 							return path.join(modulesMap[moduleName], file);
 						});
             if(files.length>0) {
-              var stream = gulp.src(files, {"allowEmpty": true})
+              var stream = readSrc(files, {"allowEmpty": true})
                 .pipe(rename(function (path) {
                   path.dirname = moduleName;
                 }))
@@ -196,13 +299,12 @@ function HandleModuleGames(modelOnly) {
 					return path.join(modulesMap[moduleName], script);
 				});
 				var fileName = moduleName + "/" + game.name + "-" + which + ".js";
-				var stream = gulp.src(scripts)
-					.pipe(gulpif(!argv.prod, sourcemaps.init()))
+				var stream = readSrc(scripts)
+					.pipe(gulpif(!argv.prod, mapInit()))
 					.pipe(prependVirtualFile('_', modulifyHeaders[which]))
 					.pipe(concat(fileName))
-					.pipe(gulpif(argv.prod, terser()))
-					.on('error', function (err) { log(colors.red('[Error]'), err.toString()); })
-					.pipe(gulpif(!argv.prod, sourcemaps.write('.')))
+					.pipe(gulpif(!argv.prod, mapName()))
+					.pipe(gulpif(argv.prod, esbuildJS({ minify: true })))
 					.pipe(through.obj(function (file, enc, next) {
 						push(file);
 						next();
@@ -217,7 +319,7 @@ function HandleModuleGames(modelOnly) {
 
 		// create module common resources
 		if (!modelOnly) {
-			var stream = gulp.src(modulesMap[moduleName] + "/res/**/*")
+			var stream = readSrc(modulesMap[moduleName] + "/res/**/*")
 				.pipe(rename(function (path) {
 					path.dirname = moduleName + "/res/" + path.dirname;
 				}))
@@ -243,41 +345,36 @@ function HandleModuleGames(modelOnly) {
 }
 
 gulp.task("build-node-games", function () {
-	return gulp.src(moduleDirs)
+	return readSrc(moduleDirs)
 		.pipe(HandleModuleGames(true))
-		.pipe(gulp.dest("dist/node/games"));
+		.pipe(gulp.dest("dist/node/games", DEST_MAPS));
 });
 
-function ProcessJS(stream, concatName, skipBabel) {
+function ProcessJS(stream, concatName, skipTranspile) {
 	if (!argv.prod && concatName)
-		stream = stream.pipe(sourcemaps.init());
-	if (!skipBabel)
-		stream = stream.pipe(babel({
-			presets: ["@babel/preset-env"],
-			compact: !!argv.prod
+		stream = stream.pipe(mapInit());
+	// skipTranspile: third-party code copied as it is written, minified only
+	if (!skipTranspile || argv.prod)
+		stream = stream.pipe(esbuildJS({
+			target: skipTranspile ? null : JS_TARGET,
+			minify: !!argv.prod,
 		}));
-	if (argv.prod)
-		stream = stream.pipe(terser())
-			.on('error', function (err) {
-				log(colors.red('[Error]'), err.toString());
-				this.emit('end');
-			});
 	if (concatName)
 		stream = stream.pipe(concat(concatName));
 	if (!argv.prod && concatName)
-		stream = stream.pipe(sourcemaps.write("."));
+		stream = stream.pipe(mapName());
 	return stream;
 }
 
 gulp.task("build-node-core", function () {
 
 	var joclyCoreStream =
-		ProcessJS(gulp.src([
+		ProcessJS(readSrc([
 			"src/core/jocly.core.js",
 		]));
 
 	var joclyBaseStream =
-		ProcessJS(gulp.src([
+		ProcessJS(readSrc([
 			"src/core/jocly.util.js",
 			"src/core/jocly.uct.js",
 			"src/core/jocly.fairy.js",
@@ -306,13 +403,13 @@ gulp.task("build-node-core", function () {
     .pipe(through.obj(function (file, enc, next) {
       next(null, new Vinyl(file));
     }))
-		.pipe(gulp.dest("dist/node"));
+		.pipe(gulp.dest("dist/node", DEST_MAPS));
 
 });
 
 function CopyLicense(target) {
-	return gulp.src(["COPYING.md", "CONTRIBUTING.md", "AGPL-3.0.txt"])
-		.pipe(gulp.dest(target));
+	return readSrc(["COPYING.md", "CONTRIBUTING.md", "AGPL-3.0.txt"])
+		.pipe(gulp.dest(target, DEST_MAPS));
 }
 
 gulp.task("copy-browser-license", function () {
@@ -328,9 +425,9 @@ gulp.task("build-node",
   gulp.parallel("build-node-core", "copy-node-license")));
 
 gulp.task("build-browser-games", function () {
-	return gulp.src(moduleDirs)
+	return readSrc(moduleDirs)
 		.pipe(HandleModuleGames(false))
-		.pipe(gulp.dest("dist/browser/games"));
+		.pipe(gulp.dest("dist/browser/games", DEST_MAPS));
 });
 
 gulp.task("build-browser-core", function () {
@@ -344,10 +441,9 @@ gulp.task("build-browser-core", function () {
 	// a plain string - no need for vinyl-source-stream/vinyl-buffer's
 	// stream-to-vinyl dance, which only exists to adapt browserify's own
 	// streaming bundle() API. The result is still routed through the
-	// same ProcessJS (babel + terser) pipeline as before: esbuild is
-	// asked to bundle only, not to transpile or minify, so babel still
-	// does the ES2015+ -> target downleveling and terser still does the
-	// same minification as for every other bundle produced here.
+	// same ProcessJS pipeline as every other bundle produced here: this
+	// call bundles only, the target and the minification (esbuildJS) are
+	// applied there, identically for all.
 	var joclyBundleResult = esbuild.buildSync({
 		entryPoints: ["src/browser/jocly.js"],
 		bundle: true,
@@ -365,7 +461,7 @@ gulp.task("build-browser-core", function () {
 	var joclyBrowserStream = ProcessJS(joclyBundleStream);
 
 	// NOTE: joclyCoreStream and joclyExtraScriptsStream are intentionally
-	// combined into a single gulp.src()/babel pipeline below, rather than
+	// combined into a single readSrc()/esbuild pipeline below, rather than
 	// kept as separate streams merged afterwards. Running many concurrent
 	// babel/browserify streams through merge-stream (5-6 in this task)
 	// causes it to occasionally lose files entirely (race in how it counts
@@ -375,7 +471,7 @@ gulp.task("build-browser-core", function () {
 	// also replaced with mergeSequential (see merge-sequential.js), which
 	// processes each stream to completion before starting the next one,
 	// for the same reason.
-	var joclyCoreStream = ProcessJS(gulp.src([
+	var joclyCoreStream = ProcessJS(readSrc([
 		"src/core/jocly.core.js",
 		"src/browser/jocly.aiworker.js",
 		"src/browser/jocly.fairyworker.js",
@@ -384,7 +480,7 @@ gulp.task("build-browser-core", function () {
 		"src/browser/jocly.embed.js"
 	]));
 
-	var joclyBaseStream = ProcessJS(gulp.src([
+	var joclyBaseStream = ProcessJS(readSrc([
 		"src/core/jocly.util.js",
 		"src/core/jocly.uct.js",
 		"src/core/jocly.fairy.js",
@@ -393,7 +489,7 @@ gulp.task("build-browser-core", function () {
 		"src/core/jocly.game.js"
 	]), "jocly.game.js", true);
 
-	var joclyExtraStream = gulp.src([
+	var joclyExtraStream = readSrc([
 		"src/browser/jocly.embed.html"
 	]);
 
@@ -402,7 +498,7 @@ gulp.task("build-browser-core", function () {
 	// through untouched (like three.js/jquery in build-browser-xdview below),
 	// running stockfish.js through Babel would risk breaking the UMD/IIFE
 	// boilerplate Emscripten generates for it.
-	var joclyFairyStockfishStream = gulp.src([
+	var joclyFairyStockfishStream = readSrc([
 		"third-party/fairy-stockfish/stockfish.js",
 		"third-party/fairy-stockfish/stockfish.wasm",
 		"third-party/fairy-stockfish/stockfish.worker.js",
@@ -422,7 +518,7 @@ gulp.task("build-browser-core", function () {
 	// in src/games/chessbase/index.js. A referenced-but-absent network is
 	// equally harmless at runtime: jocly.fairyworker.js falls back to the
 	// engine's built-in classical evaluation (see MaybeLoadEvalFile()).
-	var joclyFairyNnueStream = gulp.src([
+	var joclyFairyNnueStream = readSrc([
 		"third-party/fairy-stockfish/nnue/README.md",
 		"third-party/fairy-stockfish/nnue/*.nnue"
 	], { allowEmpty: true }).pipe(rename(function (path) {
@@ -433,13 +529,13 @@ gulp.task("build-browser-core", function () {
 	// pre-built Emscripten artifacts, copied through untouched. Two streams
 	// to preserve the "scan/data/" subfolder expected by
 	// jocly.scanworker.js's LoadEngine() (scanBaseURL + "data/eval" etc.).
-	var joclyScanStream = gulp.src([
+	var joclyScanStream = readSrc([
 		"third-party/scan/scan.js",
 		"third-party/scan/scan.wasm"
 	]).pipe(rename(function (path) {
 		path.dirname = "scan";
 	}));
-	var joclyScanDataStream = gulp.src([
+	var joclyScanDataStream = readSrc([
 		"third-party/scan/data/eval",
 		"third-party/scan/data/book"
 	]).pipe(rename(function (path) {
@@ -454,7 +550,7 @@ gulp.task("build-browser-core", function () {
 	// pool, 512MB of initial memory and a cross-origin isolated page, and
 	// nothing loads it yet: jocly.kataworker.js drives the plain kgeSearch().
 	// Adding it here is one line the day that changes.
-	var joclyKataStream = gulp.src([
+	var joclyKataStream = readSrc([
 		"third-party/katago/kataeval.js",
 		"third-party/katago/kataeval.wasm"
 	]).pipe(rename(function (path) {
@@ -468,14 +564,14 @@ gulp.task("build-browser-core", function () {
 	// NOT harmless here, unlike a missing NNUE: KataGo cannot play without
 	// one, so jocly.kataworker.js reports it and jocly.kata.js leaves the
 	// move to Jocly rather than inventing one.
-	var joclyKataNetStream = gulp.src([
+	var joclyKataNetStream = readSrc([
 		"third-party/katago/README.md",
 		"third-party/katago/*.bin.gz"
 	], { allowEmpty: true }).pipe(rename(function (path) {
 		path.dirname = "katago";
 	}));
 
-	var joclyResStream = gulp.src("src/browser/res/**/*")
+	var joclyResStream = readSrc("src/browser/res/**/*")
 		.pipe(rename(function (path) {
 			path.dirname = "res/" + path.dirname;
 		}));
@@ -490,7 +586,7 @@ gulp.task("build-browser-core", function () {
     .pipe(through.obj(function (file, enc, next) {
       next(null, new Vinyl(file));
     }))
-    .pipe(gulp.dest("dist/browser"));
+    .pipe(gulp.dest("dist/browser", DEST_MAPS));
 
 });
 
@@ -511,30 +607,20 @@ gulp.task("build-browser-xdview", function () {
 	// global object, crashing on the very first global property access
 	// (e.g. "Cannot read properties of undefined (reading 'THREE')").
 	// Copy them through untouched instead.
-	var libs = gulp.src([
+	var libs = readSrc([
 		lib + "three.js",
 		nmLib + "jquery/dist/jquery.js"
 	]);
 
-	var packedLibs = ProcessJS(gulp.src([
+	var packedLibs = ProcessJS(readSrc([
 		lib + "tween.js",
 		lib + "tween.fix.js",
 		srcLib + "JoclyOrbitControls.js",
-		lib + "DeviceOrientationControls.js",
-		lib + "Projector.js",
-		lib + "BufferGeometryUtils.js",
-		lib + "GLTFLoader.js",
-		lib + "FontLoader.js",
-		lib + "TextGeometry.js",
+		// GLTFLoader, BufferGeometryUtils, FontLoader, TextGeometry: bundled
+		// from three/examples/jsm by tools/three/build-three.js
+		lib + "three-addons.js",
 		lib + "threex.domevent.js",
 		lib + "threex.domevent.object3d.js",
-		lib + "StereoEffect.js",
-		lib + "AnaglyphEffect.js",
-		srcLib + "VRGamepad.js",
-		lib + "VRControls.js",
-		lib + "VREffect.js",
-		lib + "OBJLoader.js",
-		lib + "MTLLoader.js",
 		lib + "kalman.js",
 		src + "browser/jocly.ar.js",
 		src + "browser/jocly.state-machine.js",
@@ -542,13 +628,17 @@ gulp.task("build-browser-xdview", function () {
 	]), "jocly-xdview.js", true);
 
 	return mergeSequential(libs, packedLibs)
-		.pipe(gulp.dest("dist/browser"))
+		.pipe(gulp.dest("dist/browser", DEST_MAPS))
 		;
 
 });
 
 gulp.task("clean", function () {
-	return del(["dist/*"], { force: true });
+	// fs.rmSync rather than the del package (ESM-only since 7)
+	if (fs.existsSync("dist"))
+		for (const entry of fs.readdirSync("dist"))
+			fs.rmSync(path.join("dist", entry), { recursive: true, force: true });
+	return Promise.resolve();
 });
 
 gulp.task("build-browser", 

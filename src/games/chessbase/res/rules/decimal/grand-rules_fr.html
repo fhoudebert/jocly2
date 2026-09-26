@@ -1,0 +1,129 @@
+<style>
+	table.psymbs {
+		text-align: center;
+	}
+	.psymb {
+		background-image: url({GAME}/res/images/wikipedia.png);
+		width: 100px;
+		height: 200px;
+	}
+	.psymbs td {
+		padding: 0 10px 0 10px;
+	}
+	.psymb-bold {
+		font-weight: bold;
+	}
+	.side {
+		float: right;
+		max-width: 100%;
+	}
+	@media screen and (max-width: 520px) {
+		.side {
+			float: none;
+			display: block;
+			max-width: 100%;
+			margin-right: auto;
+			margin-left: auto;
+		}		
+	}
+	h1,h2,h3,h4 {
+		clear: both;
+	}
+</style>
+<h1>Grand chess</h1>
+<h2>Différences avec les échecs orthodoxes</h2>
+<p>Inventés en 1984 par le concepteur de jeux néerlandais Christian Freeling.</p>
+<p>Ils se jouent sur un plateau de 10x10 cases et utilisent 2 nouvelles pièces :
+<ul>
+	<li>Le Maréchal : se déplace et prend comme un Cavalier + une Tour
+		<p style='text-align:center'><img style="max-width:100%;" src="{GAME}/res/rules/fairy/marshall.png"/></p>
+		</li>
+	<li>Le Cardinal : se déplace et prend comme un Cavalier + un Fou
+		<p style='text-align:center'><img style="max-width:100%;" src="{GAME}/res/rules/fairy/archbishop.png"/></p>
+		</li>
+</ul>
+</p>
+<p>Les pions peuvent être promus à la 8e et à la 9e rangée, et doivent être promus à la 10e rangée.</p>
+<p>Les promotions ne sont autorisées que pour remplacer des pièces ayant été capturées.</p>
+
+<h2>Position initiale</h2>
+
+<p style='text-align:center'><img style="max-width:100%;" src="{GAME}/res/visuals/grand-600x600-2d.jpg"/></p>
+
+<p>Chaque joueur commence avec :
+<ul>
+<li>10 pions</li>	
+<li>2 tours</li>	
+<li>2 cavaliers</li>	
+<li>2 fous</li>
+<li>1 maréchal</li>	
+<li>1 cardinal</li>		
+<li>1 dame</li>	
+<li>1 roi</li>	
+</ul> 
+</p>
+
+<p>Roque : non.</p>
+<p>Prise « en passant » : oui.</p>
+<p>Double déplacement initial des pions : oui.</p>
+
+<p>Voir ci-dessous pour les règles des échecs orthodoxes.</p>
+<hr>
+
+<h1>Règles des échecs orthodoxes</h1>
+<p>Le texte suivant est extrait de Wikipédia, sous licence <a href="http://creativecommons.org/licenses/by-sa/3.0/" target="_blank">Creative Commons Attribution-ShareAlike 3.0</a>.
+Pour plus de détails et de références, consulter <a href="http://en.wikipedia.org/wiki/Rules_of_chess" target="_blank">l'article original</a>.</p>
+
+<p>Les échecs sont un jeu qui se joue à deux sur un échiquier, chaque joueur disposant de seize pièces de six types différents. Chaque type de pièce se déplace d'une manière particulière.
+Le but du jeu est de faire échec et mat, c'est-à-dire de menacer le roi adverse d'une capture inévitable. Une partie peut également se terminer nulle de plusieurs façons.</p>
+
+<h2>Position initiale</h2>
+
+<p>Les échecs se jouent sur un échiquier carré divisé en 64 cases (huit sur huit) de couleurs alternées, similaire à celui utilisé pour les dames. Quelle que soit la couleur réelle des cases, les cases les plus claires sont appelées « blanches » et les plus foncées « noires ». Seize pièces blanches et seize pièces noires sont placées sur l'échiquier au début de la partie. L'échiquier est placé de manière à ce qu'une case blanche se trouve dans le coin inférieur droit de chaque joueur.</p>
+
+<p>Chaque joueur contrôle seize pièces :</p>
+
+<table width="100%">
+	<tr>
+		<td>Nom</td><td>Nombre</td><td>Symboles blancs</td><td>Symboles noirs</td>
+	</tr>
+	<tr>
+		<td class="symbname">Roi</td>
+		<td class="symbnumber">1</td>
+		<td class="symbimg"><img src="{GAME}/res/rules/pieces/50px-Chess_klt45.svg.png"/></td>
+		<td class="symbimg"><img src="{GAME}/res/rules/pieces/50px-Chess_kdt45.svg.png"/></td>
+	</tr>
+	<tr>
+		<td class="symbname">Dame</td>
+		<td class="symbnumber">1</td>
+		<td class="symbimg"><img src="{GAME}/res/rules/pieces/50px-Chess_qlt45.svg.png"/></td>
+		<td class="symbimg"><img src="{GAME}/res/rules/pieces/50px-Chess_qdt45.svg.png"/></td>
+	</tr>
+	<tr>
+		<td class="symbname">Tour</td>
+		<td class="symbnumber">2</td>
+		<td class="symbimg"><img src="{GAME}/res/rules/pieces/50px-Chess_rlt45.svg.png"/></td>
+		<td class="symbimg"><img src="{GAME}/res/rules/pieces/50px-Chess_rdt45.svg.png"/></td>
+	</tr>
+	<tr>
+		<td class="symbname">Fou</td>
+		<td class="symbnumber">2</td>
+		<td class="symbimg"><img src="{GAME}/res/rules/pieces/50px-Chess_blt45.svg.png"/></td>
+		<td class="symbimg"><img src="{GAME}/res/rules/pieces/50px-Chess_bdt45.svg.png"/></td>
+	</tr>
+	<tr>
+		<td class="symbname">Cavalier</td>
+		<td class="symbnumber">2</td>
+		<td class="symbimg"><img src="{GAME}/res/rules/pieces/50px-Chess_nlt45.svg.png"/></td>
+		<td class="symbimg"><img src="{GAME}/res/rules/pieces/50px-Chess_ndt45.svg.png"/></td>
+	</tr>
+	<tr>
+		<td class="symbname">Pion</td>
+		<td class="symbnumber">8</td>
+		<td class="symbimg"><img src="{GAME}/res/rules/pieces/50px-Chess_plt45.svg.png"/></td>
+		<td class="symbimg"><img src="{GAME}/res/rules/pieces/50px-Chess_pdt45.svg.png"/></td>
+	</tr>
+</table>
+
+<p>Au début de la partie, les pièces sont disposées comme indiqué sur le diagramme. La deuxième
+

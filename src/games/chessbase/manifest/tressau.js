@@ -42,11 +42,12 @@ exports.games = {
 			"model": {
 				"title-en": "Kaiserspiel",
 				"summary": {
-					"en": "Tressau, 1840",
-					"fr": "Tressau, 1840"
+					"en": "Kaiser's game, Tressau, 1840",
+					"fr": "Jeu du Kaiser, Tressau, 1840"
 				},
 				"rules": {
-					"en": "res/rules/tressau/kaisergame-rules.html"
+					"en": "res/rules/tressau/kaisergame-rules.html",
+                    "fr": "res/rules/tressau/kaisergame-rules_fr.html"
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -58,9 +59,6 @@ exports.games = {
 				"gameOptions": config_model_gameOptions,
 				"obsolete": false,
 				"js": modelScripts_45,
-				"description": {
-					"en": "res/rules/tressau/kaisergame-description.html"
-				},
 				"levels": config_model_levels_5
 			},
 			"view": {
@@ -136,11 +134,12 @@ exports.games = {
 			"model": {
 				"title-en": "Sultanspiel",
 				"summary": {
-					"en": "Tressau, 1840",
-					"fr": "Tressau, 1840"
+					"en": "Sultan's game, Tressau, 1840",
+					"fr": "Jeu du Sultan, Tressau, 1840"
 				},
 				"rules": {
-					"en": "res/rules/tressau/sultangame-rules.html"
+					"en": "res/rules/tressau/sultangame-rules.html",
+					"fr": "res/rules/tressau/sultangame-rules_fr.html",
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -152,9 +151,7 @@ exports.games = {
 				"gameOptions": config_model_gameOptions,
 				"obsolete": false,
 				"js": modelScripts_46,
-				"description": {
-					"en": "res/rules/tressau/sultangame-description.html"
-				},
+
 				"levels": config_model_levels_5
 			},
 			"view": {

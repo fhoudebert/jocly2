@@ -69,6 +69,62 @@ check("no summary is empty",
  * `summary` above already is. What must not happen is neither - a game with no
  * title at all is a blank line in every list that shows it.
  */
+/*
+ * UN NOM DE JEU TRAVERSE DES URL, et c'est ce qui limite les caractères qu'il
+ * peut porter. Il voyage dans la barre d'adresse d'une fenêtre de partie
+ * (`play.html?game=…`), dans les liens d'invitation, dans les noms de fichiers
+ * exportés.
+ *
+ * Le `+` est le piège : dans une chaîne de requête il vaut ESPACE. Un jeu
+ * nommé « seirawan++-chess » arrivait donc comme « seirawan  -chess » et la
+ * fenêtre échouait sur « Game not found » — pas à la déclaration, pas au
+ * build, seulement à l'ouverture. Les enjolivures vont dans le TITRE, qui
+ * n'est jamais analysé ; l'identifiant reste sobre.
+ */
+check("game names survive a URL round trip",
+	games.filter((g) => decodeURIComponent(encodeURIComponent(g.name)) !== g.name
+		|| new URLSearchParams("game=" + g.name).get("game") !== g.name)
+		.map((g) => g.name), []);
+
+/*
+ * Et des caractères qu'un nom de fichier accepte partout : le build écrit
+ * `<module>/<nom>-model.js`, et un dist se copie entre systèmes.
+ *
+ * Les majuscules passent -- `fantasticXIII-chess` et `giga-chessII` en
+ * portent depuis toujours, et ni une URL ni un système de fichiers ne s'en
+ * plaint. Ce qui est refusé, ce sont les caractères qui ont un SENS ailleurs :
+ * `+` (un espace dans une requête), `%` (une séquence d'échappement), `&` `?`
+ * `#` (des séparateurs), `/` (un chemin), et l'espace.
+ */
+check("game names are plain", games.filter((g) => !/^[A-Za-z0-9][A-Za-z0-9._-]*$/.test(g.name))
+	.map((g) => g.name), []);
+
+/*
+ * UNE LISTE D'HABILLAGES, PAS UNE LISTE DE RESSOURCES.
+ *
+ * `config_view_skins_*` et `config_view_skins_preload` se ressemblent assez
+ * pour être confondus, et ils ne sont pas du tout la même chose : le premier
+ * décrit des habillages (`{name, title, 3d, preload}`), le second est le
+ * tableau de ressources que l'un d'eux précharge — des chaînes.
+ *
+ * Mettre le second dans `view.skins` ne produit aucune erreur : le jeu se
+ * déclare, se construit, se liste. Il s'ouvre seulement sans AUCUN habillage,
+ * donc sans correspondance pièce-image — des glyphes de secours à la place des
+ * pièces, et une croix à la place des images introuvables.
+ */
+check("skins are skins, not resource lists",
+	games.filter((g) => {
+		const skins = g.config.view && g.config.view.skins;
+		return !Array.isArray(skins) || !skins.length
+			|| skins.some((s) => !s || typeof s !== "object" || !s.name);
+	}).map((g) => g.name), []);
+
+// Et un habillage 2D au moins : la 3D demande WebGL, que toutes les machines
+// n'ont pas -- un jeu qui n'aurait que skin3d serait injouable pour elles.
+check("every game offers a 2D skin",
+	games.filter((g) => (g.config.view.skins || []).every((s) => s["3d"]))
+		.map((g) => g.name), []);
+
 check("titles are still declared",
 	games.filter((g) => !g.config.model["title-en"] && !g.config.model.title)
 		.map((g) => g.name), []);

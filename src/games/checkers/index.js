@@ -1080,7 +1080,10 @@ exports.games = (function() {
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "Thai Draughts",
+				    "title": {
+					    "en": "Thai Draughts",
+					    "fr": "Dames Thaï"
+				    },
 					"summary": {
 						"en": "Checkers according to Thai rules.",
 						"fr": "Les dames selon les règles thaïlandaises."
@@ -1088,7 +1091,7 @@ exports.games = (function() {
 					"rules": "rules-thai-draughts.html",
 					"maxLevel": 20,
 					"plazza": "true",
-					"thumbnail": "draughts8-thumb3d.png",
+					"thumbnail": "thumbnail-checkers-thai.png",
 					"module": "checkers",
 					"description": "description.html",
 					"credits": "credits.html",
@@ -1164,7 +1167,10 @@ exports.games = (function() {
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "Kids Draughts",
+				    "title": {
+					    "en": "Kids Draughts",
+					    "fr": "Dames pour enfants"
+				    },
 					"summary": {
 						"en": "A version for kids of checkers on a 6x6 board.",
 						"fr": "Une version des dames pour enfants sur un plateau 6x6."

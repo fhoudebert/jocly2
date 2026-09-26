@@ -19,7 +19,10 @@
 
 const H = require("./harness.js");
 
-const SCRIPTS = ["base-model.js", "grid-geo-model.js", "cazaux/gigachess-model.js"];
+// fairy-piece-model.js porte desormais cbShipGraph, qui etait recopie dans
+// chaque jeu l'employant. Meme liste que le manifeste.
+const SCRIPTS = ["base-model.js", "grid-geo-model.js", "fairy-piece-model.js",
+	"cazaux/gigachess-model.js"];
 
 const giga = H.context(SCRIPTS);
 const sandbox = giga.sandbox, game = giga.game;

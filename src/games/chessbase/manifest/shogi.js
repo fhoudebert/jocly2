@@ -285,9 +285,6 @@ exports.games = {
 				},
 				"gameOptions": config_model_gameOptions_2,
 				"js": modelScripts_105,
-				"description": {
-					"en": "res/rules/shogi/shogi-description.html"
-				},
 				"levels": config_model_levels_15_shogi_expert
 			},
 			"view": {
@@ -368,16 +365,13 @@ exports.games = {
 				},
 				"module": "chessbase",
 				"plazza": "true",
-				"thumbnail": "res/rules/shogi/shogi-thumb.png",
+				"thumbnail": "res/rules/shogi/kotaishi-thumb.png",
 				"released": 1396536978,
 				"credits": {
 					"en": "res/rules/shogi/kotaishi-credits.html"
 				},
 				"gameOptions": config_model_gameOptions_2,
 				"js": modelScripts_kotaishi,
-				"description": {
-					"en": "res/rules/shogi/shogi-description.html"
-				},
 				"levels": config_model_levels_15
 				// fairy stockfish ne gère le prince royal 
                     //"levels": config_model_levels_15_kotaishi_expert
@@ -631,9 +625,6 @@ exports.games = {
 				},
 				"gameOptions": config_model_gameOptions_2,
 				"js": modelScripts_107,
-				"description": {
-					"en": "res/rules/shogi/mini-shogi-description.html"
-				},
 				"levels": config_model_levels_15_minishogi_expert
 			},
 			"view": {
@@ -804,9 +795,6 @@ exports.games = {
 				},
 				"gameOptions": config_model_gameOptions_2,
 				"js": modelScripts_106,
-				"description": {
-					"en": "res/rules/shogi/tori-shogi-description.html"
-				},
 				"levels": config_model_levels_15_torishogi_expert
 			},
 			"view": {
@@ -874,9 +862,6 @@ exports.games = {
 				},
 				"gameOptions": config_model_gameOptions_2,
 				"js": modelScripts_108,
-				"description": {
-					"en": "res/rules/shogi/chu-shogi-description.html"
-				},
 				"levels": config_model_levels_15
 			},
 			"view": {

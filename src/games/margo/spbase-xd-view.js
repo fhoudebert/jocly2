@@ -216,7 +216,7 @@
 						create: function() {
 							var gg=new THREE.TextGeometry(""+(pos+1),{
 								size: 0.2,
-								height: 0.05,
+								depth: 0.05,
 								curveSegments: 6,
 								font: "helvetiker",
 								
@@ -311,7 +311,7 @@
                                 function(font) {
                                     var gg=new THREE.TextGeometry(""+(nid+/*1*/0),{
                                         size: RADIUS*$this.SCALE3D*.3,
-                                        height: 0.05,
+                                        depth: 0.05,
                                         curveSegments: 6,
                                         font: font,
                                     });

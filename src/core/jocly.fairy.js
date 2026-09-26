@@ -614,52 +614,6 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		}
 
 		/*
-		 * Fairy-Stockfish spells a *piece* promotion shogi-style, with a
-		 * trailing "+" (c9d10+), where Jocly names the piece it turns into
-		 * (c9d10H). Pawn promotions agree - both write the letter - so this
-		 * only concerns games declaring promotedPieceType, i.e. currently
-		 * Timurid. Such a promotion is mandatory and has a single target, so
-		 * the from/to pair identifies the move on its own; match on it
-		 * exactly rather than leaving a systematic notation difference to be
-		 * settled by edit distance below. If it turns out ambiguous, fall
-		 * through to the fuzzy match rather than guessing.
-		 */
-		if (uciMove.charAt(uciMove.length - 1) === "+") {
-			var prefix = uciMove.slice(0, -1);
-			var promotions = [];
-			engineStrings.forEach(function (str, index) {
-				var s = str.toLowerCase();
-				if (s === prefix || (s.length === prefix.length + 1 && s.indexOf(prefix) === 0))
-					promotions.push(index);
-			});
-			if (promotions.length === 1)
-				return candidates[promotions[0]];
-		}
-
-		/*
-		 * Fairy-Stockfish spells a *piece* promotion shogi-style, with a
-		 * trailing "+" (c9d10+), where Jocly names the piece it turns into
-		 * (c9d10H). Pawn promotions agree - both write the letter - so this
-		 * only concerns games declaring promotedPieceType, i.e. currently
-		 * Timurid. Such a promotion is mandatory and has a single target, so
-		 * the from/to pair identifies the move on its own; match on it
-		 * exactly rather than leaving a systematic notation difference to be
-		 * settled by edit distance below. If it turns out ambiguous, fall
-		 * through to the fuzzy match rather than guessing.
-		 */
-		if (uciMove.charAt(uciMove.length - 1) === "+") {
-			var prefix = uciMove.slice(0, -1);
-			var promotions = [];
-			engineStrings.forEach(function (str, index) {
-				var s = str.toLowerCase();
-				if (s === prefix || (s.length === prefix.length + 1 && s.indexOf(prefix) === 0))
-					promotions.push(index);
-			});
-			if (promotions.length === 1)
-				return candidates[promotions[0]];
-		}
-
-		/*
 		 * An exact match first. The fuzzy pass below exists for notation
 		 * differences, not for disagreements about the position, and it cannot
 		 * tell the two apart: asked for a move Jocly does not have, it returns
@@ -673,10 +627,56 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		 * enough that refusing to move would be worse - but it is no longer
 		 * silent.
 		 */
-		var exact = engineStrings.map(function (str) { return str.toLowerCase(); })
-			.indexOf(uciMove.toLowerCase());
-		if (exact >= 0)
-			return candidates[exact];
+		/*
+		 * Kyoto Shogi turns a piece over at every move, and Fairy-Stockfish
+		 * says so both ways: "+" when it goes to its promoted face, "-" when
+		 * it comes back (e5d4-). Jocly writes the first and leaves the second
+		 * implicit, so a trailing "-" is dropped before matching - otherwise
+		 * every such move went through the approximate match below.
+		 */
+		var wanted = uciMove.toLowerCase();
+		if (wanted.charAt(wanted.length - 1) === "-")
+			wanted = wanted.slice(0, -1);
+		var lowered = engineStrings.map(function (str) { return str.toLowerCase(); });
+		var exacts = [];
+		lowered.forEach(function (str, index) { if (str === wanted) exacts.push(index); });
+		/*
+		 * UN ROQUE ET UN PAS DE ROI PEUVENT S'ECRIRE PAREIL.
+		 *
+		 * Quand le roi roque d'une seule case -- au Malett, c1 vers b1 --
+		 * le format « engine » ecrit le roque « c1b1 », exactement comme le
+		 * pas de roi c1-b1. Fairy-Stockfish, lui, ne s'y trompe pas : dans ce
+		 * cas il ecrit le roque ROI-PREND-TOUR (« c1a1 »), et reserve « c1b1 »
+		 * au pas de roi. Deux consequences ici :
+		 *
+		 *   - « c1b1 » exact designe donc le pas de roi : on le prefere au
+		 *     roque quand les deux s'ecrivent ainsi, au lieu de prendre le
+		 *     premier de la liste ;
+		 *   - « c1a1 » n'existait dans aucune ecriture de jocly, et la
+		 *     recherche approchee jouait... le pas de roi. L'Expert voulait
+		 *     roquer, il deplacait son roi. On essaie donc aussi l'ecriture
+		 *     roi-prend-tour, pour les seuls roques.
+		 *
+		 * Trouve en rejouant toutes les ini maison contre le vrai moteur :
+		 * trois coups « rattrapes » par partie au Malett.
+		 */
+		if (exacts.length) {
+			for (var e = 0; e < exacts.length; e++)
+				if (candidates[exacts[e]].cg === undefined)
+					return candidates[exacts[e]];
+			return candidates[exacts[0]];
+		}
+		if (!useChess960Format) {
+			for (var c = 0; c < candidates.length; c++) {
+				var cand = candidates[c];
+				if (cand.cg === undefined)
+					continue;
+				var s960 = (typeof cand.ToString == "function") ? cand.ToString("engine960")
+					: aGame.CreateMove(cand).ToString("engine960");
+				if (s960.toLowerCase() === wanted)
+					return cand;
+			}
+		}
 
 		var bestIndex = -1, bestDist = Infinity;
 		engineStrings.forEach(function (str, index) {
@@ -823,7 +823,31 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 			return;
 		}
 
-		var fen = level.pocketGeometry ? BuildShogiStyleFen(aGame, level.dropPromoted) : aGame.mBoard.ExportBoardState(aGame);
+		/*
+		 * A model whose internal board is not the engine's can say so itself:
+		 * Seirawan++ keeps its waiting pieces in extra columns and needs the
+		 * S-Chess FEN (pocket, gating files in the castling field), which no
+		 * generic export can guess. When the board provides ExportFairyFen(),
+		 * it wins over both generic paths.
+		 */
+		/*
+		 * A single legal move needs no engine. This is not only a shortcut:
+		 * it is also the case of a game's opening setup move - chess960's
+		 * random arrangement, written "--" - where the engine, handed the
+		 * plain start position, would answer with a chess move ("e2e4")
+		 * matching nothing.
+		 */
+		aGame.mBoard.mMoves = [];
+		aGame.mBoard.GenerateMoveObjects(aGame);
+		if (aGame.mBoard.mMoves && aGame.mBoard.mMoves.length === 1) {
+			aGame.mBestMoves = [aGame.mBoard.mMoves[0]];
+			JocUtil.schedule(aGame, "Done", {});
+			return;
+		}
+
+		var fen = (typeof aGame.mBoard.ExportFairyFen == "function")
+			? aGame.mBoard.ExportFairyFen(aGame, level)
+			: level.pocketGeometry ? BuildShogiStyleFen(aGame, level.dropPromoted) : aGame.mBoard.ExportBoardState(aGame);
 		var pieceMaps = BuildPieceMaps(level.pieceMap);
 		var fenForEngine = TranslitFen(fen, pieceMaps.toFairy);
 		var entry;

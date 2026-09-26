@@ -240,7 +240,8 @@ exports.games = {
 					"fr": "Gardner, Baby et Malett en 5x5"
 				},
 				"rules": {
-					"en": "res/rules/mini/minichess5x5-rules.html"
+					"en": "res/rules/mini/minichess5x5-rules.html",
+                    "fr": "res/rules/mini/minichess5x5-rules_fr.html",
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -253,9 +254,7 @@ exports.games = {
 				"obsolete": false,
 				"js": modelScripts_minichess5x5,
 				"levels": config_model_levels_5_minichess5x5_expert,
-				"description": {
-					"en": "res/rules/mini/minichess5x5-description.html"
-				}
+
 			},
 			"view": {
 				"title-en": "Chessbase view",
@@ -299,7 +298,8 @@ exports.games = {
 					"fr": "Variante d’échecs miniature en 4x4"
 				},
 				"rules": {
-					"en": "res/rules/mini/mini4x4-rules.html"
+					"en": "res/rules/mini/mini4x4-rules.html",
+                    "fr": "res/rules/mini/mini4x4-rules_fr.html"
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -312,9 +312,6 @@ exports.games = {
 				"obsolete": false,
 				"js": modelScripts_4,
 				"levels": config_model_levels_5_mini4x4_expert,
-				"description": {
-					"en": "res/rules/mini/mini4x4-description.html"
-				}
 			},
 			"view": {
 				"title-en": "Chessbase view",
@@ -355,7 +352,8 @@ exports.games = {
 					"fr": "Mini et Micro échecs en 4x5"
 				},
 				"rules": {
-					"en": "res/rules/mini/minichess4x5-rules.html"
+					"en": "res/rules/mini/minichess4x5-rules.html",
+                    "fr": "res/rules/mini/minichess4x5-rules_fr.html",
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -368,9 +366,6 @@ exports.games = {
 				"obsolete": false,
 				"js": modelScripts_minichess4x5,
 				"levels": config_model_levels_5_minichess4x5_expert,
-				"description": {
-					"en": "res/rules/mini/minichess4x5-description.html"
-				}
 			},
 			"view": {
 				"title-en": "Chessbase view",
@@ -414,7 +409,8 @@ exports.games = {
 					"fr": "Variante d’échecs en 6x6"
 				},
 				"rules": {
-					"en": "res/rules/mini/los-alamos-rules.html"
+					"en": "res/rules/mini/los-alamos-rules.html",
+                    "fr": "res/rules/mini/los-alamos-rules_fr.html",
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -427,9 +423,6 @@ exports.games = {
 				"obsolete": false,
 				"js": modelScripts_9,
 				"levels": config_model_levels_5_losalamos_expert,
-				"description": {
-					"en": "res/rules/mini/los-alamos-description.html"
-				}
 			},
 			"view": {
 				"title-en": "Chessbase view",
@@ -470,7 +463,8 @@ exports.games = {
 					"fr": "Variante d’échecs en 5x6"
 				},
 				"rules": {
-					"en": "res/rules/mini/attack-rules.html"
+					"en": "res/rules/mini/attack-rules.html",
+                    "fr": "res/rules/mini/attack-rules_fr.html",
 				},
 				"module": "chessbase",
 				"plazza": "true",
@@ -483,9 +477,6 @@ exports.games = {
 				"obsolete": false,
 				"js": modelScripts_10,
 				"levels": config_model_levels_5_attack_expert,
-				"description": {
-					"en": "res/rules/mini/attack-description.html"
-				}
 			},
 			"view": {
 				"title-en": "Chessbase view",

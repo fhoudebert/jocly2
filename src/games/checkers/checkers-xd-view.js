@@ -369,7 +369,7 @@
                                 function(font) {
                                 var gg=new THREE.TextGeometry(""+($this.checkersPosToString(pos)),{
                                     size: 0.2,
-                                    height: 0.05,
+                                    depth: 0.05,
                                     curveSegments: 6,
                                     font: font,
 
@@ -651,7 +651,7 @@
 			frameShape.holes.push(holeShape);
 
 			var extrudeSettings = {
-				amount: .4 , // main extrusion thickness
+				depth: .4 , // main extrusion thickness ("amount" before three r98: ignored since, the frame came out 1 thick)
 				steps: 1 , // nb of main extrusion steps
 				bevelSize: bevelSize, 
 				bevelThickness:.04,
@@ -672,7 +672,7 @@
 				//ambient: '#000000',
 			});
 			var frameObj = new THREE.Mesh( frameGeo , frameMat);
-			frameObj.position.y=-extrudeSettings.amount-.01;
+			frameObj.position.y=-extrudeSettings.depth-.01;
 			return frameObj;
 		}
 

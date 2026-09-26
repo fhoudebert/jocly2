@@ -63,9 +63,12 @@ t.check("and a rejection is caught", /\.catch\(/.test(control), true);
 // The margin is a number and joins a translated verdict; the verdict itself
 // must keep coming from the page's own table, not from the library.
 t.check("the verdict is still translated", /verdict\s*=\s*T\(text\)/.test(control), true);
+// the table lives in examples/browser/lang/<code>.json since control.js
+// stopped carrying it
+const FR = JSON.parse(fs.readFileSync(
+	path.join(ROOT, "examples", "browser", "lang", "fr.json"), "utf8"));
 for(const key of ["A wins", "B wins", "Draw"])
-	t.check('"' + key + '" is in the table',
-		control.indexOf('"' + key + '":') > 0, true);
+	t.check('"' + key + '" is in the table', typeof FR[key] === "string", true);
 
 /* ------------------------------------------------ the thinking clock */
 
@@ -118,6 +121,6 @@ t.check("the interval is cleared, not just forgotten",
 
 // The unit is not translated - "s" is the same word in both languages - so it
 // must not have crept into the table, where it would be a string nobody uses.
-t.check("no unit in the dictionary", /"\s*s\s*":/.test(control), false);
+t.check("no unit in the dictionary", Object.keys(FR).some((k) => k.trim() === "s"), false);
 
 t.done("Control status");

@@ -686,7 +686,7 @@ TWEEN= typeof TWEEN=="undefined" ? { Easing: { Cubic: {}, Quartic: {}, } } : TWE
                                 function(font) {
                                 var gg=new THREE.TextGeometry(""+pos,{
                                     size: 0.25,
-                                    height: 0.05,
+                                    depth: 0.05,
                                     curveSegments: 6,
                                     font: font,
 

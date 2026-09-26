@@ -1565,8 +1565,12 @@ var modelScripts_15 = [
 	"grid-geo-model.js",
 	"famous/basic-model.js"
 ]
+// « famous/credits.html » : le prefixe res/rules/ manquait, et le build saute
+// en silence un fichier absent (gulp.src allowEmpty). Quatre jeux -- 3-echecs,
+// horde, knightmate, cubique -- partaient donc sans credits, et rien ne le
+// disait. Verifie desormais par tests/core/manifest-split.test.js.
 var config_model_credits = {
-	"en": "famous/credits.html"
+	"en": "res/rules/famous/credits.html"
 }
 var config_view_skins_preload_4 = [
 ]

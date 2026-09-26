@@ -277,12 +277,29 @@
 		return moveStr0;
 	}
 
+	/*
+	 * Two numberings of the same ranks:
+	 *
+	 *   - Jocly's own notation (history, saved games, opening book) counts
+	 *     them from 0, the WXF/"a0-i9" convention: the red chariot starts on
+	 *     a0;
+	 *   - Fairy-Stockfish, like every UCI engine, counts them from 1 (a1 to
+	 *     i10): the same chariot is on a1, and the engine writes "h10g8"
+	 *     for what Jocly calls "h9g7".
+	 *
+	 * The "engine" formats (asked for by jocly.fairy.js to match the engine's
+	 * answer against the legal moves) used to get the 0-based form too, so
+	 * NO answer of the Expert level ever matched exactly: the move was then
+	 * picked by edit distance, right for "h10g8"/"h9g7" but not always -
+	 * the engine's cannon "h3e3" once became the pawn move "e3e4".
+	 */
 	Model.Move.ToString = function(format) {
 		var self = this;
+		var base = (format == "engine" || format == "engine960") ? 1 : 0;
 		function PosName(pos) {
 			var col = pos % 9;
 			var row = (pos-col)/9;
-			return String.fromCharCode(("a".charCodeAt(0))+col) + row;
+			return String.fromCharCode(("a".charCodeAt(0))+col) + (row + base);
 		}
 		return PosName(self.f) + PosName(self.t);
 	}

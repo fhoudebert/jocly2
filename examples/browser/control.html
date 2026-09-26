@@ -5,8 +5,8 @@
 <head>
     <meta charset="utf-8">
 
-    <title>Jocly Game Control</title>
-    <meta name="description" content="Jocly Game Control">
+    <title data-i18n>Jocly Game Control</title>
+    <meta name="description" content="Jocly Game Control" data-i18n-attr="content">
     <meta name="author" content="Jocly">
 
     <link rel="stylesheet" href="css/control-styles.css">
@@ -23,81 +23,78 @@
             <div id="game-title" style="display: none;" class="box">Jocly Game</div>
             <div id="game-status" style="display: none;" class="box">Status</div>
 	       	<div id="mode-panel" style="display: none;" class="box">
-	       		<h3>Controls</h3>
-	       		<button id="restart">Restart game</button>
-	       		<button id="takeback">Take back</button>
-	       		<button id="fullscreen" style="display: none;">Full screen</button>
-	       		<button id="save">Save</button>
+	       		<h3 data-i18n>Controls</h3>
+	       		<button id="restart" data-i18n>Restart game</button>
+	       		<button id="takeback" data-i18n>Take back</button>
+	       		<button id="fullscreen" style="display: none;" data-i18n>Full screen</button>
+	       		<button id="save" data-i18n>Save</button>
 				<input type="file" id="fileElem" accept="application/json" style="display:none"/>
-	       		<button id="load">Load</button>
-	       		<button id="snapshot">Snapshot</button>
+	       		<button id="load" data-i18n>Load</button>
+	       		<button id="snapshot" data-i18n>Snapshot</button>
                 <br/><br/>
 	       		<select id="mode">
-	       			<option value="self-self">Self / Self</option>
-	       			<option value="self-comp">Self / Computer</option>
-	       			<option value="comp-self">Computer / Self</option>
-	       			<option value="comp-comp">Computer / Computer</option>
+	       			<option value="self-self" data-i18n>Self / Self</option>
+	       			<option value="self-comp" data-i18n>Self / Computer</option>
+	       			<option value="comp-self" data-i18n>Computer / Self</option>
+	       			<option value="comp-comp" data-i18n>Computer / Computer</option>
 	       		</select><br/><br/>
-	       		<label id="level-a" for="select-level-PLAYER_A">Computer(A) level
+	       		<label id="level-a" for="select-level-a"><span data-i18n>Computer(A) level</span>
 	        		<select id="select-level-a"></select><br/><br/>
 	       		</label>
-	       		<label id="level-b" for="select-level-b">Computer(B) level
+	       		<label id="level-b" for="select-level-b"><span data-i18n>Computer(B) level</span>
 	        		<select id="select-level-b"></select><br/><br/>
 	       		</label>
 	       	</div>
 	       	<div id="options" style="display: none;"  class="box">
-	       		<h3>Options</h3>
+	       		<h3 data-i18n>Options</h3>
 				<div id="view-options">
 					<select id="options-skin"></select>
 					<select id="view-as" style="display: none;">
-						<option value="player-a">View as player A</option>
-						<option value="player-b">View as player B</option>
+						<option value="player-a" data-i18n>View as player A</option>
+						<option value="player-b" data-i18n>View as player B</option>
 					</select>
 					<br/><br/>
 					<label id="options-notation" for="options-notation-input">
-						<input id="options-notation-input" type="checkbox"/> Notation<br/>
+						<input id="options-notation-input" type="checkbox"/> <span data-i18n>Notation</span><br/>
 					</label>
 					<label id="options-moves" for="options-moves-input">
-						<input id="options-moves-input" type="checkbox"/> Show possible moves<br/>
+						<input id="options-moves-input" type="checkbox"/> <span data-i18n>Show possible moves</span><br/>
 					</label>
 					<label id="options-lastmove" for="options-lastmove-input">
-						<input id="options-lastmove-input" type="checkbox"/> Mark the last move<br/>
+						<input id="options-lastmove-input" type="checkbox"/> <span data-i18n>Mark the last move</span><br/>
 					</label>
 					<label id="options-autocomplete" for="options-autocomplete-input">
-						<input id="options-autocomplete-input" type="checkbox"/> Auto-complete moves<br/>
+						<input id="options-autocomplete-input" type="checkbox"/> <span data-i18n>Auto-complete moves</span><br/>
 					</label>
 					<label id="options-sounds" for="options-sounds-input">
-						<input id="options-sounds-input" type="checkbox"/> Sounds<br/>
+						<input id="options-sounds-input" type="checkbox"/> <span data-i18n>Sounds</span><br/>
 					</label>
 				</div>
 				<br/>
-	       		<label id="anaglyph" for="anaglyph-input">
-	       			<input id="anaglyph-input" type="checkbox"/> Anaglyph view<br/>
-	       		</label>
 	       		<label id="panorama" for="panorama-select">
-					Panorama 360
+					<span data-i18n>Panorama 360</span>
 					<input type="file" id="file360Elem" accept="application/json" style="display:none"/>
-		       		<button id="panorama-button">Local</button>
+		       		<button id="panorama-button" data-i18n>Local</button>
 					<select id="panorama-select">
 						<option value="">--</option>
-						<option value="cabin">Cabin</option>
-						<option value="factory">Factory</option>
-						<option value="earth">Earth</option>
+						<option value="cabin" data-i18n>Cabin</option>
+						<option value="factory" data-i18n>Factory</option>
+						<option value="earth" data-i18n>Earth</option>
 					</select>
 	       		</label>
 
 	       	</div>
             <div id="links">
                 
-                <a href="javascript:void(0)" id="game-rules" style="display:none">Rules of this game</a>
-                <a href="javascript:void(0)" id="other-games">Other Jocly games</a>
+                <a href="javascript:void(0)" id="game-rules" style="display:none" data-i18n>Rules of this game</a>
+                <a href="javascript:void(0)" id="other-games" data-i18n>Other Jocly games</a>
             </div>
 		</div>
         <div id="games" style="display:none">
 			<div>
 				<div>
 					<div id="close-games">
-						<span>&laquo; Back</span>
+						<span data-i18n>&laquo; Back</span>
 					</div>
 					<div id="game-list"></div>
 				</div>
@@ -107,7 +104,7 @@
 			<div>
 				<div>
 					<div id="close-rules">
-						<span>&laquo; Back</span>
+						<span data-i18n>&laquo; Back</span>
 					</div>
 					<div id="rules-content"></div>
 				</div>
@@ -120,9 +117,8 @@
     <script src="../../dist/browser/jocly.js"></script>
     <script src="https://code.jquery.com/jquery-4.0.0.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao="
         crossorigin="anonymous"></script>
-    <!-- control.js is shared by control.html and control_fr.html: it picks the
-         translation of the game summaries from here (falling back to the lang
-         attribute of <html>, then to English)
+    <!-- The page is written in English and translated by js/i18n.js from
+         lang/<code>.json; see the head of that script to add a language.
 
          Query parameters:
            game   game to open, default classic-chess
@@ -130,8 +126,9 @@
                   ("expert"), by the label shown in the dropdown, by index, or
                   "random". Unknown values are ignored and the level stored for
                   this browser is kept.
-         e.g. control.html?game=timurid-chess&level=expert -->
-    <script>window.JOCLY_LANG = "en";</script>
+           lang   language of the page ("fr", "en"...), default the browser's
+         e.g. control.html?game=timurid-chess&level=expert&lang=fr -->
+    <script src="js/i18n.js"></script>
     <script src="js/control.js"></script>
 </body>
 

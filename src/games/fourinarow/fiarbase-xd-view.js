@@ -317,7 +317,7 @@
                                 function(font) {
                                 var gg=new THREE.TextGeometry(""+notation,{
                                     size: 0.6,
-                                    height: 0.05,
+                                    depth: 0.05,
                                     curveSegments: 6,
                                     font: font,
                                 });

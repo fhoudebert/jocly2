@@ -364,8 +364,8 @@ exports.games = (function() {
 					    "fr": "Marelle à 6"
 				    },
 					"summary": {
-						"en": "An old board game, plain or flying",
-						"fr": "Jeu du moulin classique ou avec saut"
+						"en": "An old board game, plain",
+						"fr": "Jeu du moulin classique"
 					},
 					"rules": config_model_rules,
 					"maxLevel": 7,
@@ -428,8 +428,8 @@ exports.games = (function() {
 					    "fr": "Marelle à 7"
 				    },
 					"summary": {
-						"en": "An old board game, plain or flying",
-						"fr": "Jeu du moulin classique ou avec saut"
+						"en": "An old board game",
+						"fr": "Jeu du moulin classique"
 					},
 					"rules": config_model_rules,
 					"maxLevel": 7,

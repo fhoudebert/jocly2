@@ -21,36 +21,28 @@
   },
   "scripts": {
     "build": "gulp build --prod",
-    "test": "node tests/run.js"
+    "test": "node tests/run.js",
+    "three": "node tools/three/build-three.js"
   },
   "devDependencies": {
-    "@babel/core": "^7.23.6",
-    "@babel/preset-env": "^7.23.6",
-    "ansi-colors": "^1.1.0",
-    "del": "^6.1.1",
-    "esbuild": "^0.25.0",
-    "fancy-log": "^1.3.3",
-    "gulp": "^4.0.2",
-    "gulp-babel": "^8.0.0",
+    "ansi-colors": "^4.1.3",
+    "esbuild": "^0.28.2",
+    "fancy-log": "^2.0.0",
+    "gulp": "^5.0.1",
     "gulp-concat": "^2.6.1",
-    "gulp-debug": "^3.2.0",
-    "gulp-if": "^2.0.2",
-    "gulp-rename": "^1.4.0",
-    "gulp-sourcemaps": "^2.6.5",
-    "gulp-terser": "^2.1.0",
+    "gulp-if": "^3.0.0",
+    "gulp-rename": "^2.1.0",
     "jquery": "^4.0.0",
-    "jsdom": "^24.0.0",
-    "merge-stream": "^1.0.1",
+    "jsdom": "^30.1.1",
+    "merge-stream": "^2.0.0",
     "minimist": "^1.2.8",
-    "through2": "^2.0.5",
+    "three": "0.186.1",
+    "through2": "^4.0.2",
     "vinyl": "^3.0.0",
     "vinyl-buffer": "^1.0.1",
-    "vinyl-source-stream": "^1.1.2"
+    "vinyl-source-stream": "^2.0.0"
   },
   "engines": {
-    "node": ">=18"
-  },
-  "overrides": {
-    "graceful-fs": "^4.2.11"
+    "node": "^22.22.2 || ^24.15.0 || >=26.0.0"
   }
 }

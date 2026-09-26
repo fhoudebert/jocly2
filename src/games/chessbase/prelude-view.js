@@ -151,6 +151,12 @@
 							ctx.save();
 							var $gadget=this;
 							var rows=setups[setup].split('/').map(function(row) { return Tokens(aGame,row); });
+							/*
+							 * Icons from the TOP of the button, the caption
+							 * band below them: centred on the whole button,
+							 * they came down half a band and the caption was
+							 * written across the bottom of the pieces.
+							 */
 							for(var i=0;i<buttonDim.s;i++) { // layout icons for this setup as a block
 								var x=i%buttonDim.w, y=Math.floor(i/buttonDim.w);
 								var p=(rows[y]||[])[x];
@@ -162,14 +168,27 @@
 								(function(sprite,x,y) {
 									$gadget.getResource("image|"+sprite.file,function(image) {
 										ctx.drawImage(image,sprite.x,sprite.y,sprite.w,sprite.h,
-												(x-buttonDim.w/2)*size,(y-buttonDim.h/2)*size,size,size);
+												(x-buttonDim.w/2)*size,(y-(buttonDim.h+labelH)/2)*size,size,size);
 									});
 								})(sprite,x,y);
 							}
 							ctx.restore();
 							if(labels && labels[setup]) {
 								ctx.fillStyle="#202020";
-								ctx.font="bold "+Math.round(size*0.38)+"px sans-serif";
+								/*
+								 * Shrunk to fit the button when it is too
+								 * long for it - "Wild Samarkand" under three
+								 * pieces - rather than running into the next
+								 * button: the gap between two is one cell.
+								 */
+								var fontPx=Math.round(size*0.38);
+								ctx.font="bold "+fontPx+"px sans-serif";
+								var room=size*buttonDim.w*0.94;
+								var textW=ctx.measureText(labels[setup]).width;
+								if(textW>room) {
+									fontPx=Math.floor(fontPx*room/textW);
+									ctx.font="bold "+fontPx+"px sans-serif";
+								}
 								ctx.textAlign="center";
 								ctx.textBaseline="middle";
 								ctx.fillText(labels[setup],0,
