@@ -9,8 +9,38 @@
 
 const {
 	modelScripts, config_model_gameOptions, config_view_css, config_view_defaultOptions,
-	config_view_sounds, config_view_skins_2, config_model_levels_15
+	config_view_sounds, config_view_skins_2, config_model_levels_15,
+	config_view_skins_world, config_view_skins_camera
 } = require("./shared.js");
+
+// 3D skin of Rococo and Rocaille: the fairy set, re-keyed to the family's
+// aspects by baroque-view.js (pieces3d). Preloading the meshes and textures
+// keeps the board from filling in piece by piece.
+function baroqueSkin3d(pieces) {
+	var preload = [
+		"smoothedfilegeo|0|/res/ring-target.js",
+		"image|/res/images/cancel.png",
+		"image|/res/images/wikipedia.png",
+	];
+	pieces.forEach(function(p) {
+		preload.push("smoothedfilegeo|0|/res/fairy/" + p + ".js",
+			"image|/res/fairy/" + p + "-diffusemap.jpg",
+			"image|/res/fairy/" + p + "-normalmap.jpg");
+	});
+	return {
+		"name": "skin3d",
+		"title": "3D Classic",
+		"3d": true,
+		"preload": preload,
+		"world": config_view_skins_world,
+		"camera": config_view_skins_camera
+	};
+}
+
+var config_view_skins_baroque3d = baroqueSkin3d([
+	"pawn/pawn", "advancer/advancer", "frog/frog", "birds/owl",
+	"withdrawer/withdrawer", "chameleon/chameleon", "omega/wizard", "king/king"
+]);
 
 // declarations only this family uses, lifted out of shared.js
 var modelScripts_rococo = [
@@ -23,6 +53,7 @@ var modelScripts_rococo = [
 var config_view_js_rococo = [
 	"base-view.js",
 	"grid-board-view.js",
+	"fairy-set-view.js",
 	"ultima/baroque-view.js",
 	"ultima/rococo-view.js",
 	"ultima/baroque-choice-view.js",
@@ -39,6 +70,7 @@ var modelScripts_rocaille = [
 var config_view_js_rocaille = [
 	"base-view.js",
 	"grid-board-view.js",
+	"fairy-set-view.js",
 	"ultima/baroque-view.js",
 	"ultima/rocaille-view.js",
 	"ultima/baroque-choice-view.js",
@@ -143,7 +175,8 @@ exports.games = {
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
 				"skins": [
-					config_view_skins_2
+					config_view_skins_2,
+					config_view_skins_baroque3d
 				],
 				"animateSelfMoves": false,
 				"switchable": true,
@@ -188,7 +221,8 @@ exports.games = {
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
 				"skins": [
-					config_view_skins_2
+					config_view_skins_2,
+					config_view_skins_baroque3d
 				],
 				"animateSelfMoves": false,
 				"switchable": true,

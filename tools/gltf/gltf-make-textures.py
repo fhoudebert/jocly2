@@ -217,6 +217,15 @@ def decimate(m, target):
                                         target_reduction=red)
     out = trimesh.Trimesh(vertices=v, faces=f, process=False)
     out.merge_vertices()
+    # la decimation peut recreer des faces d'aire nulle (aretes effondrees) :
+    # meme probleme qu'au chargement (normale (0,0,0) -> axe d'ilot nul -> NaN
+    # dans split_folded), donc meme remede. C'est ce qui faisait planter
+    # advancer.glb, propre au chargement mais pas apres decimation.
+    keep = out.area_faces > 1e-12
+    if not keep.all():
+        out.update_faces(keep)
+        out.remove_unreferenced_vertices()
+        print(f'  {int((~keep).sum())} face(s) d\'aire nulle retiree(s) apres decimation')
     print(f'  decimation : {len(m.faces)} -> {len(out.faces)} triangles')
     return out
 
@@ -351,6 +360,11 @@ def merge_small(m, ch, label, min_frac=0.012, cone_deg=78, maxang_deg=60):
 
 
 def project(m, faces_idx, axis):
+    n = np.linalg.norm(axis)
+    if not np.isfinite(n) or n < 1e-12:      # filet de securite : axe nul
+        axis = np.array([0.0, 1.0, 0.0])
+    else:
+        axis = axis / n
     up = np.array([0.0, 1.0, 0.0])
     if abs(axis @ up) > 0.95:
         up = np.array([1.0, 0.0, 0.0])

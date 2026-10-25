@@ -2239,6 +2239,69 @@
 				}
 			},
 		},
+		"fr-advancer": {
+			mesh: {
+				jsFile:"/res/fairy/advancer/advancer.js"
+			},
+			materials: {
+				mat0: {
+					channels: {
+						diffuse: {
+							texturesImg: {
+								diffImg : "/res/fairy/advancer/advancer-diffusemap.jpg",
+							}
+						},
+						normal: {
+							texturesImg: {
+								normalImg: "/res/fairy/advancer/advancer-normalmap.jpg",
+							}
+						}
+					}
+				}
+			},
+		},
+		"fr-withdrawer": {
+			mesh: {
+				jsFile:"/res/fairy/withdrawer/withdrawer.js"
+			},
+			materials: {
+				mat0: {
+					channels: {
+						diffuse: {
+							texturesImg: {
+								diffImg : "/res/fairy/withdrawer/withdrawer-diffusemap.jpg",
+							}
+						},
+						normal: {
+							texturesImg: {
+								normalImg: "/res/fairy/withdrawer/withdrawer-normalmap.jpg",
+							}
+						}
+					}
+				}
+			},
+		},
+		"fr-chameleon": {
+			mesh: {
+				jsFile:"/res/fairy/chameleon/chameleon.js"
+			},
+			materials: {
+				mat0: {
+					channels: {
+						diffuse: {
+							texturesImg: {
+								diffImg : "/res/fairy/chameleon/chameleon-diffusemap.jpg",
+							}
+						},
+						normal: {
+							texturesImg: {
+								normalImg: "/res/fairy/chameleon/chameleon-normalmap.jpg",
+							}
+						}
+					}
+				}
+			},
+		},
 		"fr-rhino2": {
 			mesh: {
 				jsFile:"/res/fairy/rhino/rhino2.js"
