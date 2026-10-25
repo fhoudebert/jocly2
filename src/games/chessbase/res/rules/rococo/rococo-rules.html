@@ -25,7 +25,7 @@
 		background-position-x: calc(var(--r-col) / (var(--r-cols) - 1) * 100%);
 	}
 	/* column index of each piece within the sprite sheet shared with Ultima */
-	.r-leaper      { --r-col: 2; }
+	.r-leaper      { --r-col: 10; }	/* the frog */
 	.r-withdrawer  { --r-col: 3; }
 	.r-chameleon   { --r-col: 4; }
 	.r-immobilizer { --r-col: 5; }
@@ -63,6 +63,13 @@ the board is 10x10 with a special outer ring, and you win by <b>capturing</b> th
 <tr><td><span class="r-icon r-immobilizer"></span> <b>Immobilizer</b></td><td>like a Queen</td><td>never captures - it paralyses instead</td></tr>
 <tr><td><span class="r-icon r-king"></span> <b>King</b></td><td>one square</td><td>by displacement, like a chess King</td></tr>
 </table>
+<p><b>In 3D</b>, the pieces are figurines: the Long Leaper is a frog, the
+Chameleon a chameleon perched on its branch, the Immobilizer a wizard, the
+Advancer a piece topped with an arrowhead and the Withdrawer a piece topped
+with a column; the King is the usual King. The Swapper carries two curved
+arrows chasing each other round two balls: two pieces trading places. The
+Cannon Pawn (a pawn) has no figurine of its own yet.</p>
+
 <p>Every piece except the Cannon Pawn and the King moves like a Queen: any distance along a rank, a file or a
 diagonal, over empty squares only, and never onto an occupied square. No piece may jump over another - the Long Leaper
 and the Cannon Pawn do, but only as part of their capture.</p>

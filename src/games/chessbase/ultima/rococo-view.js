@@ -18,7 +18,7 @@ View.Game.baroqueDefineView({
 	columns: {
 		"rococo-pawn": 7,						// Cannon Pawn
 		"rococo-advancer": 9,
-		"rococo-leaper": 10,						// Long Leaper
+		"rococo-leaper": 10,						// Long Leaper - the frog
 		"rococo-swapper": 8,
 		"rococo-withdrawer": 3,
 		"rococo-chameleon": 4,
@@ -29,7 +29,7 @@ View.Game.baroqueDefineView({
 		"rococo-pawn": "fr-pawn",				// Cannon Pawn: no model yet
 		"rococo-advancer": "fr-advancer",
 		"rococo-leaper": "fr-frog",				// Long Leaper
-		"rococo-swapper": "fr-owl",				// placeholder
+		"rococo-swapper": "fr-swapper",				// two arrows chasing round two swapped balls
 		"rococo-withdrawer": "fr-withdrawer",
 		"rococo-chameleon": "fr-chameleon",
 		"rococo-immobilizer": "fr-wizard",

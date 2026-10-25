@@ -2302,6 +2302,27 @@
 				}
 			},
 		},
+		"fr-swapper": {
+			mesh: {
+				jsFile:"/res/fairy/swapper/swapper.js"
+			},
+			materials: {
+				mat0: {
+					channels: {
+						diffuse: {
+							texturesImg: {
+								diffImg : "/res/fairy/swapper/swapper-diffusemap.jpg",
+							}
+						},
+						normal: {
+							texturesImg: {
+								normalImg: "/res/fairy/swapper/swapper-normalmap.jpg",
+							}
+						}
+					}
+				}
+			},
+		},
 		"fr-rhino2": {
 			mesh: {
 				jsFile:"/res/fairy/rhino/rhino2.js"

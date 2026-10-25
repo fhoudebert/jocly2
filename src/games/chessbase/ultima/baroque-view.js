@@ -32,6 +32,11 @@
  *               3D skin in its manifest.
  *   scale3d     3D piece scale, default worked out from the board size the
  *               way the other chessbase views do it (0.5 on 9x9, 0.41 on 12x12)
+ *   shade3d     factor applied to the board colours in 3D, default 0.72. The
+ *               3D lights brighten a painted square by about 1.4 (measured on
+ *               Rocaille's ring: #6E5037 came out as #956F4F) and clip the light
+ *               squares to a glaring yellow; darkening first brings the 3D
+ *               board back to the colours of the 2D one.
  *
  * The panel that separates a swap from a mutual destruction is in
  * baroque-choice-view.js, and the capture animation in
@@ -85,6 +90,16 @@
 		if(V.scale3d) return V.scale3d;
 		var margin = V.margin === undefined ? MARGIN : V.margin;
 		return Math.round(5.5 / (Math.max(V.width, V.height) + 2 * margin) * 1000) / 1000;
+	}
+
+	// a CSS hex colour times k, for the 3D board (see shade3d)
+	function shade(hex, k) {
+		var m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex);
+		if(!m) return hex;
+		return "#" + [m[1], m[2], m[3]].map(function(h) {
+			var v = Math.max(0, Math.min(255, Math.round(parseInt(h, 16) * k)));
+			return (v < 16 ? "0" : "") + v.toString(16);
+		}).join("");
 	}
 
 	View.Game.baroqueDefineView = function(V) {
@@ -168,13 +183,14 @@
 				// variant's own squares, ring included.
 				var board3d = this.cbGridBoardClassic3DMargin;
 				if(V.colors) {
+					var k = V.shade3d || 0.72;
 					var fill3d = {
-						".": V.colors.light,
-						"#": V.colors.dark,
+						".": shade(V.colors.light, k),
+						"#": shade(V.colors.dark, k),
 						" ": "rgba(0,0,0,0)",
 					};
 					if(V.ring)
-						fill3d["e"] = V.colors.edge;
+						fill3d["e"] = shade(V.colors.edge, k);
 					board3d = $.extend(true, {}, this.cbGridBoardClassic3DMargin, {
 						colorFill: fill3d,
 					});

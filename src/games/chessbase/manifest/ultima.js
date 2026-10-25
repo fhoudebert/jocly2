@@ -38,7 +38,7 @@ function baroqueSkin3d(pieces) {
 }
 
 var config_view_skins_baroque3d = baroqueSkin3d([
-	"pawn/pawn", "advancer/advancer", "frog/frog", "birds/owl",
+	"pawn/pawn", "advancer/advancer", "frog/frog", "swapper/swapper",
 	"withdrawer/withdrawer", "chameleon/chameleon", "omega/wizard", "king/king"
 ]);
 

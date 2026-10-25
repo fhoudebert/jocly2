@@ -10,8 +10,8 @@
  *
  * Pieces come from res/ultima/baroque-picto-sprites.png, the family sheet. Its
  * first eleven columns are those of the older ultima sheet, plus a twelfth for
- * the Ghost. The frog of column 10 is the Short Leaper, which the engine still
- * knows but this variant does not use; its Leaper is Rococo's, the kangaroo.
+ * the Ghost. The Long Leaper is drawn with the frog of column 10, as in Rococo
+ * and as its 3D figure; the kangaroo of column 2 is no longer used here.
  *
  * Everything else is in baroque-view.js, shared with Rococo and Ultima, which
  * must be listed before this file in viewScripts.
@@ -22,7 +22,7 @@ View.Game.baroqueDefineView({
 	columns: {
 		"rocaille-pawn": 7,						// Cannon Pawn
 		"rocaille-advancer": 9,
-		"rocaille-leaper": 10,					// Long Leaper - the kangaroo
+		"rocaille-leaper": 10,					// Long Leaper - the frog
 		"rocaille-swapper": 8,
 		"rocaille-withdrawer": 3,
 		"rocaille-chameleon": 4,
@@ -34,7 +34,7 @@ View.Game.baroqueDefineView({
 		"rocaille-pawn": "fr-pawn",				// Cannon Pawn: no model yet
 		"rocaille-advancer": "fr-advancer",
 		"rocaille-leaper": "fr-frog",				// Long Leaper
-		"rocaille-swapper": "fr-owl",				// placeholder
+		"rocaille-swapper": "fr-swapper",				// two arrows chasing round two swapped balls
 		"rocaille-withdrawer": "fr-withdrawer",
 		"rocaille-chameleon": "fr-chameleon",
 		"rocaille-immobilizer": "fr-wizard",
