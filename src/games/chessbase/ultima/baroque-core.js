@@ -22,6 +22,8 @@
  *   ghost           define the Ghost: a Queen that blocks but never captures
  *   extra           pieces off the two ranks: [{ row, col, t }], mirrored
  *   bindingCheck    a move leaving one's own King capturable is illegal
+ *   values          { type: value } overriding the default material values
+ *                   the AI weighs pieces with; omitted types keep theirs
  *
  * Reuses the multi-victim machinery of the Ultima model but is self-contained
  * (it does not require ultima-model.js).
@@ -111,6 +113,11 @@ Model.Game.baroqueDefineVariant = function(V) {
 		// the others keep an eight-piece table.
 		if(V.ghost)
 			t[GHOST] = type('ghost', V.aspect + '-ghost', 'G', 2, Q);
+		// a variant may weigh its pieces differently: the same piece is worth
+		// more or less depending on the board and the army around it
+		for(var vt in (V.values || {}))
+			if(t[vt])
+				t[vt].value = V.values[vt];
 		for(var i in t)
 			t[i].initial = initialPieces().filter(function(pc) { return pc.t == i; })
 				.map(function(pc) { return { s: pc.s, p: pc.p }; });
