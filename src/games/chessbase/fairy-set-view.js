@@ -2348,6 +2348,30 @@
 				}
 			},
 		},
+		// Ultima's Pincer Pawn: Courier Chess's bell-shaped Pawn, a little wider,
+		// with four vertical fins set orthogonally - the lines it moves and pins
+		// along - after the six ribs of Courier Chess's Man.
+		"fr-pincer-pawn": {
+			mesh: {
+				jsFile:"/res/fairy/baroque/pincer-pawn.js"
+			},
+			materials: {
+				mat0: {
+					channels: {
+						diffuse: {
+							texturesImg: {
+								diffImg : "/res/fairy/baroque/pincer-pawn-diffusemap.jpg",
+							}
+						},
+						normal: {
+							texturesImg: {
+								normalImg: "/res/fairy/baroque/pincer-pawn-normalmap.jpg",
+							}
+						}
+					}
+				}
+			},
+		},
 		"fr-rhino2": {
 			mesh: {
 				jsFile:"/res/fairy/rhino/rhino2.js"

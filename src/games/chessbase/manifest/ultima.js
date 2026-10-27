@@ -42,7 +42,7 @@ function baroqueSkin3d(pieces) {
 }
 
 var config_view_skins_ultima3d = baroqueSkin3d([
-	"pawn/pawn", "baroque/frog", "baroque/withdrawer", "baroque/chameleon",
+	"baroque/pincer-pawn", "baroque/frog", "baroque/withdrawer", "baroque/chameleon",
 	"omega/wizard", "king/king", "baroque/coordinator"
 ]);
 

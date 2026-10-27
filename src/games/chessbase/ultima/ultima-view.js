@@ -24,7 +24,7 @@ View.Game.baroqueDefineView({
 		"ultima-king": 6,
 	},
 	pieces3d: {								// fairy-set-view.js
-		"ultima-pawn": "fr-pawn",				// Pincer Pawn
+		"ultima-pawn": "fr-pincer-pawn",		// bell with four orthogonal fins
 		"ultima-coordinator": "fr-coordinator",	// antenna, rays and a cross
 		"ultima-leaper": "fr-frog",				// Long Leaper
 		"ultima-withdrawer": "fr-withdrawer",
