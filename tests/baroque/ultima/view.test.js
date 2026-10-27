@@ -75,7 +75,7 @@ function pngSize(file) {
 	return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
 }
 
-const sb = loadView(["base-view.js", "grid-board-view.js", "ultima/baroque-view.js", "ultima/ultima-view.js"]);
+const sb = loadView(["base-view.js", "grid-board-view.js", "fairy-set-view.js", "ultima/baroque-view.js", "ultima/ultima-view.js"]);
 const view = sb.View.Game;
 view.mViewOptions = { fullPath: "" };
 const def = view.cbDefineView();
@@ -155,10 +155,43 @@ const pageErrors = [];
 });
 check("the rules pages and the view agree on every sprite column", pageErrors, []);
 
-/* ------------------------------------------------------------ 2D only */
+/* ---------------------------------------------------------------- 3D */
 
-check("no 3D board spec", def.board["3d"], undefined);
-check("no 3D coords", def.coords["3d"], undefined);
+// The 3D view borrows the fairy set: every aspect the model fields must name a
+// piece fairy-set-view.js knows, whose mesh and textures are really on disk,
+// and the manifest must both load fairy-set-view.js before the family view and
+// offer - and preload - a 3D skin.
+{
+	check("3D board spec", typeof def.board["3d"].display, "function");
+	check("3D coords", typeof def.coords["3d"], "function");
+	const s3 = style["default"]["3d"].scale[0];
+	// classic chess sets fairy pieces at 0.6 on 8x8; bigger boards shrink them
+	check("3D piece scale shrinks with the board", s3 > 0.3 && s3 <= 0.6, true);
+	check("3D click layer wider than the piece", def.clicker["3d"].scale[0] > s3, true);
+	const map = view.baroquePieces3d, fairy = view.cbFairyPieceStyle3D;
+	const RES = path.join(CHESSBASE, "res");
+	const manifest = require(path.join(CHESSBASE, "manifest", "ultima.js")).games["ultima"];
+	const skin = manifest.config.view.skins.find((s) => s["3d"]);
+	check("manifest offers a 3D skin", !!skin, true);
+	const scripts = manifest.viewScripts;
+	check("fairy-set-view.js loaded before baroque-view.js",
+		scripts.indexOf("fairy-set-view.js") >= 0 &&
+		scripts.indexOf("fairy-set-view.js") < scripts.indexOf("ultima/baroque-view.js"), true);
+	aspects.forEach((aspect) => {
+		const fr = map[aspect];
+		check(aspect + " has a 3D piece", typeof fr, "string");
+		const spec = fairy[fr];
+		check(aspect + " -> " + fr + " known to fairy-set-view.js", !!(spec && spec.mesh), true);
+		if(!spec || !spec.mesh) return;
+		const mesh = spec.mesh.jsFile.replace(/\.js$/, ".gltf");
+		check(fr + " mesh on disk", fs.existsSync(path.join(CHESSBASE, mesh)), true);
+		const ch = spec.materials.mat0.channels;
+		const imgs = [ch.diffuse.texturesImg.diffImg, ch.normal.texturesImg.normalImg];
+		imgs.forEach((img) => check(fr + " texture " + path.basename(img), fs.existsSync(path.join(CHESSBASE, img)), true));
+		check(fr + " preloaded by the 3D skin", skin.preload.indexOf("smoothedfilegeo|0|" + spec.mesh.jsFile) >= 0, true);
+	});
+}
+
 
 /* ------------------------------------------- pieces fit inside a square */
 

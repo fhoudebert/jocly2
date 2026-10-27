@@ -22,10 +22,14 @@ function baroqueSkin3d(pieces) {
 		"image|/res/images/cancel.png",
 		"image|/res/images/wikipedia.png",
 	];
+	// "dir/name" follows the fairy set's naming under res/fairy; a piece
+	// borrowed from another set gives its three files instead
 	pieces.forEach(function(p) {
-		preload.push("smoothedfilegeo|0|/res/fairy/" + p + ".js",
-			"image|/res/fairy/" + p + "-diffusemap.jpg",
-			"image|/res/fairy/" + p + "-normalmap.jpg");
+		if(typeof p == "string")
+			p = { mesh: "/res/fairy/" + p + ".js",
+				diffuse: "/res/fairy/" + p + "-diffusemap.jpg",
+				normal: "/res/fairy/" + p + "-normalmap.jpg" };
+		preload.push("smoothedfilegeo|0|" + p.mesh, "image|" + p.diffuse, "image|" + p.normal);
 	});
 	return {
 		"name": "skin3d",
@@ -36,6 +40,14 @@ function baroqueSkin3d(pieces) {
 		"camera": config_view_skins_camera
 	};
 }
+
+var config_view_skins_ultima3d = baroqueSkin3d([
+	"pawn/pawn", "baroque/frog", "baroque/withdrawer", "baroque/chameleon",
+	"omega/wizard", "king/king",
+	{ mesh: "/res/courierchess/cc-schleich/cc-schleich.js",		// Coordinator, for now
+		diffuse: "/res/courierchess/cc-schleich/cc-schleich-diffuse.jpg",
+		normal: "/res/courierchess/cc-schleich/cc-schleich-normal.jpg" }
+]);
 
 var config_view_skins_baroque3d = baroqueSkin3d([
 	"pawn/pawn", "baroque/advancer", "baroque/frog", "baroque/swapper",
@@ -86,6 +98,7 @@ var modelScripts_ultima = [
 var config_view_js_ultima = [
 	"base-view.js",
 	"grid-board-view.js",
+	"fairy-set-view.js",
 	"ultima/baroque-view.js",
 	"ultima/ultima-view.js",
 	"ultima/baroque-choice-view.js",
@@ -126,7 +139,8 @@ exports.games = {
 				"module": "chessbase",
 				"defaultOptions": config_view_defaultOptions,
 				"skins": [
-					config_view_skins_2
+					config_view_skins_2,
+					config_view_skins_ultima3d
 				],
 				"animateSelfMoves": false,
 				"switchable": true,

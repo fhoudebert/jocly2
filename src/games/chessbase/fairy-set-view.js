@@ -2323,6 +2323,30 @@
 				}
 			},
 		},
+		// Ultima's Coordinator. For now the Schleich of Courier Chess, borrowed
+		// from res/courierchess: repoint these three paths once the baroque set
+		// has a Coordinator of its own.
+		"fr-coordinator": {
+			mesh: {
+				jsFile:"/res/courierchess/cc-schleich/cc-schleich.js"
+			},
+			materials: {
+				mat0: {
+					channels: {
+						diffuse: {
+							texturesImg: {
+								diffImg : "/res/courierchess/cc-schleich/cc-schleich-diffuse.jpg",
+							}
+						},
+						normal: {
+							texturesImg: {
+								normalImg: "/res/courierchess/cc-schleich/cc-schleich-normal.jpg",
+							}
+						}
+					}
+				}
+			},
+		},
 		"fr-rhino2": {
 			mesh: {
 				jsFile:"/res/fairy/rhino/rhino2.js"

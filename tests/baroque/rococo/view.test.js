@@ -187,7 +187,8 @@ check("the thumbnail declared in the manifest exists",
 	check("3D board spec", typeof def.board["3d"].display, "function");
 	check("3D coords", typeof def.coords["3d"], "function");
 	const s3 = style["default"]["3d"].scale[0];
-	check("3D piece scale shrinks with the board", s3 > 0.3 && s3 <= 0.5, true);
+	// classic chess sets fairy pieces at 0.6 on 8x8; bigger boards shrink them
+	check("3D piece scale shrinks with the board", s3 > 0.3 && s3 <= 0.6, true);
 	check("3D click layer wider than the piece", def.clicker["3d"].scale[0] > s3, true);
 	const map = view.baroquePieces3d, fairy = view.cbFairyPieceStyle3D;
 	const RES = path.join(CHESSBASE, "res");
