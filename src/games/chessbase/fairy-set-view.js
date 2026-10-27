@@ -2372,6 +2372,30 @@
 				}
 			},
 		},
+		// Cannon Pawn of Rococo and Rocaille: the standard Pawn's base and cone,
+		// cut short, carrying an upright cannon barrel - breech rings with the
+		// trunnions at its foot, a tapering chase, a flared muzzle and its bore.
+		"fr-cannon-pawn": {
+			mesh: {
+				jsFile:"/res/fairy/baroque/cannon-pawn.js"
+			},
+			materials: {
+				mat0: {
+					channels: {
+						diffuse: {
+							texturesImg: {
+								diffImg : "/res/fairy/baroque/cannon-pawn-diffusemap.jpg",
+							}
+						},
+						normal: {
+							texturesImg: {
+								normalImg: "/res/fairy/baroque/cannon-pawn-normalmap.jpg",
+							}
+						}
+					}
+				}
+			},
+		},
 		"fr-rhino2": {
 			mesh: {
 				jsFile:"/res/fairy/rhino/rhino2.js"

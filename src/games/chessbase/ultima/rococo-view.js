@@ -26,7 +26,7 @@ View.Game.baroqueDefineView({
 		"rococo-king": 6,
 	},
 	pieces3d: {								// fairy-set-view.js
-		"rococo-pawn": "fr-pawn",				// Cannon Pawn: no model yet
+		"rococo-pawn": "fr-cannon-pawn",				// upright cannon barrel
 		"rococo-advancer": "fr-advancer",
 		"rococo-leaper": "fr-frog",				// Long Leaper
 		"rococo-swapper": "fr-swapper",				// two arrows chasing round two swapped balls

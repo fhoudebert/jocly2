@@ -31,7 +31,7 @@ View.Game.baroqueDefineView({
 		"rocaille-ghost": 11,					// no game fields one yet
 	},
 	pieces3d: {								// fairy-set-view.js
-		"rocaille-pawn": "fr-pawn",				// Cannon Pawn: no model yet
+		"rocaille-pawn": "fr-cannon-pawn",				// upright cannon barrel
 		"rocaille-advancer": "fr-advancer",
 		"rocaille-leaper": "fr-frog",				// Long Leaper
 		"rocaille-swapper": "fr-swapper",				// two arrows chasing round two swapped balls

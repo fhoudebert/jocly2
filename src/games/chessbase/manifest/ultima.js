@@ -47,7 +47,7 @@ var config_view_skins_ultima3d = baroqueSkin3d([
 ]);
 
 var config_view_skins_baroque3d = baroqueSkin3d([
-	"pawn/pawn", "baroque/advancer", "baroque/frog", "baroque/swapper",
+	"baroque/cannon-pawn", "baroque/advancer", "baroque/frog", "baroque/swapper",
 	"baroque/withdrawer", "baroque/chameleon", "omega/wizard", "king/king"
 ]);
 
