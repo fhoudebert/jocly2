@@ -3,19 +3,23 @@ const path = require('path');
 const fs = require('fs');
 
 const gulp = require('gulp');
-const through = require('through2');
+// Object-mode transforms straight from node:stream. through2 only wrapped
+// them, and its 5.x is an ESM rewrite with another API (objectTransform),
+// so the two-line helper replaces the dependency rather than following it.
+const { Transform, PassThrough } = require('node:stream');
+const through = {
+	obj: (transform, flush) => transform
+		? new Transform({ objectMode: true, transform: transform, flush: flush })
+		: new PassThrough({ objectMode: true }),
+};
 const Vinyl = require("vinyl");
 const merge = require('merge-stream');
 const mergeSequential = require('./merge-sequential.js');
 const rename = require("gulp-rename");
 const concat = require('gulp-concat');
 const esbuild = require('esbuild');
-const buffer = require("vinyl-buffer");
-const source = require('vinyl-source-stream');
 const argv = require('minimist')(process.argv.slice(2));
 const gulpif = require('gulp-if');
-const colors = require('ansi-colors');
-const log = require('fancy-log');
 
 /*
  * gulp 5 reads files as UTF-8 TEXT by default (vinyl-fs 4, `encoding:
@@ -87,6 +91,9 @@ function mapName() {
  * through vinyl-sourcemaps-apply.
  */
 const JS_TARGET = "es2020";
+// dist/node only runs under Node itself, and package.json requires >= 26:
+// nothing there needs lowering below what that runtime reads natively.
+const NODE_TARGET = "node26";
 function esbuildJS(options) {
 	return through.obj(function (file, enc, next) {
 		if (file.isNull())
@@ -147,6 +154,17 @@ const allGames = {};
 // Lightweight replacement for the unmaintained gulp-add: pushes a virtual
 // Vinyl file with the given contents before the rest of the stream (and even
 // if the stream turns out to be empty), mirroring gulp-add's behavior.
+// A stream carrying one in-memory file - what vinyl-source-stream plus
+// vinyl-buffer did for jocly-allgames.js, without either dependency.
+function virtualFileStream(name, contents) {
+	var stream = through.obj();
+	stream.end(new Vinyl({
+		path: name,
+		contents: Buffer.isBuffer(contents) ? contents : Buffer.from(contents)
+	}));
+	return stream;
+}
+
 function prependVirtualFile(name, contents) {
 	var pending = new Vinyl({
 		path: name,
@@ -350,13 +368,13 @@ gulp.task("build-node-games", function () {
 		.pipe(gulp.dest("dist/node/games", DEST_MAPS));
 });
 
-function ProcessJS(stream, concatName, skipTranspile) {
+function ProcessJS(stream, concatName, skipTranspile, target) {
 	if (!argv.prod && concatName)
 		stream = stream.pipe(mapInit());
 	// skipTranspile: third-party code copied as it is written, minified only
 	if (!skipTranspile || argv.prod)
 		stream = stream.pipe(esbuildJS({
-			target: skipTranspile ? null : JS_TARGET,
+			target: skipTranspile ? null : (target || JS_TARGET),
 			minify: !!argv.prod,
 		}));
 	if (concatName)
@@ -371,7 +389,7 @@ gulp.task("build-node-core", function () {
 	var joclyCoreStream =
 		ProcessJS(readSrc([
 			"src/core/jocly.core.js",
-		]));
+		]), null, false, NODE_TARGET);
 
 	var joclyBaseStream =
 		ProcessJS(readSrc([
@@ -393,11 +411,10 @@ gulp.task("build-node-core", function () {
 			"src/core/jocly.scan.js",
 			"src/core/jocly.kata.js",
 			"src/core/jocly.game.js"
-		]));
+		]), null, false, NODE_TARGET);
 
-	var allGamesStream = source('jocly-allgames.js');
-	allGamesStream.end('exports.games = ' + JSON.stringify(allGames));
-	allGamesStream = ProcessJS(allGamesStream.pipe(buffer()));
+	var allGamesStream = ProcessJS(virtualFileStream('jocly-allgames.js',
+		'exports.games = ' + JSON.stringify(allGames)), null, false, NODE_TARGET);
 
 	return merge(joclyCoreStream, allGamesStream, joclyBaseStream)
     .pipe(through.obj(function (file, enc, next) {
@@ -452,11 +469,8 @@ gulp.task("build-browser-core", function () {
 		write: false,
 		logLevel: "silent"
 	});
-	var joclyBundleStream = through.obj();
-	joclyBundleStream.end(new Vinyl({
-		path: "jocly.js",
-		contents: Buffer.from(joclyBundleResult.outputFiles[0].contents)
-	}));
+	var joclyBundleStream = virtualFileStream("jocly.js",
+		Buffer.from(joclyBundleResult.outputFiles[0].contents));
 
 	var joclyBrowserStream = ProcessJS(joclyBundleStream);
 
@@ -576,9 +590,8 @@ gulp.task("build-browser-core", function () {
 			path.dirname = "res/" + path.dirname;
 		}));
 
-	var allGamesStream = source('jocly-allgames.js');
-	allGamesStream.end('exports.games = ' + JSON.stringify(allGames));
-	allGamesStream = ProcessJS(allGamesStream.pipe(buffer()));
+	var allGamesStream = ProcessJS(virtualFileStream('jocly-allgames.js',
+		'exports.games = ' + JSON.stringify(allGames)));
 
 	return mergeSequential(joclyBrowserStream, joclyCoreStream, allGamesStream, joclyBaseStream,
 		joclyExtraStream, joclyFairyStockfishStream, joclyFairyNnueStream, joclyScanStream, joclyScanDataStream,
