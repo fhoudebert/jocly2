@@ -2220,19 +2220,19 @@
 		},
 		"fr-frog": {
 			mesh: {
-				jsFile:"/res/fairy/frog/frog.js"
+				jsFile:"/res/fairy/baroque/frog.js"
 			},
 			materials: {
 				mat0: {
 					channels: {
 						diffuse: {
 							texturesImg: {
-								diffImg : "/res/fairy/frog/frog-diffusemap.jpg",
+								diffImg : "/res/fairy/baroque/frog-diffusemap.jpg",
 							}
 						},
 						normal: {
 							texturesImg: {
-								normalImg: "/res/fairy/frog/frog-normalmap.jpg",
+								normalImg: "/res/fairy/baroque/frog-normalmap.jpg",
 							}
 						}
 					}
@@ -2241,19 +2241,19 @@
 		},
 		"fr-advancer": {
 			mesh: {
-				jsFile:"/res/fairy/advancer/advancer.js"
+				jsFile:"/res/fairy/baroque/advancer.js"
 			},
 			materials: {
 				mat0: {
 					channels: {
 						diffuse: {
 							texturesImg: {
-								diffImg : "/res/fairy/advancer/advancer-diffusemap.jpg",
+								diffImg : "/res/fairy/baroque/advancer-diffusemap.jpg",
 							}
 						},
 						normal: {
 							texturesImg: {
-								normalImg: "/res/fairy/advancer/advancer-normalmap.jpg",
+								normalImg: "/res/fairy/baroque/advancer-normalmap.jpg",
 							}
 						}
 					}
@@ -2262,19 +2262,19 @@
 		},
 		"fr-withdrawer": {
 			mesh: {
-				jsFile:"/res/fairy/withdrawer/withdrawer.js"
+				jsFile:"/res/fairy/baroque/withdrawer.js"
 			},
 			materials: {
 				mat0: {
 					channels: {
 						diffuse: {
 							texturesImg: {
-								diffImg : "/res/fairy/withdrawer/withdrawer-diffusemap.jpg",
+								diffImg : "/res/fairy/baroque/withdrawer-diffusemap.jpg",
 							}
 						},
 						normal: {
 							texturesImg: {
-								normalImg: "/res/fairy/withdrawer/withdrawer-normalmap.jpg",
+								normalImg: "/res/fairy/baroque/withdrawer-normalmap.jpg",
 							}
 						}
 					}
@@ -2283,19 +2283,19 @@
 		},
 		"fr-chameleon": {
 			mesh: {
-				jsFile:"/res/fairy/chameleon/chameleon.js"
+				jsFile:"/res/fairy/baroque/chameleon.js"
 			},
 			materials: {
 				mat0: {
 					channels: {
 						diffuse: {
 							texturesImg: {
-								diffImg : "/res/fairy/chameleon/chameleon-diffusemap.jpg",
+								diffImg : "/res/fairy/baroque/chameleon-diffusemap.jpg",
 							}
 						},
 						normal: {
 							texturesImg: {
-								normalImg: "/res/fairy/chameleon/chameleon-normalmap.jpg",
+								normalImg: "/res/fairy/baroque/chameleon-normalmap.jpg",
 							}
 						}
 					}
@@ -2304,19 +2304,19 @@
 		},
 		"fr-swapper": {
 			mesh: {
-				jsFile:"/res/fairy/swapper/swapper.js"
+				jsFile:"/res/fairy/baroque/swapper.js"
 			},
 			materials: {
 				mat0: {
 					channels: {
 						diffuse: {
 							texturesImg: {
-								diffImg : "/res/fairy/swapper/swapper-diffusemap.jpg",
+								diffImg : "/res/fairy/baroque/swapper-diffusemap.jpg",
 							}
 						},
 						normal: {
 							texturesImg: {
-								normalImg: "/res/fairy/swapper/swapper-normalmap.jpg",
+								normalImg: "/res/fairy/baroque/swapper-normalmap.jpg",
 							}
 						}
 					}
