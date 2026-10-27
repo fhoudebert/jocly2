@@ -95,8 +95,9 @@ check("every aspect has a sprite column",
 
 const columns = aspects.map((aspect) => style[aspect]["2d"].clipx / CELL);
 check("columns are distinct", columns.length, new Set(columns).size);
-check("columns start at 0 and are contiguous",
-	columns.slice().sort((a, b) => a - b), aspects.map((a, i) => i));
+// the Long Leaper is the frog of column 10, as in Rococo and Rocaille, so the
+// columns are no longer contiguous; the sheet-width check below still holds
+check("the Long Leaper is the frog", style["ultima-leaper"]["2d"].clipx / CELL, 10);
 
 /* ------------------------------------------------------- the sheet fits */
 

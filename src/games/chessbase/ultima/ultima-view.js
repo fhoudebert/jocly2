@@ -17,7 +17,7 @@ View.Game.baroqueDefineView({
 	columns: {
 		"ultima-pawn": 0,						// Pincer Pawn
 		"ultima-coordinator": 1,
-		"ultima-leaper": 2,						// Long Leaper
+		"ultima-leaper": 10,						// Long Leaper - the frog, as in Rococo
 		"ultima-withdrawer": 3,
 		"ultima-chameleon": 4,
 		"ultima-immobilizer": 5,
