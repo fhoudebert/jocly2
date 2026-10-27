@@ -43,10 +43,7 @@ function baroqueSkin3d(pieces) {
 
 var config_view_skins_ultima3d = baroqueSkin3d([
 	"pawn/pawn", "baroque/frog", "baroque/withdrawer", "baroque/chameleon",
-	"omega/wizard", "king/king",
-	{ mesh: "/res/courierchess/cc-schleich/cc-schleich.js",		// Coordinator, for now
-		diffuse: "/res/courierchess/cc-schleich/cc-schleich-diffuse.jpg",
-		normal: "/res/courierchess/cc-schleich/cc-schleich-normal.jpg" }
+	"omega/wizard", "king/king", "baroque/coordinator"
 ]);
 
 var config_view_skins_baroque3d = baroqueSkin3d([

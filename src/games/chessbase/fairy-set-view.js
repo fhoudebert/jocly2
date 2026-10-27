@@ -2323,24 +2323,25 @@
 				}
 			},
 		},
-		// Ultima's Coordinator. For now the Schleich of Courier Chess, borrowed
-		// from res/courierchess: repoint these three paths once the baroque set
-		// has a Coordinator of its own.
+		// Ultima's Coordinator, in the baroque set's box-wood: the family's
+		// turned base, a cross-shaped collar (the rank and the file it
+		// coordinates) and a bulb ringed with small spheres under an antenna
+		// (its reach). Replaces Courier Chess's Schleich, borrowed at first.
 		"fr-coordinator": {
 			mesh: {
-				jsFile:"/res/courierchess/cc-schleich/cc-schleich.js"
+				jsFile:"/res/fairy/baroque/coordinator.js"
 			},
 			materials: {
 				mat0: {
 					channels: {
 						diffuse: {
 							texturesImg: {
-								diffImg : "/res/courierchess/cc-schleich/cc-schleich-diffuse.jpg",
+								diffImg : "/res/fairy/baroque/coordinator-diffusemap.jpg",
 							}
 						},
 						normal: {
 							texturesImg: {
-								normalImg: "/res/courierchess/cc-schleich/cc-schleich-normal.jpg",
+								normalImg: "/res/fairy/baroque/coordinator-normalmap.jpg",
 							}
 						}
 					}

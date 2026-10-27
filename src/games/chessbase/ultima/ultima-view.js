@@ -25,7 +25,7 @@ View.Game.baroqueDefineView({
 	},
 	pieces3d: {								// fairy-set-view.js
 		"ultima-pawn": "fr-pawn",				// Pincer Pawn
-		"ultima-coordinator": "fr-coordinator",	// for now Courier Chess's Schleich
+		"ultima-coordinator": "fr-coordinator",	// antenna, rays and a cross
 		"ultima-leaper": "fr-frog",				// Long Leaper
 		"ultima-withdrawer": "fr-withdrawer",
 		"ultima-chameleon": "fr-chameleon",
