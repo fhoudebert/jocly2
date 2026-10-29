@@ -90,6 +90,9 @@ nor over two enemy pieces standing next to each other.</p>
 <p>The Immobilizer never captures anything. Instead, every enemy piece on one of the eight squares
 around it is frozen: it cannot move at all. A frozen piece is not otherwise affected - it still captures nothing, it
 still blocks lines, and it can still be captured.</p>
+<p>The one thing a frozen piece may do is remove itself from the board ("suicide"), which counts as its
+player's move - typically to open a line for another piece. A frozen King may not, and a suicide that would leave
+one's own King open to capture is not allowed.</p>
 
 <h2><span class="u-icon u-chameleon"></span> Chameleon</h2>
 <p>The Chameleon moves like a Queen and captures each kind of enemy piece by that piece's own method:
@@ -107,6 +110,5 @@ much harder to see than in chess: a Coordinator far away, a Pawn arriving next t
 cannot make a legal move loses, so stalemating the opponent wins the game.</p>
 
 <h2>About this implementation</h2>
-<p>Two points of Abbott's rules are simplified here. A Withdrawer that moves away from an adjacent enemy
-always takes it, whereas the original rules let the player decline the capture. And a piece frozen by an Immobilizer
-cannot remove itself from the board, a "suicide" move that some rule sets allow.</p>
+<p>One point of Abbott's rules is simplified here: a Withdrawer that moves away from an adjacent enemy
+always takes it, whereas the original rules let the player decline the capture.</p>
