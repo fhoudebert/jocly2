@@ -52,6 +52,26 @@
 		vertical-align: top;
 	}
 	table.k-diff th { font-weight: bold; }
+	/* the pieces in 2D and 3D, as res/rules/fairy/*.png (200x120) */
+	.k-vignettes {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px 16px;
+		margin: 12px 0;
+	}
+	.k-vignettes figure {
+		margin: 0;
+		text-align: center;
+	}
+	.k-vignettes img {
+		width: 200px;
+		max-width: 100%;
+		height: auto;
+		display: block;
+	}
+	.k-vignettes figcaption {
+		font-size: 90%;
+	}
 </style>
 
 <h1>Rocaille</h1>
@@ -102,6 +122,16 @@ Swapper, Long Leaper, Advancer, Cannon Pawn, King, Cannon Pawn, Chameleon, Advan
 The two <b>Withdrawers</b> do not stand on the back rank but among the Pawns, in front of the King's own flanks,
 in exchange for the two Cannon Pawns that would stand there. Both armies are set up in the same order, facing each
 other. White moves first.</p>
+<div class="k-vignettes">
+<figure><img src="{GAME}/res/rules/fairy/cannon-pawn.png" alt="Cannon Pawn"/><figcaption>Cannon Pawn</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/advancer.png" alt="Advancer"/><figcaption>Advancer</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/withdrawer.png" alt="Withdrawer"/><figcaption>Withdrawer</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/frog.png" alt="Long Leaper"/><figcaption>Long Leaper</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/swapper.png" alt="Swapper"/><figcaption>Swapper</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/chameleon.png" alt="Chameleon"/><figcaption>Chameleon</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/immobilizer.png" alt="Immobilizer"/><figcaption>Immobilizer</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/king.png" alt="King"/><figcaption>King</figcaption></figure>
+</div>
 <p>The array is arranged for defence. The Chameleon stands one square from the King, being the only piece that
 can deal with an approaching Immobilizer. The Advancers are two squares out, with room to go and fetch one. The
 Immobilizer and the Swapper are exiled to opposite wings, both because they are offensive tools and because an enemy

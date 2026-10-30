@@ -41,6 +41,26 @@
 		background: #2f5320;
 		border: 1px solid #888;
 	}
+	/* the pieces in 2D and 3D, as res/rules/fairy/*.png (200x120) */
+	.r-vignettes {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px 16px;
+		margin: 12px 0;
+	}
+	.r-vignettes figure {
+		margin: 0;
+		text-align: center;
+	}
+	.r-vignettes img {
+		width: 200px;
+		max-width: 100%;
+		height: auto;
+		display: block;
+	}
+	.r-vignettes figcaption {
+		font-size: 90%;
+	}
 </style>
 
 <h1>Rococo</h1>
@@ -84,6 +104,16 @@ nothing may never touch the ring. This idea, borrowed from Jumping Chess, stops 
 <h2>Initial setup</h2>
 <p>Each player has 8 Cannon Pawns on the second rank and, behind them: Immobilizer, Withdrawer, Long Leaper,
 King, Chameleon, Long Leaper, Advancer, Swapper. Both armies are set up in the same order, facing each other. White moves first.</p>
+<div class="r-vignettes">
+<figure><img src="{GAME}/res/rules/fairy/cannon-pawn.png" alt="Cannon Pawn"/><figcaption>Cannon Pawn</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/advancer.png" alt="Advancer"/><figcaption>Advancer</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/withdrawer.png" alt="Withdrawer"/><figcaption>Withdrawer</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/frog.png" alt="Long Leaper"/><figcaption>Long Leaper</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/swapper.png" alt="Swapper"/><figcaption>Swapper</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/chameleon.png" alt="Chameleon"/><figcaption>Chameleon</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/immobilizer.png" alt="Immobilizer"/><figcaption>Immobilizer</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/king.png" alt="King"/><figcaption>King</figcaption></figure>
+</div>
 
 <h2><span class="r-icon r-pawn"></span> Cannon Pawn</h2>
 <p>A Cannon Pawn moves without capturing in two ways: one step in any direction, or a hop over an adjacent

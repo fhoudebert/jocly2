@@ -32,6 +32,26 @@
 	.u-chameleon   { --u-col: 4; }
 	.u-immobilizer { --u-col: 5; }
 	.u-king        { --u-col: 6; }
+	/* the pieces in 2D and 3D, as res/rules/fairy/*.png (200x120) */
+	.u-vignettes {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px 16px;
+		margin: 12px 0;
+	}
+	.u-vignettes figure {
+		margin: 0;
+		text-align: center;
+	}
+	.u-vignettes img {
+		width: 200px;
+		max-width: 100%;
+		height: auto;
+		display: block;
+	}
+	.u-vignettes figcaption {
+		font-size: 90%;
+	}
 </style>
 
 <h1>Ultima</h1>
@@ -64,6 +84,15 @@ a file or a diagonal, over empty squares only. No piece may jump over another - 
 
 <h2>Initial setup</h2>
 <p>White moves first. The two armies face each other rotated, not mirrored: the Immobilizer of one player stands opposite the Coordinator of the other.</p>
+<div class="u-vignettes">
+<figure><img src="{GAME}/res/rules/fairy/pincer-pawn.png" alt="Pincer Pawn"/><figcaption>Pincer Pawn</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/withdrawer.png" alt="Withdrawer"/><figcaption>Withdrawer</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/coordinator.png" alt="Coordinator"/><figcaption>Coordinator</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/frog.png" alt="Long Leaper"/><figcaption>Long Leaper</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/immobilizer.png" alt="Immobilizer"/><figcaption>Immobilizer</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/chameleon.png" alt="Chameleon"/><figcaption>Chameleon</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/king.png" alt="King"/><figcaption>King</figcaption></figure>
+</div>
 
 <h2><span class="u-icon u-pawn"></span> Pincer Pawn</h2>
 <p>The Pincer Pawn moves like a Rook. When it lands, every enemy piece orthogonally adjacent to it

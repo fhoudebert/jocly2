@@ -41,6 +41,26 @@
 		background: #2f5320;
 		border: 1px solid #888;
 	}
+	/* the pieces in 2D and 3D, as res/rules/fairy/*.png (200x120) */
+	.r-vignettes {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px 16px;
+		margin: 12px 0;
+	}
+	.r-vignettes figure {
+		margin: 0;
+		text-align: center;
+	}
+	.r-vignettes img {
+		width: 200px;
+		max-width: 100%;
+		height: auto;
+		display: block;
+	}
+	.r-vignettes figcaption {
+		font-size: 90%;
+	}
 </style>
 
 <h1>Rococo</h1>
@@ -92,6 +112,16 @@ Cette idée, empruntée à Jumping Chess, empêche les pièces de se mettre à l
 <p>Chaque joueur dispose de 8 Pions-canons sur la deuxième rangée et, derrière eux :
 Immobilisateur, Décrocheur, Bondissant, Roi, Caméléon, Bondissant, Percuteur, Permutateur.
 Les deux armées sont disposées dans le même ordre, face à face. Les Blancs jouent en premier.</p>
+<div class="r-vignettes">
+<figure><img src="{GAME}/res/rules/fairy/cannon-pawn.png" alt="Pion-canon"/><figcaption>Pion-canon</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/advancer.png" alt="Percuteur"/><figcaption>Percuteur</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/withdrawer.png" alt="Décrocheur"/><figcaption>Décrocheur</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/frog.png" alt="Bondissant"/><figcaption>Bondissant</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/swapper.png" alt="Permutateur"/><figcaption>Permutateur</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/chameleon.png" alt="Caméléon"/><figcaption>Caméléon</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/immobilizer.png" alt="Immobilisateur"/><figcaption>Immobilisateur</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/king.png" alt="Roi"/><figcaption>Roi</figcaption></figure>
+</div>
 
 <h2><span class="r-icon r-pawn"></span> Pion-canon</h2>
 <p>Le Pion-canon se déplace sans capturer de deux façons : d’un pas dans n’importe quelle direction,

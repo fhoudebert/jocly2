@@ -50,6 +50,13 @@ gauche, la piece 3D a droite. La page sait les fabriquer :
     (planche : cellules carrees, ligne du haut = Blancs, colonne comptee
     depuis 0). Sans icone, la moitie gauche reste blanche.
 
+    --icone vise le NOM DE LA PIECE 3D. Quand un jeu habille un maillage
+    existant (l'Immobilisateur est omega/wizard), --alias lui donne un nom
+    propre, donc une icone et un fichier a lui :
+
+        --alias immobilizer=wizard \
+        --icone immobilizer=.../baroque-picto-sprites.png:5
+
 Ou toutes d'un coup, sans navigateur a ouvrir (Playwright requis :
 pip install playwright && playwright install chromium) :
 
@@ -780,7 +787,27 @@ def selection(groups, seulement):
                 yield g['folder'], p['name']
 
 
-def ecrit_page(out, pieces, three, icones):
+def ajoute_alias(groups, alias):
+    """--alias NOM=PIECE : la meme piece 3D sous un autre nom, pour lui donner
+    une autre icone et ecrire NOM.png (ex. immobilizer=wizard : le maillage du
+    magicien, mais le chapeau de la planche baroque et non l'icone w-wizard)."""
+    for spec in alias:
+        if '=' not in spec:
+            sys.exit(f'--alias {spec} : attendu nom=piece ou nom=dossier/piece')
+        nom, cible = (x.strip() for x in spec.split('=', 1))
+        trouve = None
+        for g in groups:
+            for p in g['pieces']:
+                if cible in (p['name'], g['folder'] + '/' + p['name']):
+                    trouve = (g, p)
+        if not trouve:
+            sys.exit(f'--alias {spec} : piece {cible} introuvable')
+        g, p = trouve
+        copie = dict(p, name=nom, icone=None)
+        g['pieces'].append(copie)
+
+
+def ecrit_page(out, pieces, three, icones, alias=()):
     """Ecrit la page ; retourne (groups, up, trois)."""
     dossier_page = os.path.dirname(out) or '.'
     rel = lambda c: os.path.relpath(c, dossier_page).replace(os.sep, '/')
@@ -789,10 +816,12 @@ def ecrit_page(out, pieces, three, icones):
     groups = scan(pieces, up)
     if not groups:
         sys.exit(f'aucun .gltf trouve dans {pieces}')
+    ajoute_alias(groups, alias)
     connus = {p['name'] for g in groups for p in g['pieces']}
     for nom, chemin, col in icones:
         if nom not in connus:
-            print(f'  attention : --icone {nom} ne correspond a aucune piece')
+            print(f'  attention : --icone {nom} ne correspond a aucune piece 3D '
+                  '(--icone vise le nom du .gltf ; sinon --alias ' + nom + '=<piece>)')
         for g in groups:
             for p in g['pieces']:
                 if p['name'] == nom:
@@ -838,7 +867,7 @@ def vignettes(a, pieces, three, icones):
         ('127.0.0.1', 0), functools.partial(Muet, directory=racine))
     threading.Thread(target=serveur.serve_forever, daemon=True).start()
     try:
-        groups, _, _ = ecrit_page(page, pieces, three, icones)
+        groups, _, _ = ecrit_page(page, pieces, three, icones, a.alias)
         retenues = list(selection(groups, a.seulement))
         if not retenues:
             sys.exit(f'--seulement {a.seulement} : aucune piece retenue')
@@ -901,6 +930,11 @@ def main():
                     help='icone 2D d\'une piece pour sa vignette : un PNG, ou une '
                     'planche de sprites et sa colonne (depuis 0). Repetable. '
                     'Par defaut : res/fairy/icons/w-<nom>.png si elle existe')
+    ap.add_argument('--alias', action='append', default=[], metavar='NOM=PIECE',
+                    help='ajoute la piece 3D PIECE (nom ou dossier/nom) sous le nom '
+                    'NOM, pour lui donner une autre icone et ecrire NOM.png. '
+                    'Repetable. Ex. : --alias immobilizer=wizard '
+                    '--icone immobilizer=.../baroque-picto-sprites.png:5')
     ap.add_argument('--vignettes', metavar='DOSSIER',
                     help='au lieu d\'ecrire la page, rendre les vignettes 200x120 '
                     'de l\'aide en ligne dans ce dossier (Playwright requis)')
@@ -924,7 +958,7 @@ def main():
 
     out = os.path.abspath(a.out)
     dossier_page = os.path.dirname(out) or '.'
-    groups, up, trois = ecrit_page(out, pieces, three, icones)
+    groups, up, trois = ecrit_page(out, pieces, three, icones, a.alias)
 
     n = sum(len(g['pieces']) for g in groups)
     print(f'{out}')

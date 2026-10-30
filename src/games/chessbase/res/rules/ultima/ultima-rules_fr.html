@@ -31,6 +31,26 @@
 	.u-chameleon   { --u-col: 4; }
 	.u-immobilizer { --u-col: 5; }
 	.u-king        { --u-col: 6; }
+	/* the pieces in 2D and 3D, as res/rules/fairy/*.png (200x120) */
+	.u-vignettes {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px 16px;
+		margin: 12px 0;
+	}
+	.u-vignettes figure {
+		margin: 0;
+		text-align: center;
+	}
+	.u-vignettes img {
+		width: 200px;
+		max-width: 100%;
+		height: auto;
+		display: block;
+	}
+	.u-vignettes figcaption {
+		font-size: 90%;
+	}
 </style>
 
 <h1>Ultima</h1>
@@ -69,6 +89,15 @@ Aucune pièce ne peut sauter par-dessus une autre - le Bondissant le peut, mais 
 <h2>Mise en place initiale</h2>
 <p>Les Blancs jouent en premier. Les deux armées se font face en étant tournées, sans symétrie :
 l’Immobilisateur d’un joueur se trouve en face du Coordinateur de l’autre.</p>
+<div class="u-vignettes">
+<figure><img src="{GAME}/res/rules/fairy/pincer-pawn.png" alt="Rabatteur"/><figcaption>Rabatteur</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/withdrawer.png" alt="Décrocheur"/><figcaption>Décrocheur</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/coordinator.png" alt="Coordinateur"/><figcaption>Coordinateur</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/frog.png" alt="Bondissant"/><figcaption>Bondissant</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/immobilizer.png" alt="Immobilisateur"/><figcaption>Immobilisateur</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/chameleon.png" alt="Caméléon"/><figcaption>Caméléon</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/king.png" alt="Roi"/><figcaption>Roi</figcaption></figure>
+</div>
 
 <h2><span class="u-icon u-pawn"></span> Rabatteur</h2>
 <p>Le Rabatteur se déplace comme une Tour. Lorsqu’il termine son déplacement, toute pièce ennemie orthogonalement adjacente est capturée si une pièce alliée se trouve directement derrière cette pièce ennemie, sur la même rangée ou la même colonne. Jusqu’à quatre pièces peuvent être capturées en un seul coup. Les prises en tenaille diagonales n’ont aucun effet.</p>

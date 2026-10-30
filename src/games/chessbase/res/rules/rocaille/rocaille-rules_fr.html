@@ -52,6 +52,26 @@
 		vertical-align: top;
 	}
 	table.k-diff th { font-weight: bold; }
+	/* the pieces in 2D and 3D, as res/rules/fairy/*.png (200x120) */
+	.k-vignettes {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 8px 16px;
+		margin: 12px 0;
+	}
+	.k-vignettes figure {
+		margin: 0;
+		text-align: center;
+	}
+	.k-vignettes img {
+		width: 200px;
+		max-width: 100%;
+		height: auto;
+		display: block;
+	}
+	.k-vignettes figcaption {
+		font-size: 90%;
+	}
 </style>
 
 <h1>Rocaille</h1>
@@ -100,6 +120,16 @@ Permutateur, Bondissant, Percuteur, Pion-canon, Roi, Pion-canon, Caméléon, Per
 Les deux <b>Décrocheurs</b> ne sont pas sur la rangée du fond mais dans la rangée de pions, devant les flancs du Roi,
 en échange des deux Pions-canons qui s’y trouveraient. Les deux armées sont disposées dans le même ordre,
 face à face. Les Blancs jouent en premier.</p>
+<div class="k-vignettes">
+<figure><img src="{GAME}/res/rules/fairy/cannon-pawn.png" alt="Pion-canon"/><figcaption>Pion-canon</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/advancer.png" alt="Percuteur"/><figcaption>Percuteur</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/withdrawer.png" alt="Décrocheur"/><figcaption>Décrocheur</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/frog.png" alt="Bondissant"/><figcaption>Bondissant</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/swapper.png" alt="Permutateur"/><figcaption>Permutateur</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/chameleon.png" alt="Caméléon"/><figcaption>Caméléon</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/immobilizer.png" alt="Immobilisateur"/><figcaption>Immobilisateur</figcaption></figure>
+<figure><img src="{GAME}/res/rules/fairy/king.png" alt="Roi"/><figcaption>Roi</figcaption></figure>
+</div>
 <p>Cette disposition est faite pour la défense. Le Caméléon se tient à une case du Roi : c’est la seule pièce
 capable de neutraliser un Immobilisateur qui s’approche. Les Percuteurs sont à deux cases, avec la place d’aller en chercher un.
 L’Immobilisateur et le Permutateur sont exilés aux ailes opposées, parce que ce sont des outils offensifs et parce qu’un
