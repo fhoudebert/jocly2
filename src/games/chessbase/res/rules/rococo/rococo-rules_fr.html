@@ -25,7 +25,7 @@
 		background-position-x: calc(var(--r-col) / (var(--r-cols) - 1) * 100%);
 	}
 	/* column index of each piece within the sprite sheet shared with Ultima */
-	.r-leaper      { --r-col: 2; }
+	.r-leaper      { --r-col: 10; }	/* the frog */
 	.r-withdrawer  { --r-col: 3; }
 	.r-chameleon   { --r-col: 4; }
 	.r-immobilizer { --r-col: 5; }
@@ -67,6 +67,7 @@ et non en le mettant échec et mat.</p>
 <tr><td><span class="r-icon r-king"></span> <b>Roi</b></td><td>une case</td><td>par déplacement, comme un Roi d’échecs</td></tr>
 </table>
 
+
 <p>Toutes les pièces, à l’exception du Pion-canon et du Roi, se déplacent comme une Dame :
 d’un nombre quelconque de cases le long d’une rangée, d’une colonne ou d’une diagonale, uniquement au-dessus de cases vides,
 et jamais sur une case occupée. Aucune pièce ne peut sauter par-dessus une autre - le Bondissant et le Pion-canon le font,
@@ -85,7 +86,7 @@ Cette idée, empruntée à Jumping Chess, empêche les pièces de se mettre à l
 Immobilisateur, Décrocheur, Bondissant, Roi, Caméléon, Bondissant, Percuteur, Permutateur.
 Les deux armées sont disposées dans le même ordre, face à face. Les Blancs jouent en premier.</p>
 
-<h2><span class="r-icon r-pawn"></span> Pion-canon</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/cannon-pawn.png" alt="Pion-canon"/><figcaption>Pion-canon</figcaption></figure> </h2>
 <p>Le Pion-canon se déplace sans capturer de deux façons : d’un pas dans n’importe quelle direction,
 ou par un saut par-dessus une pièce adjacente, de l’une ou l’autre couleur, pour retomber sur la case vide située
 juste derrière. Il capture de la même façon qu’il saute : il franchit une pièce adjacente - la monture, alliée ou ennemie -
@@ -94,29 +95,29 @@ et se pose sur une pièce ennemie située immédiatement derrière, en prenant s
 (ou la rangée de bord au-delà) peut se promouvoir en n’importe quelle pièce alliée capturée et actuellement hors du plateau,
 à l’exception d’un autre Pion-canon. La promotion est facultative.</p>
 
-<h2><span class="r-icon r-advancer"></span> Percuteur</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/advancer.png" alt="Percuteur"/><figcaption>Percuteur</figcaption></figure> </h2>
 <p>Le Percuteur se déplace comme une Dame et capture par approche : s’il s’arrête directement devant une
 pièce ennemie, c’est-à-dire si la case suivante dans sa direction de déplacement est occupée par un ennemi, celui-ci est
 capturé. La capture fait partie du déplacement et n’est pas facultative : un Percuteur ne peut pas s’arrêter à côté d’un
 ennemi situé dans sa ligne de déplacement sans le prendre.</p>
 
-<h2><span class="r-icon r-withdrawer"></span> Décrocheur</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/withdrawer.png" alt="Décrocheur"/><figcaption>Décrocheur</figcaption></figure> </h2>
 <p>Le Décrocheur capture par retrait : placé à côté d’une pièce ennemie, il s’en éloigne directement d’une
 distance quelconque et la capture. Seule la pièce dont il s’écarte est prise, et seulement si elle était déjà adjacente avant
 le déplacement. Comme celle du Percuteur, cette capture est obligatoire.</p>
 
-<h2><span class="r-icon r-leaper"></span> Bondissant</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/frog.png" alt="Bondissant"/><figcaption>Bondissant</figcaption></figure> </h2>
 <p>Le Bondissant se déplace comme une Dame mais peut sauter par-dessus une pièce ennemie et la capturer,
 à condition que la case immédiatement derrière cette pièce soit libre. Il peut ensuite continuer dans la même direction et
 prendre d’autres ennemis aux mêmes conditions, avant de terminer sur n’importe quelle case libre située plus loin.
 Il ne peut jamais sauter par-dessus une pièce alliée, ni par-dessus deux ennemis adjacents.</p>
 
-<h2><span class="r-icon r-swapper"></span> Permutateur</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/swapper.png" alt="Permutateur"/><figcaption>Permutateur</figcaption></figure> </h2>
 <p>Le Permutateur se déplace comme une Dame sans capturer, ou bien il peut <b>échanger sa place</b> avec
 n’importe quelle pièce, alliée ou ennemie, située à portée de Dame sans obstacle. Il peut également détruire simultanément
 une pièce ennemie adjacente et lui-même, par destruction mutuelle - un coup qu’il ne peut pas jouer lorsqu’il est immobilisé.</p>
 
-<h2><span class="r-icon r-chameleon"></span> Caméléon</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/chameleon.png" alt="Caméléon"/><figcaption>Caméléon</figcaption></figure> </h2>
 <p>Le Caméléon se déplace comme une Dame et capture chaque ennemi selon la méthode propre à cette pièce :
 il approche les Percuteurs, se décroche des Décrocheurs, bondit par-dessus les Bondissants, saute une monture pour prendre
 les Pions-canons, permute avec les Permutateurs (ou se détruit mutuellement avec eux) et capture un Roi ennemi adjacent en
@@ -127,14 +128,14 @@ permuter et percuter.</p>
 <p>Le Caméléon immobilise un Immobilisateur ennemi, et est immobilisé par lui en retour, mais il ne peut
 jamais en capturer un - et il ne peut pas capturer un autre Caméléon.</p>
 
-<h2><span class="r-icon r-immobilizer"></span> Immobilisateur</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/immobilizer.png" alt="Immobilisateur"/><figcaption>Immobilisateur</figcaption></figure> </h2>
 <p>L’Immobilisateur ne capture jamais. Toute pièce ennemie située sur l’une des huit cases qui l’entourent
 est immobilisée et ne peut plus se déplacer. Deux Immobilisateurs face à face se paralysent mutuellement.
 Une pièce immobilisée autre qu’un Roi peut néanmoins <b>se retirer elle-même du plateau</b>, ce qui compte comme son coup -
 généralement pour ouvrir une ligne. L’Immobilisateur ne peut jamais entrer de lui-même sur une case de bord,
 mais il peut y être amené par une permutation.</p>
 
-<h2><span class="r-icon r-king"></span> Roi</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/king.png" alt="Roi"/><figcaption>Roi</figcaption></figure> </h2>
 <p>Le Roi se déplace d’une case dans n’importe quelle direction et capture par déplacement, comme le Roi des
 échecs classiques. Il n’y a ni échec ni mat : un Roi peut se placer en danger et se tenir à côté du Roi adverse.
 Il ne peut entrer sur une case de bord que pour y capturer une pièce.</p>

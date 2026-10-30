@@ -2218,6 +2218,184 @@
 				}
 			},
 		},
+		"fr-frog": {
+			mesh: {
+				jsFile:"/res/fairy/baroque/frog.js"
+			},
+			materials: {
+				mat0: {
+					channels: {
+						diffuse: {
+							texturesImg: {
+								diffImg : "/res/fairy/baroque/frog-diffusemap.jpg",
+							}
+						},
+						normal: {
+							texturesImg: {
+								normalImg: "/res/fairy/baroque/frog-normalmap.jpg",
+							}
+						}
+					}
+				}
+			},
+		},
+		"fr-advancer": {
+			mesh: {
+				jsFile:"/res/fairy/baroque/advancer.js"
+			},
+			materials: {
+				mat0: {
+					channels: {
+						diffuse: {
+							texturesImg: {
+								diffImg : "/res/fairy/baroque/advancer-diffusemap.jpg",
+							}
+						},
+						normal: {
+							texturesImg: {
+								normalImg: "/res/fairy/baroque/advancer-normalmap.jpg",
+							}
+						}
+					}
+				}
+			},
+		},
+		"fr-withdrawer": {
+			mesh: {
+				jsFile:"/res/fairy/baroque/withdrawer.js"
+			},
+			materials: {
+				mat0: {
+					channels: {
+						diffuse: {
+							texturesImg: {
+								diffImg : "/res/fairy/baroque/withdrawer-diffusemap.jpg",
+							}
+						},
+						normal: {
+							texturesImg: {
+								normalImg: "/res/fairy/baroque/withdrawer-normalmap.jpg",
+							}
+						}
+					}
+				}
+			},
+		},
+		"fr-chameleon": {
+			mesh: {
+				jsFile:"/res/fairy/baroque/chameleon.js"
+			},
+			materials: {
+				mat0: {
+					channels: {
+						diffuse: {
+							texturesImg: {
+								diffImg : "/res/fairy/baroque/chameleon-diffusemap.jpg",
+							}
+						},
+						normal: {
+							texturesImg: {
+								normalImg: "/res/fairy/baroque/chameleon-normalmap.jpg",
+							}
+						}
+					}
+				}
+			},
+		},
+		"fr-swapper": {
+			mesh: {
+				jsFile:"/res/fairy/baroque/swapper.js"
+			},
+			materials: {
+				mat0: {
+					channels: {
+						diffuse: {
+							texturesImg: {
+								diffImg : "/res/fairy/baroque/swapper-diffusemap.jpg",
+							}
+						},
+						normal: {
+							texturesImg: {
+								normalImg: "/res/fairy/baroque/swapper-normalmap.jpg",
+							}
+						}
+					}
+				}
+			},
+		},
+		// Ultima's Coordinator, in the baroque set's box-wood: the family's
+		// turned base, a cross-shaped collar (the rank and the file it
+		// coordinates) and a bulb ringed with small spheres under an antenna
+		// (its reach). Replaces Courier Chess's Schleich, borrowed at first.
+		"fr-coordinator": {
+			mesh: {
+				jsFile:"/res/fairy/baroque/coordinator.js"
+			},
+			materials: {
+				mat0: {
+					channels: {
+						diffuse: {
+							texturesImg: {
+								diffImg : "/res/fairy/baroque/coordinator-diffusemap.jpg",
+							}
+						},
+						normal: {
+							texturesImg: {
+								normalImg: "/res/fairy/baroque/coordinator-normalmap.jpg",
+							}
+						}
+					}
+				}
+			},
+		},
+		// Ultima's Pincer Pawn: Courier Chess's bell-shaped Pawn, a little wider,
+		// with four vertical fins set orthogonally - the lines it moves and pins
+		// along - after the six ribs of Courier Chess's Man.
+		"fr-pincer-pawn": {
+			mesh: {
+				jsFile:"/res/fairy/baroque/pincer-pawn.js"
+			},
+			materials: {
+				mat0: {
+					channels: {
+						diffuse: {
+							texturesImg: {
+								diffImg : "/res/fairy/baroque/pincer-pawn-diffusemap.jpg",
+							}
+						},
+						normal: {
+							texturesImg: {
+								normalImg: "/res/fairy/baroque/pincer-pawn-normalmap.jpg",
+							}
+						}
+					}
+				}
+			},
+		},
+		// Cannon Pawn of Rococo and Rocaille: the standard Pawn's base and cone,
+		// cut short, carrying an upright cannon barrel - breech rings with the
+		// trunnions at its foot, a tapering chase, a flared muzzle and its bore.
+		"fr-cannon-pawn": {
+			mesh: {
+				jsFile:"/res/fairy/baroque/cannon-pawn.js"
+			},
+			materials: {
+				mat0: {
+					channels: {
+						diffuse: {
+							texturesImg: {
+								diffImg : "/res/fairy/baroque/cannon-pawn-diffusemap.jpg",
+							}
+						},
+						normal: {
+							texturesImg: {
+								normalImg: "/res/fairy/baroque/cannon-pawn-normalmap.jpg",
+							}
+						}
+					}
+				}
+			},
+		},
 		"fr-rhino2": {
 			mesh: {
 				jsFile:"/res/fairy/rhino/rhino2.js"

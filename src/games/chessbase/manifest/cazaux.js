@@ -1143,7 +1143,8 @@ exports.games = {
  						"fr": "Échecs en 11x11 avec des pièces féeriques"
  					},
  					"rules": {
- 						"en": "res/rules/wildtamerlane/wild-tamerlane-rules.html"
+ 						"en": "res/rules/wildtamerlane/wild-tamerlane-rules.html",
+ 						"fr": "res/rules/wildtamerlane/wild-tamerlane-rules_fr.html"
  					},
  					"module": "chessbase",
  					"plazza": "true",

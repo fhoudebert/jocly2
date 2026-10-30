@@ -41,8 +41,8 @@ Use mogichex [to play remotly againt a human from a mobile device](https://www.b
 Building
 --------
 
-- install the *node.js* environment (using [nvm](https://github.com/creationix/nvm) is probably a good idea)
-- install *gulp*: `npm install -g gulp`
+- install the *node.js* environment, version 26 or later (using [nvm](https://github.com/creationix/nvm) is probably a good idea)
+- *gulp* comes with the dev dependencies: use `npx gulp …`, or install it globally with `npm install -g gulp`
 - install [git](https://git-scm.com/downloads)
 - clone Jocly from *github*: `git clone https://github.com/fhoudebert/jocly2.git`
 - enter the `jocly2` directory

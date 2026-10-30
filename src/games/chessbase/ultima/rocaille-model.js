@@ -106,4 +106,18 @@ Model.Game.baroqueDefineVariant({
 	promoRow: 8,				// the enemy's own back rank
 	protectKing: true,
 	bindingCheck: true,
+	// Material values the AI weighs pieces with, measured on this setup rather
+	// than inherited from Rococo: 1,200 self-play games, logistic regression of
+	// the result on the material balance, Advancer kept at 6. The Withdrawer
+	// is worth far less here than its Rococo 5 (it rarely has room to back
+	// away), the Cannon Pawn about nothing until promotion, the Immobilizer
+	// far more. The regression put it near 20 but that overshoots: a player
+	// using 12 beat one using the old table 59.5% over 600 games (+67 Elo),
+	// one using 20 only 56%. Indicative values in the rules page follow these.
+	values: (function() {
+		var v = {};
+		v[T.PAWN] = 1; v[T.ADVANCER] = 6; v[T.LEAPER] = 4.5; v[T.SWAPPER] = 4.5;
+		v[T.WITHDRAWER] = 2.5; v[T.CHAMELEON] = 4; v[T.IMMOBILIZER] = 12;
+		return v;
+	})(),
 });

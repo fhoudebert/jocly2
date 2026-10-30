@@ -27,7 +27,7 @@
 	/* column index of each piece within the shared sprite sheet */
 	.u-pawn        { --u-col: 0; }
 	.u-coordinator { --u-col: 1; }
-	.u-leaper      { --u-col: 2; }
+	.u-leaper      { --u-col: 10; }	/* the frog */
 	.u-withdrawer  { --u-col: 3; }
 	.u-chameleon   { --u-col: 4; }
 	.u-immobilizer { --u-col: 5; }
@@ -51,46 +51,50 @@ each piece has its own, quite alien, way of removing enemy pieces, and a single 
 <tr><td><span class="u-icon u-immobilizer"></span> <b>Immobilizer</b></td><td>like a Queen</td><td>never captures - it paralyses instead</td></tr>
 <tr><td><span class="u-icon u-king"></span> <b>King</b></td><td>one square</td><td>by displacement, like a chess King</td></tr>
 </table>
+
 <p>Every piece except the Pincer Pawn and the King moves exactly like a Queen: any distance along a rank,
 a file or a diagonal, over empty squares only. No piece may jump over another - the Long Leaper does, but only to capture.</p>
 
 <h2>Initial setup</h2>
 <p>White moves first. The two armies face each other rotated, not mirrored: the Immobilizer of one player stands opposite the Coordinator of the other.</p>
 
-<h2><span class="u-icon u-pawn"></span> Pincer Pawn</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/pincer-pawn.png" alt="Pincer Pawn"/><figcaption>Pincer Pawn</figcaption></figure> </h2>
 <p>The Pincer Pawn moves like a Rook. When it lands, every enemy piece orthogonally adjacent to it
 is captured if a friendly piece stands directly beyond that enemy, on the same rank or file. Up to four pieces can be
 taken in one move. Diagonal sandwiches do nothing.</p>
 <p>Pawns capture only when they move: a piece that walks <i>between</i> two enemy Pawns of its own accord is safe.</p>
 
-<h2><span class="u-icon u-withdrawer"></span> Withdrawer</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/withdrawer.png" alt="Withdrawer"/><figcaption>Withdrawer</figcaption></figure> </h2>
 <p>The Withdrawer captures the piece it is standing next to by moving directly away from it, any distance.
 Only one piece can be taken this way per move, and only if it was adjacent before the move.</p>
 
-<h2><span class="u-icon u-coordinator"></span> Coordinator</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/coordinator.png" alt="Coordinator"/><figcaption>Coordinator</figcaption></figure> </h2>
 <p>The Coordinator works with its own King. After it moves, look at the rectangle whose opposite corners
 are the Coordinator and the King: any enemy piece on either of the two remaining corners is removed. It captures nothing
 if those squares are empty or occupied by friendly pieces.</p>
 
-<h2><span class="u-icon u-leaper"></span> Long Leaper</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/frog.png" alt="Long Leaper"/><figcaption>Long Leaper</figcaption></figure> </h2>
 <p>The Long Leaper moves like a Queen but may, along the way, jump over an enemy piece and capture it,
 provided the square immediately behind that piece is empty. It may then continue in the same direction and jump further
 enemies under the same condition, and it may land on any free square beyond. It can never jump over a friendly piece,
 nor over two enemy pieces standing next to each other.</p>
 
-<h2><span class="u-icon u-immobilizer"></span> Immobilizer</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/immobilizer.png" alt="Immobilizer"/><figcaption>Immobilizer</figcaption></figure> </h2>
 <p>The Immobilizer never captures anything. Instead, every enemy piece on one of the eight squares
 around it is frozen: it cannot move at all. A frozen piece is not otherwise affected - it still captures nothing, it
 still blocks lines, and it can still be captured.</p>
+<p>The one thing a frozen piece may do is remove itself from the board ("suicide"), which counts as its
+player's move - typically to open a line for another piece. A frozen King may not, and a suicide that would leave
+one's own King open to capture is not allowed.</p>
 
-<h2><span class="u-icon u-chameleon"></span> Chameleon</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/chameleon.png" alt="Chameleon"/><figcaption>Chameleon</figcaption></figure> </h2>
 <p>The Chameleon moves like a Queen and captures each kind of enemy piece by that piece's own method:
 it pinces enemy Pincer Pawns, withdraws from enemy Withdrawers, coordinates with its King against enemy Coordinators,
 leaps over enemy Long Leapers, and takes an adjacent enemy King by moving onto it. Standing next to an enemy Immobilizer,
 it freezes it - and is frozen by it in return, so the two paralyse each other.</p>
 <p>Having no capturing power of its own, a Chameleon can never capture another Chameleon.</p>
 
-<h2><span class="u-icon u-king"></span> King</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/king.png" alt="King"/><figcaption>King</figcaption></figure> </h2>
 <p>The King moves one square in any direction and captures like a chess King, by displacement.</p>
 
 <h2>Ending the game</h2>
@@ -99,6 +103,5 @@ much harder to see than in chess: a Coordinator far away, a Pawn arriving next t
 cannot make a legal move loses, so stalemating the opponent wins the game.</p>
 
 <h2>About this implementation</h2>
-<p>Two points of Abbott's rules are simplified here. A Withdrawer that moves away from an adjacent enemy
-always takes it, whereas the original rules let the player decline the capture. And a piece frozen by an Immobilizer
-cannot remove itself from the board, a "suicide" move that some rule sets allow.</p>
+<p>One point of Abbott's rules is simplified here: a Withdrawer that moves away from an adjacent enemy
+always takes it, whereas the original rules let the player decline the capture.</p>

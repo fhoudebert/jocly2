@@ -26,6 +26,17 @@
  *   piece       piece size as a fraction of a square, default 0.99
  *   clicker     click layer size as a fraction of a square, default 1.09
  *   margin      board margin in squares, default 0.67 (the classic 2D margin)
+ *   pieces3d    aspect -> 3D piece of fairy-set-view.js ("fr-frog", ...).
+ *               Optional: without it the game stays 2D only. With it, the
+ *               game must list fairy-set-view.js before this file and offer a
+ *               3D skin in its manifest.
+ *   scale3d     3D piece scale, default worked out from the board size the
+ *               way the other chessbase views do it (0.5 on 9x9, 0.41 on 12x12)
+ *   shade3d     factor applied to the board colours in 3D, default 0.72. The
+ *               3D lights brighten a painted square by about 1.4 (measured on
+ *               Rocaille's ring: #6E5037 came out as #956F4F) and clip the light
+ *               squares to a glaring yellow; darkening first brings the 3D
+ *               board back to the colours of the 2D one.
  *
  * The panel that separates a swap from a mutual destruction is in
  * baroque-choice-view.js, and the capture animation in
@@ -72,7 +83,28 @@
 		return rows;
 	}
 
+	// 3D piece scale. The fairy pieces are sized for a 9x9 board with its
+	// margin (Modern Chess: 0.5); a square shrinks as the board grows, so the
+	// pieces must too - the 12x12 Duodecimal Chess lands on 0.41 by hand.
+	function scale3dOf(V) {
+		if(V.scale3d) return V.scale3d;
+		var margin = V.margin === undefined ? MARGIN : V.margin;
+		return Math.round(5.5 / (Math.max(V.width, V.height) + 2 * margin) * 1000) / 1000;
+	}
+
+	// a CSS hex colour times k, for the 3D board (see shade3d)
+	function shade(hex, k) {
+		var m = /^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(hex);
+		if(!m) return hex;
+		return "#" + [m[1], m[2], m[3]].map(function(h) {
+			var v = Math.max(0, Math.min(255, Math.round(parseInt(h, 16) * k)));
+			return (v < 16 ? "0" : "") + v.toString(16);
+		}).join("");
+	}
+
 	View.Game.baroqueDefineView = function(V) {
+
+		View.Game.baroquePieces3d = V.pieces3d || null;	// read by the tests
 
 		// one entry per aspect, plus the two rows of the sheet: White reads
 		// from the top row, Black from the bottom
@@ -92,6 +124,22 @@
 			};
 			for(var aspect in V.columns)
 				style[aspect] = { "2d": { clipx: V.columns[aspect] * CELL } };
+			if(V.pieces3d) {
+				// The fairy 3D set, re-keyed by this game's aspects: the 3D
+				// display looks pieces up by aspect name, and ours are
+				// "rococo-leaper" and the like, not "fr-frog".
+				var fairy = this.cbFairyPieceStyle3D, style3d = $.extend(true, {}, fairy);
+				for(var a3 in V.pieces3d) {
+					if(!fairy[V.pieces3d[a3]])
+						console.error("baroque-view: no 3D piece", V.pieces3d[a3], "for", a3);
+					style3d[a3] = fairy[V.pieces3d[a3]];
+				}
+				var s3 = scale3dOf(V);
+				style["default"]["3d"] = {
+					display: this.cbDisplayPieceFn(style3d),
+					scale: [s3, s3, s3],
+				};
+			}
 			return style;
 		}
 
@@ -111,7 +159,7 @@
 				});
 			}
 
-			return {
+			var view = {
 				coords: {
 					"2d": this.cbGridBoard.coordsFn.call(this, boardSpec),
 				},
@@ -129,6 +177,30 @@
 				},
 				pieces: this.baroquePieceStyle(),
 			};
+
+			if(V.pieces3d) {
+				// The classic 3D board - wood, black frame - painted with the
+				// variant's own squares, ring included.
+				var board3d = this.cbGridBoardClassic3DMargin;
+				if(V.colors) {
+					var k = V.shade3d || 0.72;
+					var fill3d = {
+						".": shade(V.colors.light, k),
+						"#": shade(V.colors.dark, k),
+						" ": "rgba(0,0,0,0)",
+					};
+					if(V.ring)
+						fill3d["e"] = shade(V.colors.edge, k);
+					board3d = $.extend(true, {}, this.cbGridBoardClassic3DMargin, {
+						colorFill: fill3d,
+					});
+				}
+				var c3 = Math.round(scale3dOf(V) * 1.25 * 1000) / 1000;
+				view.coords["3d"] = this.cbGridBoard.coordsFn.call(this, board3d);
+				view.board["3d"] = { display: this.cbDisplayBoardFn(board3d) };
+				view.clicker["3d"] = { scale: [c3, c3, c3] };
+			}
+			return view;
 		}
 	}
 

@@ -1,7 +1,8 @@
 
 /*
- * Ultima view - 2D only. A plain 8x8 board, the module's own colours, and no
- * edge ring: Ultima is the game the family grew out of.
+ * Ultima view - 2D, and 3D with the fairy set. A plain 8x8 board, the
+ * module's own colours, and no edge ring: Ultima is the game the family grew
+ * out of.
  *
  * Pieces are drawn from res/ultima/baroque-picto-sprites.png, shared with
  * Rococo. Note the Pawn is the Pincer Pawn of column 0, not the Cannon Pawn
@@ -16,11 +17,20 @@ View.Game.baroqueDefineView({
 	columns: {
 		"ultima-pawn": 0,						// Pincer Pawn
 		"ultima-coordinator": 1,
-		"ultima-leaper": 2,						// Long Leaper
+		"ultima-leaper": 10,						// Long Leaper - the frog, as in Rococo
 		"ultima-withdrawer": 3,
 		"ultima-chameleon": 4,
 		"ultima-immobilizer": 5,
 		"ultima-king": 6,
+	},
+	pieces3d: {								// fairy-set-view.js
+		"ultima-pawn": "fr-pincer-pawn",		// bell with four orthogonal fins
+		"ultima-coordinator": "fr-coordinator",	// antenna, rays and a cross
+		"ultima-leaper": "fr-frog",				// Long Leaper
+		"ultima-withdrawer": "fr-withdrawer",
+		"ultima-chameleon": "fr-chameleon",
+		"ultima-immobilizer": "fr-wizard",
+		"ultima-king": "fr-king",
 	},
 	width: 8,
 	height: 8,

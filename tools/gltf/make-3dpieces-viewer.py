@@ -33,16 +33,52 @@ file:// :
 
     python3 -m http.server 8000        # dans le dossier commun
     http://localhost:8000/...../fairy-viewer.html
+
+VIGNETTES POUR L'AIDE EN LIGNE (res/rules/fairy/*.png)
+
+Les images des pages de regles font 200x120 sur fond blanc : l'icone 2D a
+gauche, la piece 3D a droite. La page sait les fabriquer :
+
+  * bouton « Vignette » : rend la piece affichee, sous l'angle choisi a la
+    souris, et propose le PNG au telechargement ;
+  * l'icone 2D est trouvee seule si res/fairy/icons/w-<piece>.png existe ;
+    sinon la choisir dans la page (un PNG, ou une planche de sprites et sa
+    colonne), ou la donner au script :
+
+        --icone frog=src/games/chessbase/res/ultima/baroque-picto-sprites.png:10
+
+    (planche : cellules carrees, ligne du haut = Blancs, colonne comptee
+    depuis 0). Sans icone, la moitie gauche reste blanche.
+
+    --icone vise le NOM DE LA PIECE 3D. Quand un jeu habille un maillage
+    existant (l'Immobilisateur est omega/wizard), --alias lui donne un nom
+    propre, donc une icone et un fichier a lui :
+
+        --alias immobilizer=wizard \
+        --icone immobilizer=.../baroque-picto-sprites.png:5
+
+Ou toutes d'un coup, sans navigateur a ouvrir (Playwright requis :
+pip install playwright && playwright install chromium) :
+
+    python3 make-3dpieces-viewer.py --vignettes /tmp/vignettes
+    python3 make-3dpieces-viewer.py --vignettes /tmp/v --seulement baroque/ \
+        --icone frog=.../baroque-picto-sprites.png:10 --angle 0.6 --hauteur 0.35
+
+--angle et --hauteur (radians) sont ceux que la page affiche pour la vue
+courante : regler l'orientation a la souris, puis les recopier.
 """
 import argparse
 import json
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 # disposition du depot jocly2, conservee comme dernier recours seulement
 REL_DEPOT = os.path.join('src', 'games', 'chessbase', 'res', 'fairy')
-TROIS_JS = ('three.js', 'GLTFLoader.js', 'BufferGeometryUtils.js')
+# three.js seul est evalue a part (build CommonJS) ; les modules complementaires
+# sont soit regroupes (three-addons.js, depuis r186 dans jocly2), soit separes
+TROIS_ADDONS = (('three-addons.js',), ('BufferGeometryUtils.js', 'GLTFLoader.js'))
 
 
 def remonte(depart, *relatifs, test=os.path.isdir, niveaux=6):
@@ -74,24 +110,34 @@ def trouve_pieces(explicite):
     return d
 
 
+def addons(c):
+    """Modules complementaires presents a cote de three.js, ou None."""
+    if not os.path.isfile(os.path.join(c, 'three.js')):
+        return None
+    for jeu in TROIS_ADDONS:
+        if all(os.path.isfile(os.path.join(c, f)) for f in jeu):
+            return list(jeu)
+    return None
+
+
 def trouve_three(explicite, pieces):
-    def complet(c):
-        return all(os.path.isfile(os.path.join(c, f)) for f in TROIS_JS)
     if explicite:
         d = os.path.abspath(explicite)
-        if not complet(d):
-            sys.exit(f'{d} ne contient pas ' + ', '.join(TROIS_JS))
+        if not addons(d):
+            sys.exit(f'{d} ne contient pas three.js accompagne de '
+                     + ' ou '.join(' + '.join(j) for j in TROIS_ADDONS))
         return d
     for depart in (HERE, pieces):
-        d = remonte(depart, 'third-party', 'lib', '.', test=complet)
+        d = remonte(depart, 'third-party', 'lib', '.', test=addons)
         if d:
             return d
     return None
 
 
 def scan(fairy_dir, up):
-    """[{folder, pieces: [{name, gltf, diffuse, normal, ko, tris}]}, ...]"""
+    """[{folder, pieces: [{name, gltf, diffuse, normal, ko, tris, icone}]}, ...]"""
     groups = []
+    icones = os.path.join(fairy_dir, 'icons')
     for folder in sorted(os.listdir(fairy_dir)):
         d = os.path.join(fairy_dir, folder)
         if not os.path.isdir(d):
@@ -130,6 +176,10 @@ def scan(fairy_dir, up):
                 'normal': side('normalmap'),
                 'ko': round(total / 1024),
                 'tris': tris,
+                # icone 2D de l'aide : res/fairy/icons/w-<piece>.png si elle existe
+                'icone': ({'src': f'{up}/icons/w-{name}.png', 'col': None}
+                          if os.path.isfile(os.path.join(icones, f'w-{name}.png'))
+                          else None),
             })
         if pieces:
             groups.append({'folder': folder, 'pieces': pieces})
@@ -211,6 +261,19 @@ HTML = r"""<!DOCTYPE html>
   header .meta { font-size: 12px; color: #7a7065; font-variant-numeric: tabular-nums; }
   header .options { margin-left: auto; display: flex; gap: 14px; font-size: 13px; }
   label { user-select: none; cursor: pointer; }
+  .vig-barre {
+    padding: 8px 22px;
+    border-bottom: 1px solid var(--trait);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-size: 13px;
+  }
+  .vig-barre input[type=number] { width: 4em; }
+  .vig-barre input[type=file] { max-width: 15em; font-size: 12px; }
+  .vig-sortie { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+  #vig-apercu { border: 1px solid var(--trait); background: #fff; }
   #scene { flex: 1; position: relative; min-height: 320px; }
   canvas { display: block; width: 100%; height: 100%; }
   #etat {
@@ -247,6 +310,18 @@ HTML = r"""<!DOCTYPE html>
       <label><input type="checkbox" id="opt-rot" checked> rotation</label>
     </span>
   </header>
+  <div class="vig-barre">
+    <button id="vig-btn" disabled>Vignette</button>
+    <label title="PNG d'une icone, ou planche de sprites (ligne du haut = Blancs)">icône
+      <input type="file" id="vig-fichier" accept="image/png,image/*"></label>
+    <label title="colonne dans la planche (depuis 0) ; vide = image entiere">col.
+      <input type="number" id="vig-col" min="0" step="1"></label>
+    <span class="meta" id="vig-vue"></span>
+    <span class="vig-sortie" id="vig-sortie" hidden>
+      <canvas id="vig-apercu" width="200" height="120"></canvas>
+      <a id="vig-lien" download>enregistrer</a>
+    </span>
+  </div>
   <div id="scene"><div id="etat">Chargement de three.js…</div></div>
 </main>
 
@@ -257,6 +332,8 @@ const GROUPES = __GROUPES__;
 /* Dossier de three.js, relatif a cette page ; null si le script ne l'a pas
    trouve a la generation (relancer avec --three). */
 const TROIS = __TROIS__;
+/* Modules complementaires a charger apres three.js, dans cet ordre. */
+const TROIS_ADDONS = __TROIS_ADDONS__;
 
 const etat = document.getElementById('etat');
 const scene3d = document.getElementById('scene');
@@ -282,7 +359,7 @@ async function chargeThree() {
   /* Jocly desactive la gestion des couleurs (jocly.game.js) : ses teintes ont
      ete reglees sans elle. Meme choix ici pour un rendu comparable au jeu. */
   THREE.ColorManagement.enabled = false;
-  for (const f of ['BufferGeometryUtils.js', 'GLTFLoader.js'])
+  for (const f of TROIS_ADDONS)
     await new Promise((ok, ko) => {
       const s = document.createElement('script');
       s.src = TROIS + '/' + f;
@@ -298,19 +375,25 @@ function construitScene() {
   scene3d.appendChild(renderer.domElement);
   scene = new THREE.Scene();
   camera = new THREE.PerspectiveCamera(35, 1, 0.01, 100);
-  scene.add(new THREE.AmbientLight(0xffffff, 1.1));
-  const cle = new THREE.DirectionalLight(0xffffff, 2.2);
-  cle.position.set(3, 5, 4);
-  scene.add(cle);
-  const appoint = new THREE.DirectionalLight(0xffffff, 0.7);
-  appoint.position.set(-4, 2, -2);
-  scene.add(appoint);
+  eclaire(scene);
   socle = new THREE.Group();
   scene.add(socle);
   redimensionne();
   addEventListener('resize', redimensionne);
   souris();
   boucle();
+}
+
+/* Memes lumieres pour l'apercu et les vignettes : elles sont fixes dans la
+   scene, la camera tourne autour - la vignette montre donc l'eclairage vu. */
+function eclaire(sc) {
+  sc.add(new THREE.AmbientLight(0xffffff, 1.1));
+  const cle = new THREE.DirectionalLight(0xffffff, 2.2);
+  cle.position.set(3, 5, 4);
+  sc.add(cle);
+  const appoint = new THREE.DirectionalLight(0xffffff, 0.7);
+  appoint.position.set(-4, 2, -2);
+  sc.add(appoint);
 }
 
 function redimensionne() {
@@ -373,19 +456,30 @@ async function affiche(p, lien) {
   dit('Chargement de ' + p.name + '…');
   location.hash = p.folder + '/' + p.name;
 
-  let gltf;
+  let objet;
   try {
-    gltf = await new THREE.GLTFLoader().loadAsync(p.gltf);
+    objet = await chargePiece(p);
   } catch (e) {
     dit('Impossible de lire ' + p.gltf + ' : ' + e.message, true);
     return;
   }
+  socle.clear();
+  socle.add(objet);
+  courant = objet;
+  pieceCourante = p;
+  appliqueOptions();
+  dit('');
+  document.getElementById('vig-btn').disabled = false;
+  document.getElementById('vig-sortie').hidden = true;
+}
+
+/* La piece texturee, centree sur l'axe et le pied a y=0, comme sur un plateau. */
+async function chargePiece(p) {
+  const gltf = await new THREE.GLTFLoader().loadAsync(p.gltf);
   const [diff, norm] = await Promise.all([
     p.diffuse ? carte(p.diffuse, true) : null,
     p.normal ? carte(p.normal, false) : null,
   ]);
-
-  socle.clear();
   const objet = gltf.scene;
   objet.traverse(o => {
     if (!o.isMesh) return;
@@ -395,14 +489,192 @@ async function affiche(p, lien) {
     });
     o.userData.diff = diff;
   });
-  /* centrer sur l'axe et poser le pied a y=0, comme sur un plateau */
   const boite = new THREE.Box3().setFromObject(objet);
   const c = boite.getCenter(new THREE.Vector3());
   objet.position.set(-c.x, -boite.min.y, -c.z);
-  socle.add(objet);
-  courant = objet;
-  appliqueOptions();
-  dit('');
+  return objet;
+}
+
+/* ------------------------------------------------------------ vignettes
+
+   Format des images de res/rules/fairy : 200x120, fond blanc opaque, icone 2D
+   dans la moitie gauche, piece 3D dans la moitie droite, cadree au plus juste
+   a VIG.marge pixels pres. Le rendu se fait a VIG.sur fois la taille puis est
+   reduit par moities successives : aretes nettes sans escalier. */
+const VIG = { l: 200, h: 120, marge: 4, sur: 4, fov: 20 };
+let pieceCourante = null, iconeChoisie = null, rendeur = null;
+
+/* Un seul contexte WebGL pour toutes les vignettes : un navigateur n'en garde
+   qu'une quinzaine, et le lot en enchaine des dizaines. */
+function rendeurVignette() {
+  if (!rendeur) {
+    rendeur = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+    rendeur.setPixelRatio(1);
+    rendeur.setClearColor(0xffffff, 1);
+  }
+  return rendeur;
+}
+
+/* La piece seule sur fond blanc, w x h, vue depuis (angle, hauteur) comme
+   dans l'apercu, cadree sur ses sommets reels et non sur sa boite englobante. */
+function rendu3D(objet, angle, hauteur, w, h) {
+  const W = w * VIG.sur, H = h * VIG.sur;
+  const r = rendeurVignette();
+  r.setSize(W, H, false);
+  const sc = new THREE.Scene();
+  eclaire(sc);
+  const parent = objet.parent;
+  sc.add(objet);
+  objet.updateMatrixWorld(true);
+
+  const pts = [];
+  objet.traverse(o => {
+    if (!o.isMesh) return;
+    const pos = o.geometry.attributes.position;
+    const pas = Math.max(1, Math.floor(pos.count / 6000));
+    for (let i = 0; i < pos.count; i += pas)
+      pts.push(new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(o.matrixWorld));
+  });
+
+  const cam = new THREE.PerspectiveCamera(VIG.fov, W / H, 0.01, 1000);
+  const dir = new THREE.Vector3(Math.sin(angle) * Math.cos(hauteur), Math.sin(hauteur),
+                                Math.cos(angle) * Math.cos(hauteur));
+  const boite = new THREE.Box3().setFromObject(objet);
+  const cible = boite.getCenter(new THREE.Vector3());
+  const t = Math.tan(VIG.fov * Math.PI / 360);
+  let dist = boite.getSize(new THREE.Vector3()).length() / t;
+  const limX = 1 - 2 * VIG.marge / w, limY = 1 - 2 * VIG.marge / h;
+  const q = new THREE.Vector3(), droite = new THREE.Vector3(), haut = new THREE.Vector3();
+  /* perspective : quelques passes suffisent pour converger au pixel pres */
+  for (let k = 0; k < 6; k++) {
+    cam.position.copy(cible).addScaledVector(dir, dist);
+    cam.lookAt(cible);
+    cam.updateMatrixWorld();
+    let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+    for (const p of pts) {
+      q.copy(p).project(cam);
+      x0 = Math.min(x0, q.x); x1 = Math.max(x1, q.x);
+      y0 = Math.min(y0, q.y); y1 = Math.max(y1, q.y);
+    }
+    const hh = dist * t, hw = hh * cam.aspect;
+    droite.setFromMatrixColumn(cam.matrixWorld, 0);
+    haut.setFromMatrixColumn(cam.matrixWorld, 1);
+    cible.addScaledVector(droite, (x0 + x1) / 2 * hw).addScaledVector(haut, (y0 + y1) / 2 * hh);
+    dist *= Math.max((x1 - x0) / 2 / limX, (y1 - y0) / 2 / limY);
+  }
+  cam.position.copy(cible).addScaledVector(dir, dist);
+  cam.lookAt(cible);
+  r.render(sc, cam);
+  if (parent) parent.add(objet); else sc.remove(objet);
+
+  let src = r.domElement, sw = W, sh = H;
+  while (sw > w) {
+    sw = Math.max(w, sw / 2); sh = Math.max(h, sh / 2);
+    const c = document.createElement('canvas');
+    c.width = sw; c.height = sh;
+    const g = c.getContext('2d');
+    g.imageSmoothingQuality = 'high';
+    g.drawImage(src, 0, 0, sw, sh);
+    src = c;
+  }
+  return src;
+}
+
+function chargeImage(url) {
+  return new Promise((ok, ko) => {
+    const i = new Image();
+    i.onload = () => ok(i);
+    i.onerror = () => ko(new Error(url + ' introuvable'));
+    i.src = url;
+  });
+}
+
+/* icone = { img, col } : col null = image entiere ; sinon cellule carree de
+   la ligne du haut (Blancs) d'une planche de sprites a deux lignes. */
+function composeVignette(rendu, icone) {
+  const c = document.createElement('canvas');
+  c.width = VIG.l; c.height = VIG.h;
+  const g = c.getContext('2d');
+  g.fillStyle = '#fff';
+  g.fillRect(0, 0, VIG.l, VIG.h);
+  g.imageSmoothingQuality = 'high';
+  if (icone && icone.img) {
+    const im = icone.img;
+    let sx = 0, sy = 0, sw = im.naturalWidth, sh = im.naturalHeight;
+    /* meme place que les icones res/fairy/icons des images existantes ; une
+       cellule de planche est dessinee bord a bord, on la reduit d'autant */
+    let dx = 5, dy = 12, dw = 100;
+    if (icone.col !== null && icone.col !== undefined && icone.col !== '') {
+      sw = sh = im.naturalHeight / 2;
+      sx = Number(icone.col) * sw;
+      dx = 5; dy = 15; dw = 90;
+    }
+    /* les planches ont souvent un fond noir presque transparent (alpha ~5),
+       invisible en jeu mais qui fait un voile gris sur du blanc : l'effacer */
+    const t = document.createElement('canvas');
+    t.width = t.height = dw;
+    const tg = t.getContext('2d');
+    tg.imageSmoothingQuality = 'high';
+    tg.drawImage(im, sx, sy, sw, sh, 0, 0, dw, dw);
+    const px = tg.getImageData(0, 0, dw, dw);
+    for (let i = 3; i < px.data.length; i += 4)
+      if (px.data[i] < 24) px.data[i] = 0;
+    tg.putImageData(px, 0, 0);
+    g.drawImage(t, dx, dy);
+  }
+  g.drawImage(rendu, VIG.l / 2, 0);
+  return c;
+}
+
+async function iconeDe(p) {
+  if (iconeChoisie && iconeChoisie.img)
+    return iconeChoisie;
+  if (p.icone)
+    try {
+      return { img: await chargeImage(p.icone.src), col: p.icone.col };
+    } catch (e) { console.warn(e.message); }
+  return null;
+}
+
+/* Point d'entree du lot (--vignettes) : PNG en data URL, ou null. */
+window.vignette = async function (dossier, nom, a, h) {
+  const g = GROUPES.find(x => x.folder === dossier);
+  const p = g && g.pieces.find(x => x.name === nom);
+  if (!p) return null;
+  const objet = await chargePiece(p);
+  const icone = p.icone ? { img: await chargeImage(p.icone.src), col: p.icone.col } : null;
+  return composeVignette(rendu3D(objet, a, h, VIG.l / 2, VIG.h), icone).toDataURL('image/png');
+};
+
+async function fabriqueVignette() {
+  if (!courant) return;
+  const p = pieceCourante;
+  const col = document.getElementById('vig-col').value;
+  if (iconeChoisie) iconeChoisie.col = col === '' ? null : col;
+  const c = composeVignette(rendu3D(courant, angle, hauteur, VIG.l / 2, VIG.h),
+                            await iconeDe(p));
+  const ap = document.getElementById('vig-apercu');
+  ap.getContext('2d').drawImage(c, 0, 0);
+  const lien = document.getElementById('vig-lien');
+  lien.href = c.toDataURL('image/png');
+  lien.download = p.name + '.png';
+  document.getElementById('vig-sortie').hidden = false;
+}
+
+function initVignettes() {
+  document.getElementById('vig-btn').addEventListener('click', fabriqueVignette);
+  document.getElementById('vig-fichier').addEventListener('change', async e => {
+    const f = e.target.files[0];
+    iconeChoisie = f ? { img: await chargeImage(URL.createObjectURL(f)), col: null } : null;
+    /* une planche est bien plus large que haute : proposer la colonne 0 */
+    if (iconeChoisie && iconeChoisie.img.naturalWidth > 1.5 * iconeChoisie.img.naturalHeight
+        && document.getElementById('vig-col').value === '')
+      document.getElementById('vig-col').value = 0;
+  });
+  setInterval(() => {
+    document.getElementById('vig-vue').textContent =
+      'angle ' + angle.toFixed(2) + '  ·  hauteur ' + hauteur.toFixed(2);
+  }, 250);
 }
 
 /* Camp noir : fairy-set-view.js redessine l'image trois fois en multiply
@@ -471,6 +743,8 @@ function depuisAdresse() {
     return;
   }
   construitScene();
+  initVignettes();
+  window.pret = true;
   const [p, lien] = depuisAdresse();
   if (p) affiche(p, lien);
   else dit('Choisir une piece dans la liste.');
@@ -486,40 +760,205 @@ function depuisAdresse() {
 """
 
 
+def parse_icone(spec):
+    """nom=chemin.png ou nom=planche.png:colonne"""
+    if '=' not in spec:
+        sys.exit(f'--icone {spec} : attendu nom=fichier.png[:colonne]')
+    nom, chemin = spec.split('=', 1)
+    col = None
+    m = re.match(r'^(.*):(\d+)$', chemin)
+    if m and not os.path.isfile(chemin):
+        chemin, col = m.group(1), int(m.group(2))
+    chemin = os.path.abspath(os.path.expanduser(chemin))
+    if not os.path.isfile(chemin):
+        sys.exit(f'--icone {spec} : {chemin} introuvable')
+    return nom.strip(), chemin, col
+
+
+def selection(groups, seulement):
+    """[(dossier, nom)] des pieces retenues par --seulement (dossier/ ou nom)."""
+    filtres = [f.strip() for f in (seulement or '').split(',') if f.strip()]
+    for g in groups:
+        for p in g['pieces']:
+            if not filtres or any(
+                    (f.endswith('/') and g['folder'] == f[:-1])
+                    or f in (p['name'], g['folder'] + '/' + p['name'])
+                    for f in filtres):
+                yield g['folder'], p['name']
+
+
+def ajoute_alias(groups, alias):
+    """--alias NOM=PIECE : la meme piece 3D sous un autre nom, pour lui donner
+    une autre icone et ecrire NOM.png (ex. immobilizer=wizard : le maillage du
+    magicien, mais le chapeau de la planche baroque et non l'icone w-wizard)."""
+    for spec in alias:
+        if '=' not in spec:
+            sys.exit(f'--alias {spec} : attendu nom=piece ou nom=dossier/piece')
+        nom, cible = (x.strip() for x in spec.split('=', 1))
+        trouve = None
+        for g in groups:
+            for p in g['pieces']:
+                if cible in (p['name'], g['folder'] + '/' + p['name']):
+                    trouve = (g, p)
+        if not trouve:
+            sys.exit(f'--alias {spec} : piece {cible} introuvable')
+        g, p = trouve
+        copie = dict(p, name=nom, icone=None)
+        g['pieces'].append(copie)
+
+
+def ecrit_page(out, pieces, three, icones, alias=()):
+    """Ecrit la page ; retourne (groups, up, trois)."""
+    dossier_page = os.path.dirname(out) or '.'
+    rel = lambda c: os.path.relpath(c, dossier_page).replace(os.sep, '/')
+    up = rel(pieces)
+    trois = rel(three) if three else None
+    groups = scan(pieces, up)
+    if not groups:
+        sys.exit(f'aucun .gltf trouve dans {pieces}')
+    ajoute_alias(groups, alias)
+    connus = {p['name'] for g in groups for p in g['pieces']}
+    for nom, chemin, col in icones:
+        if nom not in connus:
+            print(f'  attention : --icone {nom} ne correspond a aucune piece 3D '
+                  '(--icone vise le nom du .gltf ; sinon --alias ' + nom + '=<piece>)')
+        for g in groups:
+            for p in g['pieces']:
+                if p['name'] == nom:
+                    p['icone'] = {'src': rel(chemin), 'col': col}
+    data = [{'folder': g['folder'],
+             'pieces': [{k: v for k, v in p.items() if not k.startswith('_')}
+                        for p in g['pieces']]} for g in groups]
+    html = (HTML.replace('__GROUPES__', json.dumps(data, ensure_ascii=False, indent=1))
+                .replace('__TROIS_ADDONS__', json.dumps(addons(three) if three else []))
+                .replace('__TROIS__', json.dumps(trois)))
+    os.makedirs(dossier_page, exist_ok=True)
+    with open(out, 'w') as fh:
+        fh.write(html)
+    return groups, up, trois
+
+
+def vignettes(a, pieces, three, icones):
+    """Rend chaque piece retenue en PNG 200x120 dans a.vignettes, par un
+    Chromium sans fenetre qui charge la page servie en local."""
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        sys.exit('--vignettes demande Playwright : pip install playwright '
+                 '&& playwright install chromium')
+    if not three:
+        sys.exit('three.js introuvable — le passer avec --three')
+    import base64
+    import functools
+    import http.server
+    import threading
+
+    # une racine commune pour servir la page, les pieces, three.js et les icones
+    racine = os.path.commonpath([pieces, three] + [c for _, c, _ in icones])
+    page = os.path.join(racine, '.vignettes-tmp.html')
+    sortie = os.path.abspath(a.vignettes)
+    os.makedirs(sortie, exist_ok=True)
+
+    class Muet(http.server.SimpleHTTPRequestHandler):
+        def log_message(self, *args):
+            pass
+
+    serveur = http.server.ThreadingHTTPServer(
+        ('127.0.0.1', 0), functools.partial(Muet, directory=racine))
+    threading.Thread(target=serveur.serve_forever, daemon=True).start()
+    try:
+        groups, _, _ = ecrit_page(page, pieces, three, icones, a.alias)
+        retenues = list(selection(groups, a.seulement))
+        if not retenues:
+            sys.exit(f'--seulement {a.seulement} : aucune piece retenue')
+        noms = [n for _, n in retenues]
+        url = f'http://127.0.0.1:{serveur.server_port}/.vignettes-tmp.html'
+        with sync_playwright() as pw:
+            nav = pw.chromium.launch(args=['--use-angle=swiftshader',
+                                           '--enable-unsafe-swiftshader'])
+            onglet = nav.new_page()
+            erreurs = []
+            onglet.on('pageerror', lambda e: erreurs.append(str(e)))
+            onglet.goto(url)
+            try:
+                onglet.wait_for_function('window.pret === true', timeout=30000)
+            except Exception:
+                sys.exit('la page ne s\'est pas initialisee : '
+                         + ('; '.join(erreurs) or 'WebGL indisponible ?'))
+            sans_icone = []
+            for dossier, nom in retenues:
+                # deux pieces de meme nom dans deux dossiers : prefixer le dossier
+                fichier = (f'{dossier}-{nom}.png' if noms.count(nom) > 1
+                           else f'{nom}.png')
+                donnees = onglet.evaluate(
+                    'async ([d, n, a, h]) => await window.vignette(d, n, a, h)',
+                    [dossier, nom, a.angle, a.hauteur])
+                if not donnees:
+                    print(f'  {dossier}/{nom} : echec')
+                    continue
+                with open(os.path.join(sortie, fichier), 'wb') as fh:
+                    fh.write(base64.b64decode(donnees.split(',', 1)[1]))
+                p = next(p for g in groups if g['folder'] == dossier
+                         for p in g['pieces'] if p['name'] == nom)
+                if not p['icone']:
+                    sans_icone.append(nom)
+                print(f'  {fichier}')
+            nav.close()
+        print(f'{len(retenues)} vignettes dans {sortie}')
+        if sans_icone:
+            print('  sans icone 2D (moitie gauche blanche) : ' + ', '.join(sans_icone))
+            print('  -> --icone nom=fichier.png ou nom=planche.png:colonne')
+    finally:
+        serveur.shutdown()
+        if os.path.exists(page):
+            os.remove(page)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--pieces', help='dossier des pieces (celui qui contient '
                     'un sous-dossier par piece). Defaut : res/fairy a cote de '
                     'ce script, sinon au-dessus, sinon la disposition du depot')
-    ap.add_argument('--three', help='dossier contenant three.js, GLTFLoader.js '
-                    'et BufferGeometryUtils.js. Defaut : third-party/ ou lib/ '
-                    'trouve en remontant depuis le script ou les pieces')
+    ap.add_argument('--three', help='dossier contenant three.js et '
+                    'three-addons.js (ou GLTFLoader.js + BufferGeometryUtils.js). '
+                    'Defaut : third-party/ ou lib/ trouve en remontant depuis '
+                    'le script ou les pieces')
     ap.add_argument('--out', default=os.path.join(HERE, 'fairy-viewer.html'),
                     help='page a ecrire (defaut : fairy-viewer.html a cote du script)')
+    ap.add_argument('--icone', action='append', default=[], metavar='NOM=PNG[:COL]',
+                    help='icone 2D d\'une piece pour sa vignette : un PNG, ou une '
+                    'planche de sprites et sa colonne (depuis 0). Repetable. '
+                    'Par defaut : res/fairy/icons/w-<nom>.png si elle existe')
+    ap.add_argument('--alias', action='append', default=[], metavar='NOM=PIECE',
+                    help='ajoute la piece 3D PIECE (nom ou dossier/nom) sous le nom '
+                    'NOM, pour lui donner une autre icone et ecrire NOM.png. '
+                    'Repetable. Ex. : --alias immobilizer=wizard '
+                    '--icone immobilizer=.../baroque-picto-sprites.png:5')
+    ap.add_argument('--vignettes', metavar='DOSSIER',
+                    help='au lieu d\'ecrire la page, rendre les vignettes 200x120 '
+                    'de l\'aide en ligne dans ce dossier (Playwright requis)')
+    ap.add_argument('--seulement', metavar='LISTE',
+                    help='avec --vignettes : pieces a rendre, separees par des '
+                    'virgules - nom, dossier/nom ou dossier/ (tout le dossier)')
+    ap.add_argument('--angle', type=float, default=0.6,
+                    help='avec --vignettes : angle de vue, en radians (defaut 0.6, '
+                    'celui de la page a l\'ouverture ; la page affiche la valeur courante)')
+    ap.add_argument('--hauteur', type=float, default=0.35,
+                    help='avec --vignettes : elevation de la vue, en radians (defaut 0.35)')
     a = ap.parse_args()
 
     pieces = trouve_pieces(a.pieces)
     three = trouve_three(a.three, pieces)
+    icones = [parse_icone(s) for s in a.icone]
+
+    if a.vignettes:
+        vignettes(a, pieces, three, icones)
+        return
+
     out = os.path.abspath(a.out)
     dossier_page = os.path.dirname(out) or '.'
-
-    # les URL de la page sont relatives a la page elle-meme
-    up = os.path.relpath(pieces, dossier_page).replace(os.sep, '/')
-    trois = (os.path.relpath(three, dossier_page).replace(os.sep, '/')
-             if three else None)
-
-    groups = scan(pieces, up)
-    if not groups:
-        sys.exit(f'aucun .gltf trouve dans {pieces}')
-    data = [{'folder': g['folder'],
-             'pieces': [{k: v for k, v in p.items() if not k.startswith('_')}
-                        for p in g['pieces']]} for g in groups]
-    html = (HTML.replace('__GROUPES__', json.dumps(data, ensure_ascii=False, indent=1))
-                .replace('__TROIS__', json.dumps(trois)))
-    os.makedirs(dossier_page, exist_ok=True)
-    with open(out, 'w') as fh:
-        fh.write(html)
+    groups, up, trois = ecrit_page(out, pieces, three, icones, a.alias)
 
     n = sum(len(g['pieces']) for g in groups)
     print(f'{out}')

@@ -25,7 +25,7 @@
 		background-position-x: calc(var(--k-col) / (var(--k-cols) - 1) * 100%);
 	}
 	/* column index of each piece within the sprite sheet shared by the family */
-	.k-leaper      { --k-col: 2; }
+	.k-leaper      { --k-col: 10; }	/* the frog */
 	.k-withdrawer  { --k-col: 3; }
 	.k-chameleon   { --k-col: 4; }
 	.k-immobilizer { --k-col: 5; }
@@ -78,6 +78,7 @@ capture and left the game duller than Ultima.</p>
 <tr><td><span class="k-icon k-immobilizer"></span> <b>Immobilizer</b></td><td>like a Queen</td><td>never captures - it paralyses instead</td></tr>
 <tr><td><span class="k-icon k-king"></span> <b>King</b></td><td>one square</td><td>by displacement, like a chess King</td></tr>
 </table>
+
 <p>Every piece except the Cannon Pawn and the King moves like a Queen: any distance along a rank, a file or a
 diagonal, over empty squares only, and never onto an occupied square. No piece may jump over another - the Long Leaper
 and the Cannon Pawn do, but only as part of their capture.</p>
@@ -104,14 +105,14 @@ moving <i>away</i> from its victim, so it needs an empty square behind it; on th
 attacks come from, that square is off the board and the piece is inert. Moved forward a rank it still does not recoil -
 but it becomes a springboard: the Cannon Pawns behind it hop over it onto the rank ahead.</p>
 
-<h2><span class="k-icon k-pawn"></span> Cannon Pawn</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/cannon-pawn.png" alt="Cannon Pawn"/><figcaption>Cannon Pawn</figcaption></figure> </h2>
 <p>The Cannon Pawn moves without capturing in two ways: one step in any direction, or a hop over an adjacent
 piece of either colour, landing on the empty square just beyond. It captures the way it hops: over an adjacent piece -
 the mount, friend or enemy - and onto an enemy piece immediately beyond, taking its place.</p>
 <p>A Cannon Pawn that reaches the enemy King's own rank by a move of its own may promote to any friendly
 piece that has been captured and is currently off the board, except another Cannon Pawn. Promotion is optional.</p>
 
-<h2><span class="k-icon k-advancer"></span> Advancer</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/advancer.png" alt="Advancer"/><figcaption>Advancer</figcaption></figure> </h2>
 <p>The Advancer moves like a Queen and captures by approach: if it stops directly in front of an enemy piece -
 that is, if the next square in its direction of travel is occupied by an enemy - that enemy is captured. The capture is
 part of the move and is not optional: an Advancer may not stop beside an enemy on its line of travel without taking it.</p>
@@ -119,12 +120,12 @@ part of the move and is not optional: an Advancer may not stop beside an enemy o
 line</i> does not help, since it simply approaches again on the next square. You must leave its line, or block the
 approach by occupying the square it would stop on.</p>
 
-<h2><span class="k-icon k-withdrawer"></span> Withdrawer</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/withdrawer.png" alt="Withdrawer"/><figcaption>Withdrawer</figcaption></figure> </h2>
 <p>The Withdrawer captures by withdrawal: standing next to an enemy piece, it moves directly away from it any
 distance and captures it. Only the piece it moves away from is taken, and only if it was already adjacent before the
 move. Like the Advancer's, this capture is compulsory.</p>
 
-<h2><span class="k-icon k-leaper"></span> Long Leaper</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/frog.png" alt="Long Leaper"/><figcaption>Long Leaper</figcaption></figure> </h2>
 <p>The Long Leaper moves like a Queen but may leap over an enemy piece and capture it, provided the square
 immediately beyond that piece is empty. It may then carry on in the same direction and take further enemies on the same
 terms, before ending on any empty square beyond. It may never leap over a friendly piece, nor over two adjacent enemies.</p>
@@ -132,7 +133,7 @@ terms, before ending on any empty square beyond. It may never leap over a friend
 by stopping pieces from fleeing to the rim it keeps them in the field, and so in line with one another - and a sweeping
 capture is exactly what needs several enemies on one line.</p>
 
-<h2><span class="k-icon k-swapper"></span> Swapper</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/swapper.png" alt="Swapper"/><figcaption>Swapper</figcaption></figure> </h2>
 <p>The Swapper moves like a Queen without capturing, or it may <b>trade places</b> with any piece, friend or
 enemy, within an unobstructed Queen's reach - <b>except a King</b>, its own as much as the opponent's. It may also
 destroy an adjacent enemy piece and itself at once, by mutual destruction - a move it cannot make while immobilized.</p>
@@ -140,7 +141,7 @@ destroy an adjacent enemy piece and itself at once, by mutual destruction - a mo
 could withstand. In exchange, approaching an enemy Swapper is dangerous for the King: mutual destruction would take him
 along, so stepping next to one is stepping into check.</p>
 
-<h2><span class="k-icon k-chameleon"></span> Chameleon</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/chameleon.png" alt="Chameleon"/><figcaption>Chameleon</figcaption></figure> </h2>
 <p>The Chameleon moves like a Queen and captures each enemy by that enemy's own method: it approaches
 Advancers, withdraws from Withdrawers, leaps over Long Leapers, hops a mount to take Cannon Pawns, swaps with Swappers
 (or destroys itself together with them) and takes an adjacent enemy King by moving onto it. Several of these may be
@@ -150,13 +151,13 @@ and approach at once.</p>
 <p>The Chameleon freezes an enemy Immobilizer and is frozen by it in turn, but it can never capture one -
 and it cannot capture another Chameleon.</p>
 
-<h2><span class="k-icon k-immobilizer"></span> Immobilizer</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/immobilizer.png" alt="Immobilizer"/><figcaption>Immobilizer</figcaption></figure> </h2>
 <p>The Immobilizer never captures. Any enemy piece on one of the eight squares around it is immobilized and
 cannot move. Two Immobilizers facing each other paralyse one another. An immobilized piece other than a King may still
 <b>remove itself from the board</b>, which counts as its move - usually to open a line. The Immobilizer may never enter
 an edge square by itself, though it can be put there by a swap.</p>
 
-<h2><span class="k-icon k-king"></span> King</h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/king.png" alt="King"/><figcaption>King</figcaption></figure> </h2>
 <p>The King moves one square in any direction and captures by displacement, like the King of ordinary chess.
 <b>Check binds</b>: a move that would leave one's own King capturable is illegal, and a King may not stand next to the
 enemy King. It may only enter an edge square in order to capture a piece there.</p>
@@ -176,6 +177,22 @@ about a threefold repetition.</p>
     <li>A Cannon Pawn promotes to a piece from the list of captured pieces.</li>
     <li>A frozen piece may remove itself from the board.</li>
 </ul>
+
+<h2>Indicative piece values</h2>
+<p>These values, scaled to the Cannon Pawn, were estimated by having Rocaille
+play itself (1,200 games) and measuring how much one extra piece of each kind
+weighs on the result. They depend on how the players play and are only a guide:
+the position often matters more.</p>
+<table class="k-pieces">
+<tr><th>Piece</th><th>Value</th><th>Note</th></tr>
+<tr><td><span class="k-icon k-immobilizer"></span> Immobilizer</td><td>≈ 12</td><td>by far the most precious piece: losing it nearly always loses the game</td></tr>
+<tr><td><span class="k-icon k-advancer"></span> Advancer</td><td>6</td><td>the piece that captures most</td></tr>
+<tr><td><span class="k-icon k-leaper"></span> Long Leaper</td><td>4.5</td><td>the only maker of multiple captures</td></tr>
+<tr><td><span class="k-icon k-swapper"></span> Swapper</td><td>4.5</td><td></td></tr>
+<tr><td><span class="k-icon k-chameleon"></span> Chameleon</td><td>4</td><td>worth mostly what stands against it</td></tr>
+<tr><td><span class="k-icon k-withdrawer"></span> Withdrawer</td><td>2.5</td><td>needs a free square to back into; few captures in practice</td></tr>
+<tr><td><span class="k-icon k-pawn"></span> Cannon Pawn</td><td>1</td><td>next to nothing early on, but it shelters the King and counts in the ending through promotion</td></tr>
+</table>
 
 <h2>What differs from Rococo</h2>
 <p>For a player who already knows Rococo, here is the complete list of differences. Anything not listed is

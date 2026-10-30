@@ -243,6 +243,12 @@ check("a frozen piece has exactly one move: removing itself",
 check("unfrozen, the same piece moves normally",
 	movesFrom({ a1: "wK", h8: "bK", d4: "wL", f6: "bI" }, "d4").length > 1, true);
 
+check("a suicide that would expose its own King is refused",
+	movesFrom({ d4: "wK", d3: "wP", c2: "bI", d5: "bL", h8: "bK" }, "d3"), []);
+
+check("the same suicide is fine once the King is safe",
+	movesFrom({ d4: "wK", d3: "wP", c2: "bI", h8: "bK" }, "d3"), ["Pd3(suicide)"]);
+
 check("a King never gets that option",
 	movesFrom({ d4: "wK", h8: "bK", d5: "bI", a1: "wL" }, "d4"), []);
 

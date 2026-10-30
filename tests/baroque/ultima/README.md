@@ -37,9 +37,9 @@ No build needed - the tests load the model scripts in a small sandbox
   (`f`, `t`, `pr`) cannot tell apart - it would need an extra field and a
   matching `Equals` override. Same remark for the Chameleon withdrawing from
   an enemy Withdrawer.
-* **No suicide move.** An immobilized piece is allowed by some rule sets to
-  remove itself from the board; here an immobilized piece simply cannot move.
-  This changes stalemate outcomes in a few positions.
+* **Suicide of a frozen piece** is implemented (`move.suicide`, from == to):
+  an immobilized piece other than the King may remove itself from the board
+  as its player's move; the usual King-safety filter applies to it.
 * Immobilizer versus Chameleon is implemented as mutual paralysis: the
   Chameleon adjacent to an Immobilizer is frozen by it, and freezes it back.
   Other rule sets exist.
