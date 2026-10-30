@@ -23,6 +23,38 @@ JEUX = {
 }
 
 POLICE = "'DejaVu Serif',Georgia,serif"
+POLICE_CJK = "'Noto Serif CJK SC','Noto Serif CJK TC','Noto Sans CJK SC',serif"
+
+# Valeurs par defaut communes : cases de 4 cm (pieces t4) et tapis de 70 cm au
+# plus, la largeur des laizes courantes d'impression textile.
+CASE = 40
+TAILLE_MAX = 700
+
+# Bois des tabliers « a lignes » de jocly (res/xiangqi/wood2.jpg, mediane
+# #ba7f4e), eclairci pour que les lignes restent lisibles une fois imprimees ;
+# lignes : la couleur du Go de jocly (go-xd-view.js).
+BOIS = '#D9AE78'
+ENCRE = '#2b1d0e'
+
+
+def ajuste(case, dimensions, maxi, nom='la case'):
+    """Plus grande taille de case <= `case` dont le tapis tient dans `maxi` mm.
+
+    `dimensions(case)` rend (largeur, hauteur) ; elles sont affines en la case
+    (cadre et marges en proportion, ou fixes), on resout donc exactement."""
+    l1, h1 = dimensions(case)
+    if max(l1, h1) <= maxi + 1e-6:
+        return case
+    l2, h2 = dimensions(case / 2)
+    pentes = [(l1 - l2) / (case / 2), (h1 - h2) / (case / 2)]
+    fixes = [l1 - pentes[0] * case, h1 - pentes[1] * case]
+    nouveau = min((maxi - f) / p for f, p in zip(fixes, pentes) if p > 0)
+    nouveau = int(nouveau * 10) / 10            # au dixieme de mm, vers le bas
+    if nouveau <= 0:
+        sys.exit(f'impossible de tenir dans {maxi:g} mm')
+    print(f'  {nom} passe de {case:g} a {nouveau:g} mm pour tenir dans {maxi:g} mm '
+          f'(--taille-max)')
+    return nouveau
 
 
 def couleur(c):
@@ -79,16 +111,55 @@ class Svg:
         self.parts.append(f'<rect x="{mm(x)}" y="{mm(y)}" width="{mm(w)}" '
                           f'height="{mm(h)}" fill="{fill}"{s}/>')
 
-    def texte(self, x, y, t, taille, fill, ancre='end'):
-        self.parts.append(f'<text x="{mm(x)}" y="{mm(y)}" text-anchor="{ancre}" '
-                          f'fill="{fill}" style="font-family:{POLICE};font-weight:bold;'
+    def texte(self, x, y, t, taille, fill, ancre='end', police=POLICE, gras=True,
+              base=None):
+        b = f' dominant-baseline="{base}"' if base else ''
+        g = 'font-weight:bold;' if gras else ''
+        self.parts.append(f'<text x="{mm(x)}" y="{mm(y)}" text-anchor="{ancre}"{b} '
+                          f'fill="{fill}" style="font-family:{police};{g}'
                           f'font-size:{mm(taille)}px">{t}</text>')
+
+    def ligne(self, x1, y1, x2, y2, stroke, sw, cap='round'):
+        self.parts.append(f'<line x1="{mm(x1)}" y1="{mm(y1)}" x2="{mm(x2)}" y2="{mm(y2)}" '
+                          f'stroke="{stroke}" stroke-width="{mm(sw)}" stroke-linecap="{cap}"/>')
+
+    def chemin(self, d, fill='none', stroke=None, sw=None, extra=''):
+        s = f' stroke="{stroke}" stroke-width="{mm(sw)}"' if stroke else ''
+        self.parts.append(f'<path d="{d}" fill="{fill}"{s}{extra}/>')
+
+    def cercle(self, cx, cy, r, fill='none', stroke=None, sw=None):
+        s = f' stroke="{stroke}" stroke-width="{mm(sw)}"' if stroke else ''
+        self.parts.append(f'<circle cx="{mm(cx)}" cy="{mm(cy)}" r="{mm(r)}" fill="{fill}"{s}/>')
 
     def brut(self, s):
         self.parts.append(s)
 
     def __str__(self):
         return '\n'.join(self.parts + ['</svg>']) + '\n'
+
+
+def options_sortie(ap, case=CASE):
+    """Options communes : taille de case, taille maxi, sorties."""
+    ap.add_argument('--case', type=float, default=case,
+                    help=f'taille d\'une case en mm (defaut {case:g} : pieces t4 ; 50 pour t5)')
+    ap.add_argument('--taille-max', type=float, default=TAILLE_MAX, metavar='MM',
+                    help=f'plus grand cote du tapis ; la case est reduite pour y tenir '
+                    f'(defaut {TAILLE_MAX})')
+    ap.add_argument('--out', help='fichier SVG a ecrire')
+    ap.add_argument('--pdf', nargs='?', const=True, metavar='FICHIER',
+                    help='ecrire aussi le PDF a la taille reelle (defaut : nom du SVG)')
+    ap.add_argument('--png', type=int, metavar='PIXELS',
+                    help='ecrire aussi un PNG de cette largeur')
+
+
+def ecrit(a, svg, largeur, hauteur, resume):
+    """Ecrit le SVG, annonce ses dimensions, exporte PDF/PNG si demande."""
+    if a.pdf is True:
+        a.pdf = os.path.splitext(a.out)[0] + '.pdf'
+    with open(a.out, 'w', encoding='utf-8') as fh:
+        fh.write(str(svg))
+    print(f'{a.out} : {mm(largeur)} x {mm(hauteur)} mm, {resume}')
+    exporte(a.out, largeur, hauteur, pdf=a.pdf, png=a.png)
 
 
 def lettres(i):

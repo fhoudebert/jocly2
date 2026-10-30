@@ -6,18 +6,20 @@ compris sur l'anneau de bord quand il y en a un : seul un trait discret
 separe l'anneau des cases interieures, le tapis sert donc aussi a tout autre
 jeu de memes dimensions.
 
-    # Rococo, cases de 5 cm, avec PDF a la taille reelle
+    # Rococo, cases de 4 cm, avec PDF a la taille reelle
     python3 tablier-grille.py --jeu rococo --pdf
 
-    # echecs 8x8 aux couleurs 2D de jocly, cases de 4 cm
-    python3 tablier-grille.py --jeu echecs --case 40
+    # echecs 8x8 aux couleurs 2D de jocly, cases de 5 cm (pieces t5)
+    python3 tablier-grille.py --jeu echecs --case 50
 
     # tout a la main : 10 lignes, 12 colonnes, anneau, sans notation
     python3 tablier-grille.py --lignes 10 --colonnes 12 --clair '#FECA66' \\
         --fonce '#C89264' --anneau --sans-notation --png 4096
 
 --jeu donne les couleurs (et les dimensions pour rococo/rocaille) ; toute
-option explicite l'emporte. Sortie par defaut : tablier-<L>x<C>.svg, ou
+option explicite l'emporte. Le tapis ne depasse pas --taille-max (70 cm) :
+au-dela, la case est reduite d'autant.
+Le shogi se joue sur ces tabliers (cases unies inutiles). Sortie par defaut : tablier-<L>x<C>.svg, ou
 <jeu>-<L>x<C>.svg.
 """
 import argparse
@@ -25,8 +27,8 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from tablier_commun import (JEUX, Svg, assombrit, couleur, exporte, lettres, mm,  # noqa: E402
-                            plus_lisible)
+from tablier_commun import (JEUX, Svg, ajuste, assombrit, couleur, ecrit,  # noqa: E402
+                            lettres, mm, options_sortie, plus_lisible)
 
 
 def options():
@@ -53,15 +55,9 @@ def options():
     ap.add_argument('--coin', choices=('fonce', 'clair'), default='fonce',
                     help='couleur de la case a1, en bas a gauche (defaut fonce, '
                     'comme aux echecs et aux dames internationales)')
-    ap.add_argument('--case', type=float, default=50,
-                    help='cote d\'une case en mm (defaut 50 : pieces t5 ; 40 pour t4)')
     ap.add_argument('--cadre', type=float, help='largeur du cadre en mm '
                     '(defaut 12 %% de la case ; 0 pour aucun)')
-    ap.add_argument('--out', help='fichier SVG a ecrire')
-    ap.add_argument('--pdf', nargs='?', const=True, metavar='FICHIER',
-                    help='ecrire aussi le PDF a la taille reelle (defaut : nom du SVG)')
-    ap.add_argument('--png', type=int, metavar='PIXELS',
-                    help='ecrire aussi un PNG de cette largeur')
+    options_sortie(ap)
     a = ap.parse_args()
 
     # --jeu fournit des valeurs par defaut, les options explicites l'emportent
@@ -73,6 +69,12 @@ def options():
     a.trait = couleur(a.trait or j.get('trait') or assombrit(a.fonce))
     if a.anneau is None:
         a.anneau = j.get('anneau', False)
+    cadre_fixe = a.cadre
+
+    def dims(c):
+        f = cadre_fixe if cadre_fixe is not None else c * 0.12
+        return a.colonnes * c + 2 * f, a.lignes * c + 2 * f
+    a.case = ajuste(a.case, dims, a.taille_max)
     if a.cadre is None:
         a.cadre = round(a.case * 0.12, 1)
     if a.lignes < 1 or a.colonnes < 1:
@@ -82,8 +84,6 @@ def options():
         sys.exit(f'--anneau-largeur {k} : il ne resterait aucune case interieure')
     if not a.out:
         a.out = f'{a.jeu or "tablier"}-{a.lignes}x{a.colonnes}.svg'
-    if a.pdf is True:
-        a.pdf = os.path.splitext(a.out)[0] + '.pdf'
     return a
 
 
@@ -130,11 +130,8 @@ def dessine(a):
 def main():
     a = options()
     svg, largeur, hauteur = dessine(a)
-    with open(a.out, 'w', encoding='utf-8') as fh:
-        fh.write(str(svg))
-    print(f'{a.out} : {mm(largeur)} x {mm(hauteur)} mm, {a.lignes}x{a.colonnes} '
-          f'cases de {mm(a.case)} mm' + (', anneau' if a.anneau else ''))
-    exporte(a.out, largeur, hauteur, pdf=a.pdf, png=a.png)
+    ecrit(a, svg, largeur, hauteur, f'{a.lignes}x{a.colonnes} cases de {mm(a.case)} mm'
+          + (', anneau' if a.anneau else ''))
 
 
 if __name__ == '__main__':
