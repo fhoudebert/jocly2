@@ -37,6 +37,29 @@ BOIS = '#D9AE78'
 ENCRE = '#2b1d0e'
 
 
+REPO = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
+JEUX_SRC = os.path.join(REPO, 'src', 'games')
+
+
+def jocly_options(module):
+    """{nom du jeu: gameOptions} d'un module jocly (src/games/<module>/index.js),
+    lu par Node : les manifestes sont du JavaScript, pas du JSON."""
+    import json
+    import subprocess
+    index = os.path.join(JEUX_SRC, module, 'index.js')
+    code = ('const g=require(process.argv[1]).games;const o={};'
+            'for(const x of g)o[x.name]=(x.config.model.gameOptions||{});'
+            'console.log(JSON.stringify(o))')
+    try:
+        sortie = subprocess.run(['node', '-e', code, index], capture_output=True,
+                                text=True, check=True).stdout
+    except FileNotFoundError:
+        sys.exit('Node est necessaire pour lire les jeux jocly (node introuvable)')
+    except subprocess.CalledProcessError as e:
+        sys.exit(f'lecture de {index} impossible : {e.stderr.strip()[:300]}')
+    return json.loads(sortie)
+
+
 def ajuste(case, dimensions, maxi, nom='la case'):
     """Plus grande taille de case <= `case` dont le tapis tient dans `maxi` mm.
 

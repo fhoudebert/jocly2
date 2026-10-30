@@ -2,12 +2,16 @@
 """Tablier a intersections a imprimer sur tapis (SVG en millimetres).
 
 On joue sur les points, pas dans les cases : jeu de go, echecs chinois
-(xiangqi) et coreens (janggi), ou grille quelconque.
+(xiangqi) et coreens (janggi), alquerque, moulins (6, 7, 9 et 12 pions), ou
+grille quelconque. Les moulins sont lus dans leurs modeles jocly
+(src/games/mills/<n>-men-morris-model.js : points et voisinages).
 
     python3 tablier-lignes.py --jeu go19 --pdf
     python3 tablier-lignes.py --jeu go13
     python3 tablier-lignes.py --jeu xiangqi --pdf           # pas de 4 cm
     python3 tablier-lignes.py --jeu janggi --sans-notation
+    python3 tablier-lignes.py --jeu alquerque
+    python3 tablier-lignes.py --jeu moulin9 --pdf
     python3 tablier-lignes.py --colonnes 7 --lignes 7 --pas 40   # grille quelconque
 
 Le pas est l'ecart entre deux lignes. Go : 22 x 23,7 mm, les dimensions
@@ -18,11 +22,12 @@ couleur encre ; --fond et --trait les changent.
 """
 import argparse
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from tablier_commun import (BOIS, CASE, ENCRE, POLICE_CJK, Svg, ajuste, couleur,  # noqa: E402
-                            ecrit, lettres, mm, options_sortie)
+from tablier_commun import (BOIS, CASE, ENCRE, JEUX_SRC, POLICE_CJK, Svg,  # noqa: E402
+                            ajuste, couleur, ecrit, lettres, mm, options_sortie)
 
 JEUX = {
     'go19': {'colonnes': 19, 'lignes': 19, 'pas': 22, 'pas_y': 23.7, 'style': 'go'},
@@ -30,7 +35,39 @@ JEUX = {
     'go9': {'colonnes': 9, 'lignes': 9, 'pas': 22, 'pas_y': 23.7, 'style': 'go'},
     'xiangqi': {'colonnes': 9, 'lignes': 10, 'style': 'xiangqi'},
     'janggi': {'colonnes': 9, 'lignes': 10, 'style': 'janggi'},
+    'alquerque': {'colonnes': 5, 'lignes': 5, 'style': 'alquerque'},
+    'moulin6': {'style': 'moulin', 'pions': 6},
+    'moulin7': {'style': 'moulin', 'pions': 7},
+    'moulin9': {'style': 'moulin', 'pions': 9},
+    'moulin12': {'style': 'moulin', 'pions': 12},
 }
+
+
+def lit_moulin(pions):
+    """(points [(colonne, ligne)], segments [(i, j)]) d'un modele jocly.
+
+    this.g.Coord[pos] = [rangee, colonne], rangee 0 en haut ;
+    this.g.Graph[pos] = voisins (null si aucun)."""
+    chemin = os.path.join(JEUX_SRC, 'mills', f'{pions}-men-morris-model.js')
+    if not os.path.isfile(chemin):
+        sys.exit(f'{chemin} introuvable')
+    src = open(chemin, encoding='utf-8').read()
+
+    def tableau(nom):
+        m = re.search(rf'this\.g\.{nom}\s*=\s*\[(.*?)\];', src, re.S)
+        if not m:
+            sys.exit(f'{chemin} : this.g.{nom} introuvable')
+        corps = re.sub(r'//[^\n]*', '', m.group(1))
+        return [[None if v == 'null' else int(v) for v in re.findall(r'null|\d+', ligne)]
+                for ligne in re.findall(r'\[([^\[\]]*)\]', corps)]
+    coords, graphe = tableau('Coord'), tableau('Graph')
+    if len(coords) != len(graphe):
+        sys.exit(f'{chemin} : Coord et Graph de longueurs differentes')
+    cote = max(max(r, c) for r, c in coords)
+    points = [(c, cote - r) for r, c in coords]           # ligne 0 en bas
+    segments = sorted({tuple(sorted((i, j))) for i, v in enumerate(graphe)
+                       for j in v if j is not None})
+    return points, segments
 
 # hoshi des gobans (colonne, ligne), comptes depuis 0
 HOSHI = {
@@ -65,6 +102,9 @@ def options():
     a.lignes = a.lignes or j.get('lignes', 9)
     a.pas = a.pas or j.get('pas', CASE)
     a.pas_y = a.pas_y or (j.get('pas_y', a.pas) * a.pas / j.get('pas', a.pas))
+    if a.style == 'moulin':
+        a.points, a.segments = lit_moulin(j['pions'])
+        a.colonnes = a.lignes = max(max(p) for p in a.points) + 1
     if a.style in ('xiangqi', 'janggi') and (a.colonnes, a.lignes) != (9, 10):
         sys.exit(f'{a.jeu} : 9 colonnes x 10 lignes')
     if a.colonnes < 2 or a.lignes < 2:
@@ -99,6 +139,13 @@ def main():
     fin = round(min(p, py) * (0.045 if a.style == 'go' else 0.03), 2)
     epais = fin * 2
 
+    if a.style == 'moulin':
+        for i, j in a.segments:
+            (c0, l0), (c1, l1) = a.points[i], a.points[j]
+            svg.ligne(X(c0), Y(l0), X(c1), Y(l1), a.trait, epais, cap='round')
+        for c, l in a.points:
+            svg.cercle(X(c), Y(l), min(p, py) * 0.11, fill=a.trait)
+        return fin_dessin(a, svg, X, Y, p, py, largeur, hauteur)
     # horizontales
     for l in range(L):
         svg.ligne(X(0), Y(l), X(N - 1), Y(l), a.trait, fin, cap='square')
@@ -111,6 +158,16 @@ def main():
             svg.ligne(X(c), Y(0), X(c), Y(L - 1), a.trait, fin, cap='square')
     # bord de la grille, plus appuye
     svg.rect(X(0), Y(L - 1), (N - 1) * p, (L - 1) * py, stroke=a.trait, sw=epais)
+
+    if a.style == 'alquerque':
+        # diagonales depuis les points ou ligne et colonne ont meme parite,
+        # comme le graphe d'alquerque-model.js
+        for c in range(N):
+            for l in range(L):
+                if (c % 2) == (l % 2):
+                    for dc in (-1, 1):
+                        if 0 <= c + dc < N and l + 1 < L:
+                            svg.ligne(X(c), Y(l), X(c + dc), Y(l + 1), a.trait, fin)
 
     if a.style in ('xiangqi', 'janggi'):
         # palais : diagonales du carre 3x3 central de chaque camp
@@ -147,6 +204,11 @@ def main():
         for c, l in HOSHI.get(N, []) if N == L else []:
             svg.cercle(X(c), Y(l), min(p, py) * 0.09, fill=a.trait)
 
+    return fin_dessin(a, svg, X, Y, p, py, largeur, hauteur)
+
+
+def fin_dessin(a, svg, X, Y, p, py, largeur, hauteur):
+    N, L = a.colonnes, a.lignes
     if a.notation:
         # go : A..T sans I, la convention des diagrammes ; sinon a, b, c...
         if a.style == 'go':
@@ -162,7 +224,8 @@ def main():
             svg.texte(X(0) - dist, Y(l), l + 1, taille, a.trait, ancre='middle',
                       base='central', gras=a.style != 'go')
 
-    ecrit(a, svg, largeur, hauteur, f'{N}x{L} lignes, pas de {mm(p)}'
+    forme = (f'{len(a.points)} points' if a.style == 'moulin' else f'{N}x{L} lignes')
+    ecrit(a, svg, largeur, hauteur, f'{forme}, pas de {mm(p)}'
           + (f' x {mm(py)}' if py != p else '') + ' mm')
 
 
