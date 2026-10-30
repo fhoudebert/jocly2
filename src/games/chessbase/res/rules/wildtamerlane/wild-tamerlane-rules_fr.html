@@ -1,0 +1,135 @@
+<style>
+    .piece-graph {
+        height: auto;
+        max-width: 100%;
+        margin: 0 auto;
+        display: block;
+    }
+
+    .piece-icon {
+        width: 70px;
+        height: auto;
+        float: left;
+        margin-right: 10px;
+    }
+
+    .piece-icon-promo {
+        width: 50px;
+        height: 50px;
+    }
+
+    #promo {
+        width: 200px;
+        margin: 0 auto;
+    }
+</style>
+
+<h1>Disposition de départ</h1>
+
+<p>Wild Tamerlane est une variante d'échecs sur un tablier 11x11, inventée par Jean-Louis Cazaux.</p>
+
+
+<p>Le tablier compte 11 x 11 cases. Les 11 colonnes reprennent la disposition originale des échecs de Tamerlan, avec un Roi au centre.
+    Les 11 rangées donnent davantage d'espace au jeu et permettent de déployer les pièces avant l'affrontement. De plus, elles placent
+    les Fous et les Chameaux sur des cases de même couleur, ce qui leur permet d'attaquer leurs homologues adverses et de se protéger mutuellement.</p>
+
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/wildtamerlane/wild-tamerlane-start.png'>
+</p>
+
+<p>Chaque camp dispose de 28 pièces : 1 Roi, 2 Dames, 2 Griffons, 2 Fous, 2 Cavaliers, 2 Tours, 2 Éléphants, 2 Chameaux, 2 Canons
+    et 11 Pions.</p>
+
+
+<h1>Pièces</h1>
+
+<h2>Roi</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/king.png"/>
+</p>
+<p class='piece-details'>Se déplace comme aux échecs classiques, mais il n'y a pas de roque.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/king.png'>
+</p>
+<h2>Dame</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/queen.png"/>
+</p>
+<p class='piece-details'>Exactement comme aux échecs classiques.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/queen.png'>
+</p>
+<h2>Fou</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/bishop.png"/>
+</p>
+<p class='piece-details'>Exactement comme aux échecs classiques.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/bishop.png'>
+</p>
+<h2>Cavalier</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/knight.png"/>
+</p>
+<p class='piece-details'>Exactement comme aux échecs classiques.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/knight.png'>
+</p>
+<h2>Tour</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/rook.png"/>
+</p>
+<p class='piece-details'>Exactement comme aux échecs classiques.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/rook.png'>
+</p>
+<h2>Éléphant</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/elephant.png"/>
+</p>
+<p class='piece-details'>Se déplace d'une ou de deux cases en diagonale. Lorsqu'il se déplace de deux cases, l'Éléphant peut sauter : la case intermédiaire n'a pas besoin d'être libre. Il combine les déplacements de l'Alfil et du Firzan (Fers) du Shatranj, deux pièces également présentes dans les échecs médiévaux et disparues avec l'apparition des déplacements modernes de la Dame et du Fou.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/elephant.png'>
+</p>
+<h2>Chameau</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/camel.png"/>
+</p>
+<p class='piece-details'>Comme dans la Métamachie, c'est une pièce bien connue des grands jeux d'échecs musulmans médiévaux, comme les échecs de Tamerlan. Il saute jusqu'à la case opposée d'un rectangle de 2x4, comme un Cavalier allongé, quelles que soient les pièces présentes sur les cases intermédiaires. À noter qu'il reste toujours sur la même couleur de case.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/camel.png'>
+</p>
+<h2>Canon</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/cannon.png"/>
+</p>
+<p class='piece-details'>Se déplace sans prendre comme une Tour, mais il prend en se déplaçant en ligne droite, horizontalement ou verticalement, en sautant par-dessus exactement une pièce. Lorsqu'un Canon prend, il doit y avoir exactement une pièce entre sa case de départ et sa case d'arrivée ; cette pièce peut appartenir à l'un ou l'autre camp. (C'est le déplacement du Canon du Xiangqi.)</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/cannon.png'>
+</p>
+<h2>Griffon</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/eagle.png"/>
+</p>
+<p class='piece-details'>Se déplace d'une case en diagonale puis s'éloigne d'un nombre quelconque de cases verticalement ou horizontalement. Il peut aussi se contenter de la seule case diagonale. Il ne peut pas sauter, et son chemin, qui doit être libre, commence obligatoirement par l'étape diagonale. Cette pièce, presque aussi puissante que la Dame, s'inspire de la Girafe des échecs de Tamerlan et de l'Aanca du Grande Acedrex d'Alphonse X. Dans mes variantes plus récentes, cette pièce s'appelle l'Aigle.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/eagle.png'>
+</p>
+<h2>Pion</h2>
+<p>
+<img style="max-width:100%;" src="{GAME}/res/rules/fairy/pawn.png"/>
+</p>
+<p class='piece-details'>Se déplace et prend comme aux échecs classiques : il avance d'une case, ou de deux depuis sa rangée de départ, et prend d'une case en diagonale vers l'avant ; la prise en passant suit les règles orthodoxes. Arrivé sur la dernière rangée, le Pion est promu en Dame ou en Griffon, au choix du joueur.</p>
+<div style='clear:both'></div>
+<p>
+<img class='piece-graph' src='{GAME}/res/rules/graphs/pawn.png'>
+</p>
