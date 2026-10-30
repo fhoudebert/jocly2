@@ -52,26 +52,6 @@
 		vertical-align: top;
 	}
 	table.k-diff th { font-weight: bold; }
-	/* the pieces in 2D and 3D, as res/rules/fairy/*.png (200x120) */
-	.k-vignettes {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 8px 16px;
-		margin: 12px 0;
-	}
-	.k-vignettes figure {
-		margin: 0;
-		text-align: center;
-	}
-	.k-vignettes img {
-		width: 200px;
-		max-width: 100%;
-		height: auto;
-		display: block;
-	}
-	.k-vignettes figcaption {
-		font-size: 90%;
-	}
 </style>
 
 <h1>Rocaille</h1>
@@ -113,9 +93,6 @@ Permutateur, Bondissant, Percuteur, Pion-canon, Roi, Pion-canon, Caméléon, Per
 Les deux <b>Décrocheurs</b> ne sont pas sur la rangée du fond mais dans la rangée de pions, devant les flancs du Roi,
 en échange des deux Pions-canons qui s’y trouveraient. Les deux armées sont disposées dans le même ordre,
 face à face. Les Blancs jouent en premier.</p>
-<div class="k-vignettes">
-
-</div>
 <p>Cette disposition est faite pour la défense. Le Caméléon se tient à une case du Roi : c’est la seule pièce
 capable de neutraliser un Immobilisateur qui s’approche. Les Percuteurs sont à deux cases, avec la place d’aller en chercher un.
 L’Immobilisateur et le Permutateur sont exilés aux ailes opposées, parce que ce sont des outils offensifs et parce qu’un
@@ -149,7 +126,7 @@ de sa ligne, ou lui couper l’approche en occupant la case où il voudrait s’
 distance quelconque et la capture. Seule la pièce dont il s’écarte est prise, et seulement si elle était déjà adjacente avant
 le déplacement. Comme celle du Percuteur, cette capture est obligatoire.</p>
 
-<h2><figure><img src="{GAME}/res/rules/fairy/frog.png" alt="Bondissant"/><figcaption>Bondissant</figcaption></figure></span> </h2>
+<h2><figure><img src="{GAME}/res/rules/fairy/frog.png" alt="Bondissant"/><figcaption>Bondissant</figcaption></figure> </h2>
 <p>Le Bondissant se déplace comme une Dame mais peut sauter par-dessus une pièce ennemie et la capturer,
 à condition que la case immédiatement derrière cette pièce soit libre. Il peut ensuite continuer dans la même direction et
 prendre d’autres ennemis aux mêmes conditions, avant de terminer sur n’importe quelle case libre située plus loin.
