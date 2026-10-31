@@ -1,12 +1,12 @@
 /*
  * Rocaille rules - pure Node:
- *   node tests/rocaille/rules.test.js
+ *   node tests/baroque/rocaille/rules.test.js
  *
- * Rocaille is Rococo on other dials (see ultima/rocaille-model.js), so what is
+ * Rocaille is Rococo on other dials (see baroque/rocaille-model.js), so what is
  * worth testing here is what the dials change: the 10x8 field inside a 12x10
  * board, the Leaper that stops at two victims, the King that cannot be swapped,
  * and check that binds. The edge rule itself is Rococo's and is covered by
- * tests/rococo/edge.test.js; what is checked below is only that Rocaille has a
+ * tests/baroque/rococo/edge.test.js; what is checked below is only that Rocaille has a
  * ring at all, on its own geometry.
  *
  * Squares are named over the whole board, ring included: files a..l, ranks
@@ -24,7 +24,7 @@ function check(label, actual, expected) {
 	else { failed++; console.log("FAIL " + label + "\n  expected " + e + "\n  actual   " + a); }
 }
 
-const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/baroque-core.js", "ultima/rocaille-model.js"]);
+const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "baroque/baroque-core.js", "baroque/rocaille-model.js"]);
 const game = h.newGame(sb);
 game.mPlayedMoves = [];
 

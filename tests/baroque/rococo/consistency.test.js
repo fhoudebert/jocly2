@@ -1,6 +1,6 @@
 /*
  * Consistency tests - pure Node:
- *   node tests/rococo/consistency.test.js
+ *   node tests/baroque/rococo/consistency.test.js
  *
  * Random playouts checking that cbQuickApply + cbQuickUnapply restore the
  * position and the Zobrist signature after every generated move (this is what
@@ -20,7 +20,7 @@ function check(label, actual, expected) {
 	else { failed++; console.log("FAIL " + label + "\n  expected " + e + "\n  actual   " + a); }
 }
 
-const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/baroque-core.js", "ultima/rococo-model.js"]);
+const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "baroque/baroque-core.js", "baroque/rococo-model.js"]);
 const game = h.newGame(sb);
 
 /* ------------------------------------------------------------ playouts */

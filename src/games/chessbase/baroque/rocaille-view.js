@@ -8,7 +8,7 @@
  * Rococo uses between its own board and its ring - same hue, a little over half
  * the lightness - so it reads as ground one may not simply walk on.
  *
- * Pieces come from res/ultima/baroque-picto-sprites.png, the family sheet. Its
+ * Pieces come from res/baroque/baroque-picto-sprites.png, the family sheet. Its
  * first eleven columns are those of the older ultima sheet, plus a twelfth for
  * the Ghost. The Long Leaper is drawn with the frog of column 10, as in Rococo
  * and as its 3D figure; the kangaroo of column 2 is no longer used here.
@@ -18,7 +18,7 @@
  */
 
 View.Game.baroqueDefineView({
-	sheet: "/res/ultima/baroque-picto-sprites.png",
+	sheet: "/res/baroque/baroque-picto-sprites.png",
 	columns: {
 		"rocaille-pawn": 7,						// Cannon Pawn
 		"rocaille-advancer": 9,

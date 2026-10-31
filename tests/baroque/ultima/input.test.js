@@ -1,6 +1,6 @@
 /*
  * Board input tests for Ultima - pure Node:
- *   node tests/ultima/input.test.js
+ *   node tests/baroque/ultima/input.test.js
  *
  * An immobilized piece may take itself off the board, and that move does not
  * travel: its destination is the square the piece already occupies. A move is
@@ -57,11 +57,11 @@ const sandbox = {
 sandbox.global = sandbox;
 sandbox.window = sandbox;
 vm.createContext(sandbox);
-["base-view.js", "grid-board-view.js", "fairy-set-view.js", "ultima/baroque-view.js", "ultima/ultima-view.js", "ultima/baroque-choice-view.js"].forEach((script) => {
+["base-view.js", "grid-board-view.js", "fairy-set-view.js", "baroque/baroque-view.js", "baroque/ultima-view.js", "baroque/baroque-choice-view.js"].forEach((script) => {
 	vm.runInContext(fs.readFileSync(path.join(CHESSBASE, script), "utf8"), sandbox, { filename: script });
 });
 
-const modelSb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/ultima-model.js"]);
+const modelSb = h.loadModel(["base-model.js", "grid-geo-model.js", "baroque/ultima-model.js"]);
 const game = h.newGame(modelSb);
 
 const types = Object.keys(game.cbVar.pieceTypes).map((t) => game.cbVar.pieceTypes[t]);

@@ -4,7 +4,7 @@
  * module's own colours, and no edge ring: Ultima is the game the family grew
  * out of.
  *
- * Pieces are drawn from res/ultima/baroque-picto-sprites.png, shared with
+ * Pieces are drawn from res/baroque/baroque-picto-sprites.png, shared with
  * Rococo. Note the Pawn is the Pincer Pawn of column 0, not the Cannon Pawn
  * its cousins field, and that Ultima alone has a Coordinator.
  *
@@ -13,7 +13,7 @@
  */
 
 View.Game.baroqueDefineView({
-	sheet: "/res/ultima/baroque-picto-sprites.png",
+	sheet: "/res/baroque/baroque-picto-sprites.png",
 	columns: {
 		"ultima-pawn": 0,						// Pincer Pawn
 		"ultima-coordinator": 1,

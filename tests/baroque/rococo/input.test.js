@@ -1,6 +1,6 @@
 /*
  * Board input tests - pure Node:
- *   node tests/rococo/input.test.js
+ *   node tests/baroque/rococo/input.test.js
  *
  * A piece removing itself does not travel: the move's destination is the square
  * it already occupies. Since a move is entered in two clicks - the piece, then
@@ -56,11 +56,11 @@ const sandbox = {
 sandbox.global = sandbox;
 sandbox.window = sandbox;
 vm.createContext(sandbox);
-["base-view.js", "grid-board-view.js", "fairy-set-view.js", "ultima/baroque-view.js", "ultima/rococo-view.js", "ultima/baroque-choice-view.js"].forEach((script) => {
+["base-view.js", "grid-board-view.js", "fairy-set-view.js", "baroque/baroque-view.js", "baroque/rococo-view.js", "baroque/baroque-choice-view.js"].forEach((script) => {
 	vm.runInContext(fs.readFileSync(path.join(CHESSBASE, script), "utf8"), sandbox, { filename: script });
 });
 
-const modelSb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/baroque-core.js", "ultima/rococo-model.js"]);
+const modelSb = h.loadModel(["base-model.js", "grid-geo-model.js", "baroque/baroque-core.js", "baroque/rococo-model.js"]);
 const game = h.newGame(modelSb);
 
 const types = Object.keys(game.cbVar.pieceTypes).map((t) => game.cbVar.pieceTypes[t]);

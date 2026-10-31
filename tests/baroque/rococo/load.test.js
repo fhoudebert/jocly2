@@ -1,6 +1,6 @@
 /*
  * Loading a saved position - pure Node:
- *   node tests/rococo/load.test.js
+ *   node tests/baroque/rococo/load.test.js
  *
  * A jocly match is saved as its starting position (a FEN-like string the base
  * model calls "pjn") plus the moves played, so every reload of a saved game
@@ -30,7 +30,7 @@ function check(label, actual, expected) {
 	else { failed++; console.log("FAIL " + label + "\n  expected " + e + "\n  actual   " + a); }
 }
 
-const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/baroque-core.js", "ultima/rococo-model.js"]);
+const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "baroque/baroque-core.js", "baroque/rococo-model.js"]);
 const game = h.newGame(sb);
 game.mPlayedMoves = [];		// ExportBoardState reports the move count from it
 

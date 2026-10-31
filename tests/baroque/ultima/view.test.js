@@ -1,6 +1,6 @@
 /*
  * View tests for Ultima - pure Node:
- *   node tests/ultima/view.test.js
+ *   node tests/baroque/ultima/view.test.js
  *
  * The view itself can only be judged in a browser; what is checked here is
  * the part that will churn while the sprite sheet is being filled in: every
@@ -75,7 +75,7 @@ function pngSize(file) {
 	return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
 }
 
-const sb = loadView(["base-view.js", "grid-board-view.js", "fairy-set-view.js", "ultima/baroque-view.js", "ultima/ultima-view.js"]);
+const sb = loadView(["base-view.js", "grid-board-view.js", "fairy-set-view.js", "baroque/baroque-view.js", "baroque/ultima-view.js"]);
 const view = sb.View.Game;
 view.mViewOptions = { fullPath: "" };
 const def = view.cbDefineView();
@@ -84,7 +84,7 @@ const style = def.pieces;
 /* ------------------------------------------------------- sprite mapping */
 
 const CELL = 100;
-const modelSb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/ultima-model.js"]);
+const modelSb = h.loadModel(["base-model.js", "grid-geo-model.js", "baroque/ultima-model.js"]);
 const game = h.newGame(modelSb);
 const aspects = Object.keys(game.cbVar.pieceTypes).map((t) => game.cbVar.pieceTypes[t].aspect);
 
@@ -102,7 +102,7 @@ check("the Long Leaper is the frog", style["ultima-leaper"]["2d"].clipx / CELL, 
 /* ------------------------------------------------------- the sheet fits */
 
 const file = def.pieces["default"]["2d"].file;
-check("the sprite sheet is the expected file", file, "/res/ultima/baroque-picto-sprites.png");
+check("the sprite sheet is the expected file", file, "/res/baroque/baroque-picto-sprites.png");
 
 const size = pngSize(path.join(CHESSBASE, file));
 check("the sheet is wide enough for every piece", size.width >= (Math.max.apply(null, columns) + 1) * CELL, true);
@@ -120,7 +120,7 @@ const manifest = require(path.join(CHESSBASE, "index.js")).games.find((g) => g.n
 // the sprite sheet moved under it once without anything noticing
 check("the manifest declares both rules pages",
 	manifest.config.model.rules,
-	{ en: "res/rules/ultima/ultima-rules.html", fr: "res/rules/ultima/ultima-rules_fr.html" });
+	{ en: "res/rules/baroque/ultima-rules.html", fr: "res/rules/baroque/ultima-rules_fr.html" });
 
 const pageErrors = [];
 ["en", "fr"].forEach((lang) => {
@@ -177,7 +177,7 @@ check("the rules pages and the view agree on every sprite column", pageErrors, [
 	const scripts = manifest.viewScripts;
 	check("fairy-set-view.js loaded before baroque-view.js",
 		scripts.indexOf("fairy-set-view.js") >= 0 &&
-		scripts.indexOf("fairy-set-view.js") < scripts.indexOf("ultima/baroque-view.js"), true);
+		scripts.indexOf("fairy-set-view.js") < scripts.indexOf("baroque/baroque-view.js"), true);
 	aspects.forEach((aspect) => {
 		const fr = map[aspect];
 		check(aspect + " has a 3D piece", typeof fr, "string");

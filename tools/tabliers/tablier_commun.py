@@ -13,7 +13,7 @@ import sys
 
 # Couleurs 2D des tabliers de jocly, pour --jeu. clair / fonce / trait (cadre,
 # demarcation de l'anneau). Sources : chessbase/grid-board-view.js
-# (cbGridBoardClassic2D), ultima/rococo-view.js, ultima/rocaille-view.js.
+# (cbGridBoardClassic2D), baroque/rococo-view.js, baroque/rocaille-view.js.
 JEUX = {
     'echecs': {'clair': '#F1D9B3', 'fonce': '#C7885D', 'trait': '#6B4226'},
     'rococo': {'clair': '#DDDDD0', 'fonce': '#559933', 'trait': '#2f5320',
