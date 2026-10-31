@@ -120,6 +120,26 @@ const with_ = (extra) => Object.assign({}, KINGS, extra);
 		[]);
 }
 
+/* ------------------------------- swap or destroy a neighbour on the ring */
+
+// Against an adjacent enemy the Swapper has two moves naming the same square:
+// the swap and the mutual destruction. Both reach the ring as captures, and
+// the edge rule once grouped them as one capture "made twice at the same
+// cost", striking out both. Found in play: White Swapper b2, Black Leaper
+// landed on b1 after a double capture.
+{
+	// the King stands off every line through b2, so the Leaper sent back there by
+	// the swap cannot take it and binding check stays out of the picture
+	const b = pos({ e4: "wK", f9: "bK", b2: "wS", b1: "bL" });
+	const fromB2 = movesOf(b, "b2");
+	check("ring: the Swapper may swap with an adjacent enemy on the ring",
+		fromB2.indexOf("Sb2<>b1") >= 0, true);
+	check("ring: and may destroy it instead",
+		fromB2.indexOf("Sb2!!b1") >= 0, true);
+	check("ring: while non-capturing moves onto the ring stay forbidden",
+		fromB2.filter((m) => /-[a-l]1$|-a\d|-l\d/.test(m)), []);
+}
+
 /* ------------------------------------------------------- check binds */
 
 {

@@ -579,8 +579,13 @@ Model.Game.baroqueDefineVariant = function(V) {
 			caps.push(move.c);
 		if(move.kills)
 			caps.push.apply(caps, move.kills);
-		if(move.swap != null)			// a swap counts as a capture for the edge rule
-			caps.push(move.swap);
+		// A swap counts as a capture for the edge rule, but it is NOT the same
+		// capture as a mutual destruction of the same neighbour: the Swapper
+		// offers both against an adjacent enemy, same piece, same square, same
+		// cost, and keyed alike rule 4 saw two "identical" captures and struck
+		// out both. Tagging the swap keeps the two in separate groups.
+		if(move.swap != null)
+			caps.push('s' + move.swap);
 		return caps.sort(function(a, b) { return a - b; }).join(',');
 	}
 
