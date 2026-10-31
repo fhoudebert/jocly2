@@ -48,7 +48,7 @@
 but it is a game in its own right, reworked to favour attack over defence. As in Ultima, almost every piece has its
 own alien way of removing enemy pieces, and one move may remove several at once. Two things set Rococo apart:
 the board is 10x10 with a special outer ring, and you win by <b>capturing</b> the enemy King rather than by checkmating it.</p>
-<h2>Initial setup</h2>
+<h2>Starting position</h2>
 <p style='text-align:center'><img style="max-width:100%;" src="{GAME}/res/rules/rococo/initial-setup.jpg"/></p>
 
 <h2>The pieces</h2>
@@ -77,19 +77,19 @@ nothing may never touch the ring. This idea, borrowed from Jumping Chess, stops 
 
 <h2>Initial setup</h2>
 <p>Each player has 8 Cannon Pawns on the second rank and, behind them: Immobilizer, Withdrawer, Long Leaper,
-King, Chameleon, Long Leaper, Advancer, Swapper. Both armies are set up in the same order, facing each other. White moves first.</p>
+King, Chameleon, Long Leaper, Advancer, Swapper. Both armies face each other in the same order. White moves first.</p>
 
 <h2><figure><img src="{GAME}/res/rules/fairy/cannon-pawn.png" alt="Cannon Pawn"/><figcaption>Cannon Pawn</figcaption></figure> </h2>
 <p>A Cannon Pawn moves without capturing in two ways: one step in any direction, or a hop over an adjacent
 piece of either colour onto the empty square directly beyond it. It captures the same way it hops: it jumps over an adjacent
-piece - the mount, friend or foe - and lands on an enemy standing immediately beyond, taking its place.</p>
-<p>A Cannon Pawn that reaches, by a move of its own, the rank where the enemy King started (or the edge rank
-beyond it) may promote to any friendly piece that has been captured and is off the board - anything but another Cannon Pawn.
+piece - friend or foe - and takes the enemy standing immediately beyond.</p>
+<p>A Cannon Pawn that reaches, by its own move, the rank where the enemy King started (or the edge rank
+beyond it) may promote to any friendly piece that has been captured and is off the board.
 Promotion is optional.</p>
 
 <h2><figure><img src="{GAME}/res/rules/fairy/advancer.png" alt="Advancer"/><figcaption>Advancer</figcaption></figure> </h2>
 <p>The Advancer moves like a Queen and captures by approach: if it stops directly in front of an enemy piece,
-that is, if the next square in its direction of travel holds an enemy, that enemy is removed. The capture is part of the move
+that piece is removed. The capture is part of the move
 and is not optional - an Advancer cannot stop next to an enemy in its line of travel and spare it.</p>
 
 <h2><figure><img src="{GAME}/res/rules/fairy/withdrawer.png" alt="Withdrawer"/><figcaption>Withdrawer</figcaption></figure> </h2>
@@ -101,25 +101,27 @@ Like the Advancer's, this capture is compulsory.</p>
 <p>The Long Leaper moves like a Queen but may jump over an enemy piece and capture it, provided the square
 immediately behind that piece is free. It may then carry on in the same direction and take further enemies on the same
 conditions, before landing on any free square beyond. It may never jump a friendly piece, nor two enemies standing side by side.</p>
+<p>It is the Leaper that gives the game its spectacular sweeps, and the edge ring makes them possible:
+it stops pieces from sheltering on the rim.</p>
 
 <h2><figure><img src="{GAME}/res/rules/fairy/swapper.png" alt="Swapper"/><figcaption>Swapper</figcaption></figure> </h2>
 <p>The Swapper moves like a Queen without capturing, or it may <b>trade places</b> with any piece, friendly
-or enemy, that stands a clear Queen's move away. It can also destroy an adjacent enemy piece and itself at the same time,
+or enemy, that stands a clear Queen's move away. It can also destroy itself together with an adjacent enemy piece,
 by mutual destruction - a move it cannot make while immobilized.</p>
 
 <h2><figure><img src="{GAME}/res/rules/fairy/chameleon.png" alt="Chameleon"/><figcaption>Chameleon</figcaption></figure> </h2>
 <p>The Chameleon moves like a Queen and captures each enemy by that enemy's own method: it approaches
-Advancers, withdraws from Withdrawers, leaps over Long Leapers, hops a mount onto Cannon Pawns, swaps with (or mutually
+Advancers, withdraws from Withdrawers, leaps over Long Leapers, hops over a neighbour onto Cannon Pawns, swaps with (or mutually
 destroys) Swappers, and takes an adjacent enemy King by moving onto it. Several of these may be combined in a single move:
-leaping over a Long Leaper can, in the same move, take a Withdrawer left behind and an Advancer reached at the end.
+leaping over a Long Leaper can, in the same move, take a Withdrawer left behind and an Advancer it stops in front of.
 Trading places with a Swapper may end such a travel, so one move can withdraw, leap, swap and approach at once.</p>
 <p>A Chameleon freezes an enemy Immobilizer, and is frozen by it in return, but can never capture one -
 and it cannot capture another Chameleon.</p>
 
 <h2><figure><img src="{GAME}/res/rules/fairy/immobilizer.png" alt="Immobilizer"/><figcaption>Immobilizer</figcaption></figure> </h2>
 <p>The Immobilizer never captures. Every enemy piece on one of the eight squares around it is frozen and
-cannot move. Two facing Immobilizers paralyse each other. A frozen piece other than a King may still <b>remove itself
-from the board</b>, which counts as its move - usually to open a line. The Immobilizer may never enter an edge square by
+cannot move. Two facing Immobilizers paralyse each other. A frozen piece other than a King may still <b>commit suicide</b>,
+that is remove itself from the board, which counts as its move - usually to open a line. The Immobilizer may never enter an edge square by
 its own move, though it may be swapped onto one.</p>
 
 <h2><figure><img src="{GAME}/res/rules/fairy/king.png" alt="King"/><figcaption>King</figcaption></figure> </h2>
@@ -133,7 +135,7 @@ who brings about a threefold repetition.</p>
 
 <h2>Additional rules</h2>
 <ul>
-    <li>A move to the edge border must be the shortest move that achieves that capture.</li>
+    <li>A move that touches the edge ring must be the shortest one that makes the same capture.</li>
     <li>A Swapper cannot swap back with an enemy Swapper or Chameleon in the opposite direction on the next move.</li>
     <li>A Cannon Pawn is promoted from the list of captured pieces.</li>
     <li>A frozen piece may commit suicide.</li>

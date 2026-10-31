@@ -59,12 +59,13 @@
 Rococo is a sharp game: every piece moves like a Queen, the Long Leaper can sweep a whole line in one move,
 and the King falls without warning. Ultima, the elder of the family, has the opposite fault: defence is so strong
 that games trail. Rocaille aims at the point between the two - livelier than Ultima, less brutal than Rococo -
-and gets there by three changes.</p>
-<p>The first gives the King a warning: <b>check binds</b>, as in chess.
-The second <b>a King may not be swapped</b>.
-The third gives both armies room: the playing field grows to <b>10x8</b>, with two more pieces a side and an array
-arranged for defence. Rococo's edge ring is kept - it was dropped in a first version, which killed every sweeping
-capture and left the game duller than Ultima.</p>
+and gets there by three changes:</p>
+<ul>
+<li>A King can no longer be lost without warning: <b>check binds</b>, as in chess.</li>
+<li><b>A King may not be swapped.</b></li>
+<li>The playing field grows to <b>10x8</b>, with two more pieces a side and an array arranged for defence.</li>
+</ul>
+<p>Rococo's edge ring is kept, to keep the game lively.</p>
 
 <h2>The pieces</h2>
 <table class="k-pieces">
@@ -91,34 +92,24 @@ nothing may never touch the ring. This idea, taken from Rococo, stops pieces fro
 <p>A Swapper's exchange counts as a capture here, so a Swapper may swap with a piece standing on the ring.</p>
 
 <h2>Initial setup</h2>
-<p>Each player has 10 Cannon Pawns on the second rank and, behind them:
+<p>On the back rank each player sets up:
 Swapper, Long Leaper, Advancer, Cannon Pawn, King, Cannon Pawn, Chameleon, Advancer, Long Leaper, Immobilizer.
-The two <b>Withdrawers</b> do not stand on the back rank but among the Pawns, in front of the King's own flanks,
-in exchange for the two Cannon Pawns that would stand there. Both armies are set up in the same order, facing each
-other. White moves first.</p>
-<p>The array is arranged for defence. The Chameleon stands one square from the King, being the only piece that
-can deal with an approaching Immobilizer. The Advancers are two squares out, with room to go and fetch one. The
-Immobilizer and the Swapper are exiled to opposite wings, both because they are offensive tools and because an enemy
-Chameleon should have no reason to come and camp beside the King.</p>
-<p>The Withdrawers are the surprise, and the obvious placement is the wrong one. A Withdrawer captures by
-moving <i>away</i> from its victim, so it needs an empty square behind it; on the back rank, facing the only direction
-attacks come from, that square is off the board and the piece is inert. Moved forward a rank it still does not recoil -
-but it becomes a springboard: the Cannon Pawns behind it hop over it onto the rank ahead.</p>
+In front of them, the second rank holds 8 Cannon Pawns and the two <b>Withdrawers</b>, which stand in front of the
+two Cannon Pawns that flank the King and strengthen its defence. Both armies face each other in the same order.
+White moves first.</p>
+<p>The Chameleon stands one square from the King: it is the only piece that can deal with an approaching Immobilizer.</p>
 
 <h2><figure><img src="{GAME}/res/rules/fairy/cannon-pawn.png" alt="Cannon Pawn"/><figcaption>Cannon Pawn</figcaption></figure> </h2>
 <p>The Cannon Pawn moves without capturing in two ways: one step in any direction, or a hop over an adjacent
 piece of either colour, landing on the empty square just beyond. It captures the way it hops: over an adjacent piece -
-the mount, friend or enemy - and onto an enemy piece immediately beyond, taking its place.</p>
-<p>A Cannon Pawn that reaches the enemy King's own rank by a move of its own may promote to any friendly
-piece that has been captured and is currently off the board, except another Cannon Pawn. Promotion is optional.</p>
+friend or enemy - and takes the enemy piece immediately beyond.</p>
+<p>A Cannon Pawn that reaches the enemy King's own rank by its own move may promote to any friendly
+piece that has been captured and is currently off the board. Promotion is optional.</p>
 
 <h2><figure><img src="{GAME}/res/rules/fairy/advancer.png" alt="Advancer"/><figcaption>Advancer</figcaption></figure> </h2>
-<p>The Advancer moves like a Queen and captures by approach: if it stops directly in front of an enemy piece -
-that is, if the next square in its direction of travel is occupied by an enemy - that enemy is captured. The capture is
+<p>The Advancer moves like a Queen and captures by approach: if it stops directly in front of an enemy piece,
+that piece is captured. The capture is
 part of the move and is not optional: an Advancer may not stop beside an enemy on its line of travel without taking it.</p>
-<p>It is the piece that makes check most disconcerting to a chess player: fleeing an Advancer <i>in a straight
-line</i> does not help, since it simply approaches again on the next square. You must leave its line, or block the
-approach by occupying the square it would stop on.</p>
 
 <h2><figure><img src="{GAME}/res/rules/fairy/withdrawer.png" alt="Withdrawer"/><figcaption>Withdrawer</figcaption></figure> </h2>
 <p>The Withdrawer captures by withdrawal: standing next to an enemy piece, it moves directly away from it any
@@ -129,24 +120,23 @@ move. Like the Advancer's, this capture is compulsory.</p>
 <p>The Long Leaper moves like a Queen but may leap over an enemy piece and capture it, provided the square
 immediately beyond that piece is empty. It may then carry on in the same direction and take further enemies on the same
 terms, before ending on any empty square beyond. It may never leap over a friendly piece, nor over two adjacent enemies.</p>
-<p>It is the Leaper that gives the game its spectacular moves, and the edge ring is what makes them possible:
-by stopping pieces from fleeing to the rim it keeps them in the field, and so in line with one another - and a sweeping
-capture is exactly what needs several enemies on one line.</p>
+<p>It is the Leaper that gives the game its spectacular sweeps, and the edge ring makes them possible:
+it stops pieces from sheltering on the rim.</p>
 
 <h2><figure><img src="{GAME}/res/rules/fairy/swapper.png" alt="Swapper"/><figcaption>Swapper</figcaption></figure> </h2>
 <p>The Swapper moves like a Queen without capturing, or it may <b>trade places</b> with any piece, friend or
 enemy, within an unobstructed Queen's reach - <b>except a King</b>, its own as much as the opponent's. It may also
-destroy an adjacent enemy piece and itself at once, by mutual destruction - a move it cannot make while immobilized.</p>
+destroy itself together with an adjacent enemy piece, by mutual destruction - a move it cannot make while immobilized.</p>
 <p>A King can therefore not be dragged out of its shelter from across the board, which no defensive array
-could withstand. In exchange, approaching an enemy Swapper is dangerous for the King: mutual destruction would take him
-along, so stepping next to one is stepping into check.</p>
+could withstand. In exchange, approaching an enemy Swapper is dangerous for the King: he is exposed to mutual
+destruction, so stepping next to one is stepping into check.</p>
 
 <h2><figure><img src="{GAME}/res/rules/fairy/chameleon.png" alt="Chameleon"/><figcaption>Chameleon</figcaption></figure> </h2>
 <p>The Chameleon moves like a Queen and captures each enemy by that enemy's own method: it approaches
-Advancers, withdraws from Withdrawers, leaps over Long Leapers, hops a mount to take Cannon Pawns, swaps with Swappers
+Advancers, withdraws from Withdrawers, leaps over Long Leapers, hops over a neighbour to take Cannon Pawns, swaps with Swappers
 (or destroys itself together with them) and takes an adjacent enemy King by moving onto it. Several of these may be
 combined in a single move: leaping over a Long Leaper, it can in the same move take a Withdrawer left behind and an
-Advancer reached at the end. Trading places with a Swapper may end such a travel, so one move can withdraw, leap, swap
+Advancer it stops in front of. Trading places with a Swapper may end such a travel, so one move can withdraw, leap, swap
 and approach at once.</p>
 <p>The Chameleon freezes an enemy Immobilizer and is frozen by it in turn, but it can never capture one -
 and it cannot capture another Chameleon.</p>
@@ -154,7 +144,7 @@ and it cannot capture another Chameleon.</p>
 <h2><figure><img src="{GAME}/res/rules/fairy/immobilizer.png" alt="Immobilizer"/><figcaption>Immobilizer</figcaption></figure> </h2>
 <p>The Immobilizer never captures. Any enemy piece on one of the eight squares around it is immobilized and
 cannot move. Two Immobilizers facing each other paralyse one another. An immobilized piece other than a King may still
-<b>remove itself from the board</b>, which counts as its move - usually to open a line. The Immobilizer may never enter
+<b>commit suicide</b>, that is remove itself from the board, which counts as its move - usually to open a line. The Immobilizer may never enter
 an edge square by itself, though it can be put there by a swap.</p>
 
 <h2><figure><img src="{GAME}/res/rules/fairy/king.png" alt="King"/><figcaption>King</figcaption></figure> </h2>
@@ -172,17 +162,15 @@ about a threefold repetition.</p>
 
 <h2>Further rules</h2>
 <ul>
-    <li>A move onto the edge band must be the shortest move that makes the capture possible.</li>
+    <li>A move that touches the edge ring must be the shortest one that makes the same capture.</li>
     <li>A Swapper may not swap straight back with an enemy Swapper or Chameleon on the following move.</li>
     <li>A Cannon Pawn promotes to a piece from the list of captured pieces.</li>
-    <li>A frozen piece may remove itself from the board.</li>
+    <li>An immobilized piece may commit suicide.</li>
 </ul>
 
 <h2>Indicative piece values</h2>
-<p>These values, scaled to the Cannon Pawn, were estimated by having Rocaille
-play itself (1,200 games) and measuring how much one extra piece of each kind
-weighs on the result. They depend on how the players play and are only a guide:
-the position often matters more.</p>
+<p>These estimates, scaled to the Cannon Pawn, give an idea of how much the pieces
+are worth relative to one another. They are only a guide: the position often matters more.</p>
 <table class="k-pieces">
 <tr><th>Piece</th><th>Value</th><th>Note</th></tr>
 <tr><td><span class="k-icon k-immobilizer"></span> Immobilizer</td><td>≈ 12</td><td>by far the most precious piece: losing it nearly always loses the game</td></tr>
