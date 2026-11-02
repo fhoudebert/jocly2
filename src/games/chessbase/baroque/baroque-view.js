@@ -106,6 +106,21 @@
 
 		View.Game.baroquePieces3d = V.pieces3d || null;	// read by the tests
 
+		// Promotion popup cell. The popup is one row of cells - the choices,
+		// plus one for the cancel button - centred on the board, and the
+		// default cell (2000, base-view.js) is meant for orthodox chess's four
+		// choices. A Cannon Pawn may promote to any captured piece but a King,
+		// or stay a Pawn, so late in a game it is offered one entry per type
+		// but the King: with the cancel button, one cell per aspect. Six or
+		// seven of those at 2000 make 14000-16000 across against the 12000 of
+		// the board, and the first piece and the cancel button fell off both
+		// sides. Sized from the piece set, like the large variants that set
+		// cbPromoSize themselves (Grand, Gigachess, Timurid...), the worst
+		// case is exactly the board's width; the same cell is used by the
+		// panel of baroque-choice-view.js.
+		var cells = Object.keys(V.columns).length;
+		View.Game.cbPromoSize = Math.min(2000, Math.floor(FIELD / cells / 100) * 100);
+
 		// one entry per aspect, plus the two rows of the sheet: White reads
 		// from the top row, Black from the bottom
 		View.Game.baroquePieceStyle = function() {
