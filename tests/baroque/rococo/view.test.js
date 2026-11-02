@@ -1,6 +1,6 @@
 /*
  * View and rules-page tests for Rococo - pure Node:
- *   node tests/rococo/view.test.js
+ *   node tests/baroque/rococo/view.test.js
  *
  * The view itself can only be judged in a browser. What is checked here is
  * what churns: every piece aspect has a column in the sprite sheet shared with
@@ -76,7 +76,7 @@ function pngSize(file) {
 	return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
 }
 
-const sb = loadView(["base-view.js", "grid-board-view.js", "fairy-set-view.js", "ultima/baroque-view.js", "ultima/rococo-view.js"]);
+const sb = loadView(["base-view.js", "grid-board-view.js", "fairy-set-view.js", "baroque/baroque-view.js", "baroque/rococo-view.js"]);
 const view = sb.View.Game;
 view.mViewOptions = { fullPath: "" };
 const def = view.cbDefineView();
@@ -85,7 +85,7 @@ const style = def.pieces;
 /* ------------------------------------------------------- sprite mapping */
 
 const CELL = 100;
-const modelSb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/baroque-core.js", "ultima/rococo-model.js"]);
+const modelSb = h.loadModel(["base-model.js", "grid-geo-model.js", "baroque/baroque-core.js", "baroque/rococo-model.js"]);
 const game = h.newGame(modelSb);
 const aspects = Object.keys(game.cbVar.pieceTypes).map((t) => game.cbVar.pieceTypes[t].aspect);
 
@@ -101,7 +101,7 @@ check("columns are distinct", columns.length, new Set(columns).size);
 
 const file = def.pieces["default"]["2d"].file;
 check("the sprite sheet is the one shared with Ultima",
-	file, "/res/ultima/baroque-picto-sprites.png");
+	file, "/res/baroque/baroque-picto-sprites.png");
 
 const size = pngSize(path.join(CHESSBASE, file));
 check("the sheet is wide enough for every piece",
@@ -131,7 +131,7 @@ const manifest = require(path.join(CHESSBASE, "index.js")).games.find((g) => g.n
 
 check("the manifest declares both rules pages",
 	manifest.config.model.rules,
-	{ en: "res/rules/rococo/rococo-rules.html", fr: "res/rules/rococo/rococo-rules_fr.html" });
+	{ en: "res/rules/baroque/rococo-rules.html", fr: "res/rules/baroque/rococo-rules_fr.html" });
 
 const pageErrors = [];
 ["en", "fr"].forEach((lang) => {
@@ -198,7 +198,7 @@ check("the thumbnail declared in the manifest exists",
 	const scripts = manifest.viewScripts;
 	check("fairy-set-view.js loaded before baroque-view.js",
 		scripts.indexOf("fairy-set-view.js") >= 0 &&
-		scripts.indexOf("fairy-set-view.js") < scripts.indexOf("ultima/baroque-view.js"), true);
+		scripts.indexOf("fairy-set-view.js") < scripts.indexOf("baroque/baroque-view.js"), true);
 	aspects.forEach((aspect) => {
 		const fr = map[aspect];
 		check(aspect + " has a 3D piece", typeof fr, "string");

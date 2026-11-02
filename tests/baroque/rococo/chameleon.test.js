@@ -1,6 +1,6 @@
 /*
  * Chameleon tests - pure Node:
- *   node tests/rococo/chameleon.test.js
+ *   node tests/baroque/rococo/chameleon.test.js
  *
  * The Chameleon captures each enemy by that enemy's own method, combinable in
  * one move. Cases below cover each mimicked power on its own, the freeze/no-
@@ -17,7 +17,7 @@ function check(label, actual, expected) {
 	else { failed++; console.log("FAIL " + label + "\n  expected " + e + "\n  actual   " + a); }
 }
 
-const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/baroque-core.js", "ultima/rococo-model.js"]);
+const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "baroque/baroque-core.js", "baroque/rococo-model.js"]);
 const game = h.newGame(sb);
 
 const caps = (pieces, sq, who) => h.capturesFrom(h.setup(sb, game, pieces, who), game, sq);

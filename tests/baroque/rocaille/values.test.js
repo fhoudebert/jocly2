@@ -9,7 +9,7 @@ function check(label, actual, expected) {
 	else { fail++; console.log("FAIL " + label + "\n  expected " + JSON.stringify(expected) + "\n  actual   " + JSON.stringify(actual)); }
 }
 function values(variant) {
-	const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/baroque-core.js", "ultima/" + variant + "-model.js"]);
+	const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "baroque/baroque-core.js", "baroque/" + variant + "-model.js"]);
 	const game = h.newGame(sb), out = {};
 	for(const t in game.cbVar.pieceTypes) out[game.cbVar.pieceTypes[t].name] = game.cbVar.pieceTypes[t].value;
 	return out;
@@ -21,7 +21,7 @@ check("Rococo keeps the default table", rococo, { "cannon-pawn": 2, "advancer": 
 	"withdrawer": 5, "chameleon": 5, "immobilizer": 8, "king": 0 });
 // the rules page shows the same figures
 const fs = require("fs"), path = require("path");
-const RULES = path.join(__dirname, "..", "..", "..", "src", "games", "chessbase", "res", "rules", "rocaille");
+const RULES = path.join(__dirname, "..", "..", "..", "src", "games", "chessbase", "res", "rules", "baroque");
 for(const [file, nums] of [["rocaille-rules_fr.html", ["≈ 12", "6", "4,5", "4", "2,5", "1"]], ["rocaille-rules.html", ["≈ 12", "6", "4.5", "4", "2.5", "1"]]]) {
 	const html = fs.readFileSync(path.join(RULES, file), "utf8");
 	nums.forEach((n) => check(file + " shows " + n, html.includes("<td>" + n + "</td>"), true));

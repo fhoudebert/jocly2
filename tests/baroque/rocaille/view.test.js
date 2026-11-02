@@ -1,6 +1,6 @@
 /*
  * View and rules-page tests for Rocaille - pure Node:
- *   node tests/rocaille/view.test.js
+ *   node tests/baroque/rocaille/view.test.js
  *
  * The view itself can only be judged in a browser. What is checked here is what
  * churns: every piece aspect has a column in the family sprite sheet, those
@@ -80,7 +80,7 @@ function pngSize(file) {
 	return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) };
 }
 
-const sb = loadView(["base-view.js", "grid-board-view.js", "fairy-set-view.js", "ultima/baroque-view.js", "ultima/rocaille-view.js"]);
+const sb = loadView(["base-view.js", "grid-board-view.js", "fairy-set-view.js", "baroque/baroque-view.js", "baroque/rocaille-view.js"]);
 const view = sb.View.Game;
 view.mViewOptions = { fullPath: "" };
 const def = view.cbDefineView();
@@ -89,7 +89,7 @@ const style = def.pieces;
 /* ------------------------------------------------------- sprite mapping */
 
 const CELL = 100;
-const modelSb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/baroque-core.js", "ultima/rocaille-model.js"]);
+const modelSb = h.loadModel(["base-model.js", "grid-geo-model.js", "baroque/baroque-core.js", "baroque/rocaille-model.js"]);
 const game = h.newGame(modelSb);
 const aspects = Object.keys(game.cbVar.pieceTypes).map((t) => game.cbVar.pieceTypes[t].aspect);
 
@@ -104,7 +104,7 @@ check("columns are distinct", columns.length, new Set(columns).size);
 /* ------------------------------------------------------- the sheet fits */
 
 const file = def.pieces["default"]["2d"].file;
-check("the sprite sheet is the family one", file, "/res/ultima/baroque-picto-sprites.png");
+check("the sprite sheet is the family one", file, "/res/baroque/baroque-picto-sprites.png");
 
 const size = pngSize(path.join(CHESSBASE, file));
 check("the sheet is wide enough for every piece",
@@ -134,7 +134,7 @@ const manifest = require(path.join(CHESSBASE, "index.js")).games.find((g) => g.n
 
 check("the manifest declares both rules pages",
 	manifest.config.model.rules,
-	{ en: "res/rules/rocaille/rocaille-rules.html", fr: "res/rules/rocaille/rocaille-rules_fr.html" });
+	{ en: "res/rules/baroque/rocaille-rules.html", fr: "res/rules/baroque/rocaille-rules_fr.html" });
 
 check("and a thumbnail that exists",
 	fs.existsSync(path.join(CHESSBASE, manifest.config.model.thumbnail)), true);
@@ -208,7 +208,7 @@ check("the rules pages and the view agree on every sprite column", pageErrors, [
 	const scripts = manifest.viewScripts;
 	check("fairy-set-view.js loaded before baroque-view.js",
 		scripts.indexOf("fairy-set-view.js") >= 0 &&
-		scripts.indexOf("fairy-set-view.js") < scripts.indexOf("ultima/baroque-view.js"), true);
+		scripts.indexOf("fairy-set-view.js") < scripts.indexOf("baroque/baroque-view.js"), true);
 	aspects.forEach((aspect) => {
 		const fr = map[aspect];
 		check(aspect + " has a 3D piece", typeof fr, "string");

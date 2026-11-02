@@ -4,7 +4,7 @@
  *
  * baroque-core.js defines a Ghost for any variant that asks for one (V.ghost).
  * No game in the repository fields one: Rocaille tried and dropped them, for
- * the reasons recorded in ultima/rocaille-model.js. The type is kept as a
+ * the reasons recorded in baroque/rocaille-model.js. The type is kept as a
  * brick for a later variant, so its rules are pinned here rather than in a
  * game's own suite - this file defines a variant of its own, the way a new
  * game would, and checks the piece against it.
@@ -27,7 +27,7 @@ function check(label, actual, expected) {
 }
 
 // the core alone, then a variant defined here - no game model file involved
-const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/baroque-core.js"]);
+const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "baroque/baroque-core.js"]);
 const T = sb.Model.Game.baroqueTypes;
 
 sb.Model.Game.baroqueDefineVariant({

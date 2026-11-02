@@ -1,6 +1,6 @@
 /*
  * Rules tests for the Rococo model - pure Node, no build:
- *   node tests/rococo/rules.test.js
+ *   node tests/baroque/rococo/rules.test.js
  *
  * Several cases reproduce the worked '+'/'*' diagrams from
  * chessvariants.com/other.dir/rococo.html. Pieces are placed on the inner
@@ -18,7 +18,7 @@ function check(label, actual, expected) {
 	else { failed++; console.log("FAIL " + label + "\n  expected " + e + "\n  actual   " + a); }
 }
 
-const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/baroque-core.js", "ultima/rococo-model.js"]);
+const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "baroque/baroque-core.js", "baroque/rococo-model.js"]);
 const game = h.newGame(sb);
 
 const moves = (pieces, sq, who) => h.movesFrom(h.setup(sb, game, pieces, who), game, sq);

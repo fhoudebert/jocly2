@@ -1,6 +1,6 @@
 /*
  * Consistency tests for the Ultima model - pure Node:
- *   node tests/ultima/consistency.test.js
+ *   node tests/baroque/ultima/consistency.test.js
  *
  * 1. random playouts, checking after *every* generated move that
  *    cbQuickApply + cbQuickUnapply restore the position and the Zobrist
@@ -25,7 +25,7 @@ function check(label, actual, expected) {
 	}
 }
 
-const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/ultima-model.js"]);
+const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "baroque/ultima-model.js"]);
 const game = h.newGame(sb);
 
 /* ------------------------------------------------------------- playouts */

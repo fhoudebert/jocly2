@@ -1,6 +1,6 @@
 /*
  * Rules tests for the Ultima model - pure Node, no build required:
- *   node tests/ultima/rules.test.js
+ *   node tests/baroque/ultima/rules.test.js
  *
  * Every position is built explicitly; both Kings are always present (they are
  * needed by the legality test and by the Coordinator) and are kept out of the
@@ -22,7 +22,7 @@ function check(label, actual, expected) {
 	}
 }
 
-const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/ultima-model.js"]);
+const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "baroque/ultima-model.js"]);
 const game = h.newGame(sb);
 
 // moves of the piece standing on `square`, as sorted readable strings

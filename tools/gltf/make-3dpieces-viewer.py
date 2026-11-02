@@ -45,7 +45,7 @@ gauche, la piece 3D a droite. La page sait les fabriquer :
     sinon la choisir dans la page (un PNG, ou une planche de sprites et sa
     colonne), ou la donner au script :
 
-        --icone frog=src/games/chessbase/res/ultima/baroque-picto-sprites.png:10
+        --icone frog=src/games/chessbase/res/baroque/baroque-picto-sprites.png:10
 
     (planche : cellules carrees, ligne du haut = Blancs, colonne comptee
     depuis 0). Sans icone, la moitie gauche reste blanche.

@@ -1,6 +1,6 @@
 /*
  * The "everything at once" Chameleon move - pure Node:
- *   node tests/rococo/combo.test.js
+ *   node tests/baroque/rococo/combo.test.js
  *
  * Squares are written here in BOARD notation (a1..j10, edge ring included) -
  * the naming the engine prints and the player reads on screen. The other
@@ -48,7 +48,7 @@ function check(label, actual, expected) {
 	else { failed++; console.log("FAIL " + label + "\n  expected " + e + "\n  actual   " + a); }
 }
 
-const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/baroque-core.js", "ultima/rococo-model.js"]);
+const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "baroque/baroque-core.js", "baroque/rococo-model.js"]);
 const game = h.newGame(sb);
 
 const POSITION = {

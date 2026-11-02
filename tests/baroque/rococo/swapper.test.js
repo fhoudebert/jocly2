@@ -1,6 +1,6 @@
 /*
  * Swapper tests - pure Node:
- *   node tests/rococo/swapper.test.js
+ *   node tests/baroque/rococo/swapper.test.js
  *
  * The Swapper slides like a Queen without capturing, swaps places with the
  * nearest piece of either side along any Queen line, and may destroy itself
@@ -17,7 +17,7 @@ function check(label, actual, expected) {
 	else { failed++; console.log("FAIL " + label + "\n  expected " + e + "\n  actual   " + a); }
 }
 
-const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/baroque-core.js", "ultima/rococo-model.js"]);
+const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "baroque/baroque-core.js", "baroque/rococo-model.js"]);
 const game = h.newGame(sb);
 
 const from = (pieces, sq, who) => h.movesFrom(h.setup(sb, game, pieces, who), game, sq);

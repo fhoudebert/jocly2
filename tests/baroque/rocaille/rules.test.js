@@ -1,12 +1,12 @@
 /*
  * Rocaille rules - pure Node:
- *   node tests/rocaille/rules.test.js
+ *   node tests/baroque/rocaille/rules.test.js
  *
- * Rocaille is Rococo on other dials (see ultima/rocaille-model.js), so what is
+ * Rocaille is Rococo on other dials (see baroque/rocaille-model.js), so what is
  * worth testing here is what the dials change: the 10x8 field inside a 12x10
  * board, the Leaper that stops at two victims, the King that cannot be swapped,
  * and check that binds. The edge rule itself is Rococo's and is covered by
- * tests/rococo/edge.test.js; what is checked below is only that Rocaille has a
+ * tests/baroque/rococo/edge.test.js; what is checked below is only that Rocaille has a
  * ring at all, on its own geometry.
  *
  * Squares are named over the whole board, ring included: files a..l, ranks
@@ -24,7 +24,7 @@ function check(label, actual, expected) {
 	else { failed++; console.log("FAIL " + label + "\n  expected " + e + "\n  actual   " + a); }
 }
 
-const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/baroque-core.js", "ultima/rocaille-model.js"]);
+const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "baroque/baroque-core.js", "baroque/rocaille-model.js"]);
 const game = h.newGame(sb);
 game.mPlayedMoves = [];
 
@@ -118,6 +118,26 @@ const with_ = (extra) => Object.assign({}, KINGS, extra);
 	check("nor with its own",
 		movesOf(pos({ f5: "wK", k9: "bK", c5: "wS" }), "c5").filter((m) => m.indexOf("<>") >= 0),
 		[]);
+}
+
+/* ------------------------------- swap or destroy a neighbour on the ring */
+
+// Against an adjacent enemy the Swapper has two moves naming the same square:
+// the swap and the mutual destruction. Both reach the ring as captures, and
+// the edge rule once grouped them as one capture "made twice at the same
+// cost", striking out both. Found in play: White Swapper b2, Black Leaper
+// landed on b1 after a double capture.
+{
+	// the King stands off every line through b2, so the Leaper sent back there by
+	// the swap cannot take it and binding check stays out of the picture
+	const b = pos({ e4: "wK", f9: "bK", b2: "wS", b1: "bL" });
+	const fromB2 = movesOf(b, "b2");
+	check("ring: the Swapper may swap with an adjacent enemy on the ring",
+		fromB2.indexOf("Sb2<>b1") >= 0, true);
+	check("ring: and may destroy it instead",
+		fromB2.indexOf("Sb2!!b1") >= 0, true);
+	check("ring: while non-capturing moves onto the ring stay forbidden",
+		fromB2.filter((m) => /-[a-l]1$|-a\d|-l\d/.test(m)), []);
 }
 
 /* ------------------------------------------------------- check binds */

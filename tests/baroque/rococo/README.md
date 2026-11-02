@@ -3,9 +3,9 @@
 Rococo, by Peter Aronson and David Howe (2002), a game in the Ultima family:
 https://www.chessvariants.com/other.dir/rococo.html
 
-Model: `src/games/chessbase/ultima/rococo-model.js`, view:
-`src/games/chessbase/ultima/rococo-view.js`, rules pages (English and French)
-and thumbnail: `src/games/chessbase/res/rules/rococo/`. The game is registered
+Model: `src/games/chessbase/baroque/rococo-model.js`, view:
+`src/games/chessbase/baroque/rococo-view.js`, rules pages (English and French)
+and thumbnail: `src/games/chessbase/res/rules/baroque/`. The game is registered
 in the manifest as `rococo` and is playable.
 
 ## Running the tests
@@ -13,16 +13,16 @@ in the manifest as `rococo` and is playable.
 No build needed - the tests load the model in a sandbox and drive
 `Model.Board` directly:
 
-    node tests/rococo/rules.test.js         # piece rules, from the source diagrams
-    node tests/rococo/edge.test.js          # the outer edge-square ring
-    node tests/rococo/swapper.test.js       # swap, mutual destruction, swap-back ban
-    node tests/rococo/chameleon.test.js     # the Chameleon (mimics its victim)
-    node tests/rococo/combo.test.js         # the four-powers-in-one Chameleon move
-    node tests/rococo/promote.test.js       # cannon-pawn promotion + suicide
-    node tests/rococo/consistency.test.js   # undo integrity, playouts, perft
-    node tests/rococo/view.test.js          # sprite columns, 10x10 ring, rules pages
-    node tests/rococo/anim.test.js          # capture animation for the family's move kinds
-    node tests/rococo/input.test.js         # entering a suicide from the board
+    node tests/baroque/rococo/rules.test.js         # piece rules, from the source diagrams
+    node tests/baroque/rococo/edge.test.js          # the outer edge-square ring
+    node tests/baroque/rococo/swapper.test.js       # swap, mutual destruction, swap-back ban
+    node tests/baroque/rococo/chameleon.test.js     # the Chameleon (mimics its victim)
+    node tests/baroque/rococo/combo.test.js         # the four-powers-in-one Chameleon move
+    node tests/baroque/rococo/promote.test.js       # cannon-pawn promotion + suicide
+    node tests/baroque/rococo/consistency.test.js   # undo integrity, playouts, perft
+    node tests/baroque/rococo/view.test.js          # sprite columns, 10x10 ring, rules pages
+    node tests/baroque/rococo/anim.test.js          # capture animation for the family's move kinds
+    node tests/baroque/rococo/input.test.js         # entering a suicide from the board
 
 ## Board and victory
 
@@ -122,7 +122,7 @@ base model makes for other one-ply state.
 ## Animation
 
 The base chessbase view animates the moving piece and the single piece it
-displaces (`move.c`). `ultima/baroque-capture-view.js`, listed in the view
+displaces (`move.c`). `baroque/baroque-capture-view.js`, listed in the view
 scripts of both Ultima and Rococo, extends it for the move kinds this family
 adds: the extra victims of a multi-piece capture fade where they stand, the
 swapped piece travels into the square the Swapper leaves, a Swapper destroying

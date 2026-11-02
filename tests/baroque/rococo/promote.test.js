@@ -1,6 +1,6 @@
 /*
  * Cannon-Pawn promotion and immobilized-piece suicide - pure Node:
- *   node tests/rococo/promote.test.js
+ *   node tests/baroque/rococo/promote.test.js
  *
  * A Cannon Pawn making a move by itself onto the opposing King's start rank
  * (or the edge rank past it) may promote to one of its own pieces that has
@@ -19,7 +19,7 @@ function check(label, actual, expected) {
 	else { failed++; console.log("FAIL " + label + "\n  expected " + e + "\n  actual   " + a); }
 }
 
-const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "ultima/baroque-core.js", "ultima/rococo-model.js"]);
+const sb = h.loadModel(["base-model.js", "grid-geo-model.js", "baroque/baroque-core.js", "baroque/rococo-model.js"]);
 const game = h.newGame(sb);
 
 const moves = (pieces, sq, who) => h.movesFrom(h.setup(sb, game, pieces, who), game, sq);
