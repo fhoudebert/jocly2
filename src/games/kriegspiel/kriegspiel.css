@@ -1,0 +1,145 @@
+/* Le Jeu de la guerre - vue 2D */
+
+.kriegspiel-input {
+	cursor: pointer;
+	background-color: rgba(255,255,255,0);
+	-webkit-tap-highlight-color: transparent;
+}
+
+.kriegspiel-panel {
+	box-sizing: border-box;
+	background-color: #ece5d3;
+	border: 0.12em solid #6b3d12;
+	border-radius: 0.3em;
+	color: #3d372e;
+	font-family: Georgia, "Times New Roman", serif;
+	line-height: 1.3;
+	overflow: hidden;
+	text-align: left;
+}
+
+.kriegspiel-body {
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	padding: 0.7em 0.6em;
+}
+
+.kriegspiel-title {
+	font-size: 1.35em;
+	font-weight: bold;
+}
+
+.kriegspiel-sideN { color: #2b5b99; }
+.kriegspiel-sideS { color: #9a4f14; }
+
+.kriegspiel-sub {
+	font-size: 0.85em;
+	margin-bottom: 0.6em;
+	opacity: 0.8;
+}
+
+.kriegspiel-status {
+	border-top: 0.06em solid #b3a78a;
+	border-bottom: 0.06em solid #b3a78a;
+	margin: 0.2em 0 0.5em;
+	padding: 0.4em 0;
+}
+
+.kriegspiel-label {
+	font-size: 0.8em;
+	letter-spacing: 0.05em;
+	margin-top: 0.4em;
+	text-transform: uppercase;
+}
+
+.kriegspiel-move {
+	font-family: "Courier New", monospace;
+	font-size: 0.82em;
+	overflow-wrap: anywhere;
+}
+
+.kriegspiel-hint {
+	font-size: 0.82em;
+	font-style: italic;
+	min-height: 1.3em;
+	margin-bottom: 0.4em;
+}
+
+.kriegspiel-info {
+	flex: 1 1 auto;
+	font-size: 0.85em;
+	min-height: 0;
+	overflow: hidden;
+	padding-top: 0.4em;
+}
+
+.kriegspiel-att { color: #b3261e; font-weight: bold; }
+.kriegspiel-def { color: #1b6e3a; font-weight: bold; }
+
+.kriegspiel-reserve {
+	margin: 0.2em 0;
+}
+
+.kriegspiel-unit {
+	align-items: center;
+	border: 0.1em solid transparent;
+	border-radius: 0.25em;
+	cursor: pointer;
+	display: flex;
+	padding: 0.1em 0.2em;
+}
+
+.kriegspiel-unit.kriegspiel-selected {
+	background-color: #fff6c9;
+	border-color: #f0c000;
+}
+
+.kriegspiel-icon {
+	background-image: url(res/images/unites.png);
+	background-repeat: no-repeat;
+	background-size: 600% 200%;
+	flex: 0 0 auto;
+	height: 1.9em;
+	width: 1.9em;
+}
+
+.kriegspiel-name {
+	flex: 1 1 auto;
+	font-size: 0.85em;
+	padding: 0 0.4em;
+}
+
+.kriegspiel-count {
+	font-weight: bold;
+}
+
+.kriegspiel-buttons {
+	flex: 0 0 auto;
+}
+
+.kriegspiel-button {
+	background-color: #6b3d12;
+	border: 0.1em solid #6b3d12;
+	border-radius: 0.3em;
+	color: #fff8e8;
+	cursor: pointer;
+	font-size: 0.95em;
+	font-weight: bold;
+	margin-top: 0.4em;
+	padding: 0.45em 0.3em;
+	text-align: center;
+	user-select: none;
+}
+
+.kriegspiel-button.kriegspiel-light {
+	background-color: #f7f1e1;
+	color: #6b3d12;
+	font-weight: normal;
+}
+
+.kriegspiel-disabled {
+	cursor: default;
+	opacity: 0.4;
+}

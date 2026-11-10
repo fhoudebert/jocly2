@@ -28,6 +28,7 @@ rather than fail when the build is missing.
 | `xiangqi/` | Janggi and Xiangqi |
 | `baroque/` | the Ultima family - `baroque/ultima/`, `baroque/rococo/`, `baroque/rocaille/`, plus the Ghost that is shared |
 | `cubic/` | 3D Cubic Chess |
+| `kriegspiel/` | Le Jeu de la guerre (Debord): the pure rules engine on its own, the Jocly model, full games played to the end, and a real match through the build |
 | `3dchess/`, `space-spartan/` | one game each |
 
 ## Harnesses
@@ -45,6 +46,9 @@ its own loader for the game family it serves:
 - `baroque/rococo/harness.js`, `baroque/ultima/harness.js`
 - `space-spartan/harness.js`, also used by `3dchess/fifty.test.js`
 - `cubic/harness.js`
+- `kriegspiel/harness.js` - loads `kriegspiel-rules.js` alone (no Jocly at
+  all), or the three model scripts in a sandbox, and builds a position from
+  lists of squares
 
 A suite that needs a family it does not belong to reaches across rather than
 gaining a second harness: `shogi/chu-shogi.test.js` uses the khans one because

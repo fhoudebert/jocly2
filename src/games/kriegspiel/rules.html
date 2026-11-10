@@ -1,0 +1,108 @@
+<style type='text/css'>
+table.kriegspiel-rules { border-collapse: collapse; margin: 0.5em 0; }
+table.kriegspiel-rules th, table.kriegspiel-rules td { border: 1px solid #b3a78a; padding: 2px 8px; text-align: center; }
+table.kriegspiel-rules td:first-child, table.kriegspiel-rules th:first-child { text-align: left; }
+</style>
+
+<p><em>A Game of War</em> sets two armies, North and South, on a board of 25 columns by 20 rows. Each side tries to
+defeat the other by destroying both of its arsenals or by eliminating all of its combat units. Everything depends on
+<b>lines of communication</b>: a unit that is no longer linked to one of its arsenals can neither move, attack, nor
+defend itself.</p>
+
+<h2>Terrain</h2>
+<ul>
+<li><b>Arsenal</b> (2 per side): the source of the lines of communication. The square itself is plain ground.</li>
+<li><b>Mountain</b>: impassable; it stops fire and lines of communication.</li>
+<li><b>Mountain pass</b>: the only way through a mountain range; it strengthens the defence of the unit holding it.</li>
+<li><b>Fort</b> (3 per territory): it strengthens the defence of the unit inside, whichever side it belongs to. A
+fort is never destroyed.</li>
+</ul>
+
+<h2>Units</h2>
+<p>Each side has 17 units.</p>
+<table class="kriegspiel-rules">
+<tr><th>Unit</th><th>Count</th><th>Move</th><th>Range</th><th>Attack</th><th>Defence</th><th>In a fort</th><th>In a pass</th></tr>
+<tr><td>Infantry</td><td>9</td><td>1</td><td>2</td><td>4</td><td>6</td><td>10</td><td>8</td></tr>
+<tr><td>Cavalry</td><td>4</td><td>2</td><td>2</td><td>4 (7 when charging)</td><td>5</td><td>5</td><td>5</td></tr>
+<tr><td>Foot artillery</td><td>1</td><td>1</td><td>3</td><td>5</td><td>8</td><td>12</td><td>10</td></tr>
+<tr><td>Mounted artillery</td><td>1</td><td>2</td><td>3</td><td>5</td><td>8</td><td>12</td><td>10</td></tr>
+<tr><td>Foot communications unit</td><td>1</td><td>1</td><td>2</td><td>–</td><td>1</td><td>1</td><td>1</td></tr>
+<tr><td>Mounted communications unit</td><td>1</td><td>2</td><td>2</td><td>–</td><td>1</td><td>1</td><td>1</td></tr>
+</table>
+<p>Infantry, cavalry and both artilleries are the <b>combat units</b>. The two <b>communications units</b> do not
+attack, but they extend the lines of communication.</p>
+
+<h2>Deployment</h2>
+<p>North first places its 17 units anywhere in its territory (the ten rows A to J), then South does the same in its
+own (rows K to T). One unit per square, never on a mountain; forts, the pass and arsenals are allowed. North then
+plays the first turn.</p>
+<p>In the panel, pick a unit type and click a square; clicking a unit already placed takes it back. "Automatic
+placement" proposes a complete deployment. The "Blind" option hides North's deployment while South places its units,
+for two players sharing one screen.</p>
+
+<h2>A turn</h2>
+<p>On their turn a player may, in this order:</p>
+<ol>
+<li>carry out a forced retreat, if one is due (see below);</li>
+<li>move up to <b>five units</b>, the retreat included, each of them once only;</li>
+<li>make <b>one attack</b> at most.</li>
+</ol>
+<p>Nothing is compulsory except the retreat: a player may pass.</p>
+
+<h2>Communications</h2>
+<ul>
+<li>Each arsenal still standing sends out lines of communication in the eight directions, with no limit of length.</li>
+<li>A line runs through empty squares, friendly units, forts, passes and enemy communications units. It stops in
+front of a mountain and in front of any other enemy unit.</li>
+<li>A friendly communications unit standing on a line sends out eight lines of its own, and so on.</li>
+<li>Any unit standing on a line is <b>in communication</b>. A combat unit touching (in the eight directions) a
+friendly combat unit in communication is in communication as well, from one to the next.</li>
+<li>A communications unit is in communication only when it stands on a line: contact is not enough for it, and it
+passes nothing on by contact.</li>
+</ul>
+<p>An <b>isolated</b> unit can neither move nor attack, and its defence is nil; it can still be defended by its
+neighbours in communication. Only communications units may move while isolated. Communications are worked out again
+after every move, so the order of the moves matters.</p>
+
+<h2>Movement</h2>
+<p>A unit moves as many squares as its movement allows, one step at a time in the eight directions, through empty
+squares only: it crosses neither mountains, nor friendly units, nor enemy units. It may end its move out of
+communication.</p>
+
+<h2>Arsenals</h2>
+<p>A combat unit entering an empty enemy arsenal destroys it, and stops there. That destruction stands for the attack
+of the turn. A communications unit does not destroy an arsenal. If the arsenal is occupied, its occupant has to be
+driven out first.</p>
+
+<h2>Combat</h2>
+<p>Any enemy unit may be attacked. Fire follows the eight straight lines through the target's square; a mountain
+stops it, units and passes do not.</p>
+<ul>
+<li><b>Attack</b>: add up the attack factors of the attacker's combat units that are in communication, in line with
+the target and within range.</li>
+<li><b>Charge</b>: a cavalry unit next to the target counts 7 instead of 4, and so does each cavalry unit following
+it without a gap on the same line, up to four. There is no charge against a target in a fort or in a pass, nor for a
+cavalry unit that is itself in a fort.</li>
+<li><b>Defence</b>: add up the defence factors of the target and of the units of its side that are in communication,
+in line with it and within range. Fort and pass bonuses count for the unit standing there.</li>
+</ul>
+<p>The two totals are then compared:</p>
+<ul>
+<li>attack lower than or equal to defence: the attack has no effect (it is not offered);</li>
+<li>attack higher by 1: <b>forced retreat</b>;</li>
+<li>attack higher by 2 or more: the unit is <b>destroyed</b>. The attacker does not move.</li>
+</ul>
+<p>A unit forced to retreat must move first on its side's next turn, using its normal movement; that move counts
+among the five, and the unit takes no part in that turn's attack. If it cannot withdraw (isolated, or no free
+square), it is destroyed.</p>
+<p>Hover over a unit to read the balance of forces and each unit's share. Possible targets are marked in red
+(destruction) or orange (retreat).</p>
+
+<h2>End of the game</h2>
+<p>A side wins when its opponent:</p>
+<ul>
+<li>has lost both arsenals;</li>
+<li>or has no combat unit left;</li>
+<li>or has no communications unit left while all its remaining units are isolated (optional rule, on by default).</li>
+</ul>
+<p>The game is drawn after 400 moves, or when the same position occurs three times.</p>
