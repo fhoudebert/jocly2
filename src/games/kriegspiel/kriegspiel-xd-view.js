@@ -4,7 +4,7 @@
  * Gadgets :
  *   board    canvas : fond, quadrillage, terrain, frontiere, coordonnees et
  *            lignes de communication (sous les unites)
- *   u#...    un sprite par unite (planche unites.png)
+ *   u#...    un sprite par unite (planche unites.png de la skin)
  *   marks    canvas au-dessus des unites : marqueurs (deja deplacee, isolee,
  *            retraite), surlignages (selection, destinations, cibles),
  *            dernier coup, detail du rapport de force
@@ -157,6 +157,23 @@
 
 	/* ---------- images des planches ---------- */
 
+	/*
+	 * Dossier des planches de la skin courante. Une skin peut fournir ses
+	 * propres unites.png et terrain.png (cle "images" du manifeste) ; les
+	 * marqueurs sont communs a toutes les skins.
+	 */
+	function skinImages(game) {
+		var skins = game.mViewOptions.skins || [];
+		for (var i = 0; i < skins.length; i++)
+			if (skins[i].name === game.mSkin && skins[i].images)
+				return skins[i].images;
+		return "/res/images/";
+	}
+
+	function imagePath(name) {
+		return ui.fullPath + (name === "marqueurs" ? "/res/images/" : ui.imageDir) + name + ".png";
+	}
+
 	function withImage(avatar, name, draw) {
 		var image = ui.images[name];
 		if (image) {
@@ -166,7 +183,7 @@
 		if (ui.images[name] === null)
 			return;   // en cours de chargement
 		ui.images[name] = null;
-		avatar.getResource("image|" + ui.fullPath + "/res/images/" + name + ".png", function (loaded) {
+		avatar.getResource("image|" + imagePath(name), function (loaded) {
 			ui.images[name] = loaded;
 			setTimeout(redrawCanvases, 0);
 		});
@@ -567,7 +584,7 @@
 	View.Game.xdInit = function (xdv) {
 		var game = this, rc = this.g.ctx;
 		ui = {
-			xdv: xdv, game: game, fullPath: this.mViewOptions.fullPath,
+			xdv: xdv, game: game, fullPath: this.mViewOptions.fullPath, imageDir: skinImages(this),
 			images: {}, assign: {}, shown: {}, state: null, board: null, lines: null, on: null,
 			overlay: emptyOverlay(), hideSide: 0, hover: -1,
 			showLines: 0, blind: !!this.mOptions.blindDeployment,
@@ -587,7 +604,7 @@
 					xdv.createGadget("u#" + side + "#" + type + "#" + i, {
 						"2d": {
 							type: "sprite",
-							file: this.mViewOptions.fullPath + "/res/images/unites.png",
+							file: imagePath("unites"),
 							clipx: (type - 1) * SPRITE, clipy: side === 1 ? 0 : SPRITE,
 							clipwidth: SPRITE, clipheight: SPRITE,
 							width: CS, height: CS, z: 3
@@ -634,7 +651,7 @@
 		xdv.createGadget("panel", {
 			"2d": {
 				type: "element", x: PANEL_X, y: 0, z: 1, width: PANEL_W, height: CANVAS_H,
-				initialClasses: "kriegspiel-panel",
+				initialClasses: "kriegspiel-panel kriegspiel-skin-" + game.mSkin,
 				display: function (element, width) {
 					element.css("font-size", (width / 14) + "px");
 					if (!element.data("kriegspiel")) {

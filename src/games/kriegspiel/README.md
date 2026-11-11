@@ -2,6 +2,15 @@
 
 Module Jocly `kriegspiel`, jeu `jeu-de-la-guerre`. Vue 2D uniquement.
 
+Deux skins 2D, même grammaire de cadres (rectangle pour les unités combattantes, rond pour les transmissions,
+double chevron pour les unités rapides, Nord sombre / Sud clair) :
+
+- `carte` : symboles OTAN stricts ;
+- `pictos` : pictogrammes d'époque posés sur la géométrie OTAN (fusils croisés en X, sabre en diagonale,
+  canon, artillerie attelée, tambour, cor de poste ; arsenal dessiné). Planches dans `res/images/pictos/`,
+  générées par `extra/sprites/pictos/gen.py` à partir de `extra/sprites/pictos/src/`. Les marqueurs, et la
+  montagne, le col et la forteresse, sont ceux de `carte`.
+
 | fichier | rôle |
 |---|---|
 | `kriegspiel-rules.js` | moteur de règles pur : aucune globale Jocly, fonctions sur un état sérialisable. Chargeable seul (`require`), réutilisable hors Jocly |
@@ -9,7 +18,7 @@ Module Jocly `kriegspiel`, jeu `jeu-de-la-guerre`. Vue 2D uniquement.
 | `kriegspiel-model.js` | habillage Jocly (`Model.Game`, `Model.Board`, `Model.Move`) |
 | `kriegspiel-xd-view.js`, `kriegspiel.css` | vue 2D et saisie |
 | `index.js` | manifeste : carte et coefficients (`gameOptions`), niveaux d'IA |
-| `res/images/` | planches de pictogrammes (cases de 200 px) ; sources dans `extra/sprites/` |
+| `res/images/` | planches de la skin `carte` (cases de 200 px) ; `res/images/pictos/` pour la skin `pictos` ; sources dans `extra/sprites/` |
 
 Tests : `npm test -- kriegspiel` (voir `tests/kriegspiel/`).
 

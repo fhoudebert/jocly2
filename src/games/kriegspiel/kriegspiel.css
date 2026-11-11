@@ -105,6 +105,10 @@
 	width: 1.9em;
 }
 
+.kriegspiel-skin-pictos .kriegspiel-icon {
+	background-image: url(res/images/pictos/unites.png);
+}
+
 .kriegspiel-name {
 	flex: 1 1 auto;
 	font-size: 0.85em;

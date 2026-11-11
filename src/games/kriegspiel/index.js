@@ -172,6 +172,20 @@ exports.games = (function() {
 								"image|/res/images/terrain.png",
 								"image|/res/images/marqueurs.png"
 							]
+						},
+						{
+							// meme grammaire que « carte » (cadres, chevrons,
+							// couleurs), pictogrammes d'epoque a la place des
+							// symboles ; marqueurs communs. Sources et generateur :
+							// extra/sprites/pictos/
+							"name": "pictos",
+							"title": "Pictogrammes (2D)",
+							"images": "/res/images/pictos/",
+							"preload": [
+								"image|/res/images/pictos/unites.png",
+								"image|/res/images/pictos/terrain.png",
+								"image|/res/images/marqueurs.png"
+							]
 						}
 					]
 				}
