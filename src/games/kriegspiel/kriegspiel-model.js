@@ -101,6 +101,35 @@
 		return parts.join(",");
 	};
 
+	/*
+	 * La position en texte, au format du moteur externe (jocly.kriegspiel.js) :
+	 *   <trait N|S> <phase> <coups> <arsenaux> <retraite|-> <grille>
+	 * arsenaux : 4 chiffres 0/1 dans l'ordre de la carte (D8 B15 T3 T23) ;
+	 * grille : les 500 cases, ligne A d'abord, ICAHTE pour le Nord (H :
+	 * artillerie a cheval), icahte pour le Sud, un nombre pour des cases vides
+	 * consecutives.
+	 */
+	Model.Board.ExportBoardState = function (aGame) {
+		var chars = "ICAHTE", grid = "", empty = 0;
+		for (var pos = 0; pos < this.grid.length; pos++) {
+			var v = this.grid[pos];
+			if (v === 0) {
+				empty++;
+				continue;
+			}
+			if (empty) {
+				grid += empty;
+				empty = 0;
+			}
+			grid += v > 0 ? chars.charAt(v - 1) : chars.charAt(-v - 1).toLowerCase();
+		}
+		if (empty)
+			grid += empty;
+		return [this.mWho > 0 ? "N" : "S", this.phase, this.turn,
+			this.ars.map(function (a) { return a ? 1 : 0; }).join(""),
+			this.retreat >= 0 ? this.retreat : "-", grid].join(" ");
+	};
+
 	function Rng(aGame) {
 		return function (roof) { return aGame.Random(roof); };
 	}

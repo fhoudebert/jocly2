@@ -25,7 +25,9 @@ t.section("manifeste");
 	t.eq([options.maxTurns, options.isolationVictory], [400, true], "maxTurns 400, isolationVictory active");
 	const total = Object.keys(options.units).reduce((n, k) => n + options.units[k].count, 0);
 	t.eq(total, 17, "17 unites par camp");
-	t.ok(game.config.model.levels.length >= 2 && game.config.model.levels.every((l) => l.ai === "uct"), "niveaux uct");
+	const levels = game.config.model.levels;
+	t.eq(levels.map((l) => l.ai), ["uct", "uct", "uct", "kriegspiel"], "trois niveaux uct, puis le niveau adosse au moteur externe");
+	t.eq(game.config.model.maxLevel, levels.length, "maxLevel suit le nombre de niveaux");
 })();
 
 t.section("placement");
@@ -110,6 +112,20 @@ t.section("tour de jeu");
 	twin.turn -= 11;
 	twin.mWho = -board.mWho;
 	t.eq(twin.GetSignature(true), board.GetSignature(true), "elle ne lit pas mWho, que le coeur inverse a des moments differents");
+
+	// position en texte, pour le moteur externe
+	const exported = board.ExportBoardState(game).split(" ");
+	t.eq(exported.slice(0, 5), ["N", "2", "2", "1111", "-"], "ExportBoardState : trait, phase, coups, arsenaux, retraite");
+	let cells = 0, units = 0;
+	exported[5].replace(/\d+|[A-Za-z]/g, (tok) => { if(/\d/.test(tok)) cells += parseInt(tok, 10); else { cells++; units++; } return ""; });
+	t.eq([cells, units], [500, 34], "ExportBoardState : 500 cases, 34 unites");
+	t.ok(exported[5].indexOf("T") >= 0 && exported[5].indexOf("t") >= 0 && exported[5].indexOf("H") >= 0, "Nord en majuscules, Sud en minuscules, H pour l'artillerie a cheval");
+	const south = new Board();
+	south.CopyFrom(board);
+	south.mWho = -1;
+	south.retreat = 137;
+	south.ars = [1, 0, 1, 1];
+	t.eq(south.ExportBoardState(game).split(" ").slice(0, 5), ["S", "2", "2", "1011", "137"], "ExportBoardState : trait au Sud, arsenal detruit, retraite due");
 
 	// notation
 	const Move = game.GetMoveClass();

@@ -45,7 +45,7 @@ exports.games = (function() {
 					"module": "kriegspiel",
 					"plazza": "true",
 					"js": modelScripts,
-					"maxLevel": 3,
+					"maxLevel": 4,
 					"defaultLevel": 2,
 					"gameOptions": {
 						"preventRepeat": true,
@@ -131,6 +131,15 @@ exports.games = (function() {
 							"useAlphaBeta": true,
 							"propagation": "mixed",
 							"propagateMultiVisits": false
+						},
+						{
+							// Moteur externe, fourni par l'hote (Tabulon) a
+							// travers jocly.kriegspielworker.js. Sans moteur,
+							// le coup est joue par « Fort » et le repli est
+							// annonce : voir src/core/jocly.kriegspiel.js.
+							"label": "Expert",
+							"ai": "kriegspiel",
+							"moveTimeMs": 3000
 						}
 					]
 				},

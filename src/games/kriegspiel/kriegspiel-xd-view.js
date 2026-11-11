@@ -53,6 +53,7 @@
 			lines: ["Lignes : toutes", "Lignes : Nord", "Lignes : Sud", "Lignes : masquées"],
 			retreatDue: "Retraite obligatoire : déplacez d’abord l’unité marquée.",
 			arsenalDone: "Arsenal détruit : plus d’attaque ce tour.",
+			attackDone: "Attaque faite : elle clôt les déplacements. Cliquez « Fin du tour », ou « Annuler le dernier » pour la reprendre.",
 			att: "Attaque", def: "Défense", destroy: "destruction", retreat: "retraite forcée", noEffect: "sans effet",
 			threat: "Menace adverse", inComm: "en communication", isolated: "isolée",
 			move: "mvt", range: "portée",
@@ -86,6 +87,7 @@
 			lines: ["Lines: all", "Lines: North", "Lines: South", "Lines: hidden"],
 			retreatDue: "Forced retreat: move the marked unit first.",
 			arsenalDone: "Arsenal destroyed: no attack this turn.",
+			attackDone: "Attack made: it closes the moves. Click “End turn”, or “Undo last” to take it back.",
 			att: "Attack", def: "Defence", destroy: "destroyed", retreat: "forced retreat", noEffect: "no effect",
 			threat: "Enemy threat", inComm: "in communication", isolated: "isolated",
 			move: "move", range: "range",
@@ -847,17 +849,23 @@
 					ov.arrows = ui.lastArrows.list;
 				ui.overlay = ov;
 				ui.hover = -1;
-				var hint = message || (turn.needRetreat ? L.retreatDue : (turn.d !== undefined && turn.a === undefined ? L.arsenalDone : ""));
+				// Une attaque choisie ferme le tour : plus aucun deplacement n'est
+				// possible (l'ordre est deplacements, puis attaque). Sans message
+				// permanent, le plateau semble fige ; on le dit donc tout de
+				// suite, et le bouton « Fin du tour » est mis en avant.
+				var closed = turn.a !== undefined;
+				var hint = closed ? L.attackDone :
+					(message || (turn.needRetreat ? L.retreatDue : (turn.d !== undefined ? L.arsenalDone : "")));
 				var html = header(board) +
 					'<div class="kriegspiel-status">' + esc(L.moves) + " : <b>" + turn.n + " / " + rc.maxMoves + "</b><br>" +
 					esc(L.attack) + " : <b>" + (turn.result ? R.posName(turn.result.target) + " (" + turn.result.att + " / " + turn.result.def + ", " +
 						esc(turn.result.outcome === "destroy" ? L.destroy : L.retreat) + ")" :
 						(turn.d !== undefined ? R.posName(turn.d) + "!" : esc(L.none))) + "</b></div>" +
-					'<div class="kriegspiel-hint">' + esc(hint) + "</div>" +
+					'<div class="kriegspiel-hint' + (closed || turn.needRetreat ? " kriegspiel-alert" : "") + '">' + esc(hint) + "</div>" +
 					'<div class="kriegspiel-info"></div><div class="kriegspiel-buttons">' +
 					linesButton() +
 					button("undo", L.undo, actions.length > 0, "kriegspiel-light") +
-					button("end", L.endTurn, !turn.needRetreat) + "</div>";
+					button("end", L.endTurn, !turn.needRetreat, closed ? "kriegspiel-call" : "") + "</div>";
 				ui.infoHtml = "";
 				setPanel(html);
 				render(turn.st, delay || 0);
