@@ -69,7 +69,7 @@ async function start() {
 		t.ok(match.game.mBoard.IsValidMove(match.game, result.move), "et il est legal");
 		const fallback = result.fairyFallback;
 		t.ok(fallback && fallback.engine === "kriegspiel", "le repli est annonce (engine: kriegspiel)");
-		t.eq(fallback && [fallback.requested, fallback.level], ["Expert", "Fort"], "niveau demande et niveau qui joue reellement");
+		t.eq(fallback && [fallback.requested, fallback.level], ["Moyen (moteur)", "Fort"], "niveau demande et niveau qui joue reellement");
 	}
 
 	t.section("avec un moteur");

@@ -169,3 +169,13 @@
 @media (prefers-reduced-motion: reduce) {
 	.kriegspiel-button.kriegspiel-call { animation: none; }
 }
+
+.kriegspiel-comm {
+	font-size: 0.82em;
+	margin-bottom: 0.4em;
+}
+
+.kriegspiel-comm span {
+	font-weight: bold;
+	white-space: nowrap;
+}

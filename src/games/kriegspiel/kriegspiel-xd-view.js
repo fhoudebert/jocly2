@@ -66,6 +66,7 @@
 				"isolated": "Unité isolée : elle ne peut pas bouger."
 			},
 			waiting: "L’adversaire joue…", last: "Dernier coup",
+			commTitle: "En communication", noSignal: "sans transmission",
 			win: "Victoire", draw: "Partie nulle",
 			reason: {
 				arsenals: "les deux arsenaux adverses sont détruits",
@@ -100,6 +101,7 @@
 				"isolated": "Isolated unit: it cannot move."
 			},
 			waiting: "Opponent is playing…", last: "Last move",
+			commTitle: "In communication", noSignal: "no communications unit",
 			win: "Victory", draw: "Draw",
 			reason: {
 				arsenals: "both enemy arsenals are destroyed",
@@ -458,6 +460,29 @@
 			'<div class="kriegspiel-sub">' + esc(L.turn) + " " + (board.turn + 1) + "</div>";
 	}
 
+	/*
+	 * Unites en communication de chaque camp. La perte des deux unites de
+	 * transmission ne termine pas la partie a elle seule : il faut en plus que
+	 * toutes les unites restantes soient isolees. Ce decompte montre ou l'on
+	 * en est, et pourquoi la partie continue.
+	 */
+	function commSummary(st) {
+		var game = ui.game, R = game.g.rules, rc = game.g.ctx, L = lang();
+		if (!st || st.phase < 2)
+			return "";
+		var parts = [1, -1].map(function (side) {
+			if (side === ui.hideSide)
+				return "";
+			var comm = R.communications(rc, st, side, false), signals = 0;
+			for (var pos = 0; pos < R.N; pos++)
+				if (st.grid[pos] * side >= R.SIGNAL)
+					signals++;
+			return '<span class="kriegspiel-side' + (side === 1 ? "N" : "S") + '">' + esc(sideName(side)) + " " +
+				comm.count + " / " + comm.total + (signals === 0 ? " (" + esc(L.noSignal) + ")" : "") + "</span>";
+		}).filter(Boolean);
+		return '<div class="kriegspiel-comm">' + esc(L.commTitle) + " : " + parts.join(" · ") + "</div>";
+	}
+
 	function linesButton() {
 		return button("lines", lang().lines[ui.showLines], true, "kriegspiel-light");
 	}
@@ -482,6 +507,7 @@
 				html += '<div class="kriegspiel-move">' + esc(L.att) + " " + board.last.att + " / " + esc(L.def) + " " +
 					board.last.def + " : " + esc(board.last.outcome === "destroy" ? L.destroy : L.retreat) + "</div>";
 		}
+		html += commSummary(board);
 		if (ui.hideSide)
 			html += '<div class="kriegspiel-hint">' + esc(L.hidden) + "</div>";
 		html += '<div class="kriegspiel-info"></div><div class="kriegspiel-buttons">' + linesButton() + "</div>";
@@ -861,6 +887,7 @@
 					esc(L.attack) + " : <b>" + (turn.result ? R.posName(turn.result.target) + " (" + turn.result.att + " / " + turn.result.def + ", " +
 						esc(turn.result.outcome === "destroy" ? L.destroy : L.retreat) + ")" :
 						(turn.d !== undefined ? R.posName(turn.d) + "!" : esc(L.none))) + "</b></div>" +
+					commSummary(turn.st) +
 					'<div class="kriegspiel-hint' + (closed || turn.needRetreat ? " kriegspiel-alert" : "") + '">' + esc(hint) + "</div>" +
 					'<div class="kriegspiel-info"></div><div class="kriegspiel-buttons">' +
 					linesButton() +

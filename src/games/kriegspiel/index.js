@@ -137,7 +137,9 @@ exports.games = (function() {
 							// travers jocly.kriegspielworker.js. Sans moteur,
 							// le coup est joue par « Fort » et le repli est
 							// annonce : voir src/core/jocly.kriegspiel.js.
-							"label": "Expert",
+							// Le nom reste modeste tant que les mesures ne le
+							// placent pas au-dessus des niveaux uct.
+							"label": "Moyen (moteur)",
 							"ai": "kriegspiel",
 							"moveTimeMs": 3000
 						}

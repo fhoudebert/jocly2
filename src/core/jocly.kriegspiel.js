@@ -18,7 +18,7 @@
  *
  * Meme forme que jocly.scan.js et jocly.kata.js. Un niveau
  *
- *     { "label": "Expert", "ai": "kriegspiel", "moveTimeMs": 3000 }
+ *     { "label": "Moyen (moteur)", "ai": "kriegspiel", "moveTimeMs": 3000 }
  *
  * fait chercher le coup par un moteur dedie au lieu de l'IA uct du jeu. Le
  * moteur parle a travers un Worker, jocly.kriegspielworker.js :
