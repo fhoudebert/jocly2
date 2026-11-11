@@ -48,6 +48,7 @@
 			placeHint: "Choisissez un type d’unité, puis une case de votre territoire. Un clic sur une unité posée la reprend.",
 			auto: "Placement automatique", clear: "Tout retirer", endPlacement: "Fin du placement",
 			blindOn: "À l’aveugle : oui", blindOff: "À l’aveugle : non",
+			blindNote: "À l’aveugle : ce déploiement sera masqué pendant que le Sud placera ses unités.",
 			moves: "Déplacements", attack: "Attaque", none: "aucune", done: "faite",
 			undo: "Annuler le dernier", endTurn: "Fin du tour",
 			lines: ["Lignes : toutes", "Lignes : Nord", "Lignes : Sud", "Lignes : masquées"],
@@ -83,6 +84,7 @@
 			placeHint: "Pick a unit type, then a square of your territory. Click a placed unit to take it back.",
 			auto: "Automatic placement", clear: "Remove all", endPlacement: "Deployment done",
 			blindOn: "Blind: yes", blindOff: "Blind: no",
+			blindNote: "Blind: this deployment will be hidden while South places its units.",
 			moves: "Moves", attack: "Attack", none: "none", done: "done",
 			undo: "Undo last", endTurn: "End turn",
 			lines: ["Lines: all", "Lines: North", "Lines: South", "Lines: hidden"],
@@ -779,7 +781,8 @@
 					for (var t = 1; t <= 6; t++)
 						if (remaining(t) > 0) { selected = t; break; }
 				var html = header(board) + '<div class="kriegspiel-hint">' + esc(L.placeHint) +
-					(ui.hideSide ? " " + esc(L.hidden) : "") + "</div>" +
+					(ui.hideSide ? " " + esc(L.hidden) : "") +
+					(who === 1 && ui.blind ? " " + esc(L.blindNote) : "") + "</div>" +
 					'<div class="kriegspiel-reserve">';
 				for (var type = 1; type <= 6; type++)
 					html += '<div class="kriegspiel-unit' + (type === selected && remaining(type) > 0 ? " kriegspiel-selected" : "") +
