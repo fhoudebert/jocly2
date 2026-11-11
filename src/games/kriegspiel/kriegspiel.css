@@ -105,7 +105,7 @@
 	width: 1.9em;
 }
 
-.kriegspiel-skin-pictos .kriegspiel-icon {
+.kriegspiel-panel[data-skin="pictos"] .kriegspiel-icon {
 	background-image: url(res/images/pictos/unites.png);
 }
 

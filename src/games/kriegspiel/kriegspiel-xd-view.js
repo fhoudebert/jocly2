@@ -158,33 +158,40 @@
 	/* ---------- images des planches ---------- */
 
 	/*
-	 * Dossier des planches de la skin courante. Une skin peut fournir ses
-	 * propres unites.png et terrain.png (cle "images" du manifeste) ; les
-	 * marqueurs sont communs a toutes les skins.
+	 * Dossier des planches d'une skin. Une skin peut fournir ses propres
+	 * unites.png et terrain.png (cle "images" du manifeste) ; les marqueurs
+	 * sont communs a toutes les skins.
+	 *
+	 * xdInit ne passe qu'une fois par vue : un changement de skin reconstruit
+	 * les gadgets sans le rappeler. La skin est donc relue a chaque dessin, et
+	 * les sprites declarent leur planche sous une cle par skin (la cle du nom
+	 * de la skin surcharge "2d", voir mergeOptions dans jocly.xd-view.js).
 	 */
-	function skinImages(game) {
+	function skinImages(game, skinName) {
 		var skins = game.mViewOptions.skins || [];
 		for (var i = 0; i < skins.length; i++)
-			if (skins[i].name === game.mSkin && skins[i].images)
+			if (skins[i].name === skinName && skins[i].images)
 				return skins[i].images;
 		return "/res/images/";
 	}
 
-	function imagePath(name) {
-		return ui.fullPath + (name === "marqueurs" ? "/res/images/" : ui.imageDir) + name + ".png";
+	function imagePath(name, skinName) {
+		var dir = name === "marqueurs" ? "/res/images/" : skinImages(ui.game, skinName || ui.game.mSkin);
+		return ui.fullPath + dir + name + ".png";
 	}
 
 	function withImage(avatar, name, draw) {
-		var image = ui.images[name];
+		var path = imagePath(name);
+		var image = ui.images[path];
 		if (image) {
 			draw(image);
 			return;
 		}
-		if (ui.images[name] === null)
+		if (ui.images[path] === null)
 			return;   // en cours de chargement
-		ui.images[name] = null;
-		avatar.getResource("image|" + imagePath(name), function (loaded) {
-			ui.images[name] = loaded;
+		ui.images[path] = null;
+		avatar.getResource("image|" + path, function (loaded) {
+			ui.images[path] = loaded;
 			setTimeout(redrawCanvases, 0);
 		});
 	}
@@ -584,7 +591,7 @@
 	View.Game.xdInit = function (xdv) {
 		var game = this, rc = this.g.ctx;
 		ui = {
-			xdv: xdv, game: game, fullPath: this.mViewOptions.fullPath, imageDir: skinImages(this),
+			xdv: xdv, game: game, fullPath: this.mViewOptions.fullPath,
 			images: {}, assign: {}, shown: {}, state: null, board: null, lines: null, on: null,
 			overlay: emptyOverlay(), hideSide: 0, hover: -1,
 			showLines: 0, blind: !!this.mOptions.blindDeployment,
@@ -600,16 +607,22 @@
 		});
 		for (var side = 1; side >= -1; side -= 2)
 			for (var type = 1; type <= 6; type++)
-				for (var i = 0; i < rc.count[type]; i++)
-					xdv.createGadget("u#" + side + "#" + type + "#" + i, {
+				for (var i = 0; i < rc.count[type]; i++) {
+					var spec = {
 						"2d": {
 							type: "sprite",
-							file: imagePath("unites"),
+							file: imagePath("unites", "carte"),
 							clipx: (type - 1) * SPRITE, clipy: side === 1 ? 0 : SPRITE,
 							clipwidth: SPRITE, clipheight: SPRITE,
 							width: CS, height: CS, z: 3
 						}
+					};
+					(this.mViewOptions.skins || []).forEach(function (skin) {
+						if (skin.images)
+							spec[skin.name] = { file: imagePath("unites", skin.name) };
 					});
+					xdv.createGadget("u#" + side + "#" + type + "#" + i, spec);
+				}
 		// un seul calque pour les clics et le survol du plateau
 		xdv.createGadget("input", {
 			"2d": {
@@ -651,9 +664,11 @@
 		xdv.createGadget("panel", {
 			"2d": {
 				type: "element", x: PANEL_X, y: 0, z: 1, width: PANEL_W, height: CANVAS_H,
-				initialClasses: "kriegspiel-panel kriegspiel-skin-" + game.mSkin,
+				initialClasses: "kriegspiel-panel",
 				display: function (element, width) {
 					element.css("font-size", (width / 14) + "px");
+					// icones de la reserve : planche de la skin courante (kriegspiel.css)
+					element.attr("data-skin", ui.game.mSkin);
 					if (!element.data("kriegspiel")) {
 						element.data("kriegspiel", true);
 						element.html('<div class="kriegspiel-body"></div>');
