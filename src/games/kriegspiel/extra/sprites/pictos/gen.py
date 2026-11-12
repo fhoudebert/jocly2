@@ -9,12 +9,13 @@ forment une série.
 
 Sources : pictos/src/*.png. Sorties : ../../res/images/pictos/unites.png (6 x 2
 cases) et terrain.png (6 cases ; montagne, col et forteresse sont repris de la
-planche « Carte »). Les marqueurs restent communs aux deux skins.
+planche « Carte » ; l'arsenal vient de src/arsenal-tuile.png). Les marqueurs
+restent communs aux deux skins.
 
     python3 gen.py
 """
 import os
-from PIL import Image, ImageChops, ImageDraw, ImageFilter
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageOps
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, "src")
@@ -144,17 +145,26 @@ def unit_tile(spec, side):
     return img.resize((C, C), Image.LANCZOS)
 
 
+# Arsenal : tuile dessinée à part (src/arsenal-tuile.png, version Nord, coins
+# transparents). Le Sud et l'arsenal détruit en sont des recolorations : le
+# dessin n'a que trois tons (encre marine, fond bleu clair, façade blanche),
+# lus sur le canal rouge, qui les sépare le mieux.
+ARSENAL_TONES = {        # encre, fond, façade
+    "S": ("#6e3608", "#ead8b6", "#fbf5e8"),
+    "X": ("#4a4a4a", "#d2d2d2", "#f2f2f2"),
+}
+
+
 def arsenal_tile(kind):
-    """Arsenal sur fond de case, dans le style des tuiles « Carte »."""
-    pal = {
-        "N": dict(bg="#b8c8dc", edge="#a9b4c2", ink="#14304f"),
-        "S": dict(bg="#faf6ea", edge="#dfc3a6", ink="#7a3d0c"),
-        "X": dict(bg="#dcdcdc", edge="#bdbdbd", ink="#5a5a5a"),
-    }[kind]
-    img = Image.new("RGBA", (CK, CK), (0, 0, 0, 0))
-    d = ImageDraw.Draw(img)
-    d.rounded_rectangle([(4 * K, 4 * K), (196 * K, 196 * K)], radius=14 * K, fill=pal["bg"], outline=pal["edge"], width=8 * K)
-    img.alpha_composite(symbol_layer(dict(src="arsenal.png", mode="trait", grow=0.8, box=(150, 150)), pal["ink"]))
+    src = Image.open(os.path.join(SRC, "arsenal-tuile.png")).convert("RGBA")
+    if kind != "N":
+        ink, bg, light = ARSENAL_TONES[kind]
+        red = src.split()[0]
+        tinted = ImageOps.colorize(red, black=ink, mid=bg, white=light,
+                                   blackpoint=10, midpoint=193, whitepoint=222).convert("RGBA")
+        tinted.putalpha(src.split()[3])
+        src = tinted
+    img = src.resize((CK, CK), Image.LANCZOS)
     if kind == "X":
         d = ImageDraw.Draw(img)
         for a, b in (((22, 26), (178, 176)), ((178, 26), (22, 176))):
