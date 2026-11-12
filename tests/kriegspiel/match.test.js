@@ -24,7 +24,7 @@ const PLIES = parseInt(process.argv[2], 10) || 14;
 	const match = await Jocly.createMatch("jeu-de-la-guerre");
 	const config = await match.getConfig();
 	const level = Object.assign({}, config.model.levels[0], { maxDuration: 0.3, maxLoops: 15 });
-	t.eq(config.model.levels.map((l) => l.label), ["Rapide", "Normal", "Fort", "Moyen (moteur)"], "quatre niveaux");
+	t.eq(config.model.levels.map((l) => l.label), ["Caporal", "Capitaine", "Général", "Maréchal"], "quatre niveaux");
 	let finished = false, plies = 0;
 	const notation = [];
 	while(!finished && plies < PLIES) {

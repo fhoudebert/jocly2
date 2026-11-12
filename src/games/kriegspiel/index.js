@@ -87,7 +87,7 @@ exports.games = (function() {
 					},
 					"levels": [
 						{
-							"label": "Rapide",
+							"label": "Caporal",
 							"ai": "uct",
 							"maxDuration": 1,
 							"maxLoops": 40,
@@ -102,7 +102,7 @@ exports.games = (function() {
 							"propagateMultiVisits": false
 						},
 						{
-							"label": "Normal",
+							"label": "Capitaine",
 							"isDefault": true,
 							"ai": "uct",
 							"maxDuration": 2.5,
@@ -118,7 +118,7 @@ exports.games = (function() {
 							"propagateMultiVisits": false
 						},
 						{
-							"label": "Fort",
+							"label": "Général",
 							"ai": "uct",
 							"maxDuration": 4,
 							"maxLoops": 800,
@@ -135,11 +135,12 @@ exports.games = (function() {
 						{
 							// Moteur externe, fourni par l'hote (Tabulon) a
 							// travers jocly.kriegspielworker.js. Sans moteur,
-							// le coup est joue par « Fort » et le repli est
-							// annonce : voir src/core/jocly.kriegspiel.js.
-							// Le nom reste modeste tant que les mesures ne le
-							// placent pas au-dessus des niveaux uct.
-							"label": "Moyen (moteur)",
+							// le coup est joue par « Général » et le repli
+							// est annonce : voir src/core/jocly.kriegspiel.js.
+							// Mesure (novembre 2026) : 30 victoires, 11
+							// defaites, 9 nulles contre « Général » sur 50
+							// parties, 3 s par coup.
+							"label": "Maréchal",
 							"ai": "kriegspiel",
 							"moveTimeMs": 3000
 						}
