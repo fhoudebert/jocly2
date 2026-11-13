@@ -202,6 +202,13 @@ moduleDirs.forEach((dir) => {
 	modulesMap[path.basename(dir)] = dir;
 });
 
+/*
+ * Games marked "obsolete" in their manifest (config.model.obsolete) keep their
+ * sources in src/games but are left out of dist, unless --obsolete is given.
+ * --no-obsolete, the former opt-in, is still accepted and changes nothing.
+ */
+var includeObsolete = !!argv.obsolete;
+
 if (argv.games) {
 	exclusiveGames = {};
 	argv.games.split(":").forEach((game) => {
@@ -232,13 +239,15 @@ function HandleModuleGames(modelOnly) {
 			.forEach((cached) => delete require.cache[cached]);
 		var moduleManifest = require(manifestPath);
 		var streams = [];
+		var builtGames = 0;
 		moduleManifest.games.forEach((game) => {
 			// this is executed for every game in the game module
 
 			if (exclusiveGames && !exclusiveGames[game.name])
 				return;
-			if (typeof argv.obsolete != "undefined" && !argv.obsolete && game.config.model.obsolete)
+			if (!includeObsolete && game.config.model.obsolete)
 				return;
+			builtGames++;
 
 			// same some game data so we can list all games later
 			allGames[game.name] = {
@@ -335,8 +344,9 @@ function HandleModuleGames(modelOnly) {
 				["model", "view"].forEach(Scripts);
 		});
 
-		// create module common resources
-		if (!modelOnly) {
+		// create module common resources - not for a module none of whose
+		// games is built (all obsolete, or filtered out by --games)
+		if (!modelOnly && builtGames > 0) {
 			var stream = readSrc(modulesMap[moduleName] + "/res/**/*")
 				.pipe(rename(function (path) {
 					path.dirname = moduleName + "/res/" + path.dirname;
@@ -684,7 +694,7 @@ options:
     --no-default-games: do not process game module from default src/games directory
     --modules <modules>: process additional game modules from specified directories (colon separated)
     --games <games>: process exclusively the specified games (colon separated)
-    --no-obsolete: do not include games marked as obsolete
+    --obsolete: also include games marked as obsolete (left out by default)
 `;
 	console.log(help);
 	cb();
