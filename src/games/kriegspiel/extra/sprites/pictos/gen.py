@@ -46,8 +46,9 @@ UNITS = [
     dict(src="infanterie.png", mode="silhouette", grow=2.5, box=(152, 98), stretch=True),
     # cavalerie : un sabre sur la diagonale montante, le « / » de l'OTAN
     dict(src="sabre.png", mode="silhouette", grow=0.5, box=(150, 98), stretch=True),
-    # artillerie : canon de profil (l'OTAN met un rond : la roue en tient lieu)
-    dict(src="artillerie.png", mode="silhouette", grow=0.5, box=(140, 100)),
+    # artillerie : canon de profil (l'OTAN met un rond : la roue en tient lieu),
+    # tracé repris d'un médaillon
+    dict(src="artillerie.png", mode="medaillon", disc=(297, 285, 183), grow=0.5, box=(146, 100)),
     dict(src="artillerie-a-cheval.png", mode="silhouette", grow=0.5, box=(148, 104), swift=True),
     # transmission : tambour d'un médaillon dessiné à part ; seul le dessin
     # intérieur est repris, le cadre rond est celui de la skin
