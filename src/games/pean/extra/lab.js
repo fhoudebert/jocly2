@@ -84,7 +84,10 @@ function greedyGame() {
 
 async function uctGame(Jocly, name) {
 	const match = await Jocly.createMatch(name);
+	// un seul scenario, sans prelude : celui de la ligne de commande
 	match.game.mOptions.scenario = scenario;
+	delete match.game.mOptions.scenarios;
+	delete match.game.mOptions.prelude;
 	match.game.InitGame();
 	match.game.mBoard.InitialPosition(match.game);
 	const config = await match.getConfig();
@@ -116,7 +119,7 @@ async function uctGame(Jocly, name) {
 	const tally = { "1": 0, "-1": 0, "2": 0 }, reasons = {};
 	let turns = 0, ctx = null;
 	for(let g = 0; g < GAMES; g++) {
-		const r = MODE === "uct" ? await uctGame(Jocly, "pean-leuctres") : greedyGame();
+		const r = MODE === "uct" ? await uctGame(Jocly, "pean") : greedyGame();
 		ctx = r.ctx;
 		tally[r.end.winner] = (tally[r.end.winner] || 0) + 1;
 		const key = (r.end.winner === 2 ? "nulle" : ctx.campKey[r.end.winner]) + " " + r.end.reason;

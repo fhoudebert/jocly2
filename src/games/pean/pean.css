@@ -211,3 +211,51 @@
 	margin: 0 0 0.4em;
 	padding: 0.2em 0.4em;
 }
+
+/* prelude : le choix de la bataille, par-dessus la carte */
+.pean-prelude {
+	box-sizing: border-box;
+	background-color: rgba(42, 26, 18, 0.82);
+	border: 0.2em solid #2a1a12;
+	border-radius: 0.3em;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+}
+
+.pean-prelude-grid {
+	display: grid;
+	grid-template-columns: repeat(2, 1fr);
+	gap: 1.2em 2.4em;
+}
+
+.pean-prelude-choice {
+	cursor: pointer;
+	text-align: center;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.pean-prelude-choice img {
+	display: block;
+	width: 9em;
+	height: 9em;
+	margin: 0 auto;
+	border-radius: 0.2em;
+	box-shadow: 0 0.2em 0.6em rgba(0, 0, 0, 0.6);
+	transition: transform 0.12s ease-out;
+}
+
+.pean-prelude-choice:hover img {
+	transform: scale(1.05);
+	box-shadow: 0 0 0 0.15em #c8763f, 0 0.2em 0.8em rgba(0, 0, 0, 0.7);
+}
+
+/* capitales d'inscription : un peu d'espace entre les lettres */
+.pean-prelude-name {
+	margin-top: 0.4em;
+	color: #f1dcc0;
+	font-size: 1.35em;
+	letter-spacing: 0.18em;
+	text-shadow: 0 0.08em 0.2em #000;
+}

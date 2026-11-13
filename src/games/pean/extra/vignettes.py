@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """
-Péan - les vignettes des jeux (une par scénario), 200 x 200.
+Péan - les vignettes, 200 x 200 : celle du jeu (thumbnail.png, les quatre
+emblèmes des batailles) et une par scénario, montrées par le prélude
+(res/images/batailles/).
 
 Fond : une portion de la vraie carte du scénario, rendue avec les tuiles de la
 skin « Tuiles » (res/images/tuiles/) ; par-dessus, l'emblème du premier camp, et
@@ -20,10 +22,10 @@ SQ3 = math.sqrt(3)
 
 # vignette -> scenario, coin de la carte (col, ligne), emblemes (devant, derriere)
 VIGNETTES = [
-    ("thumbnail-libre.png", "bataille-libre", (8, 4), ["hellenes"]),
-    ("thumbnail-platees.png", "platees-479", (2, 6), ["persians", "spartans"]),
-    ("thumbnail-leuctres.png", "leuctres-371", (13, 4), ["thebans", "spartans"]),
-    ("thumbnail-laurion.png", "laurion-413", (6, 5), ["athenians", "spartans"]),
+    ("res/images/batailles/libre.png", "bataille-libre", (8, 4), ["hellenes"]),
+    ("res/images/batailles/platees.png", "platees-479", (2, 6), ["persians", "spartans"]),
+    ("res/images/batailles/leuctres.png", "leuctres-371", (13, 4), ["thebans", "spartans"]),
+    ("res/images/batailles/laurion.png", "laurion-413", (6, 5), ["athenians", "spartans"]),
 ]
 
 TILES = {"plaine": ["plaine1", "plaine2", "plaine3"], "route": ["route"], "colline": ["colline1", "colline2", "colline3"],
@@ -94,7 +96,26 @@ def frame(img):
     return img
 
 
+# la vignette du jeu : les emblemes des batailles, un par quart
+JEU = ("thumbnail.png", "bataille-libre", (8, 4), ["persians", "athenians", "thebans", "spartans"])
+
+
+def save(img, out):
+    # 256 couleurs : la vignette pese le tiers
+    frame(img).convert("RGB").quantize(256, method=Image.Quantize.MEDIANCUT).save(os.path.join(GAME, out), optimize=True)
+    print(out)
+
+
 def main():
+    out, name, corner, emblems = JEU
+    sc = json.load(open(os.path.join(GAME, "scenarios", name + ".json"), encoding="utf-8"))
+    img = background(sc, corner)
+    E = 80
+    for k, e in enumerate(emblems):
+        x = 16 + (k % 2) * (S - 32 - E)
+        y = 16 + (k // 2) * (S - 32 - E)
+        img = shadowed(img, emblem(e, E), x, y)
+    save(img, out)
     for out, name, corner, emblems in VIGNETTES:
         sc = json.load(open(os.path.join(GAME, "scenarios", name + ".json"), encoding="utf-8"))
         img = background(sc, corner)
@@ -105,9 +126,7 @@ def main():
             back, front = emblem(emblems[1], 112), emblem(emblems[0], 136)
             img = shadowed(img, back, S - 112 - 14, 14)
             img = shadowed(img, front, 14, S - 136 - 14)
-        # 256 couleurs : la vignette pese le tiers
-        frame(img).convert("RGB").quantize(256, method=Image.Quantize.MEDIANCUT).save(os.path.join(GAME, out), optimize=True)
-        print(out)
+        save(img, out)
 
 
 if __name__ == "__main__":

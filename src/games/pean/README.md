@@ -4,14 +4,17 @@ Module Jocly `pean` : wargame tactique à hexagones, deux joueurs, sans hasard, 
 Grèce antique. Inspiré d'*Heraklios* (François Marcela-Froideval, *Jeux & Stratégie*, 1980) pour le genre
 seulement : règles, carte, tables et valeurs sont propres au module (voir `credits*.html`). Vue 2D uniquement.
 
-Un module, plusieurs jeux : **un jeu Jocly par scénario**, tous servis par le même moteur.
+Un seul jeu Jocly, `pean`, plusieurs batailles : la partie commence par un **prélude**, le choix de la bataille
+(une vignette par scénario, son nom en grec dessous), comme le choix des règles au go ou aux dames 8 x 8. Le choix est le
+premier coup de la partie (« #k »), suivi d'une étape vide (« -- ») qui rend la main au premier camp ; il s'enregistre,
+se rejoue et s'annule comme un autre coup. Contre l'ordinateur qui joue en premier, c'est lui qui choisit, au hasard.
 
-| jeu | scénario | intérêt |
+| prélude | scénario | intérêt |
 |---|---|---|
-| `pean-bataille-libre` | `scenarios/bataille-libre.json` | chaque camp achète (200 points) et déploie son armée, puis se bat pour un village et deux hauteurs |
-| `pean-leuctres` | `scenarios/leuctres-371.json` | colonne thébaine profonde face aux Spartiates, aile droite refusée : l'ordre oblique |
-| `pean-platees` | `scenarios/platees-479.json` | ligne grecque sur les contreforts du Cithéron, l'Asopos et ses gués, cavalerie et archers montés perses |
-| `pean-laurion` | `scenarios/laurion-413.json` | raid asymétrique sur les mines d'argent : tenir une mine trois tours, renforts athéniens échelonnés |
+| ΠΛΑΤΑΙΑΙ | `scenarios/platees-479.json` | ligne grecque sur les contreforts du Cithéron, l'Asopos et ses gués, cavalerie et archers montés perses |
+| ΛΑΥΡΙΟΝ | `scenarios/laurion-413.json` | raid asymétrique sur les mines d'argent : tenir une mine quatre tours, renforts athéniens échelonnés |
+| ΛΕΥΚΤΡΑ | `scenarios/leuctres-371.json` | colonne thébaine profonde face aux Spartiates, aile droite refusée : l'ordre oblique |
+| ΕΛΛΗΝΕΣ | `scenarios/bataille-libre.json` | chaque camp achète (200 points) et déploie son armée, puis se bat pour un village et deux hauteurs |
 
 | fichier | rôle |
 |---|---|
@@ -20,9 +23,9 @@ Un module, plusieurs jeux : **un jeu Jocly par scénario**, tous servis par le m
 | `pean-model.js` | habillage Jocly (`Model.Game`, `Model.Board`, `Model.Move`) |
 | `pean-xd-view.js`, `pean.css` | vue 2D hexagonale et saisie, dessinée au canvas ; quatre skins : « Tuiles » (tuiles de terrain de Wesnoth, par défaut), « Wargame » (mêmes tuiles, pions carrés), « Insignes » (pictogrammes de Wesnoth), avec les emblèmes de 0 A.D., et « Carte », entièrement dessinée |
 | `res/images/` | emblèmes et bannières de 0 A.D. (CC BY-SA 3.0), pictogrammes et tuiles de terrain de Wesnoth (GPL v2+) ; `extra/0ad/`, `extra/wesnoth/` : réserves d'images non embarquées, voir leurs README |
-| `index.js` | manifeste : la liste des scénarios, les niveaux d'IA. Il lit les JSON au build et les embarque dans `gameOptions.scenario` |
+| `index.js` | manifeste : la liste des scénarios (ordre du prélude, noms grecs), les niveaux d'IA. Il lit les JSON au build et les embarque dans `gameOptions.scenarios` |
 | `scenarios/*.json` | les batailles |
-| `thumbnail-*.png` | les vignettes, une par jeu : portion de la carte en tuiles, emblèmes des camps ; refaites par `extra/vignettes.py` |
+| `thumbnail.png`, `res/images/batailles/` | la vignette du jeu (les emblèmes des quatre batailles) et celles du prélude, une par scénario : portion de la carte en tuiles, emblèmes des camps ; refaites par `extra/vignettes.py` |
 | `extra/riviere.py` | aide à l'écriture des scénarios : les côtés d'hexagone d'une rivière le long d'une ligne |
 
 Tests : `npm test -- pean` (voir `tests/pean/`). Équilibre : `node src/games/pean/extra/lab.js SCENARIO` (auto-jeu
@@ -31,8 +34,9 @@ variante.
 
 ## Ajouter une bataille
 
-Écrire `scenarios/ma-bataille.json`, ajouter une ligne à `SCENARIOS` dans `index.js`. Aucun code à toucher tant que
-la bataille se contente du vocabulaire du noyau. `PeanRules.validateScenario(json)` dit ce qui ne va pas.
+Écrire `scenarios/ma-bataille.json`, ajouter une ligne à `SCENARIOS` dans `index.js` (fichier, vignette, nom en grec)
+et une à `VIGNETTES` dans `extra/vignettes.py`. Aucun code à toucher tant que la bataille se contente du vocabulaire du
+noyau. `PeanRules.validateScenario(json)` dit ce qui ne va pas.
 
 ```jsonc
 {
@@ -159,11 +163,14 @@ scénario, camps alternés :
 
 | scénario | Maréchal | remarque |
 |---|---|---|
-| Bataille libre | 8 V / 0 N / 5 D | 6 sur 6 en second, 2 sur 7 en premier : la première frappe compte |
-| Leuctres | 12 V / 0 N / 1 D | |
-| Platées | 10 V / 1 N / 2 D | |
-| Laurion | 10 V / 0 N / 3 D | |
-| **total** | **40 V / 1 N / 11 D, 78 %** | tour le plus long : 2,55 s |
+| Bataille libre | 11 V / 0 N / 2 D | |
+| Leuctres | 9 V / 0 N / 4 D | 7 sur 7 avec les Thébains, 2 sur 6 avec les Spartiates |
+| Platées | 6 V / 2 N / 5 D | 5 sur 6 avec les Grecs, 1 sur 7 avec les Perses |
+| Laurion | 9 V / 0 N / 4 D | 7 sur 7 avec les Péloponnésiens, 2 sur 6 avec les Athéniens |
+| **total** | **35 V / 2 N / 15 D, 69 %** | tour le plus long : 2,56 s |
+
+Avant la correction de l'IA de jocly (orientation qui passait d'un ordre au suivant, `buildTurn`), le même match
+donnait 40 V / 1 N / 11 D (78 %) : « Général » corrigé est plus fort, surtout avec le camp le plus faible du scénario.
 
 ## Limites de cette version
 

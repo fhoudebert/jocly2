@@ -19,7 +19,7 @@ const R = rules();
 
 const DIST = path.join(__dirname, "..", "..", "dist", "node");
 if(!fs.existsSync(path.join(DIST, "jocly.core.js")) ||
-		!fs.existsSync(path.join(DIST, "games", "pean", "pean-leuctres-model.js"))) {
+		!fs.existsSync(path.join(DIST, "games", "pean", "pean-model.js"))) {
 	console.log("SKIP - needs `npx gulp build`");
 	process.exit(0);
 }
@@ -40,10 +40,16 @@ function fakeWorker(reply, log) {
 	};
 }
 
-async function start(name) {
-	const match = await Jocly.createMatch(name || "pean-leuctres");
+// une partie, la bataille choisie au prelude (Leuctres par defaut)
+async function start(name, keepPrelude) {
+	const match = await Jocly.createMatch("pean");
 	const config = await match.getConfig();
 	const levels = config.model.levels;
+	if(!keepPrelude) {
+		const k = config.model.gameOptions.scenarios.findIndex((sc) => sc.id === (name || "leuctres-371"));
+		await match.applyMove({ setup: k });
+		await match.applyMove({ skip: 1 });
+	}
 	return { match, marechal: levels[levels.length - 1] };
 }
 
@@ -112,12 +118,21 @@ async function start(name) {
 	{
 		const log = [];
 		global.Worker = fakeWorker(() => ({ type: "Error", error: "ne doit pas etre appele" }), log);
-		const { match, marechal } = await start("pean-bataille-libre");
+		const { match, marechal } = await start("bataille-libre");
 		t.eq(match.game.mBoard.phase, 0, "la bataille libre commence par le deploiement");
 		const result = await match.machineSearch({ level: marechal, threaded: false });
 		t.ok(result && result.move && result.move.p, "un deploiement est joue");
 		t.ok(!result.fairyFallback, "sans annonce de repli");
 		t.ok(!log.some((m) => m.type === "Search"), "le moteur n'est pas interroge");
+	}
+	t.section("prelude");
+	{
+		const log = [];
+		global.Worker = fakeWorker(() => ({ type: "Error", error: "ne doit pas etre appele" }), log);
+		const { match, marechal } = await start(null, true);
+		const result = await match.machineSearch({ level: marechal, threaded: false });
+		t.ok(result && result.move && result.move.setup !== undefined, "le Maréchal choisit une bataille");
+		t.ok(!log.some((m) => m.type === "Search") && !result.fairyFallback, "sans moteur ni repli");
 	}
 	delete global.Worker;
 	t.done();

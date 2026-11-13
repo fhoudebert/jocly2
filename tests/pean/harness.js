@@ -5,8 +5,8 @@
  *   ai()             les heuristiques (pean-ai.js), sans Jocly non plus
  *   scenario(name)   un scenario de src/games/pean/scenarios/
  *   context(sc)      le contexte compile d'un scenario
- *   loadModel()      le modele Jocly dans un bac a sable, sans build
- *   newGame()        une partie minimale autour du modele
+ *   loadModel()      le modele Jocly dans un bac a sable, sans build (le jeu « pean »)
+ *   newGame(sb, id)  une partie minimale autour du modele, bataille `id` choisie au prelude
  *   mini()           un petit scenario d'essai, modifiable
  *   suite()          compteur d'assertions ; done() sort en code 1 en cas d'echec
  *
@@ -55,7 +55,7 @@ function loadModel(name) {
 	["jocly.util.js", "jocly.game.js"].forEach((file) => {
 		vm.runInContext(fs.readFileSync(path.join(SRC, "core", file), "utf8"), sandbox, { filename: file });
 	});
-	gameConfig(name || "pean-leuctres").modelScripts.forEach((script) => {
+	gameConfig("pean").modelScripts.forEach((script) => {
 		vm.runInContext(fs.readFileSync(path.join(GAME, script), "utf8"), sandbox, { filename: script });
 	});
 	return sandbox;
@@ -64,9 +64,12 @@ function loadModel(name) {
 /*
  * Une partie minimale autour du modele : ce que JocGame fait d'un coup
  * (validation, application, alternance du trait, evaluation), sans la vue.
+ * `scenario` (« leuctres-371 »...) : la bataille est choisie par le prelude,
+ * comme le ferait un joueur (« #k » puis « -- ») ; absent, la partie reste au
+ * prelude.
  */
-function newGame(sandbox, name, options) {
-	const config = gameConfig(name || "pean-leuctres").config.model;
+function newGame(sandbox, scenarioId, options) {
+	const config = gameConfig("pean").config.model;
 	const game = Object.create(sandbox.Model.Game);
 	game.g = {};
 	game.mOptions = Object.assign(JSON.parse(JSON.stringify(config.gameOptions)), options || {});
@@ -100,6 +103,12 @@ function newGame(sandbox, name, options) {
 		board.Evaluate(game, false, true);
 		return board.mFinished;
 	};
+	if(scenarioId) {
+		const k = game.mOptions.scenarios.findIndex((sc) => sc.id === scenarioId);
+		if(k < 0) throw new Error("no scenario " + scenarioId);
+		game.play({ setup: k });
+		game.play({ skip: 1 });
+	}
 	return game;
 }
 

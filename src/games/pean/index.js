@@ -2,11 +2,12 @@
  * Péan - wargame tactique a hexagones, deux joueurs, sans hasard.
  * Inspire d'Heraklios (F. Marcela-Froideval, Jeux & Strategie, 1980).
  *
- * Un module, plusieurs jeux : un jeu par scenario. Le moteur (regles, IA,
- * vue) est commun ; chaque scenario est un fichier JSON de scenarios/, lu
- * ici au build (gulp charge ce manifeste avec require) et embarque dans
- * gameOptions.scenario. Ajouter une bataille = ajouter un fichier et une
- * ligne a SCENARIOS, sans toucher au code.
+ * Un jeu, plusieurs batailles : chaque scenario est un fichier JSON de
+ * scenarios/, lu ici au build (gulp charge ce manifeste avec require) et
+ * embarque dans gameOptions.scenarios ; la partie commence par un prelude,
+ * le choix de la bataille (une vignette par scenario, son nom en grec
+ * dessous). Ajouter une bataille = ajouter un fichier, une ligne a
+ * SCENARIOS et sa vignette (extra/vignettes.py), sans toucher au code.
  *
  * Trois scripts de modele, dans cet ordre : les regles (pures), les
  * heuristiques de l'IA (pures elles aussi), puis l'habillage Jocly.
@@ -21,12 +22,15 @@ exports.games = (function () {
 		"pean-xd-view.js"
 	];
 
-	// [nom du jeu, fichier du scenario, vignette (extra/vignettes.py)]
+	// [fichier du scenario, vignette (extra/vignettes.py ; sous res/ pour etre
+	// copiee dans dist), nom en grec sous la
+	// vignette du prelude] ; l'ordre est celui du prelude, le premier est le
+	// scenario par defaut (la carte montree pendant le choix)
 	var SCENARIOS = [
-		["pean-bataille-libre", "bataille-libre", "thumbnail-libre.png"],
-		["pean-leuctres", "leuctres-371", "thumbnail-leuctres.png"],
-		["pean-platees", "platees-479", "thumbnail-platees.png"],
-		["pean-laurion", "laurion-413", "thumbnail-laurion.png"]
+		["platees-479", "res/images/batailles/platees.png", "ΠΛΑΤΑΙΑΙ"],
+		["laurion-413", "res/images/batailles/laurion.png", "ΛΑΥΡΙΟΝ"],
+		["leuctres-371", "res/images/batailles/leuctres.png", "ΛΕΥΚΤΡΑ"],
+		["bataille-libre", "res/images/batailles/libre.png", "ΕΛΛΗΝΕΣ"]
 	];
 
 	var levels = [
@@ -78,9 +82,9 @@ exports.games = (function () {
 			// travers jocly.peanworker.js. Sans moteur, le tour est joue par
 			// « Général » et le repli est annonce : voir src/core/jocly.pean.js.
 			// Le deploiement libre reste joue par l'IA du jeu.
-			// Mesure (novembre 2026) : 40 victoires, 1 nulle, 11 defaites
-			// contre « Général » sur 52 parties (13 par scenario, camps
-			// alternes), 2,5 s par tour au plus.
+			// Mesure (novembre 2026, « Général » corrige, voir pean-ai.js
+			// buildTurn) : 35 victoires, 2 nulles, 15 defaites sur 52 parties
+			// (13 par scenario, camps alternes), 69 % ; 2,6 s par tour au plus.
 			"label": "Maréchal",
 			"ai": "pean",
 			"moveTimeMs": 2500
@@ -112,23 +116,27 @@ exports.games = (function () {
 		return list;
 	}
 
-	function game(name, file, thumbnail) {
-		var scenario = require("./scenarios/" + file + ".json");
-		var title = scenario.titre || { fr: file, en: file };
+	function game() {
+		var scenarios = SCENARIOS.map(function (s) { return require("./scenarios/" + s[0] + ".json"); });
+		var preload = tileImages();
+		scenarios.forEach(function (sc) {
+			insigniaImages(sc).forEach(function (img) { if (preload.indexOf(img) < 0) preload.push(img); });
+		});
+		var insignia = preload.filter(function (img) { return img.indexOf("/tuiles/") < 0; });
 		return {
-			"name": name,
+			"name": "pean",
 			"modelScripts": modelScripts,
 			"config": {
 				"status": true,
 				"model": {
-					"title-en": "Pean – " + title.en,
+					"title-en": "Pean",
 					"title": {
-						"en": "Pean – " + title.en,
-						"fr": "Péan – " + title.fr
+						"en": "Pean",
+						"fr": "Péan"
 					},
 					"summary": {
-						"en": scenario.resume ? scenario.resume.en : "Hex wargame of Greek antiquity",
-						"fr": scenario.resume ? scenario.resume.fr : "Wargame à hexagones de l’Antiquité grecque"
+						"en": "Hex wargame of Greek antiquity: Plataea, Laurium, Leuctra or a free battle",
+						"fr": "Wargame à hexagones de l’Antiquité grecque : Platées, le Laurion, Leuctres ou une bataille libre"
 					},
 					"rules": {
 						"en": "rules.html",
@@ -142,7 +150,7 @@ exports.games = (function () {
 						"en": "credits.html",
 						"fr": "credits-fr.html"
 					},
-					"thumbnail": thumbnail,
+					"thumbnail": "thumbnail.png",
 					"module": "pean",
 					"plazza": "true",
 					"js": modelScripts,
@@ -153,7 +161,24 @@ exports.games = (function () {
 						// une position repetee n'est pas une nulle
 						"preventRepeat": false,
 						"placementCandidates": 6,
-						"scenario": scenario,
+						// les batailles, et celle de depart (montree pendant le prelude)
+						"scenarios": scenarios,
+						"scenario": scenarios[0],
+						/*
+						 * Le choix de la bataille, premier coup de la partie
+						 * (« #k »), puis une etape vide (« -- ») qui rend la main :
+						 * le moteur inverse le trait apres chaque coup, et c'est
+						 * le premier camp qui doit jouer ensuite. Meme convention
+						 * que go/index.js et checkers/index.js. Pas de
+						 * `persistent` : on choisit a chaque partie.
+						 */
+						"prelude": [
+							{
+								"labels": SCENARIOS.map(function (s) { return s[2]; }),
+								"thumbnails": SCENARIOS.map(function (s) { return s[1]; })
+							},
+							0
+						],
 						"levelOptions": {
 							"candidates": 18
 						}
@@ -184,13 +209,13 @@ exports.games = (function () {
 							// emblemes de 0 A.D. (CC BY-SA 3.0) : voir les credits
 							"name": "tuiles",
 							"title": "Tuiles (2D)",
-							"preload": tileImages().concat(insigniaImages(scenario))
+							"preload": preload
 						},
 						{
 							// tuiles, et pions carres de wargame
 							"name": "wargame",
 							"title": "Wargame (2D)",
-							"preload": tileImages().concat(insigniaImages(scenario))
+							"preload": preload
 						},
 						{
 							// les emblemes de 0 A.D. pour boucliers (CC BY-SA 3.0),
@@ -198,7 +223,7 @@ exports.games = (function () {
 							// res/images/, voir les credits ; fonds de couleur
 							"name": "insignes",
 							"title": "Insignes (2D)",
-							"preload": insigniaImages(scenario)
+							"preload": insignia
 						},
 						{
 							// carte d'etat-major, papier clair
@@ -213,5 +238,5 @@ exports.games = (function () {
 		};
 	}
 
-	return SCENARIOS.map(function (s) { return game(s[0], s[1], s[2]); });
+	return [game()];
 })();

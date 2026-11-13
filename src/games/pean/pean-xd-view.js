@@ -97,6 +97,9 @@
 		fr: {
 			toPlay: "au trait", deploy: "déploiement", turn: "Tour", of: "sur",
 			orders: "Ordres", combats: "Combats", points: "Points", losses: "Pertes",
+			preludeTitle: "Choix de la bataille",
+			preludeHint: "Choisissez la bataille à livrer. Le panneau rappellera ensuite ses conditions de victoire.",
+			preludeWait: "L’adversaire choisit la bataille.",
 			deployHint: "Choisissez un type d’unité, puis un hexagone de votre zone (en clair). Un clic sur une unité posée la reprend. Un général au moins.",
 			budget: "Budget", auto: "Placement automatique", clear: "Tout retirer", endDeploy: "Fin du déploiement",
 			moveHint: "Cliquez une unité, puis sa destination. Un ordre active une unité ou un groupe contigu de même type. Cliquez une cible ennemie pour préparer un combat : les mouvements sont alors terminés.",
@@ -137,6 +140,9 @@
 		en: {
 			toPlay: "to move", deploy: "deployment", turn: "Turn", of: "of",
 			orders: "Orders", combats: "Combats", points: "Points", losses: "Losses",
+			preludeTitle: "Choose the battle",
+			preludeHint: "Choose the battle to fight. The panel will then show its victory conditions.",
+			preludeWait: "The opponent is choosing the battle.",
 			deployHint: "Pick a unit type, then a hex of your zone (highlighted). Click a placed unit to take it back. At least one general.",
 			budget: "Budget", auto: "Automatic deployment", clear: "Remove all", endDeploy: "Deployment done",
 			moveHint: "Click a unit, then its destination. An order activates one unit or a contiguous group of the same type. Click an enemy target to prepare a combat: movement is then over.",
@@ -987,9 +993,11 @@
 		var L = ui.L, st = ui.state, ov = ui.overlay;
 		ctx.save();
 		ctx.translate(-L.cx, -L.cy);
+		var types = ui.game.g.ctx.types;
 		for (var i = 0; i < st.u.length; i++) {
 			var u = st.u[i];
-			if (u.h < 0) continue;
+			// un etat d'une autre bataille, le temps d'un changement de scenario
+			if (u.h < 0 || !types[u.t] || u.h >= ui.game.g.ctx.N) continue;
 			drawUnit(ctx, u, hexXY(u.h), L.R, ov.ordered.indexOf(i) >= 0 && ui.dimOrdered, avatar);
 		}
 		// fantome du groupe a sa destination survolee
@@ -1218,6 +1226,11 @@
 
 	function idlePanel(board, aGame) {
 		var T = lang(), html;
+		if (board.preludeStage >= 0) {
+			setPanel('<div class="pean-scenario">' + esc(T.preludeTitle) + '</div><div class="pean-hint">' +
+				esc(T.preludeWait) + '</div><div class="pean-info"></div>');
+			return;
+		}
 		if (board.over || board.mFinished) {
 			var winner = board.over || 2;
 			html = '<div class="pean-scenario">' + esc(loc(aGame.g.ctx.scenario.titre)) + "</div>" +
@@ -1305,7 +1318,7 @@
 	View.Game.xdInit = function (xdv) {
 		var game = this, rc = this.g.ctx;
 		ui = {
-			xdv: xdv, game: game, L: layout(rc), fullPath: this.mViewOptions.fullPath, images: {},
+			xdv: xdv, game: game, L: layout(rc), ctx: rc, fullPath: this.mViewOptions.fullPath, images: {},
 			state: null, board: null, overlay: emptyOverlay(), hover: -1, dimOrdered: true,
 			panelEl: null, panelBody: null, panelHtml: "", infoHtml: "",
 			controller: null, click: null, lastTurn: null
@@ -1325,7 +1338,8 @@
 					if (element.data("pean")) return;
 					element.data("pean", true);
 					function hexOf(event) {
-						var rect = element[0].getBoundingClientRect();
+						// ui.L et non L : la carte change de taille avec le scenario (prelude)
+						var rect = element[0].getBoundingClientRect(), L = ui.L;
 						var x = L.cx - L.cw / 2 + (event.clientX - rect.left) / rect.width * L.cw;
 						var y = L.cy - L.ch / 2 + (event.clientY - rect.top) / rect.height * L.ch;
 						return hexAtPoint(x, y);
@@ -1343,6 +1357,7 @@
 				}
 			}
 		});
+		createPrelude(xdv, game);
 		xdv.createGadget("panel", {
 			"2d": {
 				type: "element", x: PANEL_X, y: 0, z: 1, width: PANEL_W, height: BOX_H,
@@ -1375,6 +1390,67 @@
 		});
 	};
 
+	/* ---------- prelude : le choix de la bataille ---------- */
+
+	/*
+	 * Le jeu « Péan » (gameOptions.scenarios) commence par le choix de la
+	 * bataille : une vignette par scenario, et dessous son nom en grec,
+	 * capitales d'inscription (la langue du jeu, et un mot que personne n'a a
+	 * traduire). Le titre dans la langue du joueur est dans l'infobulle. Un
+	 * element HTML par-dessus la carte, pas des gadgets canvas : des <img>
+	 * et un clic, rien a dessiner.
+	 */
+	function createPrelude(xdv, game) {
+		var dialog = (game.mOptions.prelude || [])[0];
+		if (!dialog || !game.mOptions.scenarios) return;
+		var w = BOX_X1 - BOX_X0, h = BOX_H;
+		xdv.createGadget("prelude", {
+			"2d": {
+				type: "element", x: (BOX_X0 + BOX_X1) / 2, y: 0, z: 8, width: w, height: h,
+				initialClasses: "pean-prelude",
+				display: function (element, width) {
+					element.css("font-size", (width / 40) + "px");
+					if (element.data("pean")) return;
+					element.data("pean", true);
+					var list = game.mOptions.scenarios, html = '<div class="pean-prelude-grid">';
+					list.forEach(function (sc, k) {
+						var title = sc.titre ? loc(sc.titre) : sc.id;
+						html += '<div class="pean-prelude-choice" data-setup="' + k + '" title="' + esc(title) + '">' +
+							'<img alt="" src="' + esc(ui.fullPath + "/" + (dialog.thumbnails || [])[k]) + '">' +
+							'<div class="pean-prelude-name">' + esc((dialog.labels || [])[k] || title) + "</div></div>";
+					});
+					element.html(html + "</div>");
+					element.on("click", "[data-setup]", function () {
+						if (ui && ui.prelude) ui.prelude(parseInt(jQuery(this).attr("data-setup"), 10));
+					});
+				}
+			}
+		});
+	}
+
+	// la carte a la taille du scenario du plateau montre
+	function ensureLayout(aGame, board) {
+		if (!ui) return;
+		var rc = aGame.peanContextOf ? aGame.peanContextOf(board) : aGame.g.ctx;
+		if (ui.ctx === rc) return;
+		ui.ctx = rc;
+		ui.L = layout(rc);
+		// l'etat montre jusque-la est celui d'une autre bataille
+		ui.state = board;
+		ui.overlay = emptyOverlay();
+		ui.lastTurn = null;
+		var L = ui.L;
+		["board", "units", "marks", "input"].forEach(function (id) {
+			ui.xdv.updateGadget(id, { "2d": { x: L.cx, y: L.cy, width: L.cw, height: L.ch } });
+		});
+		redraw();
+	}
+
+	function showPrelude(visible) {
+		if (ui && ui.xdv.gadgets.prelude)
+			ui.xdv.updateGadget("prelude", { base: { visible: !!visible } });
+	}
+
 	/* ---------- affichage ---------- */
 
 	function lastTurnOverlay(board) {
@@ -1390,6 +1466,8 @@
 		if (!ui) return;
 		ui.game = aGame;
 		ui.board = this;
+		ensureLayout(aGame, this);
+		showPrelude(this.preludeStage >= 0);
 		ui.overlay = lastTurnOverlay(this);
 		ui.hover = -1;
 		ui.infoHtml = "";
@@ -1413,10 +1491,19 @@
 	 */
 	View.Board.xdPlayedMove = function (xdv, aGame, aMove) {
 		if (!ui) return true;
-		var R = aGame.g.rules, rc = aGame.g.ctx, board = this, old = aGame.mOldBoard;
 		function shown() { if (aGame.MoveShown) aGame.MoveShown(); }
 		ui.game = aGame;
 		ui.overlay = emptyOverlay();
+		if (aMove && (aMove.setup !== undefined || aMove.skip)) {
+			// prelude : rien ne bouge, la carte change peut-etre
+			ensureLayout(aGame, this);
+			showPrelude(this.preludeStage >= 0);
+			render(this);
+			setTimeout(shown, 50);
+			return false;
+		}
+		ensureLayout(aGame, this);
+		var R = aGame.g.rules, rc = aGame.g.ctx, board = this, old = aGame.mOldBoard;
 		if (!old || old.phase < 2 || aMove.p) {
 			render(board);
 			setTimeout(shown, 50);
@@ -1470,6 +1557,7 @@
 	/* ---------- saisie ---------- */
 
 	View.Board.xdBuildHTStateMachine = function (xdv, htsm, aGame) {
+		ensureLayout(aGame, this);
 		var board = this, R = aGame.g.rules, AI = aGame.g.ai, rc = aGame.g.ctx, who = this.mWho;
 		var controller = null;
 
@@ -1791,10 +1879,44 @@
 			refresh();
 		}
 
+		/* --- prelude : le choix de la bataille --- */
+		function Prelude() {
+			var T = lang(), dialog = aGame.mOptions.prelude[board.preludeStage];
+			this.turn = null;
+			this.click = function () { };
+			this.act = function () { };
+			ui.overlay = emptyOverlay();
+			render(board);
+			if (!dialog) {
+				// etape vide : elle rend la main, sans rien demander
+				ui.prelude = null;
+				showPrelude(false);
+				setTimeout(function () { if (ui && ui.controller === controller) send({ skip: 1 }); }, 0);
+				return;
+			}
+			setPanel('<div class="pean-scenario">' + esc(T.preludeTitle) + '</div><div class="pean-hint">' +
+				esc(T.preludeHint) + '</div><div class="pean-info"></div>');
+			showPrelude(true);
+			ui.prelude = function (k) {
+				var move = { setup: k };
+				if (!board.IsValidMove(aGame, move)) return;
+				ui.prelude = null;
+				showPrelude(false);
+				send(move);
+			};
+		}
+
 		function Init() {
 			if (!ui) return;
 			ui.game = aGame;
 			ui.board = board;
+			if (board.preludeStage >= 0) {
+				ui.controller = controller = {};
+				Prelude.call(controller);
+				ui.click = null;
+				return;
+			}
+			showPrelude(false);
 			controller = board.phase < 2 ? new Deployment() : new Play();
 			ui.controller = controller;
 			ui.click = function (h) { controller.click(h); };
@@ -1802,6 +1924,7 @@
 		function Clean() {
 			if (ui && ui.controller === controller) {
 				ui.click = null;
+				ui.prelude = null;
 				ui.controller = null;
 			}
 		}
