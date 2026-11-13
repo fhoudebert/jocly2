@@ -1,0 +1,54 @@
+<style>
+.pean-rules table { border-collapse: collapse; margin: 0.5em 0; }
+.pean-rules td, .pean-rules th { border: 1px solid #b9a07e; padding: 2px 6px; }
+</style>
+<div class="pean-rules">
+<h3>Object</h3>
+<p>Two armies of Greek antiquity fight on a hex map. No dice: combat is resolved by a fixed table, and the only uncertainty is your opponent. The game ends when an army has lost <b>half its value</b> (it breaks), when an army is wiped out, or after the scenario's last turn: <b>points</b> are then counted.</p>
+
+<h3>The turn</h3>
+<p>On its turn a side gives <b>orders</b>, then fights <b>combats</b>. It has 4 orders, plus 1 per general in play (a scenario may change these numbers). An order activates one unit, or a <b>group</b>: contiguous units of the same type, which move together and keep their formation. A unit receives at most one order per turn. Once a combat is fought, no more movement.</p>
+
+<h3>Movement</h3>
+<p>Each unit has a movement allowance; each hex costs according to its terrain. Friendly units may be passed through; one unit per hex.</p>
+<table>
+<tr><th>Terrain</th><th>Cost (foot / mounted)</th><th>Defence</th></tr>
+<tr><td>Plain, town, camp</td><td>1 / 1</td><td>×1 (town, camp ×2)</td></tr>
+<tr><td>Road (road to road)</td><td>½</td><td>×1</td></tr>
+<tr><td>Hill</td><td>2 / 2</td><td>×1.5 – no charge</td></tr>
+<tr><td>Forest, marsh</td><td>2 / 3</td><td>×1.5 – no charge, phalanx disordered</td></tr>
+<tr><td>Mountain, sea</td><td>impassable</td><td>blocks missile fire</td></tr>
+<tr><td>River / ford hexside</td><td>+2 / +1</td><td>attack across ×½; a river cuts zones of control</td></tr>
+</table>
+<p><b>Light</b> units never pay more than 1 per hex.</p>
+
+<h3>Zones of control</h3>
+<p>The six hexes around a unit are its zone of control (not across a river). A unit entering an enemy zone stops there. A unit starting its turn in an enemy zone is <b>engaged</b>: it cannot move, except light cavalry, which may disengage (but not move directly from one enemy zone to another). An engaged phalanx may still pivot.</p>
+
+<h3>Combat</h3>
+<p>Several units may attack the same enemy together; a unit attacks and is attacked at most once per turn. Divide the total attack by the defence (terrain included), rounding in the defender's favour:</p>
+<table>
+<tr><th>Odds</th><th>Result</th></tr>
+<tr><td>below 1:1</td><td>attack not allowed</td></tr>
+<tr><td>1:1</td><td>exchange: each side loses one step</td></tr>
+<tr><td>3:2</td><td>defender retreats one hex (if it cannot, it loses a step)</td></tr>
+<tr><td>2:1</td><td>defender loses a step and retreats</td></tr>
+<tr><td>3:1 or more</td><td>defender eliminated</td></tr>
+</table>
+<p>Each unit has two <b>steps</b>: reduced, its strength is halved (rounded up). Retreats are automatic, towards the side's own map edge, onto a free hex outside enemy zones of control. An attacker in contact may <b>advance</b> into the vacated hex. A scenario may supply its own table.</p>
+
+<h3>Abilities</h3>
+<ul>
+<li><b>Missile</b> (archers, slingers, horse archers): attacks a target exactly 2 hexes away, if an intermediate hex is empty and does not block sight. Missile units never lose steps when attacking; on their own their result never exceeds a retreat. They do not fight in contact.</li>
+<li><b>Charge</b> (heavy cavalry): after a run of at least 3 hexes in a straight line its strength is doubled against an adjacent target — never against a phalanx from the front, uphill, into forest or marsh, or across a river.</li>
+<li><b>Phalanx</b>: +1 for each friendly phalanx lined up directly behind it along the axis of the combat (+2 at most), in attack and defence — except in forest or marsh. With the <i>facing</i> option a phalanx has a front (three sides, shown by a chevron): attacked in flank or rear, its defence is halved. It faces the direction of its last step; changing facing costs 1 movement point.</li>
+<li><b>General</b>: gives one more order while in play; losing him is costly.</li>
+</ul>
+
+<h3>Victory</h3>
+<p>A side's points = value of destroyed enemy units (a lost step counts pro rata) + points of the objectives it controls (last side to occupy it). An objective marked "for" a side scores only for that side. A margin at or below the scenario's threshold is a draw.</p>
+
+<h3>Input</h3>
+<p>Click a unit, then its destination (highlighted hexes; hover to see the path). "Whole line" selects the contiguous group of the same type; "Group" lets you add or remove a unit by clicking it. For a phalanx, pick its facing on arrival, or "Pivot in place". Click an enemy unit framed in red to prepare a combat: the odds and the result are shown before you resolve it; click your units to adjust the attackers. "End turn" sends everything.</p>
+<p>Notation: <code>D11-D8</code> order, <code>8:D11-D8</code> group of 8, <code>D9/NE</code> pivot, <code>3xE7+</code> three attackers on E7, advancing.</p>
+</div>

@@ -1,0 +1,266 @@
+{
+ "id": "leuctres-371",
+ "titre": {
+  "fr": "Leuctres, 371 av. J.-C.",
+  "en": "Leuctra, 371 BC"
+ },
+ "resume": {
+  "fr": "Épaminondas masse sa gauche sur cinquante rangs face aux Spartiates et refuse sa droite : l’ordre oblique.",
+  "en": "Epaminondas masses his left fifty ranks deep against the Spartiates and refuses his right: the oblique order."
+ },
+ "carte": {
+  "cols": 24,
+  "rows": 16,
+  "lignes": [
+   "ccccc......k.......ccccc",
+   "ccc................ccccc",
+   "c.....................cc",
+   "........................",
+   "........................",
+   "........................",
+   "...............ff.......",
+   "..............fff.......",
+   "........................",
+   "........................",
+   "........................",
+   "........................",
+   "c.....................cc",
+   "cc...................ccc",
+   "cccc.................ccc",
+   "ccccc......k.......ccccc"
+  ]
+ },
+ "types": {
+  "bataillonSacre": {
+   "code": "Bs",
+   "force": 7,
+   "mvt": 3,
+   "pas": 2,
+   "cout": 30,
+   "traits": [
+    "phalange"
+   ],
+   "nom": {
+    "fr": "Bataillon sacré",
+    "en": "Sacred Band"
+   }
+  },
+  "spartiate": {
+   "code": "Sp",
+   "force": 7,
+   "mvt": 3,
+   "pas": 2,
+   "cout": 30,
+   "traits": [
+    "phalange"
+   ],
+   "nom": {
+    "fr": "Spartiates",
+    "en": "Spartiates"
+   }
+  },
+  "general": {
+   "cout": 40
+  }
+ },
+ "camps": {
+  "A": {
+   "nom": {
+    "fr": "Thébains",
+    "en": "Thebans"
+   },
+   "bord": "sud",
+   "unites": [
+    {
+     "type": "bataillonSacre",
+     "hex": "1,10",
+     "nom": "Pélopidas"
+    },
+    {
+     "type": "hoplite",
+     "hex": "2,10"
+    },
+    {
+     "type": "hoplite",
+     "hex": "3,10"
+    },
+    {
+     "type": "hoplite",
+     "hex": "4,10"
+    },
+    {
+     "type": "hoplite",
+     "hex": "2,11"
+    },
+    {
+     "type": "hoplite",
+     "hex": "3,11"
+    },
+    {
+     "type": "hoplite",
+     "hex": "4,11"
+    },
+    {
+     "type": "hoplite",
+     "hex": "2,12"
+    },
+    {
+     "type": "hoplite",
+     "hex": "3,12"
+    },
+    {
+     "type": "hoplite",
+     "hex": "4,12"
+    },
+    {
+     "type": "hoplite",
+     "hex": "7,12"
+    },
+    {
+     "type": "hoplite",
+     "hex": "8,12"
+    },
+    {
+     "type": "hoplite",
+     "hex": "9,13"
+    },
+    {
+     "type": "cavlourde",
+     "hex": "2,9"
+    },
+    {
+     "type": "cavlourde",
+     "hex": "3,9"
+    },
+    {
+     "type": "cavlourde",
+     "hex": "4,9"
+    },
+    {
+     "type": "peltaste",
+     "hex": "11,13"
+    },
+    {
+     "type": "peltaste",
+     "hex": "12,13"
+    },
+    {
+     "type": "general",
+     "hex": "3,13",
+     "nom": "Épaminondas"
+    }
+   ]
+  },
+  "B": {
+   "nom": {
+    "fr": "Spartiates",
+    "en": "Spartans"
+   },
+   "bord": "nord",
+   "unites": [
+    {
+     "type": "spartiate",
+     "hex": "2,4"
+    },
+    {
+     "type": "spartiate",
+     "hex": "3,4"
+    },
+    {
+     "type": "spartiate",
+     "hex": "4,4"
+    },
+    {
+     "type": "hoplite",
+     "hex": "5,4"
+    },
+    {
+     "type": "hoplite",
+     "hex": "6,4"
+    },
+    {
+     "type": "hoplite",
+     "hex": "7,4"
+    },
+    {
+     "type": "hoplite",
+     "hex": "8,4"
+    },
+    {
+     "type": "hoplite",
+     "hex": "9,4"
+    },
+    {
+     "type": "hoplite",
+     "hex": "10,4"
+    },
+    {
+     "type": "hoplite",
+     "hex": "11,4"
+    },
+    {
+     "type": "hoplite",
+     "hex": "12,4"
+    },
+    {
+     "type": "hoplite",
+     "hex": "13,4"
+    },
+    {
+     "type": "cavlegere",
+     "hex": "2,5"
+    },
+    {
+     "type": "cavlegere",
+     "hex": "3,5"
+    },
+    {
+     "type": "cavlegere",
+     "hex": "4,5"
+    },
+    {
+     "type": "peltaste",
+     "hex": "14,4"
+    },
+    {
+     "type": "peltaste",
+     "hex": "15,4"
+    },
+    {
+     "type": "general",
+     "hex": "3,3",
+     "nom": "Cléombrote"
+    }
+   ]
+  }
+ },
+ "premierJoueur": "A",
+ "ordres": {
+  "base": 4,
+  "parGeneral": 1
+ },
+ "objectifs": [
+  {
+   "hex": "11,0",
+   "camp": "B",
+   "pour": "A",
+   "points": 30,
+   "nom": "camp spartiate"
+  },
+  {
+   "hex": "11,15",
+   "camp": "A",
+   "pour": "B",
+   "points": 30,
+   "nom": "camp thébain"
+  }
+ ],
+ "tours": 12,
+ "options": [
+  "orientation",
+  "profondeur",
+  "charge"
+ ],
+ "rupture": 0.5,
+ "nulle": 10
+}

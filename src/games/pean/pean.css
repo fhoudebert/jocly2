@@ -1,0 +1,192 @@
+/* Péan - vue 2D */
+
+.pean-input {
+	cursor: pointer;
+	background-color: rgba(255,255,255,0);
+	-webkit-tap-highlight-color: transparent;
+}
+
+.pean-panel {
+	box-sizing: border-box;
+	background-color: #f1dcc0;
+	border: 0.14em solid #2a1a12;
+	border-radius: 0.25em;
+	color: #2a1a12;
+	font-family: "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+	line-height: 1.3;
+	overflow: hidden;
+	text-align: left;
+	/* frise de grecques en tete du panneau */
+	background-image: repeating-linear-gradient(90deg, #2a1a12 0 0.18em, transparent 0.18em 0.6em);
+	background-size: 100% 0.25em;
+	background-repeat: no-repeat;
+}
+
+.pean-panel[data-skin="carte"] {
+	background-color: #f1ead6;
+	border-color: #5d4a2d;
+	color: #3b3122;
+}
+
+.pean-body {
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	padding: 0.7em 0.6em;
+	overflow-y: auto;
+}
+
+.pean-scenario {
+	font-size: 0.8em;
+	font-variant: small-caps;
+	letter-spacing: 0.08em;
+	opacity: 0.85;
+}
+
+.pean-title {
+	font-size: 1.3em;
+	font-weight: bold;
+	font-variant: small-caps;
+}
+
+.pean-sideA { color: #a3271f; }
+.pean-sideB { color: #1f3f73; }
+
+.pean-sub {
+	font-size: 0.85em;
+	margin-bottom: 0.3em;
+	opacity: 0.85;
+}
+
+.pean-score {
+	font-size: 0.8em;
+	margin-bottom: 0.4em;
+}
+
+.pean-status {
+	border-top: 0.06em solid #9b6a45;
+	border-bottom: 0.06em solid #9b6a45;
+	margin: 0.2em 0 0.4em;
+	padding: 0.3em 0;
+}
+
+.pean-label {
+	font-size: 0.78em;
+	letter-spacing: 0.06em;
+	margin-top: 0.4em;
+	text-transform: uppercase;
+}
+
+.pean-move {
+	font-family: "Courier New", monospace;
+	font-size: 0.8em;
+	overflow-wrap: anywhere;
+}
+
+.pean-hint {
+	font-size: 0.82em;
+	font-style: italic;
+	margin: 0.2em 0 0.4em;
+}
+
+.pean-alert {
+	color: #a3271f;
+	font-style: normal;
+	font-weight: bold;
+}
+
+.pean-combat {
+	background: rgba(255,255,255,0.45);
+	border-left: 0.2em solid #a3271f;
+	font-size: 0.85em;
+	margin: 0.2em 0 0.4em;
+	padding: 0.3em 0.4em;
+}
+
+.pean-att { color: #a3271f; font-weight: bold; }
+.pean-def { color: #1d6b3a; font-weight: bold; }
+
+.pean-info {
+	flex: 1 1 auto;
+	font-size: 0.8em;
+	margin-top: 0.3em;
+	min-height: 4em;
+}
+
+.pean-buttons, .pean-dirs {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.3em;
+	margin: 0.2em 0;
+}
+
+.pean-button {
+	background: #2a1a12;
+	border-radius: 0.2em;
+	color: #f3d2ae;
+	cursor: pointer;
+	font-size: 0.85em;
+	padding: 0.25em 0.55em;
+	user-select: none;
+}
+
+.pean-dirs .pean-button {
+	font-size: 0.75em;
+	min-width: 1.8em;
+	padding: 0.2em 0.35em;
+	text-align: center;
+}
+
+.pean-button.pean-light {
+	background: transparent;
+	border: 0.06em solid #2a1a12;
+	color: #2a1a12;
+}
+
+.pean-button.pean-selected {
+	background: #c8763f;
+	border: 0.06em solid #2a1a12;
+	color: #1d1410;
+}
+
+.pean-button.pean-call {
+	background: #a3271f;
+	color: #fff4e6;
+}
+
+.pean-button.pean-disabled {
+	cursor: default;
+	opacity: 0.4;
+}
+
+.pean-reserve {
+	display: flex;
+	flex-direction: column;
+	gap: 0.15em;
+	margin-bottom: 0.3em;
+}
+
+.pean-unit {
+	border: 0.06em solid rgba(42,26,18,0.35);
+	border-radius: 0.2em;
+	cursor: pointer;
+	display: flex;
+	font-size: 0.82em;
+	justify-content: space-between;
+	padding: 0.15em 0.4em;
+}
+
+.pean-unit.pean-selected {
+	background: #c8763f;
+	border-color: #2a1a12;
+}
+
+.pean-unit.pean-disabled {
+	cursor: default;
+	opacity: 0.4;
+}
+
+.pean-count {
+	font-family: "Courier New", monospace;
+}

@@ -1,0 +1,54 @@
+<style>
+.pean-rules table { border-collapse: collapse; margin: 0.5em 0; }
+.pean-rules td, .pean-rules th { border: 1px solid #b9a07e; padding: 2px 6px; }
+</style>
+<div class="pean-rules">
+<h3>But du jeu</h3>
+<p>Deux armées de l’Antiquité grecque s’affrontent sur une carte à hexagones. Pas de dé : un combat se résout par une table fixe, l’incertitude ne vient que de l’adversaire. La partie s’arrête quand une armée a perdu la <b>moitié de sa valeur</b> (elle est rompue), quand une armée est anéantie, ou au dernier tour du scénario : on compte alors les <b>points</b>.</p>
+
+<h3>Le tour</h3>
+<p>À son tour, un camp donne des <b>ordres</b>, puis livre des <b>combats</b>. Il dispose de 4 ordres, plus 1 par général en jeu (le scénario peut changer ces nombres). Un ordre active une unité, ou un <b>groupe</b> : des unités contiguës du même type, qui se déplacent ensemble en gardant leur formation. Une unité ne reçoit qu’un ordre par tour. Dès qu’un combat est livré, plus aucun mouvement.</p>
+
+<h3>Mouvement</h3>
+<p>Chaque unité a un potentiel de mouvement ; chaque hexagone coûte selon son terrain. Les unités amies se traversent ; une seule unité par hexagone.</p>
+<table>
+<tr><th>Terrain</th><th>Coût (pied / monté)</th><th>Défense</th></tr>
+<tr><td>Plaine, ville, camp</td><td>1 / 1</td><td>×1 (ville, camp ×2)</td></tr>
+<tr><td>Route (d’une route à une route)</td><td>½</td><td>×1</td></tr>
+<tr><td>Colline</td><td>2 / 2</td><td>×1,5 – pas de charge</td></tr>
+<tr><td>Forêt, marais</td><td>2 / 3</td><td>×1,5 – pas de charge, phalange désordonnée</td></tr>
+<tr><td>Montagne, mer</td><td>infranchissable</td><td>bloque le tir</td></tr>
+<tr><td>Côté rivière / gué</td><td>+2 / +1</td><td>attaque à travers ×½ ; la rivière coupe la zone de contrôle</td></tr>
+</table>
+<p>Les unités <b>légères</b> ne paient jamais plus de 1 par hexagone.</p>
+
+<h3>Zones de contrôle</h3>
+<p>Les six hexagones autour d’une unité forment sa zone de contrôle (sauf à travers une rivière). Une unité qui entre dans une zone ennemie s’y arrête. Une unité qui commence son tour dans une zone ennemie est <b>engagée</b> : elle ne bouge pas, sauf la cavalerie légère, qui peut se désengager (mais pas passer directement d’une zone ennemie à une autre). Une phalange engagée peut encore pivoter.</p>
+
+<h3>Combat</h3>
+<p>Plusieurs unités peuvent attaquer ensemble un même ennemi ; une unité n’attaque et n’est attaquée qu’une fois par tour. On divise la somme des attaques par la défense (terrain compris), en arrondissant en faveur du défenseur :</p>
+<table>
+<tr><th>Rapport</th><th>Résultat</th></tr>
+<tr><td>moins de 1:1</td><td>attaque interdite</td></tr>
+<tr><td>1:1</td><td>échange : un pas perdu de chaque côté</td></tr>
+<tr><td>3:2</td><td>le défenseur recule d’un hexagone (s’il ne peut pas, il perd un pas)</td></tr>
+<tr><td>2:1</td><td>le défenseur perd un pas et recule</td></tr>
+<tr><td>3:1 et plus</td><td>le défenseur est éliminé</td></tr>
+</table>
+<p>Chaque unité a deux <b>pas</b> : entamée, sa force est divisée par deux (arrondie au supérieur). Le recul se fait automatiquement vers le bord de son camp, sur un hexagone libre hors zone de contrôle ennemie. Un attaquant au contact peut <b>avancer</b> dans l’hexagone libéré. Un scénario peut fournir sa propre table.</p>
+
+<h3>Capacités</h3>
+<ul>
+<li><b>Tir</b> (archers, frondeurs, archers montés) : attaque une cible à exactement 2 hexagones, si un hexagone intermédiaire est libre et ne bloque pas la vue. Le tireur ne perd jamais de pas ; seul, son résultat ne dépasse pas le recul. Les tireurs ne combattent pas au contact.</li>
+<li><b>Charge</b> (cavalerie lourde) : après une course d’au moins 3 hexagones en ligne droite, sa force est doublée contre une cible adjacente — jamais contre une phalange de face, ni en montée, ni en forêt ou au marais, ni à travers une rivière.</li>
+<li><b>Phalange</b> : +1 par phalange amie alignée directement derrière elle, dans l’axe du combat (+2 au plus), en attaque comme en défense — sauf en forêt ou au marais. Avec l’option <i>orientation</i>, une phalange a un front (trois côtés, marqué d’un chevron) : attaquée de flanc ou de dos, sa défense est divisée par deux. Elle prend la direction de son dernier pas ; changer d’orientation coûte 1 point de mouvement.</li>
+<li><b>Général</b> : donne un ordre de plus tant qu’il est en jeu ; sa perte coûte cher.</li>
+</ul>
+
+<h3>Victoire</h3>
+<p>Points d’un camp = valeur des unités ennemies détruites (un pas perdu compte au prorata) + points des objectifs qu’il contrôle (le dernier camp à l’avoir occupé). Un objectif marqué « pour » un camp ne rapporte qu’à celui-ci. Écart inférieur ou égal au seuil du scénario : partie nulle.</p>
+
+<h3>Saisie</h3>
+<p>Cliquez une unité, puis sa destination (hexagones éclairés ; le chemin s’affiche au survol). « Toute la ligne » sélectionne le groupe contigu de même type ; « Groupe » permet d’ajouter ou retirer une unité au clic. Pour une phalange, choisissez l’orientation à l’arrivée, ou « Pivoter sur place ». Cliquez une unité ennemie encadrée de rouge pour préparer un combat : le rapport et le résultat s’affichent avant que vous ne le livriez ; cliquez vos unités pour ajuster les attaquants. « Fin du tour » envoie le tout.</p>
+<p>Notation : <code>D11-D8</code> ordre, <code>8:D11-D8</code> groupe de 8, <code>D9/NE</code> pivot, <code>3xE7+</code> trois attaquants sur E7, avec avance.</p>
+</div>
