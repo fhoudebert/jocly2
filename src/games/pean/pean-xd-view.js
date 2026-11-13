@@ -51,8 +51,16 @@
 		}
 	};
 
-	// « insignes » : la palette attique, avec les emblemes de 0 A.D. pour boucliers
-	PALETTES.insignes = PALETTES.attique;
+	// « insignes » : la palette attique, avec les emblemes de 0 A.D. pour boucliers et
+	// les pictogrammes blancs de Wesnoth pour les terrains : fonds plus soutenus
+	PALETTES.insignes = Object.assign({}, PALETTES.attique, {
+		foret: "#6f7a3a", marais: "#7d8a63", montagne: "#6d3f25", mer: "#2b5674",
+		colline: "#b07a45", ville: "#8a6446", camp: "#7a5638"
+	});
+
+	// pictogrammes de terrain de la skin « insignes » (res/images/terrain/)
+	var TERRAIN_ICONS = { foret: "foret", marais: "marais", montagne: "montagne", mer: "mer",
+		colline: "colline", ville: "ville", camp: "camp" };
 
 	var TEXT = {
 		fr: {
@@ -175,7 +183,7 @@
 	}
 
 	// une image de la skin, chargee une fois ; le dessin est relance a l'arrivee
-	function withImage(avatar, url, draw) {
+	function withImage(avatar, url, draw, gadgets) {
 		var image = ui.images[url];
 		if (image) {
 			draw(image);
@@ -185,7 +193,7 @@
 			ui.images[url] = null;
 			avatar.getResource("image|" + url, function (loaded) {
 				ui.images[url] = loaded;
-				setTimeout(function () { redraw(["units"]); }, 0);
+				setTimeout(function () { redraw(gadgets || ["units"]); }, 0);
 			});
 		}
 		return false;
@@ -311,8 +319,18 @@
 		ctx.fillRect(x + BAND, y + BAND, w - 2 * BAND, h - 2 * BAND);
 	}
 
-	// petits motifs de terrain, au trait
-	function terrainGlyph(ctx, name, x, y, R, P, seed) {
+	// petits motifs de terrain, au trait ; pictogrammes de Wesnoth en skin « insignes »
+	function terrainGlyph(ctx, name, x, y, R, P, seed, avatar) {
+		if (avatar && insignia() && TERRAIN_ICONS[name] &&
+				withImage(avatar, imageUrl("terrain", TERRAIN_ICONS[name]), function (image) {
+					ctx.save();
+					ctx.imageSmoothingEnabled = false;
+					ctx.globalAlpha = 0.9;
+					var size = R * 1.1;
+					ctx.drawImage(image, x - size / 2, y - size / 2, size, size);
+					ctx.restore();
+				}, ["board"]))
+			return;
 		ctx.save();
 		ctx.strokeStyle = P.ink;
 		ctx.fillStyle = P.ink;
@@ -400,7 +418,7 @@
 
 	function drawBoard(ctx) {
 		if (!ui) return;
-		var game = ui.game, rc = game.g.ctx, L = ui.L, P = pal();
+		var avatar = this, game = ui.game, rc = game.g.ctx, L = ui.L, P = pal();
 		ctx.save();
 		ctx.translate(-L.cx, -L.cy);
 		drawFrame(ctx, L, P);
@@ -433,7 +451,7 @@
 		ctx.stroke();
 		for (h = 0; h < rc.N; h++) {
 			xy = hexXY(h);
-			terrainGlyph(ctx, rc.terrainNames[rc.terr[h]], xy[0], xy[1], R, P, h);
+			terrainGlyph(ctx, rc.terrainNames[rc.terr[h]], xy[0], xy[1], R, P, h, avatar);
 		}
 		// quadrillage
 		ctx.strokeStyle = P.grid;

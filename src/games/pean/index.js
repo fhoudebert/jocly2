@@ -74,9 +74,11 @@ exports.games = (function () {
 		}
 	];
 
-	// emblemes et bannieres utilises par un scenario
+	// emblemes, bannieres et pictogrammes de terrain utilises par un scenario
 	function insigniaImages(scenario) {
-		var list = [];
+		var list = ["foret", "marais", "montagne", "mer", "colline", "ville", "camp"].map(function (t) {
+			return "image|/res/images/terrain/" + t + ".png";
+		});
 		function add(kind, name) {
 			var path = "image|/res/images/" + kind + "/" + name + ".png";
 			if (name && list.indexOf(path) < 0) list.push(path);
@@ -158,8 +160,9 @@ exports.games = (function () {
 					},
 					"skins": [
 						{
-							// les emblemes de 0 A.D. pour boucliers (res/images/,
-							// CC BY-SA 3.0, voir les credits) ; palette attique
+							// les emblemes de 0 A.D. pour boucliers (CC BY-SA 3.0),
+							// les pictogrammes de terrain de Wesnoth (GPL v2+) :
+							// res/images/, voir les credits ; palette attique
 							"name": "insignes",
 							"title": "Insignes (2D)",
 							"preload": insigniaImages(scenario)

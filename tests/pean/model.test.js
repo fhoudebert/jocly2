@@ -10,6 +10,10 @@ const R = rules();
 const AI = ai();
 const t = suite("pean model");
 
+function skinsHave(games, name) {
+	return games.every((g) => g.config.view.skins[0].preload.indexOf("image|/res/images/" + name + ".png") >= 0);
+}
+
 t.section("manifeste");
 (function () {
 	const games = manifest();
@@ -31,6 +35,8 @@ t.section("manifeste");
 		const sc = g.config.model.gameOptions.scenario;
 		Object.keys(sc.camps).forEach((k) => t.ok(sc.camps[k].embleme && sc.camps[k].banniere, g.name + " : camp " + k + " a son embleme et sa banniere"));
 	});
+	t.ok(/GPL v2/.test(fs.readFileSync(path.join(__dirname, "../../src/games/pean/credits-fr.html"), "utf8")), "credits : attribution Wesnoth");
+	t.ok(["foret", "marais", "montagne", "mer", "colline", "ville", "camp"].every((n) => skinsHave(games, "terrain/" + n)), "pictogrammes de terrain prechargés");
 	t.ok(/CC BY-SA 3\.0/.test(fs.readFileSync(path.join(__dirname, "../../src/games/pean/credits-fr.html"), "utf8")), "credits : attribution 0 A.D.");
 	t.eq(games[1].config.model.gameOptions.scenario, scenario("leuctres-371"), "le manifeste embarque le fichier tel quel");
 	t.ok(/Heraklios/.test(require("fs").readFileSync(require("path").join(__dirname, "../../src/games/pean/credits-fr.html"), "utf8")), "credits : mention d'hommage");
