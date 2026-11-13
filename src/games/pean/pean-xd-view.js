@@ -116,7 +116,7 @@
 			traits: { phalange: "phalange", leger: "léger", tir: "tir", monte: "monté", desengage: "se désengage", charge: "charge", general: "général" },
 			terrain: { plaine: "plaine", route: "route", colline: "colline", foret: "forêt", marais: "marais", ville: "ville", camp: "camp", mine: "mine", montagne: "montagne", mer: "mer" },
 			side: { riviere: "rivière", gue: "gué", mur: "mur" },
-			objective: "Objectif", held: "tenu par", nobody: "personne",
+			objective: "Objectif", held: "tenu par", nobody: "personne", goal: "Victoire", hold: "tenue", turns: "tours",
 			why: {
 				"combat-started": "Les combats ont commencé : plus de mouvement.",
 				"no-order-left": "Plus d’ordre disponible ce tour.",
@@ -156,7 +156,7 @@
 			traits: { phalange: "phalanx", leger: "light", tir: "missile", monte: "mounted", desengage: "disengages", charge: "charge", general: "general" },
 			terrain: { plaine: "plain", route: "road", colline: "hill", foret: "forest", marais: "marsh", ville: "town", camp: "camp", mine: "mine", montagne: "mountain", mer: "sea" },
 			side: { riviere: "river", gue: "ford", mur: "wall" },
-			objective: "Objective", held: "held by", nobody: "nobody",
+			objective: "Objective", held: "held by", nobody: "nobody", goal: "Victory", hold: "held", turns: "turns",
 			why: {
 				"combat-started": "Combat has begun: no more movement.",
 				"no-order-left": "No order left this turn.",
@@ -1072,8 +1072,12 @@
 					ctx.fill();
 				});
 			}
-			// en haut a droite : ne pas couvrir les chiffres d'une unite qui l'occupe
-			label(ctx, o.hex, o.points, "#fff6e4", color, -0.7, 0.62);
+			// en haut a droite : ne pas couvrir les chiffres d'une unite qui l'occupe ;
+			// objectif decisif : la tenue en cours (« 15 · 2/4 »)
+			var text = String(o.points);
+			if (o.immediate && st.hs[i] && st.hold[i] > 0)
+				text += " · " + st.hold[i] + "/" + o.hold;
+			label(ctx, o.hex, text, "#fff6e4", o.immediate && st.hs[i] ? (st.hs[i] === 1 ? P.sideA.rim : P.sideB.rim) : color, -0.7, 0.62);
 		});
 		// destinations
 		if (ov.dests) {
@@ -1179,8 +1183,27 @@
 			esc(board.phase < 2 ? "– " + T.deploy : T.toPlay) + "</div>";
 		if (board.phase >= 2) {
 			html += '<div class="pean-sub">' + esc(T.turn) + " " + R.round(board) + " " + esc(T.of) + " " + rc.tours + "</div>";
-			html += score(st || board);
+			html += score(st || board) + goals(st || board);
 		}
+		return html;
+	}
+
+	// conditions de victoire du scenario, et tenue des objectifs decisifs
+	function goals(st) {
+		var T = lang(), rc = ui.game.g.ctx, R = ui.game.g.rules;
+		var html = "";
+		var text = loc(rc.scenario.regles);
+		if (text)
+			html += '<div class="pean-goal"><b>' + esc(T.goal) + "</b> – " + esc(text) + "</div>";
+		var held = [];
+		rc.objectives.forEach(function (o, i) {
+			if (o.immediate && st.hs[i] && st.hold[i] > 0)
+				held.push((o.nom ? esc(o.nom) + " " : "") + R.hexName(rc, o.hex) + " : " + esc(T.hold) + " <b>" +
+					st.hold[i] + "/" + o.hold + "</b> " + esc(T.turns) + " – " +
+					'<span class="' + sideClass(st.hs[i]) + '">' + esc(campName(st.hs[i])) + "</span>");
+		});
+		if (held.length)
+			html += '<div class="pean-hold">' + held.join("<br>") + "</div>";
 		return html;
 	}
 

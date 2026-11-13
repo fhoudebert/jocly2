@@ -8,6 +8,10 @@
   "fr": "Sur les contreforts du Cithéron, la ligne grecque n’a qu’à tenir : à Mardonios de franchir l’Asopos et de l’user par sa cavalerie et ses archers avant le soir.",
   "en": "On the foothills of Cithaeron the Greek line only has to hold: Mardonius must cross the Asopus and wear it down with his cavalry and archers before nightfall."
  },
+ "regles": {
+  "fr": "Le temple de Déméter et le camp perse valent chacun 30 points à qui les tient. Une armée qui perd la moitié de sa valeur est rompue et perd la partie. Faute de quoi, au soir du 14e tour, on compte les points (objectifs et pertes infligées) ; un écart de 5 points au plus est une nulle. Aux Perses d’attaquer : si rien ne bouge, la partie est nulle.",
+  "en": "The temple of Demeter and the Persian camp are each worth 30 points to whoever holds them. An army that loses half its value breaks and loses the game. Failing that, at the end of turn 14 points are counted (objectives and losses inflicted); a margin of 5 points or less is a draw. The Persians must attack: if nothing happens, the game is a draw."
+ },
  "carte": {
   "cols": 24,
   "rows": 16,

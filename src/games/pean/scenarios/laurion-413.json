@@ -8,6 +8,10 @@
   "fr": "Depuis Décélie, une colonne péloponnésienne fond sur les mines d’argent d’Athènes ; la garnison de Thorikos doit tenir jusqu’à l’arrivée des renforts.",
   "en": "From Decelea a Peloponnesian column swoops on Athens' silver mines; the Thorikos garrison must hold until reinforcements arrive."
  },
+ "regles": {
+  "fr": "Les Péloponnésiens gagnent dès qu’ils tiennent une même mine d’argent à la fin de 4 de leurs tours d’affilée. Le compteur, affiché sur la mine, repart à zéro si elle est reprise ou évacuée. Une mine est aussi une position forte (défense ×1,5). Faute de quoi, au soir du 10e tour, on compte les points : 15 pour chaque mine et pour Thorikos tenus par les Péloponnésiens, plus la valeur des pertes infligées par chaque camp. Les renforts athéniens arrivent par la route d’Athènes, à l’ouest, du tour 1 au tour 4. Une armée qui perd la moitié de sa valeur est rompue et perd la partie.",
+  "en": "The Peloponnesians win as soon as they hold the same silver mine at the end of 4 of their turns in a row. The count, shown on the mine, goes back to zero if it is retaken or abandoned. A mine is also a strong position (defence ×1.5). Failing that, at the end of turn 10 points are counted: 15 for each mine and for Thorikos held by the Peloponnesians, plus the value of the losses each side has inflicted. Athenian reinforcements come up the Athens road, in the west, from turn 1 to turn 4. An army that loses half its value breaks and loses the game."
+ },
  "carte": {
   "cols": 24,
   "rows": 16,

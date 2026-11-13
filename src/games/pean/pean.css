@@ -196,3 +196,18 @@
 	margin-right: 0.3em;
 	vertical-align: middle;
 }
+
+.pean-goal {
+	border-left: 0.18em solid #9b6a45;
+	font-size: 0.72em;
+	line-height: 1.25;
+	margin: 0 0 0.4em;
+	padding-left: 0.4em;
+}
+
+.pean-hold {
+	background: rgba(255,255,255,0.45);
+	font-size: 0.78em;
+	margin: 0 0 0.4em;
+	padding: 0.2em 0.4em;
+}

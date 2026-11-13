@@ -8,6 +8,10 @@
   "fr": "Chaque camp achète et déploie son armée avec 200 points, puis livre bataille pour le village et les hauteurs.",
   "en": "Each side buys and deploys a 200-point army, then fights for the village and the heights."
  },
+ "regles": {
+  "fr": "Chaque camp dépense 200 points pour son armée (un général au moins) et la déploie dans sa zone. Une armée qui perd la moitié de sa valeur est rompue et perd la partie. Faute de quoi, au soir du 12e tour, chaque camp marque les pertes infligées et les objectifs qu’il tient : le village (30) et les deux collines (10 chacune).",
+  "en": "Each side spends 200 points on its army (at least one general) and deploys it in its zone. An army that loses half its value breaks and loses the game. Failing that, at the end of turn 12 each side scores the losses inflicted and the objectives it holds: the village (30) and the two hills (10 each)."
+ },
  "carte": {
   "cols": 24,
   "rows": 16,

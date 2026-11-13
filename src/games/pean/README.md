@@ -37,6 +37,7 @@ la bataille se contente du vocabulaire du noyau. `PeanRules.validateScenario(jso
 {
   "id": "leuctres-371",
   "titre": { "fr": "...", "en": "..." }, "resume": { "fr": "...", "en": "..." },
+  "regles": { "fr": "...", "en": "..." },   // conditions de victoire, rappelées dans le panneau
   "carte": {
     "cols": 24, "rows": 16,               // 4 à 60 ; hexagones à sommet plat, colonnes impaires décalées
     "lignes": ["....cc..", ...],          // une lettre par hexagone (légende ci-dessous), ou :

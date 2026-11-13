@@ -8,6 +8,10 @@
   "fr": "Épaminondas masse sa gauche sur cinquante rangs face aux Spartiates et refuse sa droite : l’ordre oblique.",
   "en": "Epaminondas masses his left fifty ranks deep against the Spartiates and refuses his right: the oblique order."
  },
+ "regles": {
+  "fr": "Une armée qui perd la moitié de sa valeur est rompue et perd la partie. Faute de quoi, au soir du 12e tour, chaque camp marque la valeur des pertes infligées, plus 30 points s’il tient le camp adverse.",
+  "en": "An army that loses half its value breaks and loses the game. Failing that, at the end of turn 12 each side scores the value of the losses it has inflicted, plus 30 points if it holds the enemy camp."
+ },
  "carte": {
   "cols": 24,
   "rows": 16,
