@@ -47,6 +47,10 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Scrum",
+					// retire de la distribution (sources conservees) : le Jeu
+					// de la guerre prend sa place, le nombre de jeux ne change
+					// pas. `gulp build --obsolete` le reconstruit.
+					"obsolete": true,
 					"summary": "A little rugby game",
                     "summary": {
 						"en":"A little rugby game",

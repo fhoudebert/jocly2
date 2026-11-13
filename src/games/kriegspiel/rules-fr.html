@@ -1,0 +1,138 @@
+<style type='text/css'>
+table.kriegspiel-rules { border-collapse: collapse; margin: 0.5em 0; }
+table.kriegspiel-rules th, table.kriegspiel-rules td { border: 1px solid #b3a78a; padding: 2px 8px; text-align: center; }
+table.kriegspiel-rules td:first-child, table.kriegspiel-rules th:first-child { text-align: left; }
+</style>
+
+<p><em>Le Jeu de la guerre</em> oppose deux armées, le Nord et le Sud, sur un plateau de 25 colonnes sur 20 lignes.
+Chaque camp cherche à vaincre l'autre en détruisant ses deux arsenaux ou en éliminant toutes ses unités combattantes.
+Tout repose sur les <b>lignes de communication</b> : une unité qui n'est plus reliée à l'un de ses arsenaux ne peut
+ni se déplacer, ni attaquer, ni se défendre.</p>
+
+<h2>Le terrain</h2>
+<ul>
+<li><b>Arsenal</b> (2 par camp) : source des lignes de communication. La case elle-même est une case de plaine.</li>
+<li><b>Montagne</b> : infranchissable ; elle arrête les tirs et les lignes de communication.</li>
+<li><b>Col</b> : seul passage à travers une chaîne de montagnes ; il renforce la défense de l'unité qui le tient.</li>
+<li><b>Forteresse</b> (3 par territoire) : elle renforce la défense de l'unité qui l'occupe, quel que soit son camp.
+Elle n'est jamais détruite.</li>
+</ul>
+
+<h2>Les unités</h2>
+<p>Chaque camp dispose de 17 unités.</p>
+<table class="kriegspiel-rules">
+<tr><th>Unité</th><th>Nombre</th><th>Mouvement</th><th>Portée</th><th>Attaque</th><th>Défense</th><th>En forteresse</th><th>Dans un col</th></tr>
+<tr><td>Infanterie</td><td>9</td><td>1</td><td>2</td><td>4</td><td>6</td><td>10</td><td>8</td></tr>
+<tr><td>Cavalerie</td><td>4</td><td>2</td><td>2</td><td>4 (7 en charge)</td><td>5</td><td>5</td><td>5</td></tr>
+<tr><td>Artillerie</td><td>1</td><td>1</td><td>3</td><td>5</td><td>8</td><td>12</td><td>10</td></tr>
+<tr><td>Artillerie à cheval</td><td>1</td><td>2</td><td>3</td><td>5</td><td>8</td><td>12</td><td>10</td></tr>
+<tr><td>Transmission</td><td>1</td><td>1</td><td>2</td><td>–</td><td>1</td><td>1</td><td>1</td></tr>
+<tr><td>Estafette</td><td>1</td><td>2</td><td>2</td><td>–</td><td>1</td><td>1</td><td>1</td></tr>
+</table>
+<p>L'infanterie, la cavalerie, l'artillerie et l'artillerie à cheval sont les <b>unités combattantes</b>.
+La transmission et l'estafette sont les <b>unités de transmission</b> : elles n'attaquent pas, mais prolongent les
+lignes de communication.</p>
+
+<h2>Le déploiement</h2>
+<p>Le Nord place d'abord ses 17 unités où il veut dans son territoire (les dix lignes A à J), puis le Sud fait de même
+dans le sien (lignes K à T). Une seule unité par case, jamais sur une montagne ; forteresses, col et arsenaux sont
+permis. Le Nord joue ensuite le premier tour.</p>
+<p>Dans le panneau, choisissez un type d'unité puis cliquez une case ; un clic sur une unité déjà posée la reprend.
+Le bouton « Placement automatique » propose un déploiement complet.</p>
+
+<h3>Le bouton « À l'aveugle »</h3>
+<p>Chez Debord, chaque camp se déploie sans voir l'autre. Ce bouton rétablit ce secret quand deux joueurs partagent
+le même écran. Il se trouve dans le panneau pendant le déploiement du Nord et bascule entre « non » (réglage de
+départ) et « oui ».</p>
+<ul>
+<li><b>Sur « oui »</b> : pendant que le Sud place ses unités, celles du Nord et ses lignes de communication ne sont
+pas affichées. Elles réapparaissent dès que le Sud a validé son déploiement. Comme le Nord a placé avant le Sud, aucun
+des deux n'a vu le déploiement adverse — à condition que le Sud ne regarde pas l'écran pendant que le Nord place.</li>
+<li><b>Sur « non »</b> : le Sud voit le déploiement du Nord et peut s'y adapter.</li>
+</ul>
+<p>C'est un simple masquage à l'écran : les règles, la partie enregistrée et la notation ne changent pas, et plus rien
+n'est caché une fois la partie commencée. Le réglage vaut pour la partie en cours et se choisit avant de valider le
+déploiement du Nord. Contre l'ordinateur il ne change rien : l'ordinateur se déploie toujours sans tenir compte du
+déploiement adverse.</p>
+
+<h2>Le tour</h2>
+<p>À son tour, un joueur peut, dans cet ordre :</p>
+<ol>
+<li>exécuter la retraite forcée, s'il en doit une (voir plus bas) ;</li>
+<li>déplacer jusqu'à <b>cinq unités</b>, retraite comprise, chacune une seule fois ;</li>
+<li>lancer <b>une attaque</b>, au plus.</li>
+</ol>
+<p>Rien n'est obligatoire, sauf la retraite : on peut passer son tour. L'attaque clôt le tour : une fois la cible
+choisie, plus aucune unité ne se déplace. Le bouton « Fin du tour » envoie le coup ; « Annuler le dernier » revient
+sur l'attaque ou sur le dernier déplacement.</p>
+
+<h2>Les communications</h2>
+<ul>
+<li>Chaque arsenal encore debout émet des lignes de communication dans les huit directions, sans limite de longueur.</li>
+<li>Une ligne traverse les cases vides, les unités amies, les forteresses, les cols et les unités de transmission
+adverses. Elle s'arrête devant une montagne et devant toute autre unité adverse.</li>
+<li>Une unité de transmission amie placée sur une ligne émet à son tour huit lignes, et ainsi de suite.</li>
+<li>Toute unité placée sur une ligne est <b>en communication</b>. Une unité combattante qui touche (dans les huit
+directions) une unité combattante amie en communication l'est aussi, de proche en proche.</li>
+<li>Une unité de transmission n'est en communication que si elle se trouve sur une ligne : le contact ne lui suffit
+pas, et elle ne transmet rien par contact.</li>
+</ul>
+<p>Une unité <b>isolée</b> ne peut ni se déplacer, ni attaquer, et sa défense est nulle ; elle peut toutefois être
+défendue par ses voisines en communication. Seules les unités de transmission peuvent se déplacer quand elles sont
+isolées. Les communications sont recalculées après chaque déplacement : l'ordre des déplacements compte.</p>
+
+<h2>Les déplacements</h2>
+<p>Une unité se déplace d'autant de cases que son mouvement, pas à pas, dans les huit directions, uniquement par des
+cases vides : elle ne traverse ni montagne, ni unité amie, ni unité adverse. Elle peut terminer son déplacement hors
+communication.</p>
+
+<h2>Les arsenaux</h2>
+<p>Une unité combattante qui entre dans un arsenal adverse vide le détruit ; elle s'y arrête. Cette destruction
+tient lieu d'attaque pour ce tour. Une unité de transmission ne détruit pas un arsenal. Si l'arsenal est occupé, il
+faut d'abord en chasser l'occupant.</p>
+
+<h2>Le combat</h2>
+<p>On attaque une unité adverse, quelle qu'elle soit. Les tirs suivent les huit lignes droites qui passent par la
+case de la cible ; une montagne les arrête, mais ni les unités ni les cols.</p>
+<ul>
+<li><b>Attaque</b> : on additionne les coefficients d'attaque des unités combattantes de l'attaquant qui sont en
+communication, alignées avec la cible et à portée.</li>
+<li><b>Charge</b> : une cavalerie au contact de la cible vaut 7 au lieu de 4, ainsi que les cavaliers qui la suivent
+sans interruption sur la même ligne, jusqu'à quatre. Pas de charge contre une cible en forteresse ou dans un col, ni
+pour un cavalier qui se trouve lui-même dans une forteresse.</li>
+<li><b>Défense</b> : on additionne les coefficients de défense de la cible et des unités de son camp qui sont en
+communication, alignées avec elle et à portée. Les bonus de forteresse et de col comptent pour l'unité qui s'y trouve.</li>
+</ul>
+<p>On compare ensuite les deux sommes :</p>
+<ul>
+<li>attaque inférieure ou égale à la défense : l'attaque est sans effet (elle n'est pas proposée) ;</li>
+<li>attaque supérieure de 1 : <b>retraite forcée</b> ;</li>
+<li>attaque supérieure de 2 ou plus : l'unité est <b>détruite</b>. L'attaquant ne bouge pas.</li>
+</ul>
+<p>L'unité contrainte à la retraite doit se déplacer en premier au tour suivant de son camp, selon son mouvement
+normal ; ce déplacement compte parmi les cinq, et l'unité ne participe pas à l'attaque de ce tour. Si elle ne peut
+pas se retirer (isolée, ou sans case libre), elle est détruite.</p>
+<p>Survolez une unité pour lire le rapport de force et la part de chaque unité. Les cibles possibles sont marquées en
+rouge (destruction) ou en orange (retraite).</p>
+
+<h2>Fin de la partie</h2>
+<p>Un camp gagne quand son adversaire :</p>
+<ul>
+<li>a perdu ses deux arsenaux ;</li>
+<li>ou n'a plus aucune unité combattante ;</li>
+<li>ou n'a plus d'unité de transmission alors que toutes ses unités restantes sont isolées (règle optionnelle,
+activée par défaut).</li>
+</ul>
+<p>Perdre ses deux unités de transmission ne suffit donc pas à perdre : tant qu'une unité reste en communication
+(sur une ligne d'arsenal, ou au contact d'une unité qui l'est), la partie continue. Le panneau indique à tout moment
+combien d'unités de chaque camp sont en communication.</p>
+<p>La partie est nulle après 400 coups ou si une même position se répète trois fois.</p>
+
+<h2>Les niveaux de l'ordinateur</h2>
+<ul>
+<li><b>Caporal</b>, <b>Capitaine</b> et <b>Général</b> : l'intelligence artificielle de Jocly, du plus rapide au plus
+réfléchi (une à quatre secondes par coup).</li>
+<li><b>Maréchal</b> : un moteur dédié, qui juge les positions en fonction des communications, de l'exposition des
+unités et des charges de cavalerie. Il n'est disponible que dans l'application Tabulon ; ailleurs, c'est le Général
+qui joue, et un message le signale.</li>
+</ul>

@@ -1,0 +1,4 @@
+# sorties de gen.py (skin carte), regenerables
+svg/
+sheets/
+__pycache__/

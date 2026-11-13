@@ -58,6 +58,7 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		// mFairyFallback.
 		global.JoclyScan = r("./jocly.scan.js").JoclyScan;
 		global.JoclyKata = r("./jocly.kata.js").JoclyKata;
+		global.JoclyKriegspiel = r("./jocly.kriegspiel.js").JoclyKriegspiel;
 	})();
 
 } else {
@@ -704,6 +705,12 @@ JocGame.prototype.StartMachine = function(aOptions) {
 		// several megabytes of it.
 		JoclyKata.startMachine(this,aOptions);
 	}
+	else if(aOptions.level && aOptions.level.ai=="kriegspiel" && typeof JoclyKriegspiel!="undefined") {
+		// Le Jeu de la guerre : moteur fourni par l'hote a travers
+		// jocly.kriegspielworker.js (voir jocly.kriegspiel.js). Sans moteur,
+		// le niveau se rabat sur l'IA uct du jeu et l'annonce.
+		JoclyKriegspiel.startMachine(this,aOptions);
+	}
 	else { // default is legacy alpha-beta ai
 		if(aiThread)
 			this.StartThreadedMachine(aOptions,"alpha-beta");
@@ -782,6 +789,8 @@ JocGame.prototype.StopThreadedMachine = function() {
 		JoclyScan.abortMachine(this);
 	if(typeof JoclyKata != "undefined" && JoclyKata.abortMachine)
 		JoclyKata.abortMachine(this);
+	if(typeof JoclyKriegspiel != "undefined" && JoclyKriegspiel.abortMachine)
+		JoclyKriegspiel.abortMachine(this);
 }
 
 JocGame.prototype.ScheduleStep = function() {
