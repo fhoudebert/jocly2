@@ -250,8 +250,7 @@
     "fr": "Sparabara",
     "en": "Sparabara"
    },
-   "icone": "pavois",
-   "portrait": "pers/arstibara"
+   "icone": "pavois"
   },
   "immortel": {
    "code": "Im",
@@ -264,8 +263,7 @@
     "fr": "Immortels",
     "en": "Immortals"
    },
-   "icone": "lance",
-   "portrait": "pers/champion_infantry"
+   "icone": "lance"
   },
   "archerMonte": {
    "code": "Am",
@@ -281,8 +279,7 @@
    "nom": {
     "fr": "Archers montés",
     "en": "Horse archers"
-   },
-   "portrait": "pers/cavalry_archer"
+   }
   },
   "general": {
    "cout": 40
@@ -465,8 +462,7 @@
     {
      "type": "general",
      "hex": "15,2",
-     "nom": "Mardonios",
-     "portrait": "pers/hero_xerxes"
+     "nom": "Mardonios"
     },
     {
      "type": "sparabara",

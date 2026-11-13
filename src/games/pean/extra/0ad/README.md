@@ -14,12 +14,11 @@ Gardé ici comme réserve, pour un usage possible (non copié dans le dist) :
 
 | dossier | contenu | usage envisageable |
 |---|---|---|
-| `units/athen`, `units/pers`, `units/spart` | portraits d'unités et de héros | portrait dans le panneau d'information, généraux nommés |
 | `shield/` | boucliers (aspis) athéniens, spartiates, thébains | emblèmes de cités ou d'unités d'élite |
 | `helmet/` | casques corinthiens | icône du général |
 | `formations/` | icônes de formations | boutons « Toute la ligne », groupe |
 | `insignes/` | forteresse, salle perse, syssition | camps et objectifs |
 | `training.png`, `victory.png` | icônes d'interface | fin de partie, renforts |
 
-Supprimé (lourd ou sans usage possible) : les textures de terrain (0,5 à 10 Mo l'une, photographiques ou cartes de
+Supprimé (lourd ou sans usage possible) : les portraits d'unités et de héros (essayés comme pions, écartés) ; les textures de terrain (0,5 à 10 Mo l'une, photographiques ou cartes de
 normales), les navires, les engins de siège, les civils, l'éléphant et le char (hors du périmètre du jeu).

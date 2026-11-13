@@ -175,12 +175,6 @@ exports.games = (function () {
 							"preload": tileImages().concat(insigniaImages(scenario))
 						},
 						{
-							// tuiles, et portraits d'unites de 0 A.D. pour pions
-							"name": "portraits",
-							"title": "Portraits (2D)",
-							"preload": tileImages().concat(insigniaImages(scenario))
-						},
-						{
 							// tuiles, et pions carres de wargame
 							"name": "wargame",
 							"title": "Wargame (2D)",
@@ -189,16 +183,10 @@ exports.games = (function () {
 						{
 							// les emblemes de 0 A.D. pour boucliers (CC BY-SA 3.0),
 							// les pictogrammes de terrain de Wesnoth (GPL v2+) :
-							// res/images/, voir les credits ; palette attique
+							// res/images/, voir les credits ; fonds de couleur
 							"name": "insignes",
 							"title": "Insignes (2D)",
 							"preload": insigniaImages(scenario)
-						},
-						{
-							// figures rouges : fond de terre cuite, vernis noir
-							"name": "attique",
-							"title": "Céramique attique (2D)",
-							"preload": []
 						},
 						{
 							// carte d'etat-major, papier clair

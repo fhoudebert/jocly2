@@ -13,6 +13,9 @@ exports.games = (function() {
 				"status": true,
 				"model": {
 					"title-en": "Penguin soccer",
+					// retire de la distribution (sources conservees) ;
+					// `gulp build --obsolete` le reconstruit.
+					"obsolete": true,
                     "summary": {
 						"en":"Penguins playing soccer",
 						"fr": "Des manchots jouant au foot",

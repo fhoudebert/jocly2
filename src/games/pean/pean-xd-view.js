@@ -11,9 +11,11 @@
  *   panel    panneau a droite : trait, ordres, combat en preparation,
  *            information sur l'hexagone survole, boutons
  *
- * Tout est dessine au canvas : aucune planche d'images. Deux skins ne
- * changent que la palette : « attique » (figures rouges et figures noires
- * sur terre cuite) et « carte » (papier clair).
+ * Quatre skins : « tuiles » (tuiles de terrain de Wesnoth, pions a embleme
+ * de 0 A.D. et arme du type sur le bord du bouclier), « wargame » (memes
+ * tuiles, pions carres), « insignes » (pictogrammes de terrain de Wesnoth sur
+ * fonds de couleur, pions a embleme) et « carte » (tout dessine, papier
+ * clair). La palette « attique » sert de base aux trois premieres.
  *
  * La vue ne connait aucune regle : la saisie d'un tour passe par
  * PeanRules.Turn (aGame.g.rules), le meme objet que le validateur.
@@ -60,7 +62,6 @@
 
 	// « tuiles » : tuiles de terrain de Wesnoth, memes pions que « insignes »
 	PALETTES.tuiles = PALETTES.insignes;
-	PALETTES.portraits = PALETTES.insignes;
 	PALETTES.wargame = PALETTES.insignes;
 
 	/*
@@ -230,10 +231,10 @@
 	}
 
 	// pions a embleme et bannieres : skins « insignes » et « tuiles »
-	function insignia() { return ["insignes", "tuiles", "portraits", "wargame"].indexOf(ui.game.mSkin) >= 0; }
+	function insignia() { return ["insignes", "tuiles", "wargame"].indexOf(ui.game.mSkin) >= 0; }
 
 	// les skins a tuiles de terrain
-	function tiled() { return ["tuiles", "portraits", "wargame"].indexOf(ui.game.mSkin) >= 0; }
+	function tiled() { return ["tuiles", "wargame"].indexOf(ui.game.mSkin) >= 0; }
 
 	// une tuile, decoupee a l'hexagone ; false tant qu'elle n'est pas chargee
 	function drawTile(ctx, avatar, name, x, y, R) {
@@ -840,54 +841,11 @@
 	 * Pions a embleme ; le style vient de la skin :
 	 *   arme      (« tuiles », « insignes ») le bouclier entier, l'arme du type
 	 *             a gauche, sur le bord du bouclier, jamais sur son centre
-	 *   portrait  (« portraits ») le portrait d'unite de 0 A.D. au coeur du pion
 	 *   pion      (« wargame ») pion carre : couleur du camp, icone, embleme en coin
 	 */
 
-	// faction d'un embleme, pour choisir les portraits
-	var FACTION = { athenians: "athen", hellenes: "athen", spartans: "spart", poleis: "spart", thebans: "theb", persians: "pers" };
-
-	// portrait par faction et role ; une faction sans portrait d'un role prend celui d'Athenes
-	var PORTRAITS = {
-		athen: { hoplite: "infantry_spearman", elite: "champion_infantry", leger: "infantry_javelinist", archer: "champion_ranged",
-			fronde: "infantry_slinger", cavalerie: "cavalry_javelinist", choc: "cavalry_swordsman", general: "hero_iphicrates",
-			infanterie: "infantry_spearman", "archer-monte": "cavalry_javelinist" },
-		spart: { hoplite: "infantry_spearman", elite: "champion_infantry_spear", leger: "infantry_javelinist",
-			fronde: "infantry_slinger", cavalerie: "cavalry_javelinist", choc: "cavalry_spearman", general: "hero_brasidas",
-			infanterie: "infantry_spearman" },
-		theb: { hoplite: "champion_infantry_hoplite", elite: "champion_infantry_hoplite" },
-		pers: { hoplite: "infantry_spearman", elite: "champion_infantry", leger: "kardakes_skirmisher", archer: "infantry_archer",
-			fronde: "kardakes_skirmisher", cavalerie: "cavalry_javelinist", choc: "cavalry_spearman", general: "hero_xerxes",
-			infanterie: "infantry_spearman", "archer-monte": "cavalry_archer" }
-	};
-
-	function roleOf(t) {
-		if (t.general) return "general";
-		if (t.fire && t.mounted) return "archer-monte";
-		if (t.fire && t.light) return "fronde";
-		if (t.fire) return "archer";
-		if (t.mounted) return t.charge ? "choc" : "cavalerie";
-		if (t.phalanx) return t.force >= 7 ? "elite" : "hoplite";
-		if (t.light) return "leger";
-		return t.force >= 5 ? "elite" : "infanterie";
-	}
-
-	// « faction/nom » : portrait du scenario (unite, puis type), sinon d'apres la faction et le role
-	function portraitOf(u) {
-		var rc = ui.game.g.ctx, t = rc.types[u.t];
-		var forced = (rc.unitPortraits && rc.unitPortraits[u.i]) || t.portrait;
-		if (forced) return forced.replace("/", "_");
-		var faction = FACTION[emblemOf(u)] || "athen", role = roleOf(t);
-		var name = (PORTRAITS[faction] || {})[role];
-		if (!name) {
-			faction = "athen";
-			name = PORTRAITS.athen[role] || "infantry_spearman";
-		}
-		return faction + "_" + name;
-	}
-
 	function unitStyle() {
-		return { portraits: "portrait", wargame: "pion" }[ui.game.mSkin] || "arme";
+		return ui.game.mSkin === "wargame" ? "pion" : "arme";
 	}
 
 	function plaque(ctx, u, t, col, x, y, w, h, icon) {
@@ -914,16 +872,21 @@
 		ctx.fillText(ui.game.g.rules.forceOf(ui.game.g.ctx, u) + "·" + t.mp / 2, tx, y + h * 0.54);
 	}
 
+	// le front d'une phalange : une pointe claire cernee de la couleur du camp, hors du bouclier
 	function facingMark(ctx, u, r, color) {
 		if (u.f < 0) return;
 		var a = -Math.PI / 2 + screenDir(u.f) * Math.PI / 3;
-		ctx.fillStyle = color;
 		ctx.beginPath();
-		ctx.moveTo(Math.cos(a) * r * 1.3, Math.sin(a) * r * 1.3);
-		ctx.lineTo(Math.cos(a - 0.3) * r * 0.98, Math.sin(a - 0.3) * r * 0.98);
-		ctx.lineTo(Math.cos(a + 0.3) * r * 0.98, Math.sin(a + 0.3) * r * 0.98);
+		ctx.moveTo(Math.cos(a) * r * 1.36, Math.sin(a) * r * 1.36);
+		ctx.lineTo(Math.cos(a - 0.34) * r * 0.98, Math.sin(a - 0.34) * r * 0.98);
+		ctx.lineTo(Math.cos(a + 0.34) * r * 0.98, Math.sin(a + 0.34) * r * 0.98);
 		ctx.closePath();
+		ctx.fillStyle = "#fff4e2";
 		ctx.fill();
+		ctx.strokeStyle = color;
+		ctx.lineWidth = r * 0.09;
+		ctx.lineJoin = "round";
+		ctx.stroke();
 	}
 
 	function reducedMark(ctx, u, t, r, color) {
@@ -962,56 +925,30 @@
 			withImage(avatar, url, function () { });
 			return false;
 		}
-		var portrait = null;
-		if (style === "portrait") {
-			var purl = ui.fullPath + "/res/images/portraits/" + portraitOf(u) + ".jpg";
-			portrait = ui.images[purl];
-			if (!portrait) {
-				withImage(avatar, purl, function () { });
-				style = "arme";
-			}
-		}
 		ctx.save();
 		ctx.translate(xy[0], xy[1]);
 		if (faded) ctx.globalAlpha = 0.45;
-		var r, side;
+		var r;
 		if (style === "arme") {
 			// le bouclier entier, a peine decale a droite ; l'arme sur son bord gauche
 			r = R * 0.72;
 			ctx.save();
 			ctx.translate(R * 0.14, -R * 0.06);
 			shield(ctx, emblem, r, col);
-			facingMark(ctx, u, r, col.rim);
 			reducedMark(ctx, u, t, r, col.rim);
 			ctx.restore();
 			ctx.save();
-			ctx.translate(-R * 0.6, -R * 0.14);
-			var k = R * 0.4 / 40;
+			ctx.translate(-R * 0.58, -R * 0.12);
+			var k = R * 0.33 / 40;
 			ctx.scale(k, k);
 			drawIcon(ctx, t, "#f6e3c8", "#1d1410");
 			ctx.restore();
-			plaque(ctx, u, t, col, R * 0.14, R * 0.44, R * 1.05, R * 0.4, false);
-		} else if (style === "portrait") {
-			// le portrait au coeur du pion, jante aux couleurs du camp, embleme en medaille
-			side = R * 0.7;
-			ctx.fillStyle = "rgba(0,0,0,0.3)";
-			ctx.beginPath();
-			ctx.arc(side * 0.06, side * 0.08, side * 1.08, 0, Math.PI * 2);
-			ctx.fill();
-			ctx.fillStyle = col.rim;
-			ctx.beginPath();
-			ctx.arc(0, 0, side * 1.08, 0, Math.PI * 2);
-			ctx.fill();
+			// le front de la phalange, par-dessus l'arme
 			ctx.save();
-			ctx.beginPath();
-			ctx.arc(0, 0, side, 0, Math.PI * 2);
-			ctx.clip();
-			ctx.drawImage(portrait, -side, -side * 1.05, side * 2, side * 2);
+			ctx.translate(R * 0.14, -R * 0.06);
+			facingMark(ctx, u, r, col.rim);
 			ctx.restore();
-			facingMark(ctx, u, side, col.rim);
-			ctx.drawImage(emblem, -side * 1.18, -side * 1.18, side * 0.72, side * 0.72);
-			reducedMark(ctx, u, t, side, col.rim);
-			plaque(ctx, u, t, col, 0, side * 0.62, side * 1.7, side * 0.55, true);
+			plaque(ctx, u, t, col, R * 0.14, R * 0.44, R * 1.05, R * 0.4, false);
 		} else {
 			// pion carre de wargame
 			var w = R * 1.42, h = R * 1.22;
@@ -1071,8 +1008,9 @@
 		ctx.stroke();
 	}
 
-	function label(ctx, h, text, fg, bg, dy) {
+	function label(ctx, h, text, fg, bg, dy, dx) {
 		var xy = hexXY(h), R = ui.L.R;
+		xy = [xy[0] + (dx || 0) * R, xy[1]];
 		ctx.font = "bold " + Math.round(R * 0.36) + "px Georgia, serif";
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
@@ -1134,7 +1072,8 @@
 					ctx.fill();
 				});
 			}
-			label(ctx, o.hex, o.points, "#fff6e4", color, 0.82);
+			// en haut a droite : ne pas couvrir les chiffres d'une unite qui l'occupe
+			label(ctx, o.hex, o.points, "#fff6e4", color, -0.7, 0.62);
 		});
 		// destinations
 		if (ov.dests) {
