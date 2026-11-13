@@ -21,12 +21,12 @@ exports.games = (function () {
 		"pean-xd-view.js"
 	];
 
-	// [nom du jeu, fichier du scenario, vignette]
+	// [nom du jeu, fichier du scenario, vignette (extra/vignettes.py)]
 	var SCENARIOS = [
-		["pean-bataille-libre", "bataille-libre", "thumbnail.png"],
-		["pean-leuctres", "leuctres-371", "thumbnail.png"],
-		["pean-platees", "platees-479", "thumbnail.png"],
-		["pean-laurion", "laurion-413", "thumbnail.png"]
+		["pean-bataille-libre", "bataille-libre", "thumbnail-libre.png"],
+		["pean-leuctres", "leuctres-371", "thumbnail-leuctres.png"],
+		["pean-platees", "platees-479", "thumbnail-platees.png"],
+		["pean-laurion", "laurion-413", "thumbnail-laurion.png"]
 	];
 
 	var levels = [

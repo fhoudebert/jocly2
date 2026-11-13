@@ -22,6 +22,7 @@ Un module, plusieurs jeux : **un jeu Jocly par scénario**, tous servis par le m
 | `res/images/` | emblèmes et bannières de 0 A.D. (CC BY-SA 3.0), pictogrammes et tuiles de terrain de Wesnoth (GPL v2+) ; `extra/0ad/`, `extra/wesnoth/` : réserves d'images non embarquées, voir leurs README |
 | `index.js` | manifeste : la liste des scénarios, les niveaux d'IA. Il lit les JSON au build et les embarque dans `gameOptions.scenario` |
 | `scenarios/*.json` | les batailles |
+| `thumbnail-*.png` | les vignettes, une par jeu : portion de la carte en tuiles, emblèmes des camps ; refaites par `extra/vignettes.py` |
 | `extra/riviere.py` | aide à l'écriture des scénarios : les côtés d'hexagone d'une rivière le long d'une ligne |
 
 Tests : `npm test -- pean` (voir `tests/pean/`). Équilibre : `node src/games/pean/extra/lab.js SCENARIO` (auto-jeu

@@ -36,6 +36,8 @@ t.section("manifeste");
 			fs.existsSync(path.join(__dirname, "../../src/games/pean", p.replace(/^image\|/, "")))), g.name + " : emblemes et bannieres presents");
 		const sc = g.config.model.gameOptions.scenario;
 		Object.keys(sc.camps).forEach((k) => t.ok(sc.camps[k].embleme && sc.camps[k].banniere, g.name + " : camp " + k + " a son embleme et sa banniere"));
+		t.ok(/^thumbnail-.+\.png$/.test(g.config.model.thumbnail) &&
+			fs.existsSync(path.join(__dirname, "../../src/games/pean", g.config.model.thumbnail)), g.name + " : sa vignette");
 		t.ok(sc.regles && sc.regles.fr && sc.regles.en, g.name + " : conditions de victoire (regles) en francais et en anglais");
 	});
 	t.ok(/GPL v2/.test(fs.readFileSync(path.join(__dirname, "../../src/games/pean/credits-fr.html"), "utf8")), "credits : attribution Wesnoth");
