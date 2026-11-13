@@ -24,7 +24,7 @@ async function run(name, plies) {
 	const match = await Jocly.createMatch(name);
 	const config = await match.getConfig();
 	const level = Object.assign({}, config.model.levels[0], { maxDuration: 0.4, maxLoops: 12 });
-	t.eq(config.model.levels.map((l) => l.label), ["Caporal", "Capitaine", "Général"], name + " : trois niveaux");
+	t.eq(config.model.levels.map((l) => l.label), ["Caporal", "Capitaine", "Général", "Maréchal"], name + " : trois niveaux uct et le Maréchal");
 	let finished = false, n = 0;
 	const notation = [];
 	while(!finished && n < plies) {

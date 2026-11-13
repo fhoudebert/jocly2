@@ -422,6 +422,38 @@ var PeanRules = (function () {
 		return { i: id, s: side, t: spec.type, h: arrival ? PENDING : h, p: steps, f: facing, a: arrival || 0, e: arrival ? h : -1 };
 	}
 
+	/*
+	 * Le contexte compile, en JSON simple, pour un moteur externe (le moteur
+	 * Rust de Tabulon) : il n'a ainsi pas a relire les scenarios, dont ce
+	 * fichier reste le seul interprete. Geometrie, terrains, cotes, types,
+	 * camps, objectifs, options et table : tout ce que les regles consultent.
+	 */
+	function exportContext(ctx) {
+		return {
+			cols: ctx.cols, rows: ctx.rows,
+			terr: Array.prototype.slice.call(ctx.terr),
+			terrains: ctx.terrains.map(function (t) {
+				return { name: t.name, cost: t.cost ? [t.cost.pied, t.cost.monte] : null, def: t.def,
+					noCharge: !!t.noCharge, disorder: !!t.disorder, blocksFire: !!t.blocksFire, road: !!t.road, height: t.height || 0 };
+			}),
+			sides: ctx.sides.map(function (s) { return { name: s.name, cost: s.cost, attack: s.attack, cutsZoc: !!s.cutsZoc }; }),
+			edge: Array.prototype.slice.call(ctx.edge),
+			types: ctx.typeKeys.map(function (k) {
+				var t = ctx.types[k];
+				return { key: k, force: t.force, mp: t.mp, steps: t.steps, value: t.value, phalanx: !!t.phalanx, light: !!t.light,
+					fire: !!t.fire, mounted: !!t.mounted, disengage: !!t.disengage, charge: !!t.charge, general: !!t.general };
+			}),
+			home: [ctx.home[FIRST], ctx.home[SECOND]],
+			objectives: ctx.objectives.map(function (o) {
+				return { hex: o.hex, points: o.points, owner: o.owner || 0, only: o.only || 0, immediate: !!o.immediate, hold: o.hold || 0 };
+			}),
+			orders: [ctx.orders.base, ctx.orders.parGeneral],
+			options: { orientation: !!ctx.options.orientation, profondeur: !!ctx.options.profondeur, charge: !!ctx.options.charge },
+			table: ctx.table.map(function (c) { return { num: c.num, den: c.den, result: c.result }; }),
+			rupture: ctx.rupture, nulle: ctx.nulle, tours: ctx.tours, chargeMin: ctx.chargeMin, flank: ctx.flank
+		};
+	}
+
 	/* ---------- geometrie ---------- */
 
 	function hexAt(ctx, q, r) {
@@ -1459,7 +1491,7 @@ var PeanRules = (function () {
 		TRAITS: TRAITS, OPTIONS: OPTIONS, RESULTS: RESULTS, DEFAULT_TABLE: DEFAULT_TABLE,
 		DEFAULT_TERRAINS: DEFAULT_TERRAINS, DEFAULT_SIDES: DEFAULT_SIDES,
 		DEFAULT_TYPES: DEFAULT_TYPES, DEFAULT_LEGEND: DEFAULT_LEGEND,
-		makeContext: makeContext, validateScenario: validateScenario,
+		makeContext: makeContext, validateScenario: validateScenario, exportContext: exportContext,
 		parseHex: parseHex, parseZone: parseZone,
 		hexAt: hexAt, distance: distance, dirBetween: dirBetween,
 		hexName: hexName, hexOf: hexOf, colName: colName, edgeDistance: edgeDistance,

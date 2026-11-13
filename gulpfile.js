@@ -421,6 +421,7 @@ gulp.task("build-node-core", function () {
 			"src/core/jocly.scan.js",
 			"src/core/jocly.kata.js",
 			"src/core/jocly.kriegspiel.js",
+		"src/core/jocly.pean.js",
 			"src/core/jocly.game.js"
 		]), null, false, NODE_TARGET);
 
@@ -503,6 +504,7 @@ gulp.task("build-browser-core", function () {
 		"src/browser/jocly.scanworker.js",
 		"src/browser/jocly.kataworker.js",
 		"src/browser/jocly.kriegspielworker.js",
+		"src/browser/jocly.peanworker.js",
 		"src/browser/jocly.embed.js"
 	]));
 
@@ -513,6 +515,7 @@ gulp.task("build-browser-core", function () {
 		"src/core/jocly.scan.js",
 		"src/core/jocly.kata.js",
 		"src/core/jocly.kriegspiel.js",
+		"src/core/jocly.pean.js",
 		"src/core/jocly.game.js"
 	]), "jocly.game.js", true);
 

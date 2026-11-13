@@ -59,6 +59,7 @@ if (typeof WorkerGlobalScope == 'undefined' && typeof window == 'undefined') {
 		global.JoclyScan = r("./jocly.scan.js").JoclyScan;
 		global.JoclyKata = r("./jocly.kata.js").JoclyKata;
 		global.JoclyKriegspiel = r("./jocly.kriegspiel.js").JoclyKriegspiel;
+		global.JoclyPean = r("./jocly.pean.js").JoclyPean;
 	})();
 
 } else {
@@ -711,6 +712,12 @@ JocGame.prototype.StartMachine = function(aOptions) {
 		// le niveau se rabat sur l'IA uct du jeu et l'annonce.
 		JoclyKriegspiel.startMachine(this,aOptions);
 	}
+	else if(aOptions.level && aOptions.level.ai=="pean" && typeof JoclyPean!="undefined") {
+		// Péan : moteur fourni par l'hote a travers jocly.peanworker.js (voir
+		// jocly.pean.js). Sans moteur, le niveau se rabat sur l'IA uct du jeu
+		// et l'annonce.
+		JoclyPean.startMachine(this,aOptions);
+	}
 	else { // default is legacy alpha-beta ai
 		if(aiThread)
 			this.StartThreadedMachine(aOptions,"alpha-beta");
@@ -791,6 +798,8 @@ JocGame.prototype.StopThreadedMachine = function() {
 		JoclyKata.abortMachine(this);
 	if(typeof JoclyKriegspiel != "undefined" && JoclyKriegspiel.abortMachine)
 		JoclyKriegspiel.abortMachine(this);
+	if(typeof JoclyPean != "undefined" && JoclyPean.abortMachine)
+		JoclyPean.abortMachine(this);
 }
 
 JocGame.prototype.ScheduleStep = function() {

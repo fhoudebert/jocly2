@@ -23,7 +23,7 @@ t.section("manifeste");
 		t.eq(g.config.model.module, "pean", g.name + " : module commun");
 		t.eq(R.validateScenario(g.config.model.gameOptions.scenario), [], g.name + " : scenario embarque valide");
 		t.eq(g.config.model.maxLevel, g.config.model.levels.length, g.name + " : maxLevel");
-		t.eq(g.config.model.levels.map((l) => l.ai), ["uct", "uct", "uct"], g.name + " : trois niveaux uct");
+		t.eq(g.config.model.levels.map((l) => l.ai), ["uct", "uct", "uct", "pean"], g.name + " : trois niveaux uct, puis le Maréchal (moteur externe)");
 		t.eq(g.config.model.gameOptions.preventRepeat, false, g.name + " : pas de nulle par repetition (la limite de tours clot la partie)");
 	});
 	const fs = require("fs"), path = require("path");

@@ -104,7 +104,23 @@
 		return parts.join(",");
 	};
 
-	// l'etat en JSON, pour un moteur externe (Tabulon, a venir)
+	/*
+	 * La requete du moteur externe (niveau « Maréchal », src/core/jocly.pean.js) :
+	 * le contexte compile du scenario et l'etat. null pendant le deploiement
+	 * libre, que l'IA du jeu joue elle-meme.
+	 */
+	Model.Board.ExportEngineRequest = function (aGame) {
+		if (this.over || this.phase < 2)
+			return null;
+		var st = {};
+		for (var i = 0; i < STATE_FIELDS.length; i++)
+			st[STATE_FIELDS[i]] = this[STATE_FIELDS[i]];
+		if (!aGame.g.engineContext)
+			aGame.g.engineContext = R.exportContext(aGame.g.ctx);
+		return { context: aGame.g.engineContext, state: st };
+	};
+
+	// l'etat en JSON (scenario et etat)
 	Model.Board.ExportBoardState = function (aGame) {
 		var st = {};
 		for (var i = 0; i < STATE_FIELDS.length; i++)

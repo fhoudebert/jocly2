@@ -140,11 +140,34 @@ d'itérations fixe ; le Laurion a été remesuré ainsi (avec la route continue 
 batailles en plaine se décident vite, par rupture : la durée visée par le cadrage (12 à 20 tours) n'est atteinte qu'à
 Platées.
 
+## Niveau Maréchal (moteur natif)
+
+Le quatrième niveau, « Maréchal » (`"ai": "pean"`), est un moteur Rust lié à Tabulon (crate `pean` de Tabulon,
+`src-tauri/crates/pean`). jocly lui parle à travers `jocly.peanworker.js` (voir `src/core/jocly.pean.js`) : il envoie le
+contexte compilé du scénario (`PeanRules.exportContext`) et l'état (`Model.Board.ExportEngineRequest`), et valide le
+tour rendu (`IsValidMove`). Le moteur ne lit jamais les scénarios : une nouvelle bataille n'y demande rien.
+
+- **règles** : portage de `pean-rules.js`, qui reste la référence ; un test différentiel compare destinations,
+  combats, verdicts et codes d'erreur, états, issues, évaluation et tours candidats, position par position ;
+- **recherche** : alpha-bêta à approfondissement itératif sur les tours candidats de `pean-ai.js` (40 à la racine,
+  puis 18, 12...), l'arbre gardé d'une itération à l'autre ; profondeur 3 à 4 tours en 2,5 s ;
+- **sans moteur** (jocly seul, navigateur) : le tour est joué par « Général » et le repli est annoncé ; le
+  déploiement libre est toujours joué par l'IA du jeu.
+
+Mesure (novembre 2026, `tools/duel.cjs` de la crate), contre « Général » tel quel (5 s par tour), 13 parties par
+scénario, camps alternés :
+
+| scénario | Maréchal | remarque |
+|---|---|---|
+| Bataille libre | 8 V / 0 N / 5 D | 6 sur 6 en second, 2 sur 7 en premier : la première frappe compte |
+| Leuctres | 12 V / 0 N / 1 D | |
+| Platées | 10 V / 1 N / 2 D | |
+| Laurion | 10 V / 0 N / 3 D | |
+| **total** | **40 V / 1 N / 11 D, 78 %** | tour le plus long : 2,55 s |
+
 ## Limites de cette version
 
-- pas de moteur natif (niveau Maréchal) ni d'intégration Tabulon : ce sont les étapes 4 à 6 du cadrage. Le
-  modèle exporte déjà l'état en JSON (`ExportBoardState`) ;
-- l'IA (UCT jocly sur tours candidats) joue des coups sensés mais reste faible, et l'équilibre des scénarios n'est
-  pas encore réglé (étape 3 du cadrage) ;
+- l'IA de jocly (UCT sur tours candidats) joue des coups sensés mais reste faible ; le Maréchal n'existe que dans
+  Tabulon ;
 - la skin « Tuiles » pose les tuiles de terrain de Wesnoth ; la skin « Insignes » emprunte à 0 A.D. les emblèmes et les bannières, à Wesnoth les pictogrammes de forêt, marais,
   montagne, mer, colline, ville et camp ; plaine, route, rivières et icônes d'unités restent dessinés.

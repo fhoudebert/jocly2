@@ -72,6 +72,18 @@ exports.games = (function () {
 			"useAlphaBeta": true,
 			"propagation": "mixed",
 			"propagateMultiVisits": false
+		},
+		{
+			// Moteur externe, fourni par l'hote (Tabulon, crate `pean`) a
+			// travers jocly.peanworker.js. Sans moteur, le tour est joue par
+			// « Général » et le repli est annonce : voir src/core/jocly.pean.js.
+			// Le deploiement libre reste joue par l'IA du jeu.
+			// Mesure (novembre 2026) : 40 victoires, 1 nulle, 11 defaites
+			// contre « Général » sur 52 parties (13 par scenario, camps
+			// alternes), 2,5 s par tour au plus.
+			"label": "Maréchal",
+			"ai": "pean",
+			"moveTimeMs": 2500
 		}
 	];
 

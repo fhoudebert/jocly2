@@ -414,4 +414,17 @@ t.section("validation d'un tour complet et notation");
 	t.eq(R.playTurn(ctx, st, 1, {}).ok, true, "un tour sans rien est permis");
 })();
 
+t.section("contexte exporte (moteur externe)");
+(function () {
+	["bataille-libre", "leuctres-371", "platees-479", "laurion-413"].forEach((name) => {
+		const ctx = R.makeContext({ scenario: scenario(name) });
+		const x = JSON.parse(JSON.stringify(R.exportContext(ctx)));
+		t.eq([x.cols, x.rows, x.terr.length, x.edge.length], [ctx.cols, ctx.rows, ctx.N, ctx.N * 6], name + " : carte");
+		t.eq(x.types.map((k) => k.key), ctx.typeKeys, name + " : types, dans l'ordre du contexte");
+		t.eq(x.objectives.map((o) => o.hex), ctx.objectives.map((o) => o.hex), name + " : objectifs");
+		t.ok(x.terrains.every((tt) => tt.cost === null || tt.cost.length === 2), name + " : couts (pied, monte) ou infranchissable");
+		t.eq(x.home, [ctx.home[1], ctx.home[-1]], name + " : bords des camps");
+	});
+})();
+
 t.done();
