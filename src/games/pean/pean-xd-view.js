@@ -60,6 +60,8 @@
 
 	// « tuiles » : tuiles de terrain de Wesnoth, memes pions que « insignes »
 	PALETTES.tuiles = PALETTES.insignes;
+	PALETTES.portraits = PALETTES.insignes;
+	PALETTES.wargame = PALETTES.insignes;
 
 	/*
 	 * Tuiles de Wesnoth (res/images/tuiles/), 72 x 72 : leur hexagone a sommet
@@ -228,9 +230,10 @@
 	}
 
 	// pions a embleme et bannieres : skins « insignes » et « tuiles »
-	function insignia() { return ui.game.mSkin === "insignes" || ui.game.mSkin === "tuiles"; }
+	function insignia() { return ["insignes", "tuiles", "portraits", "wargame"].indexOf(ui.game.mSkin) >= 0; }
 
-	function tiled() { return ui.game.mSkin === "tuiles"; }
+	// les skins a tuiles de terrain
+	function tiled() { return ["tuiles", "portraits", "wargame"].indexOf(ui.game.mSkin) >= 0; }
 
 	// une tuile, decoupee a l'hexagone ; false tant qu'elle n'est pas chargee
 	function drawTile(ctx, avatar, name, x, y, R) {
@@ -572,131 +575,206 @@
 
 	/* ---------- pions ---------- */
 
-	// icone d'un type, d'apres ses traits, dans un repere de 100 unites
-	function drawIcon(ctx, t, color) {
-		ctx.strokeStyle = color;
-		ctx.fillStyle = color;
+	/*
+	 * Icones des types, dans un repere de 100 unites centre. Un type les tire
+	 * de ses traits, ou du scenario (cle « icone » d'un type) : c'est ce qui
+	 * distingue, par exemple, Immortels (lance) et sparabara (pavois).
+	 */
+	function iconName(t) {
+		if (t.icon && GLYPHS[t.icon]) return t.icon;
+		if (t.general) return "casque";
+		if (t.fire && t.mounted) return "cheval-arc";
+		if (t.fire && t.light) return "fronde";
+		if (t.fire) return "arc";
+		if (t.mounted && t.charge) return "cheval-lance";
+		if (t.mounted) return "cheval";
+		if (t.phalanx) return "aspis";
+		if (t.light) return "javelots";
+		return "lance";
+	}
+
+	// tete de cheval, a la facon du cavalier des echecs
+	function horseHead(ctx) {
+		ctx.beginPath();
+		ctx.moveTo(-24, 36);
+		ctx.lineTo(-22, 12);
+		ctx.lineTo(-30, 0);
+		ctx.lineTo(-30, -12);
+		ctx.lineTo(-16, -28);
+		ctx.lineTo(-8, -42);
+		ctx.lineTo(-2, -32);
+		ctx.lineTo(12, -24);
+		ctx.lineTo(28, -6);
+		ctx.lineTo(26, 4);
+		ctx.lineTo(16, 4);
+		ctx.lineTo(4, -4);
+		ctx.lineTo(8, 14);
+		ctx.lineTo(18, 36);
+		ctx.closePath();
+		ctx.fill();
+	}
+
+	function spear(ctx, x1, y1, x2, y2, w) {
+		ctx.lineWidth = w || 6;
+		ctx.beginPath();
+		ctx.moveTo(x1, y1);
+		ctx.lineTo(x2, y2);
+		ctx.stroke();
+		var a = Math.atan2(y2 - y1, x2 - x1);
+		ctx.beginPath();
+		ctx.moveTo(x2 + Math.cos(a) * 10, y2 + Math.sin(a) * 10);
+		ctx.lineTo(x2 + Math.cos(a + 2.4) * 8, y2 + Math.sin(a + 2.4) * 8);
+		ctx.lineTo(x2 + Math.cos(a - 2.4) * 8, y2 + Math.sin(a - 2.4) * 8);
+		ctx.closePath();
+		ctx.fill();
+	}
+
+	function bow(ctx, cx, r) {
 		ctx.lineWidth = 7;
-		ctx.lineCap = "round";
-		ctx.lineJoin = "round";
-		function horse() {
+		ctx.beginPath();
+		ctx.arc(cx, 0, r, -Math.PI / 2.6, Math.PI / 2.6);
+		ctx.stroke();
+		ctx.lineWidth = 3;
+		ctx.beginPath();
+		ctx.moveTo(cx + r * Math.cos(Math.PI / 2.6), -r * Math.sin(Math.PI / 2.6));
+		ctx.lineTo(cx + r * Math.cos(Math.PI / 2.6), r * Math.sin(Math.PI / 2.6));
+		ctx.stroke();
+	}
+
+	var GLYPHS = {
+		casque: function (ctx) {
 			ctx.beginPath();
-			ctx.moveTo(-22, 28);
-			ctx.lineTo(-14, -2);
-			ctx.lineTo(-24, -14);
-			ctx.lineTo(-8, -30);
-			ctx.lineTo(4, -22);
-			ctx.lineTo(24, -6);
-			ctx.lineTo(18, 2);
-			ctx.lineTo(4, -4);
-			ctx.lineTo(10, 28);
+			ctx.arc(0, 6, 22, Math.PI, 0);
+			ctx.lineTo(22, 30);
+			ctx.lineTo(7, 30);
+			ctx.lineTo(7, 12);
+			ctx.lineTo(-7, 12);
+			ctx.lineTo(-7, 30);
+			ctx.lineTo(-22, 30);
 			ctx.closePath();
 			ctx.fill();
-		}
-		if (t.general) {
-			// casque corinthien a cimier
+			ctx.lineWidth = 11;
 			ctx.beginPath();
-			ctx.arc(0, 4, 20, Math.PI, 0);
-			ctx.lineTo(20, 26);
-			ctx.lineTo(6, 26);
-			ctx.lineTo(6, 10);
-			ctx.lineTo(-6, 10);
-			ctx.lineTo(-6, 26);
-			ctx.lineTo(-20, 26);
-			ctx.closePath();
+			ctx.moveTo(-28, -6);
+			ctx.quadraticCurveTo(0, -50, 32, -10);
+			ctx.stroke();
+		},
+		aspis: function (ctx, fg, bg, t) {
+			spear(ctx, -34, 34, 28, -28, 7);
+			ctx.beginPath();
+			ctx.arc(-4, 6, 24, 0, Math.PI * 2);
 			ctx.fill();
+			ctx.strokeStyle = bg;
+			ctx.lineWidth = 4;
 			ctx.beginPath();
-			ctx.moveTo(-26, -6);
-			ctx.quadraticCurveTo(0, -46, 30, -10);
-			ctx.lineWidth = 9;
+			if (t && t.force >= 7) {   // elite : lambda
+				ctx.moveTo(-14, 18);
+				ctx.lineTo(-4, -8);
+				ctx.lineTo(6, 18);
+			} else
+				ctx.arc(-4, 6, 15, 0, Math.PI * 2);
 			ctx.stroke();
-		} else if (t.fire && t.mounted) {
-			horse();
-			ctx.lineWidth = 5;
+		},
+		lance: function (ctx, fg, bg) {
+			spear(ctx, -26, 40, 22, -36, 8);
+			// la pomme d'or des Immortels au talon
 			ctx.beginPath();
-			ctx.arc(-26, -6, 22, -Math.PI / 2.4, Math.PI / 2.4);
-			ctx.stroke();
-		} else if (t.fire) {
-			// arc et fleche
+			ctx.arc(-27, 41, 8, 0, Math.PI * 2);
+			ctx.fill();
+			// petit bouclier en croissant
+			ctx.lineWidth = 8;
 			ctx.beginPath();
-			ctx.arc(-14, 0, 32, -Math.PI / 2.6, Math.PI / 2.6);
+			ctx.arc(10, 10, 20, Math.PI * 0.55, Math.PI * 1.45);
 			ctx.stroke();
+		},
+		pavois: function (ctx, fg, bg) {
+			// grand bouclier d'osier rectangulaire, lance derriere
+			spear(ctx, 26, 40, 26, -40, 6);
+			ctx.fillRect(-28, -32, 42, 66);
+			ctx.strokeStyle = bg;
 			ctx.lineWidth = 3;
 			ctx.beginPath();
-			ctx.moveTo(-14 + 32 * Math.cos(Math.PI / 2.6), -32 * Math.sin(Math.PI / 2.6));
-			ctx.lineTo(-14 + 32 * Math.cos(Math.PI / 2.6), 32 * Math.sin(Math.PI / 2.6));
-			ctx.moveTo(-30, 0);
-			ctx.lineTo(32, 0);
-			ctx.stroke();
-			ctx.beginPath();
-			ctx.moveTo(34, 0);
-			ctx.lineTo(24, -7);
-			ctx.lineTo(24, 7);
-			ctx.closePath();
-			ctx.fill();
-		} else if (t.mounted) {
-			horse();
-			if (t.charge) {
-				ctx.lineWidth = 5;
-				ctx.beginPath();
-				ctx.moveTo(-34, 20);
-				ctx.lineTo(34, -30);
-				ctx.stroke();
+			for (var y = -22; y < 34; y += 11) {
+				ctx.moveTo(-24, y);
+				ctx.lineTo(10, y);
 			}
-		} else if (t.phalanx) {
-			// aspis et dory
-			ctx.lineWidth = 6;
-			ctx.beginPath();
-			ctx.moveTo(-30, 30);
-			ctx.lineTo(30, -30);
 			ctx.stroke();
-			ctx.beginPath();
-			ctx.moveTo(34, -34);
-			ctx.lineTo(22, -30);
-			ctx.lineTo(30, -22);
-			ctx.closePath();
-			ctx.fill();
-			ctx.beginPath();
-			ctx.arc(-4, 4, 21, 0, Math.PI * 2);
-			ctx.fill();
-			if (t.force >= 7) {
-				// elite : lambda sur le bouclier
-				ctx.save();
-				ctx.globalCompositeOperation = "destination-out";
-				ctx.lineWidth = 5;
-				ctx.beginPath();
-				ctx.moveTo(-14, 16);
-				ctx.lineTo(-4, -10);
-				ctx.lineTo(6, 16);
-				ctx.stroke();
-				ctx.restore();
-			}
-		} else if (t.light) {
-			// deux javelots
+		},
+		javelots: function (ctx) {
+			spear(ctx, -30, 30, 26, -26, 6);
+			spear(ctx, 30, 30, -26, -26, 6);
+		},
+		fronde: function (ctx) {
+			// deux cordes, la poche et la pierre ; le tour de main
 			ctx.lineWidth = 5;
 			ctx.beginPath();
-			ctx.moveTo(-28, 28);
-			ctx.lineTo(24, -24);
-			ctx.moveTo(28, 28);
-			ctx.lineTo(-24, -24);
+			ctx.moveTo(-26, -30);
+			ctx.quadraticCurveTo(-30, 10, 8, 22);
+			ctx.moveTo(-26, -30);
+			ctx.quadraticCurveTo(10, -20, 18, 14);
 			ctx.stroke();
-			[[26, -26, 1], [-26, -26, -1]].forEach(function (p) {
-				ctx.beginPath();
-				ctx.moveTo(p[0] + 4 * p[2], p[1] - 4);
-				ctx.lineTo(p[0] - 8 * p[2], p[1] - 2);
-				ctx.lineTo(p[0] + 2 * p[2], p[1] + 8);
-				ctx.closePath();
-				ctx.fill();
-			});
-		} else {
-			// infanterie : grand bouclier et lance
-			ctx.lineWidth = 6;
 			ctx.beginPath();
-			ctx.moveTo(18, 32);
-			ctx.lineTo(18, -34);
+			ctx.ellipse(14, 20, 12, 8, -0.5, 0, Math.PI * 2);
+			ctx.fill();
+			ctx.beginPath();
+			ctx.arc(-26, -30, 7, 0, Math.PI * 2);
+			ctx.fill();
+			ctx.lineWidth = 4;
+			ctx.beginPath();
+			ctx.arc(-4, -4, 38, Math.PI * 1.15, Math.PI * 1.75);
 			ctx.stroke();
-			ctx.fillRect(-26, -20, 32, 44);
+		},
+		arc: function (ctx) {
+			bow(ctx, -18, 36);
+			ctx.lineWidth = 4;
+			ctx.beginPath();
+			ctx.moveTo(-34, 0);
+			ctx.lineTo(30, 0);
+			ctx.stroke();
+			ctx.beginPath();
+			ctx.moveTo(38, 0);
+			ctx.lineTo(26, -9);
+			ctx.lineTo(26, 9);
+			ctx.closePath();
+			ctx.fill();
+		},
+		cheval: function (ctx) {
+			horseHead(ctx);
+			spear(ctx, 8, 40, 40, -34, 5);
+		},
+		"cheval-lance": function (ctx) {
+			horseHead(ctx);
+			spear(ctx, -40, 30, 40, -40, 6);
+		},
+		"cheval-arc": function (ctx) {
+			horseHead(ctx);
+			ctx.save();
+			ctx.translate(20, 0);
+			bow(ctx, -12, 26);
+			ctx.restore();
 		}
+	};
+
+	// icone d'un type ; `halo` : un liseré sombre pour la lire sur n'importe quel fond
+	function drawIcon(ctx, t, color, halo) {
+		var draw = GLYPHS[iconName(t)];
+		ctx.lineCap = "round";
+		ctx.lineJoin = "round";
+		var bg = halo || "rgba(0,0,0,0.6)";
+		if (halo) {
+			ctx.save();
+			ctx.strokeStyle = ctx.fillStyle = halo;
+			for (var k = 0; k < 8; k++) {
+				ctx.save();
+				ctx.translate(Math.cos(k * Math.PI / 4) * 4, Math.sin(k * Math.PI / 4) * 4);
+				draw(ctx, halo, halo, t);
+				ctx.restore();
+			}
+			ctx.restore();
+		}
+		ctx.strokeStyle = color;
+		ctx.fillStyle = color;
+		draw(ctx, color, bg, t);
 	}
 
 	function drawUnit(ctx, u, xy, R, faded, avatar) {
@@ -759,67 +837,211 @@
 	}
 
 	/*
-	 * Pion a embleme : le bouclier de 0 A.D., cercle au trait de la couleur du
-	 * camp, et une plaquette sombre (icone du type, force et mouvement).
-	 * false tant que l'image n'est pas chargee : le pion dessine prend le relais.
+	 * Pions a embleme ; le style vient de la skin :
+	 *   arme      (« tuiles », « insignes ») le bouclier entier, l'arme du type
+	 *             a gauche, sur le bord du bouclier, jamais sur son centre
+	 *   portrait  (« portraits ») le portrait d'unite de 0 A.D. au coeur du pion
+	 *   pion      (« wargame ») pion carre : couleur du camp, icone, embleme en coin
+	 */
+
+	// faction d'un embleme, pour choisir les portraits
+	var FACTION = { athenians: "athen", hellenes: "athen", spartans: "spart", poleis: "spart", thebans: "theb", persians: "pers" };
+
+	// portrait par faction et role ; une faction sans portrait d'un role prend celui d'Athenes
+	var PORTRAITS = {
+		athen: { hoplite: "infantry_spearman", elite: "champion_infantry", leger: "infantry_javelinist", archer: "champion_ranged",
+			fronde: "infantry_slinger", cavalerie: "cavalry_javelinist", choc: "cavalry_swordsman", general: "hero_iphicrates",
+			infanterie: "infantry_spearman", "archer-monte": "cavalry_javelinist" },
+		spart: { hoplite: "infantry_spearman", elite: "champion_infantry_spear", leger: "infantry_javelinist",
+			fronde: "infantry_slinger", cavalerie: "cavalry_javelinist", choc: "cavalry_spearman", general: "hero_brasidas",
+			infanterie: "infantry_spearman" },
+		theb: { hoplite: "champion_infantry_hoplite", elite: "champion_infantry_hoplite" },
+		pers: { hoplite: "infantry_spearman", elite: "champion_infantry", leger: "kardakes_skirmisher", archer: "infantry_archer",
+			fronde: "kardakes_skirmisher", cavalerie: "cavalry_javelinist", choc: "cavalry_spearman", general: "hero_xerxes",
+			infanterie: "infantry_spearman", "archer-monte": "cavalry_archer" }
+	};
+
+	function roleOf(t) {
+		if (t.general) return "general";
+		if (t.fire && t.mounted) return "archer-monte";
+		if (t.fire && t.light) return "fronde";
+		if (t.fire) return "archer";
+		if (t.mounted) return t.charge ? "choc" : "cavalerie";
+		if (t.phalanx) return t.force >= 7 ? "elite" : "hoplite";
+		if (t.light) return "leger";
+		return t.force >= 5 ? "elite" : "infanterie";
+	}
+
+	// « faction/nom » : portrait du scenario (unite, puis type), sinon d'apres la faction et le role
+	function portraitOf(u) {
+		var rc = ui.game.g.ctx, t = rc.types[u.t];
+		var forced = (rc.unitPortraits && rc.unitPortraits[u.i]) || t.portrait;
+		if (forced) return forced.replace("/", "_");
+		var faction = FACTION[emblemOf(u)] || "athen", role = roleOf(t);
+		var name = (PORTRAITS[faction] || {})[role];
+		if (!name) {
+			faction = "athen";
+			name = PORTRAITS.athen[role] || "infantry_spearman";
+		}
+		return faction + "_" + name;
+	}
+
+	function unitStyle() {
+		return { portraits: "portrait", wargame: "pion" }[ui.game.mSkin] || "arme";
+	}
+
+	function plaque(ctx, u, t, col, x, y, w, h, icon) {
+		ctx.fillStyle = "rgba(29,20,16,0.88)";
+		ctx.strokeStyle = col.rim;
+		ctx.lineWidth = h * 0.1;
+		ctx.beginPath();
+		ctx.rect(x - w / 2, y, w, h);
+		ctx.fill();
+		ctx.stroke();
+		var tx = x;
+		if (icon) {
+			ctx.save();
+			ctx.translate(x - w / 2 + h * 0.55, y + h / 2);
+			ctx.scale(h * 0.42 / 40, h * 0.42 / 40);
+			drawIcon(ctx, t, "#f3d2ae");
+			ctx.restore();
+			tx = x + h * 0.45;
+		}
+		ctx.fillStyle = "#f3d2ae";
+		ctx.font = "bold " + Math.round(h * 0.72) + "px Georgia, serif";
+		ctx.textAlign = "center";
+		ctx.textBaseline = "middle";
+		ctx.fillText(ui.game.g.rules.forceOf(ui.game.g.ctx, u) + "·" + t.mp / 2, tx, y + h * 0.54);
+	}
+
+	function facingMark(ctx, u, r, color) {
+		if (u.f < 0) return;
+		var a = -Math.PI / 2 + screenDir(u.f) * Math.PI / 3;
+		ctx.fillStyle = color;
+		ctx.beginPath();
+		ctx.moveTo(Math.cos(a) * r * 1.3, Math.sin(a) * r * 1.3);
+		ctx.lineTo(Math.cos(a - 0.3) * r * 0.98, Math.sin(a - 0.3) * r * 0.98);
+		ctx.lineTo(Math.cos(a + 0.3) * r * 0.98, Math.sin(a + 0.3) * r * 0.98);
+		ctx.closePath();
+		ctx.fill();
+	}
+
+	function reducedMark(ctx, u, t, r, color) {
+		if (u.p >= t.steps) return;
+		ctx.strokeStyle = color;
+		ctx.lineWidth = r * 0.16;
+		ctx.beginPath();
+		ctx.moveTo(-r * 0.62, -r * 0.62);
+		ctx.lineTo(r * 0.4, r * 0.4);
+		ctx.stroke();
+	}
+
+	// bouclier a embleme, centre en (0,0), rayon r
+	function shield(ctx, image, r, col) {
+		ctx.fillStyle = "rgba(0,0,0,0.3)";
+		ctx.beginPath();
+		ctx.arc(r * 0.06, r * 0.08, r, 0, Math.PI * 2);
+		ctx.fill();
+		ctx.drawImage(image, -r * 1.04, -r * 1.04, r * 2.08, r * 2.08);
+		ctx.strokeStyle = col.rim;
+		ctx.lineWidth = r * 0.13;
+		ctx.beginPath();
+		ctx.arc(0, 0, r * 0.97, 0, Math.PI * 2);
+		ctx.stroke();
+	}
+
+	/*
+	 * false tant qu'une image n'est pas chargee : le pion dessine prend le
+	 * relais en attendant.
 	 */
 	function drawEmblemUnit(ctx, u, xy, R, faded, avatar, url) {
 		var rc = ui.game.g.ctx, P = pal(), t = rc.types[u.t];
-		var col = u.s === 1 ? P.sideA : P.sideB, r = R * 0.76;
-		return withImage(avatar, url, function (image) {
+		var col = u.s === 1 ? P.sideA : P.sideB, style = unitStyle();
+		var emblem = ui.images[url];
+		if (!emblem) {
+			withImage(avatar, url, function () { });
+			return false;
+		}
+		var portrait = null;
+		if (style === "portrait") {
+			var purl = ui.fullPath + "/res/images/portraits/" + portraitOf(u) + ".jpg";
+			portrait = ui.images[purl];
+			if (!portrait) {
+				withImage(avatar, purl, function () { });
+				style = "arme";
+			}
+		}
+		ctx.save();
+		ctx.translate(xy[0], xy[1]);
+		if (faded) ctx.globalAlpha = 0.45;
+		var r, side;
+		if (style === "arme") {
+			// le bouclier entier, a peine decale a droite ; l'arme sur son bord gauche
+			r = R * 0.72;
 			ctx.save();
-			ctx.translate(xy[0], xy[1]);
-			if (faded) ctx.globalAlpha = 0.45;
+			ctx.translate(R * 0.14, -R * 0.06);
+			shield(ctx, emblem, r, col);
+			facingMark(ctx, u, r, col.rim);
+			reducedMark(ctx, u, t, r, col.rim);
+			ctx.restore();
+			ctx.save();
+			ctx.translate(-R * 0.6, -R * 0.14);
+			var k = R * 0.4 / 40;
+			ctx.scale(k, k);
+			drawIcon(ctx, t, "#f6e3c8", "#1d1410");
+			ctx.restore();
+			plaque(ctx, u, t, col, R * 0.14, R * 0.44, R * 1.05, R * 0.4, false);
+		} else if (style === "portrait") {
+			// le portrait au coeur du pion, jante aux couleurs du camp, embleme en medaille
+			side = R * 0.7;
 			ctx.fillStyle = "rgba(0,0,0,0.3)";
 			ctx.beginPath();
-			ctx.arc(r * 0.06, r * 0.08, r, 0, Math.PI * 2);
+			ctx.arc(side * 0.06, side * 0.08, side * 1.08, 0, Math.PI * 2);
 			ctx.fill();
-			ctx.drawImage(image, -r * 1.04, -r * 1.04, r * 2.08, r * 2.08);
-			ctx.strokeStyle = col.rim;
-			ctx.lineWidth = r * 0.13;
+			ctx.fillStyle = col.rim;
 			ctx.beginPath();
-			ctx.arc(0, 0, r * 0.97, 0, Math.PI * 2);
-			ctx.stroke();
-			if (u.f >= 0) {
-				var a = -Math.PI / 2 + screenDir(u.f) * Math.PI / 3;
-				ctx.fillStyle = col.rim;
-				ctx.beginPath();
-				ctx.moveTo(Math.cos(a) * r * 1.3, Math.sin(a) * r * 1.3);
-				ctx.lineTo(Math.cos(a - 0.3) * r * 0.98, Math.sin(a - 0.3) * r * 0.98);
-				ctx.lineTo(Math.cos(a + 0.3) * r * 0.98, Math.sin(a + 0.3) * r * 0.98);
-				ctx.closePath();
-				ctx.fill();
-			}
-			// plaquette
-			var pw = r * 1.7, ph = r * 0.62, py = r * 0.42;
-			ctx.fillStyle = "rgba(29,20,16,0.88)";
-			ctx.strokeStyle = col.rim;
-			ctx.lineWidth = r * 0.06;
-			ctx.beginPath();
-			ctx.rect(-pw / 2, py, pw, ph);
+			ctx.arc(0, 0, side * 1.08, 0, Math.PI * 2);
 			ctx.fill();
-			ctx.stroke();
 			ctx.save();
-			ctx.translate(-pw / 2 + ph * 0.55, py + ph / 2);
-			var k = ph * 0.42 / 40;
-			ctx.scale(k, k);
-			drawIcon(ctx, t, "#f3d2ae");
+			ctx.beginPath();
+			ctx.arc(0, 0, side, 0, Math.PI * 2);
+			ctx.clip();
+			ctx.drawImage(portrait, -side, -side * 1.05, side * 2, side * 2);
 			ctx.restore();
-			ctx.fillStyle = "#f3d2ae";
-			ctx.font = "bold " + Math.round(ph * 0.72) + "px Georgia, serif";
+			facingMark(ctx, u, side, col.rim);
+			ctx.drawImage(emblem, -side * 1.18, -side * 1.18, side * 0.72, side * 0.72);
+			reducedMark(ctx, u, t, side, col.rim);
+			plaque(ctx, u, t, col, 0, side * 0.62, side * 1.7, side * 0.55, true);
+		} else {
+			// pion carre de wargame
+			var w = R * 1.42, h = R * 1.22;
+			ctx.fillStyle = "rgba(0,0,0,0.3)";
+			ctx.fillRect(-w / 2 + R * 0.05, -h / 2 + R * 0.06, w, h);
+			ctx.fillStyle = col.rim;
+			ctx.fillRect(-w / 2, -h / 2, w, h);
+			ctx.strokeStyle = "#1d1410";
+			ctx.lineWidth = R * 0.05;
+			ctx.strokeRect(-w / 2, -h / 2, w, h);
+			ctx.drawImage(emblem, -w / 2 + R * 0.04, -h / 2 + R * 0.04, R * 0.42, R * 0.42);
+			ctx.save();
+			ctx.translate(R * 0.08, -R * 0.2);
+			var kp = R * 0.38 / 40;
+			ctx.scale(kp, kp);
+			drawIcon(ctx, t, "#fff4e2", "rgba(0,0,0,0.55)");
+			ctx.restore();
+			ctx.fillStyle = "#fff4e2";
+			ctx.font = "bold " + Math.round(R * 0.36) + "px Georgia, serif";
 			ctx.textAlign = "center";
 			ctx.textBaseline = "middle";
-			ctx.fillText(ui.game.g.rules.forceOf(rc, u) + "·" + t.mp / 2, ph * 0.45, py + ph * 0.54);
-			if (u.p < t.steps) {
-				ctx.strokeStyle = col.rim;
-				ctx.lineWidth = r * 0.16;
-				ctx.beginPath();
-				ctx.moveTo(-r * 0.62, -r * 0.62);
-				ctx.lineTo(r * 0.4, r * 0.4);
-				ctx.stroke();
-			}
-			ctx.restore();
-		});
+			ctx.fillStyle = "rgba(29,20,16,0.55)";
+			ctx.fillRect(-w / 2, h / 2 - R * 0.36, w, R * 0.36);
+			ctx.fillStyle = "#fff4e2";
+			ctx.fillText(ui.game.g.rules.forceOf(rc, u) + "-" + t.mp / 2, 0, h / 2 - R * 0.17);
+			if (u.f >= 0) facingMark(ctx, u, R * 0.62, "#1d1410");
+			reducedMark(ctx, u, t, R * 0.62, "#1d1410");
+		}
+		ctx.restore();
+		return true;
 	}
 
 	function drawUnits(ctx) {

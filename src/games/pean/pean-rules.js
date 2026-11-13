@@ -323,7 +323,9 @@ var PeanRules = (function () {
 				phalanx: has(t.traits || [], "phalange"), light: has(t.traits || [], "leger"),
 				fire: has(t.traits || [], "tir"), mounted: has(t.traits || [], "monte"),
 				disengage: has(t.traits || [], "desengage"), charge: has(t.traits || [], "charge"),
-				general: has(t.traits || [], "general")
+				general: has(t.traits || [], "general"),
+				// apparence : la vue seule s'en sert
+				icon: t.icone || null, portrait: t.portrait || null
 			};
 		});
 		ctx.typeKeys = Object.keys(ctx.types);
@@ -371,11 +373,13 @@ var PeanRules = (function () {
 		// noms propres et emblemes facultatifs (generaux, allies...), hors de l'etat
 		ctx.unitNames = [];
 		ctx.unitEmblems = [];
+		ctx.unitPortraits = [];
 		[FIRST, SECOND].forEach(function (side) {
 			var camp = sc.camps[ctx.campKey[side]];
 			(camp.unites || []).concat(camp.renforts || []).forEach(function (spec) {
 				ctx.unitNames.push(spec.nom || null);
 				ctx.unitEmblems.push(spec.embleme || null);
+				ctx.unitPortraits.push(spec.portrait || null);
 			});
 		});
 		var seen = {};

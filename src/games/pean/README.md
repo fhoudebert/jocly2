@@ -18,8 +18,8 @@ Un module, plusieurs jeux : **un jeu Jocly par scénario**, tous servis par le m
 | `pean-rules.js` | moteur de règles pur : aucune globale Jocly, fonctions sur un état sérialisable, chargeable seul (`require`). Tout ce qui varie vient du scénario |
 | `pean-ai.js` | heuristiques, pures elles aussi : déploiements, tours candidats, évaluation à traits nommés (`WEIGHTS`) |
 | `pean-model.js` | habillage Jocly (`Model.Game`, `Model.Board`, `Model.Move`) |
-| `pean-xd-view.js`, `pean.css` | vue 2D hexagonale et saisie, dessinée au canvas ; quatre skins : « Tuiles » (tuiles de terrain de Wesnoth, par défaut), « Insignes » (pictogrammes de Wesnoth), toutes deux avec les emblèmes de 0 A.D. pour boucliers, « Céramique attique », « Carte » |
-| `res/images/` | emblèmes et bannières de 0 A.D. (CC BY-SA 3.0), pictogrammes et tuiles de terrain de Wesnoth (GPL v2+) ; `extra/0ad/`, `extra/wesnoth/` : réserves d'images non embarquées, voir leurs README |
+| `pean-xd-view.js`, `pean.css` | vue 2D hexagonale et saisie, dessinée au canvas ; six skins : « Tuiles » (tuiles de terrain de Wesnoth, par défaut), « Portraits » et « Wargame » (mêmes tuiles, autres pions), « Insignes » (pictogrammes de Wesnoth), avec les emblèmes de 0 A.D., « Céramique attique », « Carte » |
+| `res/images/` | emblèmes, bannières et portraits d'unités (96 px) de 0 A.D. (CC BY-SA 3.0), pictogrammes et tuiles de terrain de Wesnoth (GPL v2+) ; `extra/0ad/`, `extra/wesnoth/` : réserves d'images non embarquées, voir leurs README |
 | `index.js` | manifeste : la liste des scénarios, les niveaux d'IA. Il lit les JSON au build et les embarque dans `gameOptions.scenario` |
 | `scenarios/*.json` | les batailles |
 | `extra/riviere.py` | aide à l'écriture des scénarios : les côtés d'hexagone d'une rivière le long d'une ligne |
@@ -71,6 +71,9 @@ la bataille se contente du vocabulaire du noyau. `PeanRules.validateScenario(jso
 - Traits (vocabulaire fermé, implémenté une fois dans le noyau) : `phalange`, `leger`, `tir`, `monte`,
   `desengage`, `charge`, `general`. Un trait inconnu est une erreur : en ajouter un est une évolution du noyau.
 - Types par défaut : `hoplite`, `peltaste`, `archer`, `frondeur`, `cavlegere`, `cavlourde`, `general`.
+- Apparence (la vue seule s'en sert) : `icone` d'un type (`aspis`, `lance`, `pavois`, `javelots`, `fronde`, `arc`,
+  `cheval`, `cheval-lance`, `cheval-arc`, `casque` ; sinon déduite des traits), `portrait` d'un type ou d'une unité
+  (`faction/nom` dans `res/images/portraits/`, sinon choisi d'après la faction de l'emblème et le rôle).
 - Objectifs : `camp` = contrôle initial ; `pour` = seul camp qui marque ; `immediat` + `tenir` = victoire
   immédiate après N tours de tenue.
 
@@ -109,6 +112,12 @@ Le cadrage laisse quelques points ouverts ; voici ce qui a été tranché :
   engagée peut pivoter si l'option `orientation` est active ;
 - **renforts** : ils arrivent au début du tour de leur camp, sur leur hexagone d'entrée, ou à côté s'il est
   occupé, et peuvent bouger aussitôt.
+
+## Pions (essai)
+
+Trois styles de pion à comparer, chacun dans sa skin : « Tuiles » et « Insignes », le bouclier à emblème entier et
+l'arme du type sur son bord gauche ; « Portraits », le portrait d'unité de 0 A.D. au cœur du pion ; « Wargame », le
+pion carré aux couleurs du camp. L'arme ou les chiffres peuvent couvrir le bord du bouclier, jamais son centre.
 
 ## Équilibre mesuré (novembre 2026)
 
