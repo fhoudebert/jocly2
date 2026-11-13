@@ -74,6 +74,13 @@ exports.games = (function () {
 		}
 	];
 
+	// les tuiles de Wesnoth de la skin « tuiles » (res/images/tuiles/)
+	function tileImages() {
+		return ["plaine1", "plaine2", "plaine3", "plaine4", "plaine5", "route", "colline1", "colline2", "colline3",
+			"foret1", "foret2", "foret3", "marais1", "marais2", "montagne1", "montagne2",
+			"mer", "ville", "camp"].map(function (t) { return "image|/res/images/tuiles/" + t + ".png"; });
+	}
+
 	// emblemes, bannieres et pictogrammes de terrain utilises par un scenario
 	function insigniaImages(scenario) {
 		var list = ["foret", "marais", "montagne", "mer", "colline", "ville", "camp"].map(function (t) {
@@ -159,6 +166,13 @@ exports.games = (function () {
 						"moves": true
 					},
 					"skins": [
+						{
+							// tuiles de terrain de Wesnoth (GPL v2+) et pions a
+							// emblemes de 0 A.D. (CC BY-SA 3.0) : voir les credits
+							"name": "tuiles",
+							"title": "Tuiles (2D)",
+							"preload": tileImages().concat(insigniaImages(scenario))
+						},
 						{
 							// les emblemes de 0 A.D. pour boucliers (CC BY-SA 3.0),
 							// les pictogrammes de terrain de Wesnoth (GPL v2+) :

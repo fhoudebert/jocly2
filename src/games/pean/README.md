@@ -17,8 +17,8 @@ Un module, plusieurs jeux : **un jeu Jocly par scénario**, tous servis par le m
 | `pean-rules.js` | moteur de règles pur : aucune globale Jocly, fonctions sur un état sérialisable, chargeable seul (`require`). Tout ce qui varie vient du scénario |
 | `pean-ai.js` | heuristiques, pures elles aussi : déploiements, tours candidats, évaluation à traits nommés (`WEIGHTS`) |
 | `pean-model.js` | habillage Jocly (`Model.Game`, `Model.Board`, `Model.Move`) |
-| `pean-xd-view.js`, `pean.css` | vue 2D hexagonale et saisie, dessinée au canvas ; trois skins : « Insignes » (emblèmes de 0 A.D. pour boucliers), « Céramique attique », « Carte » |
-| `res/images/` | emblèmes et bannières de 0 A.D. (CC BY-SA 3.0), pictogrammes de terrain de Wesnoth (GPL v2+) ; `extra/0ad/`, `extra/wesnoth/` : réserves d'images non embarquées, voir leurs README |
+| `pean-xd-view.js`, `pean.css` | vue 2D hexagonale et saisie, dessinée au canvas ; quatre skins : « Tuiles » (tuiles de terrain de Wesnoth, par défaut), « Insignes » (pictogrammes de Wesnoth), toutes deux avec les emblèmes de 0 A.D. pour boucliers, « Céramique attique », « Carte » |
+| `res/images/` | emblèmes et bannières de 0 A.D. (CC BY-SA 3.0), pictogrammes et tuiles de terrain de Wesnoth (GPL v2+) ; `extra/0ad/`, `extra/wesnoth/` : réserves d'images non embarquées, voir leurs README |
 | `index.js` | manifeste : la liste des scénarios, les niveaux d'IA. Il lit les JSON au build et les embarque dans `gameOptions.scenario` |
 | `scenarios/*.json` | les batailles |
 | `extra/riviere.py` | aide à l'écriture des scénarios : les côtés d'hexagone d'une rivière le long d'une ligne |
@@ -109,5 +109,5 @@ Le cadrage laisse quelques points ouverts ; voici ce qui a été tranché :
   modèle exporte déjà l'état en JSON (`ExportBoardState`) ;
 - l'IA (UCT jocly sur tours candidats) joue des coups sensés mais reste faible, et l'équilibre des scénarios n'est
   pas encore réglé (étape 3 du cadrage) ;
-- la skin « Insignes » emprunte à 0 A.D. les emblèmes et les bannières, à Wesnoth les pictogrammes de forêt, marais,
+- la skin « Tuiles » pose les tuiles de terrain de Wesnoth ; la skin « Insignes » emprunte à 0 A.D. les emblèmes et les bannières, à Wesnoth les pictogrammes de forêt, marais,
   montagne, mer, colline, ville et camp ; plaine, route, rivières et icônes d'unités restent dessinés.

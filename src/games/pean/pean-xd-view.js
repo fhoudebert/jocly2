@@ -58,6 +58,34 @@
 		colline: "#b07a45", ville: "#8a6446", camp: "#7a5638"
 	});
 
+	// « tuiles » : tuiles de terrain de Wesnoth, memes pions que « insignes »
+	PALETTES.tuiles = PALETTES.insignes;
+
+	/*
+	 * Tuiles de Wesnoth (res/images/tuiles/), 72 x 72 : leur hexagone a sommet
+	 * plat a les sommets aux memes proportions que le notre, une mise a
+	 * l'echelle suffit. Une tuile de sol est posee sous chaque case (les forets
+	 * et les herbes du marais sont des surimpressions transparentes) ; les
+	 * variantes sont tirees d'apres le numero de case, pour casser la repetition.
+	 */
+	var TILES = {
+		plaine: ["plaine1", "plaine2", "plaine3"], sec: ["plaine4", "plaine5"], route: ["route"],
+		colline: ["colline1", "colline2", "colline3"], foret: ["foret1", "foret2", "foret3"],
+		marais: ["marais1", "marais1", "marais2"], montagne: ["montagne1", "montagne1", "montagne2"],
+		mer: ["mer"], ville: ["ville"], camp: ["camp"]
+	};
+
+	function variant(list, h, salt) {
+		return list[(Math.imul(h + 1, 2654435761) >>> (salt || 7)) % list.length];
+	}
+
+	// herbe seche par grandes plaques (bruit lisse), pas case par case
+	function groundOf(rc, h) {
+		var c = h % rc.cols, r = Math.floor(h / rc.cols);
+		var n = 0.5 + 0.28 * Math.sin(c * 0.42 + r * 0.23 + 1.3) + 0.22 * Math.sin(r * 0.57 - c * 0.17 + 4.1);
+		return variant(n > 0.62 ? TILES.sec : TILES.plaine, h, 9);
+	}
+
 	// pictogrammes de terrain de la skin « insignes » (res/images/terrain/)
 	var TERRAIN_ICONS = { foret: "foret", marais: "marais", montagne: "montagne", mer: "mer",
 		colline: "colline", ville: "ville", camp: "camp" };
@@ -199,7 +227,21 @@
 		return false;
 	}
 
-	function insignia() { return ui.game.mSkin === "insignes"; }
+	// pions a embleme et bannieres : skins « insignes » et « tuiles »
+	function insignia() { return ui.game.mSkin === "insignes" || ui.game.mSkin === "tuiles"; }
+
+	function tiled() { return ui.game.mSkin === "tuiles"; }
+
+	// une tuile, decoupee a l'hexagone ; false tant qu'elle n'est pas chargee
+	function drawTile(ctx, avatar, name, x, y, R) {
+		return withImage(avatar, imageUrl("tuiles", name), function (image) {
+			ctx.save();
+			hexPath(ctx, x, y, R);
+			ctx.clip();
+			ctx.drawImage(image, x - R, y - R * SQ3 / 2, 2 * R, R * SQ3);
+			ctx.restore();
+		}, ["board"]);
+	}
 
 	function emblemOf(u) {
 		var rc = ui.game.g.ctx;
@@ -321,6 +363,8 @@
 
 	// petits motifs de terrain, au trait ; pictogrammes de Wesnoth en skin « insignes »
 	function terrainGlyph(ctx, name, x, y, R, P, seed, avatar) {
+		if (tiled() && TILES[name])
+			return;   // la tuile dit deja tout
 		if (avatar && insignia() && TERRAIN_ICONS[name] &&
 				withImage(avatar, imageUrl("terrain", TERRAIN_ICONS[name]), function (image) {
 					ctx.save();
@@ -430,6 +474,11 @@
 			hexPath(ctx, xy[0], xy[1], R);
 			ctx.fillStyle = P[name] || P.other;
 			ctx.fill();
+			if (tiled() && TILES[name]) {
+				drawTile(ctx, avatar, groundOf(rc, h), xy[0], xy[1], R);
+				if (name !== "plaine")
+					drawTile(ctx, avatar, variant(TILES[name], h), xy[0], xy[1], R);
+			}
 		}
 		// routes : du centre vers les voisins routiers
 		ctx.strokeStyle = "rgba(90,60,30,0.45)";

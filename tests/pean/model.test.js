@@ -11,7 +11,7 @@ const AI = ai();
 const t = suite("pean model");
 
 function skinsHave(games, name) {
-	return games.every((g) => g.config.view.skins[0].preload.indexOf("image|/res/images/" + name + ".png") >= 0);
+	return games.every((g) => g.config.view.skins[1].preload.indexOf("image|/res/images/" + name + ".png") >= 0);
 }
 
 t.section("manifeste");
@@ -29,8 +29,10 @@ t.section("manifeste");
 	const fs = require("fs"), path = require("path");
 	games.forEach((g) => {
 		const skins = g.config.view.skins;
-		t.eq(skins.map((k) => k.name), ["insignes", "attique", "carte"], g.name + " : trois skins, « insignes » par defaut");
-		t.ok(skins[0].preload.length >= 3 && skins[0].preload.every((p) =>
+		t.eq(skins.map((k) => k.name), ["tuiles", "insignes", "attique", "carte"], g.name + " : quatre skins, « tuiles » par defaut");
+		t.ok(skins[0].preload.length >= 25 && skins[0].preload.every((p) =>
+			fs.existsSync(path.join(__dirname, "../../src/games/pean", p.replace(/^image\|/, "")))), g.name + " : tuiles presentes");
+		t.ok(skins[1].preload.length >= 3 && skins[1].preload.every((p) =>
 			fs.existsSync(path.join(__dirname, "../../src/games/pean", p.replace(/^image\|/, "")))), g.name + " : emblemes et bannieres presents");
 		const sc = g.config.model.gameOptions.scenario;
 		Object.keys(sc.camps).forEach((k) => t.ok(sc.camps[k].embleme && sc.camps[k].banniere, g.name + " : camp " + k + " a son embleme et sa banniere"));
