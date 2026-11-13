@@ -51,6 +51,9 @@
 		}
 	};
 
+	// « insignes » : la palette attique, avec les emblemes de 0 A.D. pour boucliers
+	PALETTES.insignes = PALETTES.attique;
+
 	var TEXT = {
 		fr: {
 			toPlay: "au trait", deploy: "déploiement", turn: "Tour", of: "sur",
@@ -164,6 +167,36 @@
 	}
 
 	function pal() { return PALETTES[ui && ui.game && PALETTES[ui.game.mSkin] ? ui.game.mSkin : "attique"]; }
+
+	/* ---------- images (skin « insignes ») ---------- */
+
+	function imageUrl(kind, name) {
+		return ui.fullPath + "/res/images/" + kind + "/" + name + ".png";
+	}
+
+	// une image de la skin, chargee une fois ; le dessin est relance a l'arrivee
+	function withImage(avatar, url, draw) {
+		var image = ui.images[url];
+		if (image) {
+			draw(image);
+			return true;
+		}
+		if (ui.images[url] === undefined && avatar && avatar.getResource) {
+			ui.images[url] = null;
+			avatar.getResource("image|" + url, function (loaded) {
+				ui.images[url] = loaded;
+				setTimeout(function () { redraw(["units"]); }, 0);
+			});
+		}
+		return false;
+	}
+
+	function insignia() { return ui.game.mSkin === "insignes"; }
+
+	function emblemOf(u) {
+		var rc = ui.game.g.ctx;
+		return (rc.unitEmblems && rc.unitEmblems[u.i]) || rc.camps[u.s].emblem;
+	}
 
 	function emptyOverlay() {
 		return { sel: [], dests: null, path: null, targets: [], target: -1, attackers: [], eligible: [],
@@ -582,9 +615,12 @@
 		}
 	}
 
-	function drawUnit(ctx, u, xy, R, faded) {
+	function drawUnit(ctx, u, xy, R, faded, avatar) {
 		var game = ui.game, rc = game.g.ctx, P = pal(), t = rc.types[u.t];
 		var col = u.s === 1 ? P.sideA : P.sideB, r = R * 0.74;
+		var emblem = insignia() && emblemOf(u);
+		if (emblem && drawEmblemUnit(ctx, u, xy, R, faded, avatar, imageUrl("emblemes", emblem)))
+			return;
 		ctx.save();
 		ctx.translate(xy[0], xy[1]);
 		if (faded) ctx.globalAlpha = 0.45;
@@ -638,7 +674,72 @@
 		ctx.restore();
 	}
 
+	/*
+	 * Pion a embleme : le bouclier de 0 A.D., cercle au trait de la couleur du
+	 * camp, et une plaquette sombre (icone du type, force et mouvement).
+	 * false tant que l'image n'est pas chargee : le pion dessine prend le relais.
+	 */
+	function drawEmblemUnit(ctx, u, xy, R, faded, avatar, url) {
+		var rc = ui.game.g.ctx, P = pal(), t = rc.types[u.t];
+		var col = u.s === 1 ? P.sideA : P.sideB, r = R * 0.76;
+		return withImage(avatar, url, function (image) {
+			ctx.save();
+			ctx.translate(xy[0], xy[1]);
+			if (faded) ctx.globalAlpha = 0.45;
+			ctx.fillStyle = "rgba(0,0,0,0.3)";
+			ctx.beginPath();
+			ctx.arc(r * 0.06, r * 0.08, r, 0, Math.PI * 2);
+			ctx.fill();
+			ctx.drawImage(image, -r * 1.04, -r * 1.04, r * 2.08, r * 2.08);
+			ctx.strokeStyle = col.rim;
+			ctx.lineWidth = r * 0.13;
+			ctx.beginPath();
+			ctx.arc(0, 0, r * 0.97, 0, Math.PI * 2);
+			ctx.stroke();
+			if (u.f >= 0) {
+				var a = -Math.PI / 2 + screenDir(u.f) * Math.PI / 3;
+				ctx.fillStyle = col.rim;
+				ctx.beginPath();
+				ctx.moveTo(Math.cos(a) * r * 1.3, Math.sin(a) * r * 1.3);
+				ctx.lineTo(Math.cos(a - 0.3) * r * 0.98, Math.sin(a - 0.3) * r * 0.98);
+				ctx.lineTo(Math.cos(a + 0.3) * r * 0.98, Math.sin(a + 0.3) * r * 0.98);
+				ctx.closePath();
+				ctx.fill();
+			}
+			// plaquette
+			var pw = r * 1.7, ph = r * 0.62, py = r * 0.42;
+			ctx.fillStyle = "rgba(29,20,16,0.88)";
+			ctx.strokeStyle = col.rim;
+			ctx.lineWidth = r * 0.06;
+			ctx.beginPath();
+			ctx.rect(-pw / 2, py, pw, ph);
+			ctx.fill();
+			ctx.stroke();
+			ctx.save();
+			ctx.translate(-pw / 2 + ph * 0.55, py + ph / 2);
+			var k = ph * 0.42 / 40;
+			ctx.scale(k, k);
+			drawIcon(ctx, t, "#f3d2ae");
+			ctx.restore();
+			ctx.fillStyle = "#f3d2ae";
+			ctx.font = "bold " + Math.round(ph * 0.72) + "px Georgia, serif";
+			ctx.textAlign = "center";
+			ctx.textBaseline = "middle";
+			ctx.fillText(ui.game.g.rules.forceOf(rc, u) + "·" + t.mp / 2, ph * 0.45, py + ph * 0.54);
+			if (u.p < t.steps) {
+				ctx.strokeStyle = col.rim;
+				ctx.lineWidth = r * 0.16;
+				ctx.beginPath();
+				ctx.moveTo(-r * 0.62, -r * 0.62);
+				ctx.lineTo(r * 0.4, r * 0.4);
+				ctx.stroke();
+			}
+			ctx.restore();
+		});
+	}
+
 	function drawUnits(ctx) {
+		var avatar = this;
 		if (!ui || !ui.state) return;
 		var L = ui.L, st = ui.state, ov = ui.overlay;
 		ctx.save();
@@ -646,11 +747,11 @@
 		for (var i = 0; i < st.u.length; i++) {
 			var u = st.u[i];
 			if (u.h < 0) continue;
-			drawUnit(ctx, u, hexXY(u.h), L.R, ov.ordered.indexOf(i) >= 0 && ui.dimOrdered);
+			drawUnit(ctx, u, hexXY(u.h), L.R, ov.ordered.indexOf(i) >= 0 && ui.dimOrdered, avatar);
 		}
 		// fantome du groupe a sa destination survolee
 		if (ov.ghost)
-			ov.ghost.forEach(function (g) { drawUnit(ctx, g.u, hexXY(g.h), L.R, true); });
+			ov.ghost.forEach(function (g) { drawUnit(ctx, g.u, hexXY(g.h), L.R, true, avatar); });
 		ctx.restore();
 	}
 
@@ -808,6 +909,12 @@
 		return loc(rc.camps[side].nom);
 	}
 
+	// banniere du camp (skin « insignes »)
+	function banner(side) {
+		var b = ui.game.g.ctx.camps[side].banner;
+		return b && insignia() ? '<img class="pean-banner" alt="" src="' + esc(imageUrl("bannieres", b)) + '">' : "";
+	}
+
 	function setPanel(html) {
 		ui.panelHtml = html;
 		if (ui.panelBody) ui.panelBody.html(html);
@@ -823,7 +930,7 @@
 	function header(board, st) {
 		var T = lang(), rc = ui.game.g.ctx, R = ui.game.g.rules, side = board.mWho;
 		var html = '<div class="pean-scenario">' + esc(loc(rc.scenario.titre)) + "</div>" +
-			'<div class="pean-title ' + sideClass(side) + '">' + esc(campName(side)) + " " +
+			'<div class="pean-title ' + sideClass(side) + '">' + banner(side) + esc(campName(side)) + " " +
 			esc(board.phase < 2 ? "– " + T.deploy : T.toPlay) + "</div>";
 		if (board.phase >= 2) {
 			html += '<div class="pean-sub">' + esc(T.turn) + " " + R.round(board) + " " + esc(T.of) + " " + rc.tours + "</div>";
@@ -930,7 +1037,7 @@
 	View.Game.xdInit = function (xdv) {
 		var game = this, rc = this.g.ctx;
 		ui = {
-			xdv: xdv, game: game, L: layout(rc),
+			xdv: xdv, game: game, L: layout(rc), fullPath: this.mViewOptions.fullPath, images: {},
 			state: null, board: null, overlay: emptyOverlay(), hover: -1, dimOrdered: true,
 			panelEl: null, panelBody: null, panelHtml: "", infoHtml: "",
 			controller: null, click: null, lastTurn: null

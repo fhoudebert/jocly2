@@ -74,6 +74,22 @@ exports.games = (function () {
 		}
 	];
 
+	// emblemes et bannieres utilises par un scenario
+	function insigniaImages(scenario) {
+		var list = [];
+		function add(kind, name) {
+			var path = "image|/res/images/" + kind + "/" + name + ".png";
+			if (name && list.indexOf(path) < 0) list.push(path);
+		}
+		Object.keys(scenario.camps).forEach(function (k) {
+			var camp = scenario.camps[k];
+			add("emblemes", camp.embleme);
+			add("bannieres", camp.banniere);
+			(camp.unites || []).concat(camp.renforts || []).forEach(function (u) { add("emblemes", u.embleme); });
+		});
+		return list;
+	}
+
 	function game(name, file, thumbnail) {
 		var scenario = require("./scenarios/" + file + ".json");
 		var title = scenario.titre || { fr: file, en: file };
@@ -141,6 +157,13 @@ exports.games = (function () {
 						"moves": true
 					},
 					"skins": [
+						{
+							// les emblemes de 0 A.D. pour boucliers (res/images/,
+							// CC BY-SA 3.0, voir les credits) ; palette attique
+							"name": "insignes",
+							"title": "Insignes (2D)",
+							"preload": insigniaImages(scenario)
+						},
 						{
 							// figures rouges : fond de terre cuite, vernis noir
 							"name": "attique",

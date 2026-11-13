@@ -345,6 +345,8 @@ var PeanRules = (function () {
 			ctx.home[side] = bord;
 			ctx.camps[side] = {
 				key: k, nom: camp.nom || { fr: k, en: k }, couleur: camp.couleur || null, bord: bord,
+				// noms d'images (res/images/emblemes/, res/images/bannieres/) : la vue seule s'en sert
+				emblem: camp.embleme || null, banner: camp.banniere || null,
 				facing: dirOf(camp.face, { sud: 0, nord: 3, est: 5, ouest: 2 }[bord])
 			};
 			ctx.zone[side] = camp.zone ? parseZone(ctx, camp.zone) : [];
@@ -364,12 +366,14 @@ var PeanRules = (function () {
 				units.push(newUnit(ctx, units.length, side, spec, spec.tour));
 			});
 		});
-		// noms propres facultatifs (generaux...), hors de l'etat
+		// noms propres et emblemes facultatifs (generaux, allies...), hors de l'etat
 		ctx.unitNames = [];
+		ctx.unitEmblems = [];
 		[FIRST, SECOND].forEach(function (side) {
 			var camp = sc.camps[ctx.campKey[side]];
 			(camp.unites || []).concat(camp.renforts || []).forEach(function (spec) {
 				ctx.unitNames.push(spec.nom || null);
+				ctx.unitEmblems.push(spec.embleme || null);
 			});
 		});
 		var seen = {};

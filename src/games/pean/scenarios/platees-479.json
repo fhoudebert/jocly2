@@ -293,25 +293,30 @@
    "unites": [
     {
      "type": "spartiate",
-     "hex": "16,11"
+     "hex": "16,11",
+     "embleme": "spartans"
     },
     {
      "type": "spartiate",
-     "hex": "17,11"
+     "hex": "17,11",
+     "embleme": "spartans"
     },
     {
      "type": "spartiate",
-     "hex": "18,11"
+     "hex": "18,11",
+     "embleme": "spartans"
     },
     {
      "type": "hoplite",
      "hex": "19,11",
-     "nom": "Tégéates"
+     "nom": "Tégéates",
+     "embleme": "poleis"
     },
     {
      "type": "hoplite",
      "hex": "20,11",
-     "nom": "Tégéates"
+     "nom": "Tégéates",
+     "embleme": "poleis"
     },
     {
      "type": "peltaste",
@@ -342,29 +347,36 @@
     {
      "type": "hoplite",
      "hex": "3,11",
-     "nom": "Athéniens"
+     "nom": "Athéniens",
+     "embleme": "athenians"
     },
     {
      "type": "hoplite",
      "hex": "4,11",
-     "nom": "Athéniens"
+     "nom": "Athéniens",
+     "embleme": "athenians"
     },
     {
      "type": "hoplite",
      "hex": "5,11",
-     "nom": "Athéniens"
+     "nom": "Athéniens",
+     "embleme": "athenians"
     },
     {
      "type": "archer",
      "hex": "4,12",
-     "nom": "archers athéniens"
+     "nom": "archers athéniens",
+     "embleme": "athenians"
     },
     {
      "type": "general",
      "hex": "17,12",
-     "nom": "Pausanias"
+     "nom": "Pausanias",
+     "embleme": "spartans"
     }
-   ]
+   ],
+   "embleme": "hellenes",
+   "banniere": "greek"
   },
   "B": {
    "nom": {
@@ -430,24 +442,29 @@
     {
      "type": "hoplite",
      "hex": "3,4",
-     "nom": "Béotiens"
+     "nom": "Béotiens",
+     "embleme": "thebans"
     },
     {
      "type": "hoplite",
      "hex": "4,4",
-     "nom": "Béotiens"
+     "nom": "Béotiens",
+     "embleme": "thebans"
     },
     {
      "type": "hoplite",
      "hex": "5,4",
-     "nom": "Béotiens"
+     "nom": "Béotiens",
+     "embleme": "thebans"
     },
     {
      "type": "general",
      "hex": "15,2",
      "nom": "Mardonios"
     }
-   ]
+   ],
+   "embleme": "persians",
+   "banniere": "persian"
   }
  },
  "premierJoueur": "B",

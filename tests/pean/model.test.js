@@ -22,6 +22,16 @@ t.section("manifeste");
 		t.eq(g.config.model.levels.map((l) => l.ai), ["uct", "uct", "uct"], g.name + " : trois niveaux uct");
 		t.eq(g.config.model.gameOptions.preventRepeat, false, g.name + " : pas de nulle par repetition (la limite de tours clot la partie)");
 	});
+	const fs = require("fs"), path = require("path");
+	games.forEach((g) => {
+		const skins = g.config.view.skins;
+		t.eq(skins.map((k) => k.name), ["insignes", "attique", "carte"], g.name + " : trois skins, « insignes » par defaut");
+		t.ok(skins[0].preload.length >= 3 && skins[0].preload.every((p) =>
+			fs.existsSync(path.join(__dirname, "../../src/games/pean", p.replace(/^image\|/, "")))), g.name + " : emblemes et bannieres presents");
+		const sc = g.config.model.gameOptions.scenario;
+		Object.keys(sc.camps).forEach((k) => t.ok(sc.camps[k].embleme && sc.camps[k].banniere, g.name + " : camp " + k + " a son embleme et sa banniere"));
+	});
+	t.ok(/CC BY-SA 3\.0/.test(fs.readFileSync(path.join(__dirname, "../../src/games/pean/credits-fr.html"), "utf8")), "credits : attribution 0 A.D.");
 	t.eq(games[1].config.model.gameOptions.scenario, scenario("leuctres-371"), "le manifeste embarque le fichier tel quel");
 	t.ok(/Heraklios/.test(require("fs").readFileSync(require("path").join(__dirname, "../../src/games/pean/credits-fr.html"), "utf8")), "credits : mention d'hommage");
 })();

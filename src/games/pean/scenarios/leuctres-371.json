@@ -149,7 +149,9 @@
      "hex": "3,13",
      "nom": "Épaminondas"
     }
-   ]
+   ],
+   "embleme": "thebans",
+   "banniere": "thebans"
   },
   "B": {
    "nom": {
@@ -172,39 +174,48 @@
     },
     {
      "type": "hoplite",
-     "hex": "5,4"
+     "hex": "5,4",
+     "embleme": "poleis"
     },
     {
      "type": "hoplite",
-     "hex": "6,4"
+     "hex": "6,4",
+     "embleme": "poleis"
     },
     {
      "type": "hoplite",
-     "hex": "7,4"
+     "hex": "7,4",
+     "embleme": "poleis"
     },
     {
      "type": "hoplite",
-     "hex": "8,4"
+     "hex": "8,4",
+     "embleme": "poleis"
     },
     {
      "type": "hoplite",
-     "hex": "9,4"
+     "hex": "9,4",
+     "embleme": "poleis"
     },
     {
      "type": "hoplite",
-     "hex": "10,4"
+     "hex": "10,4",
+     "embleme": "poleis"
     },
     {
      "type": "hoplite",
-     "hex": "11,4"
+     "hex": "11,4",
+     "embleme": "poleis"
     },
     {
      "type": "hoplite",
-     "hex": "12,4"
+     "hex": "12,4",
+     "embleme": "poleis"
     },
     {
      "type": "hoplite",
-     "hex": "13,4"
+     "hex": "13,4",
+     "embleme": "poleis"
     },
     {
      "type": "cavlegere",
@@ -220,18 +231,22 @@
     },
     {
      "type": "peltaste",
-     "hex": "14,4"
+     "hex": "14,4",
+     "embleme": "poleis"
     },
     {
      "type": "peltaste",
-     "hex": "15,4"
+     "hex": "15,4",
+     "embleme": "poleis"
     },
     {
      "type": "general",
      "hex": "3,3",
      "nom": "Cléombrote"
     }
-   ]
+   ],
+   "embleme": "spartans",
+   "banniere": "spartans"
   }
  },
  "premierJoueur": "A",

@@ -38,7 +38,9 @@
    },
    "bord": "sud",
    "zone": "rows:12-15",
-   "unites": []
+   "unites": [],
+   "embleme": "athenians",
+   "banniere": "athenians"
   },
   "B": {
    "nom": {
@@ -47,7 +49,9 @@
    },
    "bord": "nord",
    "zone": "rows:0-3",
-   "unites": []
+   "unites": [],
+   "embleme": "spartans",
+   "banniere": "spartans"
   }
  },
  "premierJoueur": "A",

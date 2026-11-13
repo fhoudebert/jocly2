@@ -17,7 +17,8 @@ Un module, plusieurs jeux : **un jeu Jocly par scénario**, tous servis par le m
 | `pean-rules.js` | moteur de règles pur : aucune globale Jocly, fonctions sur un état sérialisable, chargeable seul (`require`). Tout ce qui varie vient du scénario |
 | `pean-ai.js` | heuristiques, pures elles aussi : déploiements, tours candidats, évaluation à traits nommés (`WEIGHTS`) |
 | `pean-model.js` | habillage Jocly (`Model.Game`, `Model.Board`, `Model.Move`) |
-| `pean-xd-view.js`, `pean.css` | vue 2D hexagonale et saisie ; tout est dessiné au canvas (deux skins : « Céramique attique », « Carte ») |
+| `pean-xd-view.js`, `pean.css` | vue 2D hexagonale et saisie, dessinée au canvas ; trois skins : « Insignes » (emblèmes de 0 A.D. pour boucliers), « Céramique attique », « Carte » |
+| `res/images/` | emblèmes et bannières de 0 A.D. (CC BY-SA 3.0) ; `extra/0ad/` : réserve d'images non embarquées, voir son README |
 | `index.js` | manifeste : la liste des scénarios, les niveaux d'IA. Il lit les JSON au build et les embarque dans `gameOptions.scenario` |
 | `scenarios/*.json` | les batailles |
 | `extra/riviere.py` | aide à l'écriture des scénarios : les côtés d'hexagone d'une rivière le long d'une ligne |
@@ -46,7 +47,8 @@ la bataille se contente du vocabulaire du noyau. `PeanRules.validateScenario(jso
   },
   "camps": {
     "A": { "nom": {...}, "bord": "sud", "zone": "rows:12-15",
-           "unites": [{ "type": "hoplite", "hex": "3,10", "face": "N", "nom": "Pélopidas" }],
+           "embleme": "thebans", "banniere": "thebans",   // res/images/emblemes/, res/images/bannieres/
+           "unites": [{ "type": "hoplite", "hex": "3,10", "face": "N", "nom": "Pélopidas", "embleme": "poleis" }],
            "renforts": [{ "type": "cavlegere", "hex": "0,15", "tour": 3 }] },
     "B": { ... }
   },
@@ -107,5 +109,4 @@ Le cadrage laisse quelques points ouverts ; voici ce qui a été tranché :
   modèle exporte déjà l'état en JSON (`ExportBoardState`) ;
 - l'IA (UCT jocly sur tours candidats) joue des coups sensés mais reste faible, et l'équilibre des scénarios n'est
   pas encore réglé (étape 3 du cadrage) ;
-- graphismes entièrement dessinés au canvas ; les ressources de 0 A.D. (CC BY-SA 3.0) pourront habiller une
-  skin plus tard, avec leur attribution.
+- la skin « Insignes » n'emprunte à 0 A.D. que les emblèmes et les bannières ; terrain et icônes restent dessinés.
