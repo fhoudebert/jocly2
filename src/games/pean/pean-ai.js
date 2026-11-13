@@ -363,7 +363,10 @@ var PeanAI = (function (R) {
 			});
 			if (!best)
 				break;
-			var facing;
+			// remis a zero a chaque ordre : `var` vaut pour toute la fonction,
+			// et une orientation demandee pour une phalange passait sinon a
+			// l'ordre suivant (pivot paye pour rien, ordre refuse puis rejoue)
+			var facing = undefined;
 			var t0 = ctx.types[turn.st.u[best.ids[0]].t];
 			if (ctx.options.orientation && t0.phalanx) {
 				var end = best.path[best.path.length - 1];

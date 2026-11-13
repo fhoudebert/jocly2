@@ -125,4 +125,37 @@ t.section("IA : evaluation");
 	t.ok(Object.keys(AI.WEIGHTS).length >= 6, "poids nommes");
 })();
 
+t.section("IA : orientation des phalanges");
+(function () {
+	/*
+	 * Une phalange ne recoit une orientation que pour faire face a un ennemi
+	 * a 4 hexagones au plus (facingToward) ; sinon elle garde celle de sa
+	 * marche. Regression : `var facing` n'etait pas remis a zero d'un ordre a
+	 * l'autre dans buildTurn, et une orientation passait a l'ordre suivant.
+	 */
+	let checked = 0, leaked = 0;
+	["leuctres-371", "platees-479", "laurion-413"].forEach((name) => {
+		const ctx = R.makeContext({ scenario: scenario(name) });
+		let st = R.newState(ctx);
+		let seed = 77;
+		const rng = (k) => { seed = (Math.imul(seed, 1103515245) + 12345) & 0x7fffffff; return seed % k; };
+		for (let ply = 0; ply < 6; ply++) {
+			const who = R.toMove(st);
+			const enemies = st.u.filter((u) => u.s !== who && u.h >= 0);
+			const moves = AI.candidates(ctx, st, who, { max: 16, rng });
+			moves.forEach((m) => (m.o || []).forEach((o) => {
+				if (o.f === undefined) return;
+				checked++;
+				const end = o.c[o.c.length - 1];
+				if (!enemies.some((e) => R.distance(ctx, e.h, end) <= 4)) leaked++;
+			}));
+			const r = R.playTurn(ctx, st, who, moves[moves.length - 1]);
+			st = r.state;
+			if (R.outcome(ctx, st, who).winner) break;
+		}
+	});
+	t.ok(checked > 0, "des phalanges orientees (" + checked + ")");
+	t.eq(leaked, 0, "aucune orientation sans ennemi a portee");
+})();
+
 t.done();
