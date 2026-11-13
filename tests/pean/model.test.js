@@ -17,7 +17,7 @@ function skinsHave(games, name) {
 t.section("manifeste");
 (function () {
 	const games = manifest();
-	t.eq(games.map((g) => g.name), ["pean-bataille-libre", "pean-leuctres", "pean-platees"], "un jeu par scenario");
+	t.eq(games.map((g) => g.name), ["pean-bataille-libre", "pean-leuctres", "pean-platees", "pean-laurion"], "un jeu par scenario");
 	games.forEach((g) => {
 		t.eq(g.modelScripts, ["pean-rules.js", "pean-ai.js", "pean-model.js"], g.name + " : scripts du modele");
 		t.eq(g.config.model.module, "pean", g.name + " : module commun");

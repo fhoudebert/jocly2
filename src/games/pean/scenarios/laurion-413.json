@@ -1,0 +1,242 @@
+{
+ "id": "laurion-413",
+ "titre": {
+  "fr": "Les mines du Laurion, 413 av. J.-C.",
+  "en": "The Laurion mines, 413 BC"
+ },
+ "resume": {
+  "fr": "Depuis Décélie, une colonne péloponnésienne fond sur les mines d’argent d’Athènes ; la garnison de Thorikos doit tenir jusqu’à l’arrivée des renforts.",
+  "en": "From Decelea a Peloponnesian column swoops on Athens' silver mines; the Thorikos garrison must hold until reinforcements arrive."
+ },
+ "carte": {
+  "cols": 24,
+  "rows": 16,
+  "lignes": [
+   ".....................~~~",
+   "...ff................~~~",
+   "...f.................~~~",
+   ".................ff..~~~",
+   "=====................~~~",
+   ".....=============...~~~",
+   ".......cc.cc.cc.cc==k.~~",
+   "......cc.cc.cc.cc.....~~",
+   "......c.cc.cx.cc.c...~~~",
+   ".......cx.cc.cc.cc...~~~",
+   "....ffcc.cc.cc.xc....~~~",
+   "....f.c.cc.cc.cc.c...~~~",
+   ".......cc.cMMcc.cc...~~~",
+   "..........MM.........~~~",
+   "..................~~~~~~",
+   "...............~~~~~~~~~"
+  ]
+ },
+ "camps": {
+  "P": {
+   "nom": {
+    "fr": "Péloponnésiens",
+    "en": "Peloponnesians"
+   },
+   "bord": "nord",
+   "embleme": "spartans",
+   "banniere": "spartans",
+   "unites": [
+    {
+     "type": "hoplite",
+     "hex": "9,2"
+    },
+    {
+     "type": "hoplite",
+     "hex": "10,2"
+    },
+    {
+     "type": "hoplite",
+     "hex": "11,2"
+    },
+    {
+     "type": "hoplite",
+     "hex": "12,2"
+    },
+    {
+     "type": "peltaste",
+     "hex": "7,2"
+    },
+    {
+     "type": "peltaste",
+     "hex": "13,2"
+    },
+    {
+     "type": "peltaste",
+     "hex": "14,2"
+    },
+    {
+     "type": "cavlegere",
+     "hex": "5,1"
+    },
+    {
+     "type": "cavlegere",
+     "hex": "6,1"
+    },
+    {
+     "type": "cavlegere",
+     "hex": "16,1"
+    },
+    {
+     "type": "frondeur",
+     "hex": "10,1"
+    },
+    {
+     "type": "general",
+     "hex": "11,1",
+     "nom": "Agis"
+    }
+   ]
+  },
+  "A": {
+   "nom": {
+    "fr": "Athéniens",
+    "en": "Athenians"
+   },
+   "bord": "ouest",
+   "embleme": "athenians",
+   "banniere": "athenians",
+   "unites": [
+    {
+     "type": "hoplite",
+     "hex": "20,6",
+     "nom": "garnison de Thorikos"
+    },
+    {
+     "type": "archer",
+     "hex": "19,7"
+    },
+    {
+     "type": "hoplite",
+     "hex": "12,8",
+     "nom": "poste des mines"
+    },
+    {
+     "type": "hoplite",
+     "hex": "8,9",
+     "nom": "poste des mines"
+    },
+    {
+     "type": "hoplite",
+     "hex": "15,10",
+     "nom": "poste des mines"
+    }
+   ],
+   "renforts": [
+    {
+     "type": "cavlegere",
+     "hex": "0,4",
+     "tour": 1
+    },
+    {
+     "type": "cavlegere",
+     "hex": "0,5",
+     "tour": 1
+    },
+    {
+     "type": "hoplite",
+     "hex": "0,3",
+     "tour": 2
+    },
+    {
+     "type": "hoplite",
+     "hex": "0,4",
+     "tour": 2
+    },
+    {
+     "type": "hoplite",
+     "hex": "0,5",
+     "tour": 2
+    },
+    {
+     "type": "general",
+     "hex": "0,6",
+     "nom": "stratège",
+     "tour": 2
+    },
+    {
+     "type": "hoplite",
+     "hex": "0,3",
+     "tour": 3
+    },
+    {
+     "type": "hoplite",
+     "hex": "0,4",
+     "tour": 3
+    },
+    {
+     "type": "peltaste",
+     "hex": "0,5",
+     "tour": 3
+    },
+    {
+     "type": "peltaste",
+     "hex": "0,6",
+     "tour": 3
+    },
+    {
+     "type": "cavlourde",
+     "hex": "0,4",
+     "tour": 4
+    },
+    {
+     "type": "cavlourde",
+     "hex": "0,5",
+     "tour": 4
+    }
+   ]
+  }
+ },
+ "premierJoueur": "P",
+ "ordres": {
+  "base": 4,
+  "parGeneral": 1
+ },
+ "objectifs": [
+  {
+   "hex": "8,9",
+   "camp": "A",
+   "pour": "P",
+   "points": 15,
+   "immediat": true,
+   "tenir": 4,
+   "nom": "mine d’argent"
+  },
+  {
+   "hex": "12,8",
+   "camp": "A",
+   "pour": "P",
+   "points": 15,
+   "immediat": true,
+   "tenir": 4,
+   "nom": "mine d’argent"
+  },
+  {
+   "hex": "15,10",
+   "camp": "A",
+   "pour": "P",
+   "points": 15,
+   "immediat": true,
+   "tenir": 4,
+   "nom": "mine d’argent"
+  },
+  {
+   "hex": "20,6",
+   "camp": "A",
+   "pour": "P",
+   "points": 15,
+   "nom": "Thorikos"
+  }
+ ],
+ "tours": 10,
+ "options": [
+  "orientation",
+  "profondeur",
+  "charge"
+ ],
+ "rupture": 0.5,
+ "nulle": 5
+}

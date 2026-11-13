@@ -74,3 +74,6 @@ En réserve (`extra/wesnoth/tuiles/`) :
 | `ocean-tile.png` | `water/ocean-tile.png` | haute mer | Lari Nieminen(zookeeper) |
 | `desert-camp-tile.png` | `village/desert-camp-tile.png` | camp perse, désert | Eric Butler(Erk) |
 | `ruin-tile.png` | `castle/ruin-tile.png` | forteresse en ruine | Pekka Aikio(pekka) |
+
+Tuile composée : `res/images/tuiles/mine.png` = `hills/dry.png` (J.W. Bjerk) + `flat/crater.png` + `embellishments/rocks.png`
+(doofus-01), superposées ; `res/images/terrain/mine.png` = `icons/terrain/terrain_type_cave_30.png` (Emilien Rotival). GPL v2+.

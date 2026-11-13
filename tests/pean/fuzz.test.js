@@ -20,7 +20,7 @@ const t = suite("pean fuzz");
 
 const AI_GAMES = parseInt(process.argv[2], 10) || 2;
 const RANDOM_GAMES = parseInt(process.argv[3], 10) || 6;
-const SCENARIOS = ["bataille-libre", "leuctres-371", "platees-479"];
+const SCENARIOS = ["bataille-libre", "leuctres-371", "platees-479", "laurion-413"];
 
 let seed = 12345;
 function rng(n) {

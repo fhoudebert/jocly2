@@ -25,7 +25,8 @@ exports.games = (function () {
 	var SCENARIOS = [
 		["pean-bataille-libre", "bataille-libre", "thumbnail.png"],
 		["pean-leuctres", "leuctres-371", "thumbnail.png"],
-		["pean-platees", "platees-479", "thumbnail.png"]
+		["pean-platees", "platees-479", "thumbnail.png"],
+		["pean-laurion", "laurion-413", "thumbnail.png"]
 	];
 
 	var levels = [
@@ -78,12 +79,12 @@ exports.games = (function () {
 	function tileImages() {
 		return ["plaine1", "plaine2", "plaine3", "plaine4", "plaine5", "route", "colline1", "colline2", "colline3",
 			"foret1", "foret2", "foret3", "marais1", "marais2", "montagne1", "montagne2",
-			"mer", "ville", "camp"].map(function (t) { return "image|/res/images/tuiles/" + t + ".png"; });
+			"mer", "ville", "camp", "mine"].map(function (t) { return "image|/res/images/tuiles/" + t + ".png"; });
 	}
 
 	// emblemes, bannieres et pictogrammes de terrain utilises par un scenario
 	function insigniaImages(scenario) {
-		var list = ["foret", "marais", "montagne", "mer", "colline", "ville", "camp"].map(function (t) {
+		var list = ["foret", "marais", "montagne", "mer", "colline", "ville", "camp", "mine"].map(function (t) {
 			return "image|/res/images/terrain/" + t + ".png";
 		});
 		function add(kind, name) {

@@ -11,6 +11,7 @@ Un module, plusieurs jeux : **un jeu Jocly par scénario**, tous servis par le m
 | `pean-bataille-libre` | `scenarios/bataille-libre.json` | chaque camp achète (200 points) et déploie son armée, puis se bat pour un village et deux hauteurs |
 | `pean-leuctres` | `scenarios/leuctres-371.json` | colonne thébaine profonde face aux Spartiates, aile droite refusée : l'ordre oblique |
 | `pean-platees` | `scenarios/platees-479.json` | ligne grecque sur les contreforts du Cithéron, l'Asopos et ses gués, cavalerie et archers montés perses |
+| `pean-laurion` | `scenarios/laurion-413.json` | raid asymétrique sur les mines d'argent : tenir une mine trois tours, renforts athéniens échelonnés |
 
 | fichier | rôle |
 |---|---|
@@ -23,7 +24,9 @@ Un module, plusieurs jeux : **un jeu Jocly par scénario**, tous servis par le m
 | `scenarios/*.json` | les batailles |
 | `extra/riviere.py` | aide à l'écriture des scénarios : les côtés d'hexagone d'une rivière le long d'une ligne |
 
-Tests : `npm test -- pean` (voir `tests/pean/`).
+Tests : `npm test -- pean` (voir `tests/pean/`). Équilibre : `node src/games/pean/extra/lab.js SCENARIO` (auto-jeu
+glouton, rapide) ou `--mode uct --level 0` (l'IA Jocly, après `npx gulp build`) ; accepte un fichier JSON pour essayer une
+variante.
 
 ## Ajouter une bataille
 
@@ -63,7 +66,7 @@ la bataille se contente du vocabulaire du noyau. `PeanRules.validateScenario(jso
 ```
 
 - Hexagones : `"col,ligne"` (base 0) ; zones : `"rows:a-b"`, `"cols:a-b"`, `"rect:c0-c1,r0-r1"` ou liste.
-- Légende des cartes en texte : `.` plaine, `=` route, `c` colline, `f` forêt, `m` marais, `v` ville, `k` camp,
+- Légende des cartes en texte : `.` plaine, `=` route, `c` colline, `f` forêt, `m` marais, `v` ville, `k` camp, `x` mine,
   `M` montagne, `~` mer (`carte.legende` pour en ajouter).
 - Traits (vocabulaire fermé, implémenté une fois dans le noyau) : `phalange`, `leger`, `tir`, `monte`,
   `desengage`, `charge`, `general`. Un trait inconnu est une erreur : en ajouter un est une évolution du noyau.
@@ -95,13 +98,33 @@ Le cadrage laisse quelques points ouverts ; voici ce qui a été tranché :
 - **tir seul** : 1:1 est sans effet, toute colonne supérieure donne un recul ; les tireurs ne combattent pas au
   contact ;
 - **charge** : toute la course est droite, d'au moins `chargeMin` hexagones, sans franchir de rivière ;
-- **profondeur** du défenseur : comptée dans l'axe du premier attaquant au contact ;
+- **profondeur** : une seule colonne pousse par combat. L'attaque compte le meilleur bonus parmi ses phalanges (le
+  compter pour chacune donnait +4 à deux phalanges et faisait de 3:1 la norme), la défense le sien, dans l'axe du
+  premier attaquant au contact ;
+- **flanc** : défense d'une phalange prise de flanc ou de dos multipliée par `flanc` (½ par défaut, réglable par
+  scénario) ;
 - **groupe** : même type, contigu, aucune unité dans une zone ennemie ; il se déplace par translation, s'arrête
   dès qu'un membre entre dans une zone ennemie ;
 - **engagée** : une unité qui commence dans une zone ennemie ne bouge pas (sauf `desengage`) ; une phalange
   engagée peut pivoter si l'option `orientation` est active ;
 - **renforts** : ils arrivent au début du tour de leur camp, sur leur hexagone d'entrée, ou à côté s'il est
   occupé, et peuvent bouger aussitôt.
+
+## Équilibre mesuré (novembre 2026)
+
+Auto-jeu, IA Jocly niveau Caporal des deux côtés, 10 parties par scénario (`extra/lab.js --mode uct`). Cible du
+cadrage : entre 35 et 65 % pour chaque camp (nulles comptées pour moitié).
+
+| scénario | résultat | durée moyenne | réglages |
+|---|---|---|---|
+| Bataille libre | Athéniens 60 % / Spartiates 40 % | 4,5 tours sur 12 | — |
+| Leuctres | Thébains 60 % / Spartiates 40 % | 4,7 tours sur 12 | profondeur comptée une fois par combat (règle) |
+| Platées | Grecs 60 % / Perses 40 % | 10,7 tours sur 14 | Perses renforcés (+4 sparabara, +1 Immortels, +1 cavalerie lourde, +1 archers montés) ; camp perse à 30 points |
+| Laurion | Péloponnésiens 50 % / Athéniens 50 % | 6,6 tours sur 10 | renforts athéniens dès le tour 1 ; tenir une mine 4 tours ; hoplites aux postes des mines |
+
+Dix parties ne donnent qu'une tendance (± 15 points) ; le niveau Général, que vise le cadrage, reste à mesurer. Les
+batailles en plaine se décident vite, par rupture : la durée visée par le cadrage (12 à 20 tours) n'est atteinte qu'à
+Platées.
 
 ## Limites de cette version
 

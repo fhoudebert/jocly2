@@ -81,6 +81,7 @@ var PeanRules = (function () {
 		marais: { cout: { pied: 2, monte: 3 }, def: 1.5, pasDeCharge: true, desordre: true },
 		ville: { cout: { pied: 1, monte: 1 }, def: 2 },
 		camp: { cout: { pied: 1, monte: 1 }, def: 2 },
+		mine: { cout: { pied: 1, monte: 2 }, def: 1.5 },      // puits et deblais
 		montagne: { cout: null, bloqueTir: true },
 		mer: { cout: null, bloqueTir: true }
 	};
@@ -95,7 +96,7 @@ var PeanRules = (function () {
 	// caracteres des cartes en texte (carte.lignes)
 	var DEFAULT_LEGEND = {
 		".": "plaine", "=": "route", "c": "colline", "f": "foret", "m": "marais",
-		"v": "ville", "k": "camp", "M": "montagne", "~": "mer"
+		"v": "ville", "k": "camp", "x": "mine", "M": "montagne", "~": "mer"
 	};
 
 	var DEFAULT_TYPES = {
@@ -198,6 +199,7 @@ var PeanRules = (function () {
 			rupture: sc.rupture !== undefined ? sc.rupture : 0.5,
 			nulle: sc.nulle !== undefined ? sc.nulle : 0,
 			chargeMin: sc.chargeMin || 3,
+			flank: sc.flanc !== undefined ? sc.flanc : 0.5,   // defense d'une phalange prise de flanc
 			orders: { base: 4, parGeneral: 1 },
 			campSide: {}, camps: {}, home: {}, zone: {},
 			free: !!(sc.deploiement && sc.deploiement.libre),
@@ -1056,7 +1058,7 @@ var PeanRules = (function () {
 			seen[ids[i]] = true;
 		}
 		var tt = ctx.types[target.t], terrain = ctx.terrains[ctx.terr[target.h]];
-		var parts = [], att = 0, melee = 0, flank = false, firstDir = -1;
+		var parts = [], att = 0, melee = 0, flank = false, firstDir = -1, bestDepth = 0, depthPart = -1;
 		ids.forEach(function (id) {
 			var u = self.st.u[id], t = ctx.types[u.t], f = forceOf(ctx, u), notes = [];
 			if (!t.fire) {
@@ -1080,20 +1082,26 @@ var PeanRules = (function () {
 					f *= ctx.sides[e - 1].attack;
 					notes.push(ctx.sides[e - 1].name);
 				}
+				// profondeur : la poussee d'une seule colonne par combat (la meilleure)
 				var dp = self.depth(u, d);
-				if (dp) {
-					f += dp;
-					notes.push("profondeur+" + dp);
+				if (dp > bestDepth) {
+					bestDepth = dp;
+					depthPart = parts.length;
 				}
 			} else
 				notes.push("tir");
 			att += f;
 			parts.push({ id: id, f: f, notes: notes });
 		});
+		if (bestDepth) {
+			att += bestDepth;
+			parts[depthPart].f += bestDepth;
+			parts[depthPart].notes.push("profondeur+" + bestDepth);
+		}
 		var def = forceOf(ctx, target) * terrain.def, defNotes = [];
 		if (terrain.def !== 1) defNotes.push(terrain.name);
 		if (flank) {
-			def /= 2;
+			def *= ctx.flank;
 			defNotes.push("flanc");
 		}
 		if (firstDir >= 0) {

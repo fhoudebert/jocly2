@@ -461,6 +461,34 @@
      "type": "general",
      "hex": "15,2",
      "nom": "Mardonios"
+    },
+    {
+     "type": "sparabara",
+     "hex": "11,4"
+    },
+    {
+     "type": "sparabara",
+     "hex": "12,4"
+    },
+    {
+     "type": "sparabara",
+     "hex": "13,4"
+    },
+    {
+     "type": "sparabara",
+     "hex": "18,4"
+    },
+    {
+     "type": "immortel",
+     "hex": "14,3"
+    },
+    {
+     "type": "cavlourde",
+     "hex": "6,5"
+    },
+    {
+     "type": "archerMonte",
+     "hex": "16,6"
     }
    ],
    "embleme": "persians",
@@ -476,7 +504,7 @@
   {
    "hex": "11,1",
    "camp": "B",
-   "points": 20,
+   "points": 30,
    "nom": "camp perse"
   },
   {

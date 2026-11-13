@@ -42,7 +42,7 @@ t.section("geometrie");
 
 t.section("scenarios");
 (function () {
-	["bataille-libre", "leuctres-371", "platees-479"].forEach((name) => {
+	["bataille-libre", "leuctres-371", "platees-479", "laurion-413"].forEach((name) => {
 		t.eq(R.validateScenario(scenario(name)), [], name + " valide");
 	});
 	t.ok(R.validateScenario(mini({ types: { x: { force: 2, mvt: 3, pas: 2, traits: ["vol"] } } }))[0].includes("trait inconnu"), "trait hors vocabulaire refuse");
@@ -72,6 +72,9 @@ t.section("mouvement et terrain");
 	t.ok(reach[hx(ctx, "5,8")] && !reach[hx(ctx, "6,8")], "plaine : 3 hexagones, pas 4");
 	t.eq(R.stepCost(ctx, ctx.types.cavlourde, hx(ctx, "6,7"), hx(ctx, "6,6"), 0), 6, "foret : 3 points pour un monte (en demi-points)");
 	t.eq(R.stepCost(ctx, ctx.types.peltaste, hx(ctx, "6,7"), hx(ctx, "6,6"), 0), 2, "unite legere : 1 point en foret");
+	const mine = ctxOf({ carte: { cols: 12, rows: 10, lignes: Array.from({ length: 10 }, (_, r) => r === 5 ? "....x......." : "............") } });
+	t.eq([mine.terrainNames[mine.terr[hx(mine, "4,5")]], mine.terrains[mine.terr[hx(mine, "4,5")]].def,
+		R.stepCost(mine, mine.types.cavlegere, hx(mine, "4,6"), hx(mine, "4,5"), 0)], ["mine", 1.5, 4], "mine (x) : defense x1,5, 2 points pour un monte");
 	t.eq(R.stepCost(ctx, ctx.types.hoplite, hx(ctx, "4,3"), hx(ctx, "5,3"), R.dirBetween(ctx, hx(ctx, "4,3"), hx(ctx, "5,3"))), 1, "route a route : 1/2 point");
 	t.eq(R.stepCost(ctx, ctx.types.hoplite, hx(ctx, "4,4"), hx(ctx, "4,3"), 0), 2, "vers une route depuis la plaine : 1 point");
 	const river = ctxOf({ carte: { cols: 12, rows: 10, cotes: { riviere: [["2,8", "2,7"]], gue: [["3,8", "3,7"]] } } });
@@ -272,6 +275,10 @@ t.section("phalange : profondeur et flancs");
 	let d = duel([U("hoplite", "5,6"), U("hoplite", "5,7"), U("hoplite", "5,8")], [U("hoplite", "5,5")], { options: ["profondeur"] });
 	let s = d.turn.strength([unitAt(d.turn, d.ctx, "5,6").i], unitAt(d.turn, d.ctx, "5,5").i);
 	t.eq([s.att, s.parts[0].notes], [8, ["profondeur+2"]], "attaque : +1 par phalange derriere, +2 au plus");
+	// une seule colonne pousse : deux phalanges profondes n'ajoutent pas leurs bonus
+	d = duel([U("hoplite", "5,6"), U("hoplite", "5,7"), U("hoplite", "5,8"), U("hoplite", "4,6"), U("hoplite", "4,7")], [U("hoplite", "5,5")], { options: ["profondeur"] });
+	s = d.turn.strength(["5,6", "4,6"].map((x) => unitAt(d.turn, d.ctx, x).i), unitAt(d.turn, d.ctx, "5,5").i);
+	t.eq([s.att, s.ratio], [14, "2:1"], "deux colonnes (+2 et +1) : seul le meilleur bonus compte (6 + 6 + 2)");
 	d = duel([U("hoplite", "5,6"), U("hoplite", "4,6")], [U("hoplite", "5,5"), U("hoplite", "5,4")], { options: ["profondeur"] });
 	s = d.turn.strength(["5,6", "4,6"].map((x) => unitAt(d.turn, d.ctx, x).i), unitAt(d.turn, d.ctx, "5,5").i);
 	t.eq([s.def, s.defNotes], [7, ["profondeur+1"]], "defense : profondeur dans l'axe du premier attaquant");
@@ -283,6 +290,8 @@ t.section("phalange : profondeur et flancs");
 	t.eq([s.def, s.defNotes, s.result], [3, ["flanc"], "perte-recul"], "attaquee de dos : defense divisee par deux (6 contre 3)");
 	d = duel([U("hoplite", "5,6")], [U("hoplite", "5,5")], { options: ["orientation"] });
 	t.eq(d.turn.strength([unitAt(d.turn, d.ctx, "5,6").i], unitAt(d.turn, d.ctx, "5,5").i).def, 6, "de face : defense entiere");
+	d = duel([U("hoplite", "5,4")], [U("hoplite", "5,5")], { options: ["orientation"], flanc: 0.75 });
+	t.eq(d.turn.strength([unitAt(d.turn, d.ctx, "5,4").i], unitAt(d.turn, d.ctx, "5,5").i).def, 4.5, "malus de flanc reglable par scenario");
 	// pivot : 1 point de mouvement
 	d = duel([U("hoplite", "5,8")], [U("hoplite", "5,1")], { options: ["orientation"] });
 	const h = unitAt(d.turn, d.ctx, "5,8");

@@ -32,7 +32,7 @@
 		attique: {
 			paper: "#e8c49a", frame: "#2a1a12", key: "#c8763f", ink: "#2a1a12", grid: "rgba(60,30,15,0.38)",
 			plaine: "#e7bf8f", route: "#dcae78", colline: "#d29a62", foret: "#9c8a4c", marais: "#a9a27a",
-			ville: "#efd8b8", camp: "#e9cfa6", montagne: "#6d3f25", mer: "#27455d", other: "#e0b585",
+			ville: "#efd8b8", camp: "#e9cfa6", mine: "#b9935f", montagne: "#6d3f25", mer: "#27455d", other: "#e0b585",
 			river: "#2f5f86", ford: "#7fa7c4", wall: "#3b2416",
 			sideA: { body: "#1d1410", figure: "#d9824a", rim: "#a3271f", text: "#f3d2ae" },   // figures rouges
 			sideB: { body: "#d9824a", figure: "#1d1410", rim: "#1f3f73", text: "#1d1410" },   // figures noires
@@ -42,7 +42,7 @@
 		carte: {
 			paper: "#f1ead6", frame: "#5d4a2d", key: "#a68a5b", ink: "#3b3122", grid: "rgba(80,70,50,0.35)",
 			plaine: "#eee6cd", route: "#e2d3a8", colline: "#d8c79a", foret: "#a9bf8a", marais: "#bfcdb5",
-			ville: "#e9dcc0", camp: "#e6d6b1", montagne: "#8c7a63", mer: "#8fb2c9", other: "#e8dfc4",
+			ville: "#e9dcc0", camp: "#e6d6b1", mine: "#cdbb98", montagne: "#8c7a63", mer: "#8fb2c9", other: "#e8dfc4",
 			river: "#3d74a8", ford: "#9cc0dc", wall: "#5d4a2d",
 			sideA: { body: "#9e2a22", figure: "#fbeee0", rim: "#5e140f", text: "#fbeee0" },
 			sideB: { body: "#24497e", figure: "#f1f4fa", rim: "#0f2546", text: "#f1f4fa" },
@@ -55,7 +55,7 @@
 	// les pictogrammes blancs de Wesnoth pour les terrains : fonds plus soutenus
 	PALETTES.insignes = Object.assign({}, PALETTES.attique, {
 		foret: "#6f7a3a", marais: "#7d8a63", montagne: "#6d3f25", mer: "#2b5674",
-		colline: "#b07a45", ville: "#8a6446", camp: "#7a5638"
+		colline: "#b07a45", ville: "#8a6446", camp: "#7a5638", mine: "#5e4a36"
 	});
 
 	// « tuiles » : tuiles de terrain de Wesnoth, memes pions que « insignes »
@@ -72,7 +72,7 @@
 		plaine: ["plaine1", "plaine2", "plaine3"], sec: ["plaine4", "plaine5"], route: ["route"],
 		colline: ["colline1", "colline2", "colline3"], foret: ["foret1", "foret2", "foret3"],
 		marais: ["marais1", "marais1", "marais2"], montagne: ["montagne1", "montagne1", "montagne2"],
-		mer: ["mer"], ville: ["ville"], camp: ["camp"]
+		mer: ["mer"], ville: ["ville"], camp: ["camp"], mine: ["mine"]
 	};
 
 	function variant(list, h, salt) {
@@ -88,7 +88,7 @@
 
 	// pictogrammes de terrain de la skin « insignes » (res/images/terrain/)
 	var TERRAIN_ICONS = { foret: "foret", marais: "marais", montagne: "montagne", mer: "mer",
-		colline: "colline", ville: "ville", camp: "camp" };
+		colline: "colline", ville: "ville", camp: "camp", mine: "mine" };
 
 	var TEXT = {
 		fr: {
@@ -111,7 +111,7 @@
 			steps: "pas", force: "force", move: "mvt", value: "valeur", facingOf: "face",
 			reinforcements: "Renforts arrivés", engaged: "engagée",
 			traits: { phalange: "phalange", leger: "léger", tir: "tir", monte: "monté", desengage: "se désengage", charge: "charge", general: "général" },
-			terrain: { plaine: "plaine", route: "route", colline: "colline", foret: "forêt", marais: "marais", ville: "ville", camp: "camp", montagne: "montagne", mer: "mer" },
+			terrain: { plaine: "plaine", route: "route", colline: "colline", foret: "forêt", marais: "marais", ville: "ville", camp: "camp", mine: "mine", montagne: "montagne", mer: "mer" },
 			side: { riviere: "rivière", gue: "gué", mur: "mur" },
 			objective: "Objectif", held: "tenu par", nobody: "personne",
 			why: {
@@ -151,7 +151,7 @@
 			steps: "steps", force: "strength", move: "move", value: "value", facingOf: "facing",
 			reinforcements: "Reinforcements arrived", engaged: "engaged",
 			traits: { phalange: "phalanx", leger: "light", tir: "missile", monte: "mounted", desengage: "disengages", charge: "charge", general: "general" },
-			terrain: { plaine: "plain", route: "road", colline: "hill", foret: "forest", marais: "marsh", ville: "town", camp: "camp", montagne: "mountain", mer: "sea" },
+			terrain: { plaine: "plain", route: "road", colline: "hill", foret: "forest", marais: "marsh", ville: "town", camp: "camp", mine: "mine", montagne: "mountain", mer: "sea" },
 			side: { riviere: "river", gue: "ford", mur: "wall" },
 			objective: "Objective", held: "held by", nobody: "nobody",
 			why: {
@@ -444,6 +444,23 @@
 				for (k = -2; k <= 2; k++)
 					ctx.fillRect(x + k * R * 0.17 - R * 0.03, y - R * 0.12, R * 0.06, R * 0.42);
 				ctx.fillRect(x - R * 0.5, y + R * 0.3, R, R * 0.06);
+				break;
+			case "mine":
+				// puits, deblais et pic
+				ctx.globalAlpha = 0.75;
+				ctx.beginPath();
+				ctx.ellipse(x, y + R * 0.1, R * 0.3, R * 0.18, 0, 0, Math.PI * 2);
+				ctx.fill();
+				ctx.beginPath();
+				ctx.moveTo(x - R * 0.5, y + R * 0.4);
+				ctx.quadraticCurveTo(x - R * 0.35, y + R * 0.15, x - R * 0.15, y + R * 0.4);
+				ctx.moveTo(x + R * 0.15, y + R * 0.42);
+				ctx.quadraticCurveTo(x + R * 0.35, y + R * 0.2, x + R * 0.52, y + R * 0.42);
+				ctx.moveTo(x - R * 0.25, y - R * 0.5);
+				ctx.lineTo(x + R * 0.2, y - R * 0.12);
+				ctx.moveTo(x - R * 0.4, y - R * 0.28);
+				ctx.quadraticCurveTo(x - R * 0.12, y - R * 0.48, x + R * 0.05, y - R * 0.55);
+				ctx.stroke();
 				break;
 			case "camp":
 				ctx.globalAlpha = 0.75;
