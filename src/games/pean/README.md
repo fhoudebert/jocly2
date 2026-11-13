@@ -131,9 +131,12 @@ cadrage : entre 35 et 65 % pour chaque camp (nulles comptées pour moitié).
 | Bataille libre | Athéniens 60 % / Spartiates 40 % | 4,5 tours sur 12 | — |
 | Leuctres | Thébains 60 % / Spartiates 40 % | 4,7 tours sur 12 | profondeur comptée une fois par combat (règle) |
 | Platées | Grecs 60 % / Perses 40 % | 10,7 tours sur 14 | Perses renforcés (+4 sparabara, +1 Immortels, +1 cavalerie lourde, +1 archers montés) ; camp perse à 30 points |
-| Laurion | Péloponnésiens 50 % / Athéniens 50 % | 6,6 tours sur 10 | renforts athéniens dès le tour 1 ; tenir une mine 4 tours ; hoplites aux postes des mines |
+| Laurion | Péloponnésiens 50 % / Athéniens 50 % (20 parties, 40 itérations) | 5,9 tours sur 10 | renforts athéniens du tour 2 au tour 4 ; tenir une mine 4 tours ; hoplites aux postes des mines |
 
-Dix parties ne donnent qu'une tendance (± 15 points) ; le niveau Général, que vise le cadrage, reste à mesurer. Les
+Le niveau Caporal s'arrête au bout d'une seconde : sur une machine chargée, il cherche moins, et deux séries du même
+scénario ont donné 20 % et 80 %. Pour comparer des variantes, `lab.js --loops 40` borne la recherche à un nombre
+d'itérations fixe ; le Laurion a été remesuré ainsi (avec la route continue et la garnison face au nord, il était passé
+à 35 / 65 pour les Athéniens). Dix parties ne donnent qu'une tendance (± 15 points) ; le niveau Général, que vise le cadrage, reste à mesurer. Les
 batailles en plaine se décident vite, par rupture : la durée visée par le cadrage (12 à 20 tours) n'est atteinte qu'à
 Platées.
 

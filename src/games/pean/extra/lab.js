@@ -12,6 +12,9 @@
  *                     uct : l'IA Jocly (dist/node, `npx gulp build`), niveau
  *                     --level (0 Caporal, 1 Capitaine, 2 General).
  *   --level L         niveau uct (defaut 0)
+ *   --loops N         uct : recherche bornee a N iterations, sans limite de
+ *                     temps ; les mesures ne dependent plus de la charge de la
+ *                     machine (le niveau, lui, s'arrete aussi au bout d'un temps)
  *   --candidates K    tours candidats par coup en mode glouton (defaut 12)
  *   --seed S          graine du hasard (mode glouton)
  *   --json            resultat en JSON
@@ -39,6 +42,7 @@ const scenario = JSON.parse(fs.readFileSync(file, "utf8"));
 const GAMES = parseInt(opt("games", "20"), 10);
 const MODE = opt("mode", "glouton");
 const LEVEL = parseInt(opt("level", "0"), 10);
+const LOOPS = parseInt(opt("loops", "0"), 10);
 const CANDIDATES = parseInt(opt("candidates", "12"), 10);
 let seed = parseInt(opt("seed", String(Date.now() % 100000)), 10);
 
@@ -85,6 +89,10 @@ async function uctGame(Jocly, name) {
 	match.game.mBoard.InitialPosition(match.game);
 	const config = await match.getConfig();
 	const level = Object.assign({}, config.model.levels[LEVEL]);
+	if(LOOPS) {
+		level.maxLoops = LOOPS;
+		level.maxDuration = 0;
+	}
 	let finished = false, n = 0;
 	while(!finished && n < 400) {
 		const result = await match.machineSearch({ level, threaded: false });
@@ -119,7 +127,7 @@ async function uctGame(Jocly, name) {
 	}
 	const share = (s) => (tally[s] + tally[2] / 2) / GAMES;
 	const out = {
-		scenario: scenario.id, mode: MODE + (MODE === "uct" ? " " + LEVEL : ""), games: GAMES,
+		scenario: scenario.id, mode: MODE + (MODE === "uct" ? " " + LEVEL + (LOOPS ? "/" + LOOPS + " iter" : "") : ""), games: GAMES,
 		camps: { [ctx.campKey[1]]: Math.round(share(1) * 100), [ctx.campKey[-1]]: Math.round(share(-1) * 100) },
 		nulles: tally[2], toursMoyens: Math.round(turns / GAMES * 10) / 10, tours: ctx.tours, fins: reasons,
 		equilibre: share(1) >= 0.35 && share(1) <= 0.65
