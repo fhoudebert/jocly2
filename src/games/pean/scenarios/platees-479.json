@@ -517,7 +517,8 @@
    "hex": "14,13",
    "camp": "A",
    "points": 30,
-   "nom": "temple de Déméter"
+   "nom": "temple de Déméter",
+   "decor": "temple"
   }
  ],
  "tours": 14,

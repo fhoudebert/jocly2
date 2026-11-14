@@ -64,7 +64,7 @@ noyau. `PeanRules.validateScenario(json)` dit ce qui ne va pas.
   "premierJoueur": "A",
   "deploiement": { "libre": true, "budget": 200 },          // facultatif : achat et déploiement libres
   "ordres": { "base": 4, "parGeneral": 1 },
-  "objectifs": [{ "hex": "11,0", "points": 30, "camp": "B", "pour": "A", "immediat": false, "tenir": 1 }],
+  "objectifs": [{ "hex": "11,0", "points": 30, "camp": "B", "pour": "A", "immediat": false, "tenir": 1, "decor": "temple" }],
   "tours": 12, "rupture": 0.5, "nulle": 10, "chargeMin": 3,
   "options": ["orientation", "profondeur", "charge"],
   "table": [{ "rapport": "1:1", "resultat": "echange" }, ...]   // facultatif : table de combat propre
@@ -80,7 +80,8 @@ noyau. `PeanRules.validateScenario(json)` dit ce qui ne va pas.
 - Apparence (la vue seule s'en sert) : `icone` d'un type (`aspis`, `lance`, `pavois`, `javelots`, `fronde`, `arc`,
   `cheval`, `cheval-lance`, `cheval-arc`, `casque` ; sinon déduite des traits).
 - Objectifs : `camp` = contrôle initial ; `pour` = seul camp qui marque ; `immediat` + `tenir` = victoire
-  immédiate après N tours de tenue.
+  immédiate après N tours de tenue ; `decor` = image de `res/images/decors/` posée sur la case par les skins à
+  tuiles (le temple de Déméter à Platées).
 
 ## Un coup Jocly = un tour complet
 
@@ -127,7 +128,7 @@ couvrir le bord du bouclier, jamais son centre. La pointe claire sur le bord d'u
 
 ## Équilibre mesuré (novembre 2026)
 
-Auto-jeu, IA Jocly niveau Caporal des deux côtés, 10 parties par scénario (`extra/lab.js --mode uct`). Cible du
+Auto-jeu, IA Jocly niveau Enomotarchos (ex-Caporal) des deux côtés, 10 parties par scénario (`extra/lab.js --mode uct`). Cible du
 cadrage : entre 35 et 65 % pour chaque camp (nulles comptées pour moitié).
 
 | scénario | résultat | durée moyenne | réglages |
@@ -137,16 +138,22 @@ cadrage : entre 35 et 65 % pour chaque camp (nulles comptées pour moitié).
 | Platées | Grecs 60 % / Perses 40 % | 10,7 tours sur 14 | Perses renforcés (+4 sparabara, +1 Immortels, +1 cavalerie lourde, +1 archers montés) ; camp perse à 30 points |
 | Laurion | Péloponnésiens 50 % / Athéniens 50 % (20 parties, 40 itérations) | 5,9 tours sur 10 | renforts athéniens du tour 2 au tour 4 ; tenir une mine 4 tours ; hoplites aux postes des mines |
 
-Le niveau Caporal s'arrête au bout d'une seconde : sur une machine chargée, il cherche moins, et deux séries du même
+Le niveau Enomotarchos s'arrête au bout d'une seconde : sur une machine chargée, il cherche moins, et deux séries du même
 scénario ont donné 20 % et 80 %. Pour comparer des variantes, `lab.js --loops 40` borne la recherche à un nombre
 d'itérations fixe ; le Laurion a été remesuré ainsi (avec la route continue et la garnison face au nord, il était passé
-à 35 / 65 pour les Athéniens). Dix parties ne donnent qu'une tendance (± 15 points) ; le niveau Général, que vise le cadrage, reste à mesurer. Les
+à 35 / 65 pour les Athéniens). Dix parties ne donnent qu'une tendance (± 15 points) ; le niveau Taxiarchos, que vise le cadrage, reste à mesurer. Les
 batailles en plaine se décident vite, par rupture : la durée visée par le cadrage (12 à 20 tours) n'est atteinte qu'à
 Platées.
 
-## Niveau Maréchal (moteur natif)
+## Niveaux
 
-Le quatrième niveau, « Maréchal » (`"ai": "pean"`), est un moteur Rust lié à Tabulon (crate `pean` de Tabulon,
+Les niveaux portent les grades de l'armée grecque : **Enomotarchos** (Ἐνωμοτάρχης, chef d'énomotie : caporal, sergent),
+**Lochagos** (Λοχαγός, capitaine), **Taxiarchos** (Ταξίαρχος, général de brigade) — l'IA UCT de jocly, de plus en plus
+longue — et **Strategos** (Στρατηγός, général en chef), le moteur natif.
+
+## Niveau Strategos (moteur natif)
+
+Le quatrième niveau, « Strategos » (`"ai": "pean"`), est un moteur Rust lié à Tabulon (crate `pean` de Tabulon,
 `src-tauri/crates/pean`). jocly lui parle à travers `jocly.peanworker.js` (voir `src/core/jocly.pean.js`) : il envoie le
 contexte compilé du scénario (`PeanRules.exportContext`) et l'état (`Model.Board.ExportEngineRequest`), et valide le
 tour rendu (`IsValidMove`). Le moteur ne lit jamais les scénarios : une nouvelle bataille n'y demande rien.
@@ -155,13 +162,13 @@ tour rendu (`IsValidMove`). Le moteur ne lit jamais les scénarios : une nouvell
   combats, verdicts et codes d'erreur, états, issues, évaluation et tours candidats, position par position ;
 - **recherche** : alpha-bêta à approfondissement itératif sur les tours candidats de `pean-ai.js` (40 à la racine,
   puis 18, 12...), l'arbre gardé d'une itération à l'autre ; profondeur 3 à 4 tours en 2,5 s ;
-- **sans moteur** (jocly seul, navigateur) : le tour est joué par « Général » et le repli est annoncé ; le
+- **sans moteur** (jocly seul, navigateur) : le tour est joué par « Taxiarchos » et le repli est annoncé ; le
   déploiement libre est toujours joué par l'IA du jeu.
 
-Mesure (novembre 2026, `tools/duel.cjs` de la crate), contre « Général » tel quel (5 s par tour), 13 parties par
+Mesure (novembre 2026, `tools/duel.cjs` de la crate), contre « Taxiarchos » tel quel (5 s par tour), 13 parties par
 scénario, camps alternés :
 
-| scénario | Maréchal | remarque |
+| scénario | Strategos | remarque |
 |---|---|---|
 | Bataille libre | 11 V / 0 N / 2 D | |
 | Leuctres | 9 V / 0 N / 4 D | 7 sur 7 avec les Thébains, 2 sur 6 avec les Spartiates |
@@ -170,11 +177,11 @@ scénario, camps alternés :
 | **total** | **35 V / 2 N / 15 D, 69 %** | tour le plus long : 2,56 s |
 
 Avant la correction de l'IA de jocly (orientation qui passait d'un ordre au suivant, `buildTurn`), le même match
-donnait 40 V / 1 N / 11 D (78 %) : « Général » corrigé est plus fort, surtout avec le camp le plus faible du scénario.
+donnait 40 V / 1 N / 11 D (78 %) : « Taxiarchos » corrigé est plus fort, surtout avec le camp le plus faible du scénario.
 
 ## Limites de cette version
 
-- l'IA de jocly (UCT sur tours candidats) joue des coups sensés mais reste faible ; le Maréchal n'existe que dans
+- l'IA de jocly (UCT sur tours candidats) joue des coups sensés mais reste faible ; le Strategos n'existe que dans
   Tabulon ;
 - la skin « Tuiles » pose les tuiles de terrain de Wesnoth ; la skin « Insignes » emprunte à 0 A.D. les emblèmes et les bannières, à Wesnoth les pictogrammes de forêt, marais,
   montagne, mer, colline, ville et camp ; plaine, route, rivières et icônes d'unités restent dessinés.

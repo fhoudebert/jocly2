@@ -33,9 +33,15 @@ exports.games = (function () {
 		["bataille-libre", "res/images/batailles/libre.png", "ΕΛΛΗΝΕΣ"]
 	];
 
+	/*
+	 * Les niveaux portent les grades de l'armee grecque, du chef d'enomotie
+	 * (une trentaine d'hommes) au general en chef : Enomotarchos (caporal,
+	 * sergent), Lochagos (capitaine), Taxiarchos (general de brigade),
+	 * Strategos (general en chef, le moteur externe).
+	 */
 	var levels = [
 		{
-			"label": "Caporal",
+			"label": "Enomotarchos (Ἐνωμοτάρχης)",
 			"ai": "uct",
 			"maxDuration": 1,
 			"maxLoops": 40,
@@ -49,7 +55,7 @@ exports.games = (function () {
 			"propagateMultiVisits": false
 		},
 		{
-			"label": "Capitaine",
+			"label": "Lochagos (Λοχαγός)",
 			"isDefault": true,
 			"ai": "uct",
 			"maxDuration": 2.5,
@@ -64,7 +70,7 @@ exports.games = (function () {
 			"propagateMultiVisits": false
 		},
 		{
-			"label": "Général",
+			"label": "Taxiarchos (Ταξίαρχος)",
 			"ai": "uct",
 			"maxDuration": 5,
 			"maxLoops": 500,
@@ -80,12 +86,12 @@ exports.games = (function () {
 		{
 			// Moteur externe, fourni par l'hote (Tabulon, crate `pean`) a
 			// travers jocly.peanworker.js. Sans moteur, le tour est joue par
-			// « Général » et le repli est annonce : voir src/core/jocly.pean.js.
+			// « Taxiarchos » et le repli est annonce : voir src/core/jocly.pean.js.
 			// Le deploiement libre reste joue par l'IA du jeu.
-			// Mesure (novembre 2026, « Général » corrige, voir pean-ai.js
+			// Mesure (novembre 2026, « Taxiarchos » corrige, voir pean-ai.js
 			// buildTurn) : 35 victoires, 2 nulles, 15 defaites sur 52 parties
 			// (13 par scenario, camps alternes), 69 % ; 2,6 s par tour au plus.
-			"label": "Maréchal",
+			"label": "Strategos (Στρατηγός)",
 			"ai": "pean",
 			"moveTimeMs": 2500
 		}
@@ -119,10 +125,17 @@ exports.games = (function () {
 	function game() {
 		var scenarios = SCENARIOS.map(function (s) { return require("./scenarios/" + s[0] + ".json"); });
 		var preload = tileImages();
+		// decors poses sur les cases d'objectif (temple de Demeter...)
+		scenarios.forEach(function (sc) {
+			(sc.objectifs || []).forEach(function (o) {
+				var img = o.decor && "image|/res/images/decors/" + o.decor + ".png";
+				if (img && preload.indexOf(img) < 0) preload.push(img);
+			});
+		});
 		scenarios.forEach(function (sc) {
 			insigniaImages(sc).forEach(function (img) { if (preload.indexOf(img) < 0) preload.push(img); });
 		});
-		var insignia = preload.filter(function (img) { return img.indexOf("/tuiles/") < 0; });
+		var insignia = preload.filter(function (img) { return img.indexOf("/tuiles/") < 0 && img.indexOf("/decors/") < 0; });
 		return {
 			"name": "pean",
 			"modelScripts": modelScripts,

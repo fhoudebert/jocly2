@@ -24,7 +24,7 @@ t.section("manifeste");
 	t.eq(g.modelScripts, ["pean-rules.js", "pean-ai.js", "pean-model.js"], "scripts du modele");
 	t.eq(model.module, "pean", "module");
 	t.eq(model.maxLevel, model.levels.length, "maxLevel");
-	t.eq(model.levels.map((l) => l.ai), ["uct", "uct", "uct", "pean"], "trois niveaux uct, puis le Maréchal (moteur externe)");
+	t.eq(model.levels.map((l) => l.ai), ["uct", "uct", "uct", "pean"], "trois niveaux uct, puis le Strategos (moteur externe)");
 	t.eq(options.preventRepeat, false, "pas de nulle par repetition (la limite de tours clot la partie)");
 	t.eq(options.scenarios.map((sc) => sc.id), ["platees-479", "laurion-413", "leuctres-371", "bataille-libre"], "quatre batailles");
 	t.eq(options.scenario, options.scenarios[0], "la premiere est celle de depart");
@@ -45,6 +45,9 @@ t.section("manifeste");
 	t.eq(skins.map((k) => k.name), ["tuiles", "wargame", "insignes", "carte"], "quatre skins, « tuiles » par defaut");
 	t.ok(skins[0].preload.length >= 25 && skins[0].preload.every((p) =>
 		fs.existsSync(path.join(GAME, p.replace(/^image\|/, "")))), "tuiles presentes");
+	t.ok(skins[0].preload.indexOf("image|/res/images/decors/temple.png") >= 0 && skins[2].preload.indexOf("image|/res/images/decors/temple.png") < 0,
+		"le temple de Demeter, decor des skins a tuiles seulement");
+	t.eq(R.makeContext({ scenario: options.scenarios[0] }).objectives.map((o) => o.decor), [null, "temple"], "Platees : le decor du temple");
 	t.ok(skins[2].preload.length >= 3 && skins[2].preload.every((p) =>
 		fs.existsSync(path.join(GAME, p.replace(/^image\|/, "")))), "emblemes et bannieres presents");
 	t.ok(options.scenarios.every((sc) => Object.keys(sc.camps).every((k) =>

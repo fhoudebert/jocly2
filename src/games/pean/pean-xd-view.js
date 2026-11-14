@@ -253,6 +253,16 @@
 		}, ["board"]);
 	}
 
+	// un decor de Wesnoth (res/images/decors/, 72 x 72 comme les tuiles) sur le
+	// sol de la case, a la place de la tuile du terrain : le temple de Demeter
+	// sur sa case de ville. Pas de decoupe : un decor deborde un peu, comme
+	// dans Wesnoth.
+	function drawDecor(ctx, avatar, name, x, y, R) {
+		return withImage(avatar, imageUrl("decors", name), function (image) {
+			ctx.drawImage(image, x - R, y - R * SQ3 / 2, 2 * R, R * SQ3);
+		}, ["board"]);
+	}
+
 	function emblemOf(u) {
 		var rc = ui.game.g.ctx;
 		return (rc.unitEmblems && rc.unitEmblems[u.i]) || rc.camps[u.s].emblem;
@@ -502,8 +512,11 @@
 			ctx.fillStyle = P[name] || P.other;
 			ctx.fill();
 			if (tiled() && TILES[name]) {
+				var decor = rc.objAt[h] ? rc.objectives[rc.objAt[h] - 1].decor : null;
 				drawTile(ctx, avatar, groundOf(rc, h), xy[0], xy[1], R);
-				if (name !== "plaine")
+				if (decor)
+					drawDecor(ctx, avatar, decor, xy[0], xy[1], R);
+				else if (name !== "plaine")
 					drawTile(ctx, avatar, variant(TILES[name], h), xy[0], xy[1], R);
 			}
 		}

@@ -25,7 +25,7 @@ async function run(name, plies) {
 	const match = await Jocly.createMatch("pean");
 	const config = await match.getConfig();
 	const level = Object.assign({}, config.model.levels[0], { maxDuration: 0.4, maxLoops: 12 });
-	t.eq(config.model.levels.map((l) => l.label), ["Caporal", "Capitaine", "Général", "Maréchal"], name + " : trois niveaux uct et le Maréchal");
+	t.eq(config.model.levels.map((l) => l.label), ["Enomotarchos (Ἐνωμοτάρχης)", "Lochagos (Λοχαγός)", "Taxiarchos (Ταξίαρχος)", "Strategos (Στρατηγός)"], name + " : trois niveaux uct et le Strategos (grades grecs)");
 	// le prelude : la bataille, puis l'etape vide
 	const k = config.model.gameOptions.scenarios.findIndex((sc) => sc.id === name);
 	t.ok((await match.applyMove({ setup: k })).finished === false, name + " : choisi au prelude (#" + k + ")");

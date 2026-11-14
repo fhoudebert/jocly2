@@ -1,5 +1,5 @@
 /*
- * Le niveau « Maréchal », adosse a un moteur externe ("ai": "pean",
+ * Le niveau « Strategos » (autrefois « Maréchal »), adosse a un moteur externe ("ai": "pean",
  * src/core/jocly.pean.js), par l'API publique. Demande `npx gulp build` ;
  * sans build, la suite saute.
  *
@@ -57,7 +57,7 @@ async function start(name, keepPrelude) {
 	t.section("le niveau");
 	{
 		const { marechal } = await start();
-		t.eq([marechal.label, marechal.ai], ["Maréchal", "pean"], "le dernier niveau est adosse au moteur");
+		t.eq([marechal.label, marechal.ai], ["Strategos (Στρατηγός)", "pean"], "le dernier niveau est adosse au moteur");
 		t.ok(marechal.moveTimeMs > 0 && marechal.moveTimeMs <= 3000, "moins de 3 s par tour");
 	}
 
@@ -70,7 +70,7 @@ async function start(name, keepPrelude) {
 		t.ok(match.game.mBoard.IsValidMove(match.game, result.move), "et il est legal");
 		const fallback = result.fairyFallback;
 		t.ok(fallback && fallback.engine === "pean", "le repli est annonce (engine: pean)");
-		t.eq(fallback && [fallback.requested, fallback.level], ["Maréchal", "Général"], "niveau demande et niveau qui joue reellement");
+		t.eq(fallback && [fallback.requested, fallback.level], ["Strategos (Στρατηγός)", "Taxiarchos (Ταξίαρχος)"], "niveau demande et niveau qui joue reellement");
 	}
 
 	t.section("avec un moteur");
@@ -131,7 +131,7 @@ async function start(name, keepPrelude) {
 		global.Worker = fakeWorker(() => ({ type: "Error", error: "ne doit pas etre appele" }), log);
 		const { match, marechal } = await start(null, true);
 		const result = await match.machineSearch({ level: marechal, threaded: false });
-		t.ok(result && result.move && result.move.setup !== undefined, "le Maréchal choisit une bataille");
+		t.ok(result && result.move && result.move.setup !== undefined, "le Strategos choisit une bataille");
 		t.ok(!log.some((m) => m.type === "Search") && !result.fairyFallback, "sans moteur ni repli");
 	}
 	delete global.Worker;

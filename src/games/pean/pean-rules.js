@@ -399,7 +399,9 @@ var PeanRules = (function () {
 				hex: parseHex(ctx, o.hex), points: o.points || 0,
 				owner: o.camp ? sideOfCamp(ctx, o.camp) : 0,
 				only: o.pour ? sideOfCamp(ctx, o.pour) : 0,
-				immediate: !!o.immediat, hold: o.tenir || 1, nom: o.nom || null
+				immediate: !!o.immediat, hold: o.tenir || 1, nom: o.nom || null,
+				// image posee sur la case par les skins a tuiles (res/images/decors/)
+				decor: typeof o.decor === "string" && /^[a-z0-9-]+$/.test(o.decor) ? o.decor : null
 			};
 		});
 		ctx.objAt = new Int16Array(N);

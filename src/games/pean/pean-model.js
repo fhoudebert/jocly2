@@ -181,7 +181,7 @@
 	};
 
 	/*
-	 * La requete du moteur externe (niveau « Maréchal », src/core/jocly.pean.js) :
+	 * La requete du moteur externe (niveau « Strategos », src/core/jocly.pean.js) :
 	 * le contexte compile du scenario et l'etat. null pendant le deploiement
 	 * libre, que l'IA du jeu joue elle-meme.
 	 */

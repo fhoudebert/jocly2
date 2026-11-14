@@ -77,3 +77,12 @@ En réserve (`extra/wesnoth/tuiles/`) :
 
 Tuile composée : `res/images/tuiles/mine.png` = `hills/dry.png` (J.W. Bjerk) + `flat/crater.png` + `embellishments/rocks.png`
 (doofus-01), superposées ; `res/images/terrain/mine.png` = `icons/terrain/terrain_type_cave_30.png` (Emilien Rotival). GPL v2+.
+
+## Décors (skins à tuiles)
+
+Posés sur la tuile de sol d'une case d'objectif qui les demande (`"decor"` dans le scénario), à la place de la tuile
+du terrain. Dépôt `data/core/images/scenery/`, GNU GPL v2 ou ultérieure.
+
+| fichier | original | auteur | usage |
+|---|---|---|---|
+| `res/images/decors/temple.png` | `scenery/temple1.png` | Hogne Håskjold (freim) | Platées : temple de Déméter |

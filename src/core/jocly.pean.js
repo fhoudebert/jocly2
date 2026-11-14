@@ -17,7 +17,7 @@
  * Péan : niveau adosse a un moteur externe. Meme forme que
  * jocly.kriegspiel.js. Un niveau
  *
- *     { "label": "Maréchal", "ai": "pean", "moveTimeMs": 2500 }
+ *     { "label": "Strategos (Στρατηγός)", "ai": "pean", "moveTimeMs": 2500 }
  *
  * fait chercher le tour par un moteur dedie au lieu de l'IA uct du jeu, a
  * travers un Worker, jocly.peanworker.js :
