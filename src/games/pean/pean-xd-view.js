@@ -1416,10 +1416,18 @@
 					list.forEach(function (sc, k) {
 						var title = sc.titre ? loc(sc.titre) : sc.id;
 						html += '<div class="pean-prelude-choice" data-setup="' + k + '" title="' + esc(title) + '">' +
-							'<img alt="" src="' + esc(ui.fullPath + "/" + (dialog.thumbnails || [])[k]) + '">' +
+							'<img alt="" data-src="' + esc(ui.fullPath + "/" + (dialog.thumbnails || [])[k]) + '">' +
 							'<div class="pean-prelude-name">' + esc((dialog.labels || [])[k] || title) + "</div></div>";
 					});
 					element.html(html + "</div>");
+					// la source par la propriete .src, pas par le HTML : un hote
+					// qui sert les ressources du jeu autrement (Tabulon et son
+					// dist externe, asset-rewrite.js) l'intercepte la, alors
+					// qu'une <img src> analysee depuis le HTML part avant toute
+					// reecriture, vers une ressource qui n'existe pas
+					element.find("img[data-src]").each(function () {
+						this.src = this.getAttribute("data-src");
+					});
 					element.on("click", "[data-setup]", function () {
 						if (ui && ui.prelude) ui.prelude(parseInt(jQuery(this).attr("data-setup"), 10));
 					});
