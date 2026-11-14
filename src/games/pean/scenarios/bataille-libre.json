@@ -1,0 +1,106 @@
+{
+ "id": "bataille-libre",
+ "titre": {
+  "fr": "Bataille libre",
+  "en": "Open battle"
+ },
+ "resume": {
+  "fr": "Chaque camp achète et déploie son armée avec 200 points, puis livre bataille pour le village et les hauteurs.",
+  "en": "Each side buys and deploys a 200-point army, then fights for the village and the heights."
+ },
+ "regles": {
+  "fr": "Chaque camp dépense 200 points pour son armée (un général au moins) et la déploie dans sa zone. Une armée qui perd la moitié de sa valeur est rompue et perd la partie. Faute de quoi, au soir du 12e tour, chaque camp marque les pertes infligées et les objectifs qu’il tient : le village (30) et les deux collines (10 chacune).",
+  "en": "Each side spends 200 points on its army (at least one general) and deploys it in its zone. An army that loses half its value breaks and loses the game. Failing that, at the end of turn 12 each side scores the losses inflicted and the objectives it holds: the village (30) and the two hills (10 each)."
+ },
+ "carte": {
+  "cols": 24,
+  "rows": 16,
+  "lignes": [
+   "........................",
+   "...cc...........ff......",
+   "..ccc...........fff.....",
+   "........................",
+   "........................",
+   ".......ff.........c.....",
+   "......fff........cc.....",
+   "===========v============",
+   "........................",
+   ".....cc.........fff.....",
+   ".....c.........ff.......",
+   "........................",
+   "........................",
+   ".....fff...........ccc..",
+   "......ff...........cc...",
+   "........................"
+  ]
+ },
+ "camps": {
+  "A": {
+   "nom": {
+    "fr": "Athéniens",
+    "en": "Athenians"
+   },
+   "bord": "sud",
+   "zone": "rows:12-15",
+   "unites": [],
+   "embleme": "athenians",
+   "banniere": "athenians"
+  },
+  "B": {
+   "nom": {
+    "fr": "Spartiates",
+    "en": "Spartans"
+   },
+   "bord": "nord",
+   "zone": "rows:0-3",
+   "unites": [],
+   "embleme": "spartans",
+   "banniere": "spartans"
+  }
+ },
+ "premierJoueur": "A",
+ "deploiement": {
+  "libre": true,
+  "budget": 200
+ },
+ "types": {
+  "general": {
+   "max": 2
+  },
+  "cavlourde": {
+   "max": 4
+  },
+  "cavlegere": {
+   "max": 4
+  }
+ },
+ "ordres": {
+  "base": 4,
+  "parGeneral": 1
+ },
+ "objectifs": [
+  {
+   "hex": "11,7",
+   "points": 30,
+   "nom": "village"
+  },
+  {
+   "hex": "18,6",
+   "points": 10,
+   "nom": "colline est"
+  },
+  {
+   "hex": "5,9",
+   "points": 10,
+   "nom": "colline ouest"
+  }
+ ],
+ "tours": 12,
+ "options": [
+  "orientation",
+  "profondeur",
+  "charge"
+ ],
+ "rupture": 0.5,
+ "nulle": 10
+}

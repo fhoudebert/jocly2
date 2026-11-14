@@ -497,6 +497,13 @@
 		if (this.game) {
 			var self = this;
 			var promise = new Promise(function (resolve, reject) {
+				// Un jeu dont les coups ne s'enumerent pas (Pean : un tour est une
+				// suite d'ordres et de combats) lit sa notation lui-meme, et
+				// exactement : null plutot que le coup legal le plus ressemblant.
+				if (typeof self.game.mBoard.ParseMove == "function") {
+					resolve(self.game.mBoard.ParseMove(self.game, moveString) || null);
+					return;
+				}
 				if (!self.game.mBoard.mMoves || self.game.mBoard.mMoves.length == 0)
 					self.game.mBoard.GenerateMoves(self.game);
 				var move = self.game.GetBestMatchingMove(moveString, self.game.mBoard.mMoves);

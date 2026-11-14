@@ -29,6 +29,7 @@ rather than fail when the build is missing.
 | `baroque/` | the Ultima family - `baroque/ultima/`, `baroque/rococo/`, `baroque/rocaille/`, plus the Ghost that is shared |
 | `cubic/` | 3D Cubic Chess |
 | `kriegspiel/` | Le Jeu de la guerre (Debord): the pure rules engine on its own, the Jocly model, full games played to the end, and a real match through the build |
+| `pean/` | Péan, the hex wargame: the pure rules engine on small hand-built scenarios, the Jocly model of each scenario, full games played to the end (AI and random), and a real match through the build |
 | `3dchess/`, `space-spartan/` | one game each |
 
 ## Harnesses
@@ -49,6 +50,9 @@ its own loader for the game family it serves:
 - `kriegspiel/harness.js` - loads `kriegspiel-rules.js` alone (no Jocly at
   all), or the three model scripts in a sandbox, and builds a position from
   lists of squares
+- `pean/harness.js` - loads `pean-rules.js` and `pean-ai.js` alone, a
+  scenario file, or the model scripts of one scenario in a sandbox; `mini()`
+  builds a small test scenario to patch
 
 A suite that needs a family it does not belong to reaches across rather than
 gaining a second harness: `shogi/chu-shogi.test.js` uses the khans one because

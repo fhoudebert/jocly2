@@ -1,0 +1,90 @@
+# Ressources de Wesnoth
+
+Pictogrammes de terrain de [The Battle for Wesnoth](https://www.wesnoth.org/) (dépôt `images/icons/terrain/`),
+par Emilien Rotival (LordBob), sous licence GNU GPL v2 ou ultérieure (d'après les métadonnées des fichiers PNG).
+Pictogrammes blancs de 30 px, dessinés sans lissage sur les hexagones colorés de la skin « Insignes ».
+
+Utilisés, donc placés dans `res/images/terrain/` (seul `res/` est copié dans le dist) :
+
+| fichier | original | terrain de Péan |
+|---|---|---|
+| `foret.png` | `terrain_type_forest_30.png` | forêt |
+| `marais.png` | `terrain_group_swamp_30.png` | marais |
+| `montagne.png` | `terrain_type_mountains_30.png` | montagne |
+| `mer.png` | `terrain_type_deep_water_30.png` | mer |
+| `colline.png` | `terrain_type_hills_30.png` | colline |
+| `ville.png` | `terrain_type_village_30.png` | ville |
+| `camp.png` | `terrain_type_castle_30.png` | camp |
+
+Écartés : sable au cactus, champignons, glace, grottes, rails, brouillard, boutons d'éditeur (croix, « + »,
+« info », variantes « pressed »), doublons de 16 px : sans usage dans la Grèce antique.
+
+## Tuiles de terrain (skin « Tuiles »)
+
+Tuiles hexagonales de 72 × 72 px, dépôt `data/core/images/terrain/`, GNU GPL v2 ou ultérieure, auteurs relevés dans les
+métadonnées des fichiers. Leur hexagone à sommet plat se pose sur celui de Péan par une simple mise à l'échelle.
+
+Utilisées (`res/images/tuiles/`) :
+
+| fichier | original | auteur |
+|---|---|---|
+| `plaine1.png` | `grass/semi-dry.png` | J.W. Bjerk(Eleazar) |
+| `plaine2.png` | `grass/semi-dry2.png` | J.W. Bjerk(Eleazar) |
+| `plaine3.png` | `grass/semi-dry3.png` | J.W. Bjerk(Eleazar) |
+| `plaine4.png` | `grass/dry.png` | J.W. Bjerk(Eleazar) |
+| `plaine5.png` | `grass/dry3.png` | J.W. Bjerk(Eleazar) |
+| `route.png` | `flat/desert-road.png` | J.W. Bjerk(Eleazar) |
+| `colline1.png` | `hills/dry.png` | J.W. Bjerk(Eleazar) |
+| `colline2.png` | `hills/dry2.png` | unknown |
+| `colline3.png` | `hills/dry3.png` | J.W. Bjerk(Eleazar) |
+| `foret1.png` | `forest/forested-deciduous-summer-hills-tile.png` | Richard Kettering(Jetrel) |
+| `foret2.png` | `forest/deciduous-summer-tile.png` | Richard Kettering(Jetrel) |
+| `foret3.png` | `forest/mixed-summer-tile.png` | Richard Kettering(Jetrel) |
+| `marais1.png` | `swamp/water-tile.png` | unknown |
+| `marais2.png` | `swamp/water-plant.png` | Tommy(yobbo) |
+| `montagne1.png` | `mountains/dry-tile.png` | J.W. Bjerk(Eleazar) |
+| `montagne2.png` | `mountains/basic-tile.png` | Hogne Håskjold(freim) |
+| `mer.png` | `water/coast-tile.png` | Lari Nieminen(zookeeper) |
+| `ville.png` | `village/human-city-tile.png` | (blarumyrran) |
+| `camp.png` | `village/camp-tile.png` | Moritz Göbelbecker(mog);Lari Nieminen(zookeeper);(doofus-01) |
+
+Tuile composée : `res/images/tuiles/mine.png` = `hills/dry.png` (J.W. Bjerk) + `flat/crater.png` + `embellishments/rocks.png`
+(doofus-01), superposées ; `res/images/terrain/mine.png` = `icons/terrain/terrain_type_cave_30.png` (Emilien Rotival). GPL v2+.
+
+## Décors (skins à tuiles)
+
+Posés sur la tuile de sol d'une case d'objectif qui les demande (`"decor"` dans le scénario), à la place de la tuile
+du terrain. Dépôt `data/core/images/scenery/`, GNU GPL v2 ou ultérieure.
+
+| fichier | original | auteur | usage |
+|---|---|---|---|
+| `res/images/decors/temple.png` | `scenery/temple1.png` | Hogne Håskjold (freim) | Platées : temple de Déméter ; Marathon : Héracléion |
+| `res/images/decors/navire.png` | `scenery/rig.png` | non renseigné | Marathon : navires perses à Schinias |
+| `res/images/decors/tumulus.png` | `scenery/cave.png` (tumulus) | Richard Kettering (Jetrel) | Marathon : le Sôros |
+| `res/images/decors/rochers.png` | `scenery/rocks.png` | doofus-01 | Thermopyles : falaises sur la mer |
+| `res/images/decors/pierres.png` | `embellishments/stones-small7.png` | J.W. Bjerk (Eleazar) | éboulis |
+| `res/images/decors/nenuphars1.png`, `nenuphars2.png` | `embellishments/water-lilies-flower-small*.png` | Atz | posés par la vue sur un marais sur trois |
+
+## Tuiles ajoutées pour Marathon et les Thermopyles
+
+| fichier | original | auteur | usage |
+|---|---|---|---|
+| `tuiles/sentier1-3.png` | `flat/path1.png`, `path3.png`, `path5.png` | non renseigné | terrain « sentier » (l'Anopée) |
+| `tuiles/plage1-3.png` | `sand/beach3.png`, `beach5.png`, `beach7.png` | Richard Kettering (Jetrel), Hogne Håskjold (freim) | terrain « plage » |
+| `tuiles/pinede1-3.png` | `forest/pine-tile.png`, `forested-hills-tile.png`, `forested-mixed-summer-hills-tile.png` | Richard Kettering (Jetrel) | forêts des Thermopyles (`carte.tuiles`) |
+| `rivage/beach-*.png` (25) | `water/beach-*.png` | rhyging5 | liseré de sable sur la mer au contact de la terre |
+| `marais/water-*.png` (18) | transitions `water-*` | Tommy (yobbo) | frange humide sur la terre au contact d'un marais |
+| `sentier/stone-path-*.png` (19) | `flat/stone-path-*` | J.W. Bjerk (Eleazar) | cailloux du sentier sur la terre voisine |
+| `herbe/{dry,semi-dry}-{abrupt,medium,long}-*.png` (36) | `grass/*-abrupt-*`, `*-medium-*`, `*-long-*` | J.W. Bjerk (Eleazar) | l'herbe d'une plaine déborde sur ses voisines |
+| `collines/dry-*.png`, `dry2-*.png` (11) | `hills/dry-*`, `dry2-*` | J.W. Bjerk (Eleazar) | une colline déborde sur la terre voisine |
+| `collines/dry-to-water*-*.png` (15) | `hills/dry-to-water*` | non renseigné | rebord d'une colline dans la mer ou le marais |
+
+Les débords suivent `data/core/terrain-graphics.cfg` de Wesnoth : qui déborde sur quoi, et dans quel ordre (couches de
+-510 à -183, voir `pean-xd-view.js`). Les transitions d'herbe sans suffixe et celles de l'herbe verte (`green-*`) reçues
+ne sont pas copiées : Wesnoth ne les utilise pas pour ces terrains, et Péan n'a pas d'herbe verte.
+
+Les fichiers reçus mais non retenus (forêts en 144 px, collines désertiques, épaves, autres galets et nénuphars) ne sont
+pas copiés dans le jeu.
+
+Ce dossier ne garde plus d'images : les réserves (pictogrammes et tuiles non utilisés) ont été retirées. Les originaux
+sont dans le dépôt de Wesnoth (`data/core/images/`), aux chemins indiqués ci-dessus.

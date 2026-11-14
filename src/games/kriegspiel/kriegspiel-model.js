@@ -10,6 +10,9 @@
  *   { p: { I:[..], C:[..], A:[.], AC:[.], T:[.], E:[.] } }       placement
  *   { r: [de,vers], m: [[de,vers]...], a: cible, d: arsenal }    tour de jeu
  *
+ * Notation (ToString / ParseMove) : un mot par coup, voir
+ * KriegspielRules.parseMove.
+ *
  * GenerateMoves() ne renvoie qu'un ECHANTILLON de tours (ceux que l'IA
  * envisage) : IsValidMove() est donc un vrai validateur, qui rejoue le tour
  * pas a pas sur une copie, et non une recherche dans mMoves.
@@ -172,6 +175,29 @@
 		if (this.over)
 			return false;
 		return R.playTurn(aGame.g.ctx, this, this.mWho, R.playableMove(move)).ok;
+	};
+
+	/*
+	 * Relecture d'un coup ecrit (partie PJN rouverte) : EXACTEMENT le coup que
+	 * ToString a ecrit, s'il est legal ici, sinon null -- jamais le coup legal
+	 * « le plus ressemblant » que le coeur chercherait dans mMoves, qui n'est
+	 * qu'un echantillon (dix placements au hasard, les tours envisages par
+	 * l'IA). Le texte relu doit se reecrire a l'identique.
+	 */
+	// un texte de coup ramene a la forme de ToString : ancienne forme a
+	// espaces (« Nord: I@C3,… », « F3-G4 H2-H4 xE7 ») comprise
+	function canonical(text) {
+		return String(text).trim().replace(/^(Nord|Sud)\s*:\s*/, "$1:").replace(/\s*,\s*|\s+/g, ",");
+	}
+
+	Model.Board.ParseMove = function (aGame, text) {
+		if (this.over)
+			return null;
+		var parsed = R.parseMove(text);
+		if (!parsed || R.moveToString(parsed) !== canonical(text))
+			return null;
+		var move = aGame.CreateMove(parsed);
+		return this.IsValidMove(aGame, move) ? move : null;
 	};
 
 	Model.Board.ApplyMove = function (aGame, move) {

@@ -43,7 +43,7 @@ const PLIES = parseInt(process.argv[2], 10) || 14;
 		if(finished)
 			t.ok(match.game.mBoard.over !== 0 || applied.winner === Jocly.DRAW, "une fin de partie a une cause");
 	}
-	t.ok(/^Nord: I@/.test(notation[0]) && /^Sud: I@/.test(notation[1]), "les deux premiers coups sont les placements");
+	t.ok(/^Nord:I@/.test(notation[0]) && /^Sud:I@/.test(notation[1]), "les deux premiers coups sont les placements");
 	t.ok(plies === PLIES || finished, "la partie avance sans exception");
 	// sauvegarde et rechargement : chaque coup repasse IsValidMove
 	const saved = await match.save();

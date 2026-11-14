@@ -1,0 +1,532 @@
+{
+ "id": "platees-479",
+ "titre": {
+  "fr": "Platées, 479 av. J.-C.",
+  "en": "Plataea, 479 BC"
+ },
+ "resume": {
+  "fr": "Sur les contreforts du Cithéron, la ligne grecque n’a qu’à tenir : à Mardonios de franchir l’Asopos et de l’user par sa cavalerie et ses archers avant le soir.",
+  "en": "On the foothills of Cithaeron the Greek line only has to hold: Mardonius must cross the Asopus and wear it down with his cavalry and archers before nightfall."
+ },
+ "regles": {
+  "fr": "Le temple de Déméter et le camp perse valent chacun 30 points à qui les tient. Une armée qui perd la moitié de sa valeur est rompue et perd la partie. Faute de quoi, au soir du 14e tour, on compte les points (objectifs et pertes infligées) ; un écart de 5 points au plus est une nulle. Aux Perses d’attaquer : si rien ne bouge, la partie est nulle.",
+  "en": "The temple of Demeter and the Persian camp are each worth 30 points to whoever holds them. An army that loses half its value breaks and loses the game. Failing that, at the end of turn 14 points are counted (objectives and losses inflicted); a margin of 5 points or less is a draw. The Persians must attack: if nothing happens, the game is a draw."
+ },
+ "carte": {
+  "cols": 24,
+  "rows": 16,
+  "lignes": [
+   "..........fff...........",
+   "...........k............",
+   "........................",
+   "........................",
+   "........................",
+   "........................",
+   "........................",
+   "........................",
+   "....mm..................",
+   "...mmm..................",
+   "........cc.......cc.....",
+   "..cccc.ccccc...cccccc...",
+   ".cccccccccccccccccccccc.",
+   "ccccccccccccccvcccccccc.",
+   "cccMMMcccccccccccccMMMcc",
+   "MMMMMMMMcccccccccMMMMMMM"
+  ],
+  "cotes": {
+   "riviere": [
+    [
+     "0,7",
+     "0,8"
+    ],
+    [
+     "1,7",
+     "1,8"
+    ],
+    [
+     "1,7",
+     "2,8"
+    ],
+    [
+     "1,7",
+     "0,8"
+    ],
+    [
+     "2,7",
+     "2,8"
+    ],
+    [
+     "3,7",
+     "3,8"
+    ],
+    [
+     "3,7",
+     "4,8"
+    ],
+    [
+     "3,7",
+     "2,8"
+    ],
+    [
+     "4,7",
+     "4,8"
+    ],
+    [
+     "5,7",
+     "5,8"
+    ],
+    [
+     "5,7",
+     "4,8"
+    ],
+    [
+     "7,7",
+     "7,8"
+    ],
+    [
+     "7,7",
+     "8,8"
+    ],
+    [
+     "8,7",
+     "8,8"
+    ],
+    [
+     "9,7",
+     "9,8"
+    ],
+    [
+     "9,7",
+     "10,8"
+    ],
+    [
+     "9,7",
+     "8,8"
+    ],
+    [
+     "10,7",
+     "10,8"
+    ],
+    [
+     "11,7",
+     "11,8"
+    ],
+    [
+     "11,7",
+     "12,8"
+    ],
+    [
+     "11,7",
+     "10,8"
+    ],
+    [
+     "12,7",
+     "12,8"
+    ],
+    [
+     "13,7",
+     "13,8"
+    ],
+    [
+     "13,7",
+     "14,8"
+    ],
+    [
+     "13,7",
+     "12,8"
+    ],
+    [
+     "14,7",
+     "14,8"
+    ],
+    [
+     "15,7",
+     "15,8"
+    ],
+    [
+     "15,7",
+     "16,8"
+    ],
+    [
+     "15,7",
+     "14,8"
+    ],
+    [
+     "16,7",
+     "16,8"
+    ],
+    [
+     "18,7",
+     "18,8"
+    ],
+    [
+     "19,7",
+     "19,8"
+    ],
+    [
+     "19,7",
+     "20,8"
+    ],
+    [
+     "19,7",
+     "18,8"
+    ],
+    [
+     "20,7",
+     "20,8"
+    ],
+    [
+     "21,7",
+     "21,8"
+    ],
+    [
+     "21,7",
+     "22,8"
+    ],
+    [
+     "21,7",
+     "20,8"
+    ],
+    [
+     "22,7",
+     "22,8"
+    ],
+    [
+     "23,7",
+     "23,8"
+    ],
+    [
+     "23,7",
+     "22,8"
+    ]
+   ],
+   "gue": [
+    [
+     "5,7",
+     "6,8"
+    ],
+    [
+     "6,7",
+     "6,8"
+    ],
+    [
+     "7,7",
+     "6,8"
+    ],
+    [
+     "17,7",
+     "17,8"
+    ],
+    [
+     "17,7",
+     "18,8"
+    ],
+    [
+     "17,7",
+     "16,8"
+    ]
+   ]
+  }
+ },
+ "types": {
+  "spartiate": {
+   "code": "Sp",
+   "force": 7,
+   "mvt": 3,
+   "pas": 2,
+   "cout": 30,
+   "traits": [
+    "phalange"
+   ],
+   "nom": {
+    "fr": "Spartiates",
+    "en": "Spartiates"
+   }
+  },
+  "sparabara": {
+   "code": "Sb",
+   "force": 4,
+   "mvt": 3,
+   "pas": 2,
+   "cout": 14,
+   "traits": [],
+   "nom": {
+    "fr": "Sparabara",
+    "en": "Sparabara"
+   },
+   "icone": "pavois"
+  },
+  "immortel": {
+   "code": "Im",
+   "force": 5,
+   "mvt": 3,
+   "pas": 2,
+   "cout": 18,
+   "traits": [],
+   "nom": {
+    "fr": "Immortels",
+    "en": "Immortals"
+   },
+   "icone": "lance"
+  },
+  "archerMonte": {
+   "code": "Am",
+   "force": 2,
+   "mvt": 8,
+   "pas": 2,
+   "cout": 14,
+   "traits": [
+    "monte",
+    "tir",
+    "desengage"
+   ],
+   "nom": {
+    "fr": "Archers montés",
+    "en": "Horse archers"
+   }
+  },
+  "general": {
+   "cout": 40
+  }
+ },
+ "camps": {
+  "A": {
+   "nom": {
+    "fr": "Grecs",
+    "en": "Greeks"
+   },
+   "bord": "sud",
+   "unites": [
+    {
+     "type": "spartiate",
+     "hex": "16,11",
+     "embleme": "spartans"
+    },
+    {
+     "type": "spartiate",
+     "hex": "17,11",
+     "embleme": "spartans"
+    },
+    {
+     "type": "spartiate",
+     "hex": "18,11",
+     "embleme": "spartans"
+    },
+    {
+     "type": "hoplite",
+     "hex": "19,11",
+     "nom": "Tégéates",
+     "embleme": "poleis"
+    },
+    {
+     "type": "hoplite",
+     "hex": "20,11",
+     "nom": "Tégéates",
+     "embleme": "poleis"
+    },
+    {
+     "type": "peltaste",
+     "hex": "17,13",
+     "nom": "hilotes"
+    },
+    {
+     "type": "peltaste",
+     "hex": "18,13",
+     "nom": "hilotes"
+    },
+    {
+     "type": "hoplite",
+     "hex": "10,11"
+    },
+    {
+     "type": "hoplite",
+     "hex": "11,11"
+    },
+    {
+     "type": "hoplite",
+     "hex": "12,11"
+    },
+    {
+     "type": "hoplite",
+     "hex": "13,11"
+    },
+    {
+     "type": "hoplite",
+     "hex": "3,11",
+     "nom": "Athéniens",
+     "embleme": "athenians"
+    },
+    {
+     "type": "hoplite",
+     "hex": "4,11",
+     "nom": "Athéniens",
+     "embleme": "athenians"
+    },
+    {
+     "type": "hoplite",
+     "hex": "5,11",
+     "nom": "Athéniens",
+     "embleme": "athenians"
+    },
+    {
+     "type": "archer",
+     "hex": "4,12",
+     "nom": "archers athéniens",
+     "embleme": "athenians"
+    },
+    {
+     "type": "general",
+     "hex": "17,12",
+     "nom": "Pausanias",
+     "embleme": "spartans"
+    }
+   ],
+   "embleme": "hellenes",
+   "banniere": "greek"
+  },
+  "B": {
+   "nom": {
+    "fr": "Perses",
+    "en": "Persians"
+   },
+   "bord": "nord",
+   "unites": [
+    {
+     "type": "sparabara",
+     "hex": "14,4"
+    },
+    {
+     "type": "sparabara",
+     "hex": "15,4"
+    },
+    {
+     "type": "sparabara",
+     "hex": "16,4"
+    },
+    {
+     "type": "sparabara",
+     "hex": "17,4"
+    },
+    {
+     "type": "immortel",
+     "hex": "15,3"
+    },
+    {
+     "type": "immortel",
+     "hex": "16,3"
+    },
+    {
+     "type": "archer",
+     "hex": "14,2",
+     "nom": "archers perses"
+    },
+    {
+     "type": "archer",
+     "hex": "17,2",
+     "nom": "archers perses"
+    },
+    {
+     "type": "cavlourde",
+     "hex": "10,5"
+    },
+    {
+     "type": "cavlourde",
+     "hex": "20,5"
+    },
+    {
+     "type": "archerMonte",
+     "hex": "8,6"
+    },
+    {
+     "type": "archerMonte",
+     "hex": "12,6"
+    },
+    {
+     "type": "archerMonte",
+     "hex": "19,6"
+    },
+    {
+     "type": "hoplite",
+     "hex": "3,4",
+     "nom": "Béotiens",
+     "embleme": "thebans"
+    },
+    {
+     "type": "hoplite",
+     "hex": "4,4",
+     "nom": "Béotiens",
+     "embleme": "thebans"
+    },
+    {
+     "type": "hoplite",
+     "hex": "5,4",
+     "nom": "Béotiens",
+     "embleme": "thebans"
+    },
+    {
+     "type": "general",
+     "hex": "15,2",
+     "nom": "Mardonios"
+    },
+    {
+     "type": "sparabara",
+     "hex": "11,4"
+    },
+    {
+     "type": "sparabara",
+     "hex": "12,4"
+    },
+    {
+     "type": "sparabara",
+     "hex": "13,4"
+    },
+    {
+     "type": "sparabara",
+     "hex": "18,4"
+    },
+    {
+     "type": "immortel",
+     "hex": "14,3"
+    },
+    {
+     "type": "cavlourde",
+     "hex": "6,5"
+    },
+    {
+     "type": "archerMonte",
+     "hex": "16,6"
+    }
+   ],
+   "embleme": "persians",
+   "banniere": "persian"
+  }
+ },
+ "premierJoueur": "B",
+ "ordres": {
+  "base": 4,
+  "parGeneral": 1
+ },
+ "objectifs": [
+  {
+   "hex": "11,1",
+   "camp": "B",
+   "points": 30,
+   "nom": "camp perse"
+  },
+  {
+   "hex": "14,13",
+   "camp": "A",
+   "points": 30,
+   "nom": "temple de Déméter",
+   "decor": "temple"
+  }
+ ],
+ "tours": 14,
+ "options": [
+  "orientation",
+  "profondeur",
+  "charge"
+ ],
+ "rupture": 0.5,
+ "nulle": 5
+}

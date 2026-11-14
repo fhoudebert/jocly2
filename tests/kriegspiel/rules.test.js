@@ -405,7 +405,7 @@ t.section("validation");
 	const good = { I: squares("A1 A2 A3 A4 A5 A6 A7 A8 A9"), C: squares("B1 B2 B3 B4"), A: [P("B5")], AC: [P("B6")], T: [P("D8")], E: [P("F10")] };
 	r = R.playTurn(ctx, fresh, 1, { p: good });
 	t.ok(r.ok && r.state.phase === 1, "placement du Nord (arsenal et col autorises)");
-	t.eq(R.moveToString({ p: good }).slice(0, 16), "Nord: I@A1,I@A2,", "notation du placement");
+	t.eq(R.moveToString({ p: good }).slice(0, 15), "Nord:I@A1,I@A2,", "notation du placement");
 	function bad(change, label, who, state) {
 		const p = JSON.parse(JSON.stringify(good));
 		change(p);

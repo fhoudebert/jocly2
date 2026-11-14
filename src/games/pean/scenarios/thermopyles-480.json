@@ -1,0 +1,331 @@
+{
+ "id": "thermopyles-480",
+ "titre": {
+  "fr": "Les Thermopyles, 480 av. J.-C.",
+  "en": "Thermopylae, 480 BC"
+ },
+ "resume": {
+  "fr": "Derrière le mur des Phocidiens, Léonidas tient le défilé entre la montagne et la mer ; par le sentier de l’Anopée, Hydarnès et les Immortels cherchent à le tourner.",
+  "en": "Behind the Phocian wall, Leonidas holds the pass between mountain and sea; up the Anopaia path, Hydarnes and the Immortals try to turn it."
+ },
+ "regles": {
+  "fr": "Les Perses gagnent dès qu’ils tiennent Alpénos, derrière les Grecs, à la fin de 2 de leurs tours d’affilée. Le mur des Phocidiens, à la Porte du milieu, divise par deux la force de qui l’attaque. Le sentier de l’Anopée traverse la montagne : on y marche à la file, sans charge ni profondeur ; les Phocidiens le gardent. Faute de décision, au soir du 12e tour, on compte les points : 25 pour Alpénos et 15 pour la Porte du milieu tenues par les Perses, plus la valeur des pertes infligées par chaque camp. Une armée qui perd la moitié de sa valeur est rompue et perd la partie.",
+  "en": "The Persians win as soon as they hold Alpenoi, behind the Greeks, at the end of 2 of their turns in a row. The Phocian wall at the Middle Gate halves the strength of those who attack across it. The Anopaia path crosses the mountain: troops go single file there, with neither charge nor depth; the Phocians guard it. Failing a decision, at the end of turn 12 points are counted: 25 for Alpenoi and 15 for the Middle Gate held by the Persians, plus the value of the losses each side has inflicted. An army that loses half its value breaks and loses the game."
+ },
+ "carte": {
+  "cols": 24,
+  "rows": 14,
+  "lignes": [
+   "~~~~~~~~~~~~~~~~~~~~~~~~",
+   "mm~~~~~~~~~~~~~~~~~~~~~~",
+   "mmmm~~~~~~~~~~~~~~~~~~mm",
+   "...mmmm~~~~~~~~~~mmpppp.",
+   "......ppmmmm~~mpp....v..",
+   "......==...=============",
+   "======..===.............",
+   "..........MMMMMMM.......",
+   "......ffffMMMMMMMfff....",
+   "....ffMMMMMMMMMMMffssfff",
+   "fsssffMMMMMMMMMffssffMMM",
+   "MfffssfffffffffssffMMMMM",
+   "MMMMffsssssssssffMMMMMMM",
+   "MMMMMMfffffffffMMMMMMMMM"
+  ],
+  "cotes": {
+   "mur": [
+    [
+     "12,5",
+     "13,5"
+    ],
+    [
+     "12,6",
+     "13,5"
+    ],
+    [
+     "12,6",
+     "13,6"
+    ]
+   ]
+  },
+  "tuiles": {
+   "foret": [
+    "pinede1",
+    "pinede2",
+    "pinede3"
+   ]
+  },
+  "decors": [
+   {
+    "hex": "12,4",
+    "image": "rochers"
+   },
+   {
+    "hex": "13,4",
+    "image": "rochers"
+   },
+   {
+    "hex": "11,7",
+    "image": "pierres"
+   },
+   {
+    "hex": "15,7",
+    "image": "pierres"
+   }
+  ]
+ },
+ "types": {
+  "spartiate": {
+   "code": "Sp",
+   "force": 7,
+   "mvt": 3,
+   "pas": 2,
+   "cout": 30,
+   "traits": [
+    "phalange"
+   ],
+   "nom": {
+    "fr": "Spartiates",
+    "en": "Spartiates"
+   }
+  },
+  "sparabara": {
+   "code": "Sb",
+   "force": 4,
+   "mvt": 3,
+   "pas": 2,
+   "cout": 14,
+   "traits": [],
+   "nom": {
+    "fr": "Mèdes et Kissiens",
+    "en": "Medes and Kissians"
+   },
+   "icone": "pavois"
+  },
+  "immortel": {
+   "code": "Im",
+   "force": 5,
+   "mvt": 3,
+   "pas": 2,
+   "cout": 18,
+   "traits": [],
+   "nom": {
+    "fr": "Immortels",
+    "en": "Immortals"
+   },
+   "icone": "lance"
+  },
+  "general": {
+   "cout": 40
+  }
+ },
+ "camps": {
+  "P": {
+   "nom": {
+    "fr": "Perses",
+    "en": "Persians"
+   },
+   "bord": "ouest",
+   "embleme": "persians",
+   "banniere": "persian",
+   "unites": [
+    {
+     "type": "sparabara",
+     "hex": "6,5"
+    },
+    {
+     "type": "sparabara",
+     "hex": "6,6"
+    },
+    {
+     "type": "sparabara",
+     "hex": "5,5"
+    },
+    {
+     "type": "sparabara",
+     "hex": "5,6"
+    },
+    {
+     "type": "sparabara",
+     "hex": "4,5"
+    },
+    {
+     "type": "sparabara",
+     "hex": "4,6"
+    },
+    {
+     "type": "sparabara",
+     "hex": "3,6"
+    },
+    {
+     "type": "archer",
+     "hex": "5,4"
+    },
+    {
+     "type": "archer",
+     "hex": "3,5"
+    },
+    {
+     "type": "archer",
+     "hex": "4,7"
+    },
+    {
+     "type": "cavlegere",
+     "hex": "1,4"
+    },
+    {
+     "type": "cavlegere",
+     "hex": "1,7"
+    },
+    {
+     "type": "general",
+     "hex": "2,6",
+     "nom": "Xerxès"
+    },
+    {
+     "type": "immortel",
+     "hex": "0,8"
+    },
+    {
+     "type": "immortel",
+     "hex": "1,8"
+    },
+    {
+     "type": "immortel",
+     "hex": "0,9"
+    },
+    {
+     "type": "immortel",
+     "hex": "1,9"
+    },
+    {
+     "type": "general",
+     "hex": "2,9",
+     "nom": "Hydarnès"
+    }
+   ],
+   "renforts": [
+    {
+     "type": "sparabara",
+     "hex": "0,5",
+     "tour": 3
+    },
+    {
+     "type": "sparabara",
+     "hex": "0,6",
+     "tour": 3
+    },
+    {
+     "type": "sparabara",
+     "hex": "0,5",
+     "tour": 5
+    },
+    {
+     "type": "sparabara",
+     "hex": "0,6",
+     "tour": 5
+    }
+   ]
+  },
+  "G": {
+   "nom": {
+    "fr": "Grecs",
+    "en": "Greeks"
+   },
+   "bord": "est",
+   "embleme": "spartans",
+   "banniere": "spartans",
+   "face": "SO",
+   "unites": [
+    {
+     "type": "spartiate",
+     "hex": "13,5"
+    },
+    {
+     "type": "spartiate",
+     "hex": "13,6"
+    },
+    {
+     "type": "spartiate",
+     "hex": "14,5"
+    },
+    {
+     "type": "hoplite",
+     "hex": "14,6",
+     "nom": "Thespiens",
+     "embleme": "poleis"
+    },
+    {
+     "type": "hoplite",
+     "hex": "15,5",
+     "nom": "Thébains",
+     "embleme": "poleis"
+    },
+    {
+     "type": "hoplite",
+     "hex": "15,6",
+     "nom": "Arcadiens",
+     "embleme": "poleis"
+    },
+    {
+     "type": "hoplite",
+     "hex": "16,5",
+     "nom": "Corinthiens",
+     "embleme": "poleis"
+    },
+    {
+     "type": "peltaste",
+     "hex": "16,6",
+     "nom": "hilotes"
+    },
+    {
+     "type": "general",
+     "hex": "17,6",
+     "nom": "Léonidas"
+    },
+    {
+     "type": "hoplite",
+     "hex": "11,12",
+     "nom": "Phocidiens",
+     "embleme": "poleis"
+    },
+    {
+     "type": "hoplite",
+     "hex": "12,12",
+     "nom": "Phocidiens",
+     "embleme": "poleis"
+    }
+   ]
+  }
+ },
+ "premierJoueur": "P",
+ "ordres": {
+  "base": 4,
+  "parGeneral": 1
+ },
+ "objectifs": [
+  {
+   "hex": "21,4",
+   "camp": "G",
+   "pour": "P",
+   "points": 25,
+   "immediat": true,
+   "tenir": 2,
+   "nom": "Alpénos"
+  },
+  {
+   "hex": "13,5",
+   "camp": "G",
+   "pour": "P",
+   "points": 15,
+   "nom": "Porte du milieu"
+  }
+ ],
+ "tours": 12,
+ "options": [
+  "orientation",
+  "profondeur",
+  "charge"
+ ],
+ "rupture": 0.5,
+ "nulle": 5
+}

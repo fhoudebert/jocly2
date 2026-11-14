@@ -130,12 +130,67 @@ t.section("tour de jeu");
 	// notation
 	const Move = game.GetMoveClass();
 	t.eq(new Move({ r: [P("E5"), P("E6")], m: [[P("F3"), P("G4")], [P("H2"), P("H4")]], a: P("E7") }).ToString(),
-		"r:E5-E6 F3-G4 H2-H4 xE7", "notation d'un tour");
+		"r:E5-E6,F3-G4,H2-H4,xE7", "notation d'un tour, en un seul mot");
 	t.eq(new Move({ m: [[P("G7"), P("T3")]], d: P("T3") }).ToString(), "G7-T3!", "notation d'une destruction d'arsenal");
 	t.eq(new Move({ m: [] }).ToString(), "-", "notation du tour vide");
-	t.ok(/^Nord: I@C3,.*AC@C9,T@D3,E@B8$/.test(new Move(NORTH).ToString()), "notation du placement");
+	t.ok(/^Nord:I@C3,.*AC@C9,T@D3,E@B8$/.test(new Move(NORTH).ToString()), "notation du placement");
 	t.ok(new Move({ m: [] }).Equals(new Move({})), "Equals : {} et { m: [] } sont le meme tour vide");
 	t.ok(!new Move({ m: [] }).Equals(new Move({ m: [], a: 3 })), "Equals distingue une attaque");
+})();
+
+t.section("relecture d'une partie ecrite (PJN)");
+(function () {
+	const game = newGame(sandbox), board = game.mBoard;
+	const text = (m) => game.CreateMove(m).ToString();
+	// le placement ecrit n'est pas dans l'echantillon de GenerateMoves : c'est
+	// pour cela que le coeur, qui y cherchait le coup « le plus ressemblant »,
+	// relisait un autre deploiement
+	board.GenerateMoves(game);
+	t.ok(!board.mMoves.some((m) => game.CreateMove(m).Equals(game.CreateMove(NORTH))), "le placement joue n'est pas dans mMoves");
+	const north = board.ParseMove(game, text(NORTH));
+	t.ok(north && north.Equals(game.CreateMove(NORTH)) && JSON.stringify(north.p) === JSON.stringify(NORTH.p),
+		"ParseMove relit exactement le placement du Nord");
+	t.eq(board.ParseMove(game, text(SOUTH)), null, "le placement du Sud n'est pas legal au trait du Nord");
+	t.eq(board.ParseMove(game, text(NORTH).replace("Nord", "Sud")), null, "camp ecrit contraire aux cases : refuse");
+	t.eq(board.ParseMove(game, text(NORTH).replace("I@C3,", "")), null, "placement incomplet : refuse (illegal)");
+	game.play(NORTH);
+	const south = board.ParseMove(game, " " + text(SOUTH) + " ");
+	t.ok(south && south.Equals(game.CreateMove(SOUTH)), "et celui du Sud, au trait du Sud (blancs autour toleres)");
+	game.play(SOUTH);
+	["", "Nord:", "Z9-A1", "C3-C4 xD5 xD6", "C3-C4 r:C5-C6", "c3-c4", "C3-C4!!", "I@C3"].forEach((bad) =>
+		t.eq(board.ParseMove(game, bad), null, "texte refuse : " + JSON.stringify(bad)));
+	t.eq(R.parseMove("r:E5-E6 F3-G4 H2-H4 xE7"),
+		{ m: [[P("F3"), P("G4")], [P("H2"), P("H4")]], r: [P("E5"), P("E6")], a: P("E7") }, "parseMove : retraite, mouvements, attaque");
+	t.eq(R.parseMove("G7-T3!"), { m: [[P("G7"), P("T3")]], d: P("T3") }, "parseMove : destruction d'arsenal");
+	t.eq(R.parseMove("-"), { m: [] }, "parseMove : tour vide");
+	t.ok(!/\s/.test(text(NORTH)) && !/\s/.test(game.CreateMove({ r: [P("E5"), P("E6")], m: [[P("F3"), P("G4")]], a: P("E7") }).ToString()),
+		"un coup = un mot : le PJN separe les coups par des blancs");
+	// l'ancienne notation a espaces, quand elle arrive d'un seul tenant
+	// (Tabulon regroupe les mots d'un fichier ancien) : relue a l'identique
+	const old = text(SOUTH).replace("Sud:", "Sud: ");
+	t.eq(R.parseMove("r:E5-E6 F3-G4 H2-H4 xE7"), R.parseMove("r:E5-E6,F3-G4,H2-H4,xE7"), "ancienne forme d'un tour, meme coup");
+	const g2 = newGame(sandbox);
+	g2.play(NORTH);
+	const sp = g2.mBoard.ParseMove(g2, old);
+	t.ok(sp && sp.Equals(g2.CreateMove(SOUTH)), "ancienne forme du placement (« Sud: I@… ») relue");
+	t.eq(g2.mBoard.ParseMove(g2, "Sud:"), null, "« Sud: » seul, comme le decoupait l'ancien PJN : refuse");
+
+	// des parties entieres, coups tires par l'IA : chaque coup ecrit se relit
+	// a l'identique sur la position ou il a ete joue
+	let checked = 0, bad = 0;
+	for (let g = 0; g < 6; g++) {
+		const gm = newGame(sandbox), b = gm.mBoard;
+		for (let ply = 0; ply < 60 && !b.mFinished; ply++) {
+			b.GenerateMoves(gm);
+			if (!b.mMoves.length) break;
+			const mv = gm.CreateMove(b.mMoves[Math.floor(Math.random() * b.mMoves.length)]);
+			const back = b.ParseMove(gm, mv.ToString());
+			checked++;
+			if (!back || !back.Equals(mv) || back.ToString() !== mv.ToString()) { bad++; if (bad < 3) console.log("    relu autrement : " + mv.ToString()); }
+			gm.play(mv);
+		}
+	}
+	t.ok(checked > 100 && bad === 0, "parties tirees au hasard : " + checked + " coups relus a l'identique (" + bad + " ecarts)");
 })();
 
 t.section("fin de partie");

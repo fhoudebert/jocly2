@@ -675,7 +675,7 @@ var KriegspielRules = (function () {
 					if (first === null) first = pos;
 					items.push(CODES[t] + "@" + posName(pos));
 				});
-			return (first !== null && territory(first) === SOUTH ? "Sud: " : "Nord: ") + items.join(",");
+			return (first !== null && territory(first) === SOUTH ? "Sud:" : "Nord:") + items.join(",");
 		}
 		var flagged = false;
 		function step(s) {
@@ -691,7 +691,75 @@ var KriegspielRules = (function () {
 		(move.m || []).forEach(function (s) { parts.push(step(s)); });
 		if (move.a !== undefined)
 			parts.push("x" + posName(move.a));
-		return parts.length ? parts.join(" ") : "-";
+		return parts.length ? parts.join(",") : "-";
+	}
+
+	/*
+	 * Notation d'un coup, en UN SEUL MOT (pas d'espace) : un PJN separe ses
+	 * coups par des blancs, et la notation d'avant (« Nord: I@C3,… »,
+	 * « F3-G4 H2-H4 xE7 ») s'y relisait en plusieurs coups.
+	 *   placement   Nord:I@C3,I@C4,…,E@B8          (Sud: pour le Sud)
+	 *   tour        r:E5-E6,F3-G4,H2-H4,xE7       retraite, mouvements, attaque
+	 *               G7-T3!                         ! : l'arsenal detruit
+	 *               -                              tour vide
+	 *
+	 * parseMove est l'inverse exact de moveToString : le coup qu'il ecrit, ou
+	 * null pour un texte qui n'en est pas un. Il lit aussi l'ancienne forme,
+	 * a espaces, quand elle lui arrive d'un seul tenant. Sans lui, la relecture d'une partie (PJN)
+	 * cherchait le coup « le plus ressemblant » parmi l'echantillon de
+	 * GenerateMoves -- dix placements tires au hasard : l'armee relue ne
+	 * partait pas d'ou elle etait partie. La legalite n'est pas jugee ici
+	 * (voir Model.Board.ParseMove).
+	 */
+	function parseMove(text) {
+		text = String(text === undefined || text === null ? "" : text).trim();
+		var sq = function (name) {
+			try { var pos = posOf(name); return pos >= 0 && pos < N ? pos : null; } catch (e) { return null; }
+		};
+		var m = /^(Nord|Sud)\s*:\s*([\s\S]*)$/.exec(text);
+		if (m) {
+			var p = {}, items = m[2].split(",").map(function (x) { return x.trim(); }).filter(Boolean);
+			if (!items.length) return null;
+			for (var i = 0; i < items.length; i++) {
+				var it = /^([A-Z]{1,2})@([A-Ta-t]\d{1,2})$/.exec(items[i]);
+				if (!it || CODES.indexOf(it[1]) < 1) return null;
+				var pos = sq(it[2]);
+				if (pos === null) return null;
+				(p[it[1]] = p[it[1]] || []).push(pos);
+			}
+			// le camp ecrit doit etre celui des cases (moveToString le deduit de la premiere)
+			var first = p[CODES.filter(function (c) { return p[c]; })[0]][0];
+			if ((m[1] === "Sud") !== (territory(first) === SOUTH)) return null;
+			return { p: p };
+		}
+		var move = { m: [] };
+		if (text === "-") return move;
+		var tokens = text.split(/\s*,\s*|\s+/), stepRe = /^([A-Ta-t]\d{1,2})-([A-Ta-t]\d{1,2})(!?)$/;
+		for (var k = 0; k < tokens.length; k++) {
+			var tok = tokens[k], retreat = false, st;
+			if (/^x/.test(tok)) {
+				if (move.a !== undefined || k !== tokens.length - 1) return null;
+				var a = sq(tok.slice(1));
+				if (a === null) return null;
+				move.a = a;
+				continue;
+			}
+			if (/^r:/.test(tok)) {
+				if (k !== 0) return null;
+				retreat = true;
+				tok = tok.slice(2);
+			}
+			if (!(st = stepRe.exec(tok))) return null;
+			var from = sq(st[1]), to = sq(st[2]);
+			if (from === null || to === null) return null;
+			if (st[3]) {
+				if (move.d !== undefined) return null;
+				move.d = to;
+			}
+			if (retreat) move.r = [from, to];
+			else move.m.push([from, to]);
+		}
+		return move;
 	}
 
 	// le coup reduit a ce que les regles lisent, dans un ordre fixe (comparaison)
@@ -721,7 +789,7 @@ var KriegspielRules = (function () {
 		communications: communications, reach: reach,
 		defenseAt: defenseAt, strength: strength, attacksFor: attacksFor,
 		Turn: Turn, checkPlacement: checkPlacement, playTurn: playTurn,
-		lossReason: lossReason, outcome: outcome, moveToString: moveToString, playableMove: playableMove
+		lossReason: lossReason, outcome: outcome, moveToString: moveToString, parseMove: parseMove, playableMove: playableMove
 	};
 	return api;
 })();
