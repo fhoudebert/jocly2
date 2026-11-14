@@ -102,6 +102,8 @@
 			preludeWait: "L’adversaire choisit la bataille.",
 			deployHint: "Choisissez un type d’unité, puis un hexagone de votre zone (en clair). Un clic sur une unité posée la reprend. Un général au moins.",
 			budget: "Budget", auto: "Placement automatique", clear: "Tout retirer", endDeploy: "Fin du déploiement",
+			chargeLegend: "Teinte orangée et chevrons : destinations atteintes en course droite, d’où le combat compte comme une charge.",
+			fireLegend: "Contour rouge en tirets : portée de tir (2 cases, en vue), depuis l’unité ou la destination survolée.",
 			moveHint: "Cliquez une unité, puis sa destination. Un ordre active une unité ou un groupe contigu de même type. Cliquez une cible ennemie pour préparer un combat : les mouvements sont alors terminés.",
 			groupOn: "Groupe : oui", groupOff: "Groupe : non", line: "Toute la ligne",
 			facing: "Orientation à l’arrivée", auto2: "auto", pivot: "Pivoter sur place",
@@ -145,6 +147,8 @@
 			preludeWait: "The opponent is choosing the battle.",
 			deployHint: "Pick a unit type, then a hex of your zone (highlighted). Click a placed unit to take it back. At least one general.",
 			budget: "Budget", auto: "Automatic deployment", clear: "Remove all", endDeploy: "Deployment done",
+			chargeLegend: "Orange tint and chevrons: destinations reached by a straight run, from which the combat counts as a charge.",
+			fireLegend: "Dashed red outline: firing range (2 hexes, in sight), from the unit or from the destination under the pointer.",
 			moveHint: "Click a unit, then its destination. An order activates one unit or a contiguous group of the same type. Click an enemy target to prepare a combat: movement is then over.",
 			groupOn: "Group: on", groupOff: "Group: off", line: "Whole line",
 			facing: "Facing on arrival", auto2: "auto", pivot: "Pivot in place",
@@ -269,8 +273,47 @@
 	}
 
 	function emptyOverlay() {
-		return { sel: [], dests: null, path: null, targets: [], target: -1, attackers: [], eligible: [],
+		return { sel: [], dests: null, path: null, charges: null, fire: null, targets: [], target: -1, attackers: [], eligible: [],
 			arrows: [], hits: [], ghost: null, zone: null, ordered: [] };
+	}
+
+	/*
+	 * Portees de l'unite selectionnee, montrees avec ses destinations :
+	 *   - charge : les destinations atteintes en course droite d'au moins
+	 *     chargeMin cases, sur un terrain qui permet la charge (le combat qui
+	 *     suit y compte double, sauf exceptions de PeanRules.strength) ;
+	 *   - tir : les cases a portee (2) et en vue depuis la position de l'unite,
+	 *     ou depuis la destination survolee.
+	 */
+	function chargeDests(rc, turn, ids, dests) {
+		var t = rc.types[turn.st.u[ids[0]].t], out = {};
+		if (!dests || !t.charge || !rc.options.charge) return null;
+		Object.keys(dests).forEach(function (key) {
+			var path = dests[key], steps = path.length - 1;
+			if (steps < rc.chargeMin || rc.terrains[rc.terr[+key]].noCharge) return;
+			var d0 = ui.game.g.rules.dirBetween(rc, path[0], path[1]);
+			for (var i = 2; i < path.length; i++)
+				if (ui.game.g.rules.dirBetween(rc, path[i - 1], path[i]) !== d0) return;
+			out[key] = d0;
+		});
+		return Object.keys(out).length ? out : null;
+	}
+
+	function fireRange(rc, turn, origins) {
+		var R = ui.game.g.rules, out = {}, any = false;
+		origins.forEach(function (o) {
+			if (o.h < 0 || !rc.types[o.u.t].fire) return;
+			// la case de depart se libere si l'unite se deplace
+			var occ = turn.occ;
+			if (o.h !== o.u.h) {
+				occ = Array.prototype.slice.call(turn.occ);
+				occ[o.u.h] = 0;
+				occ[o.h] = o.u.i + 1;
+			}
+			for (var h = 0; h < rc.N; h++)
+				if (R.distance(rc, o.h, h) === 2 && R.lineOfFire(rc, occ, o.h, h)) { out[h] = true; any = true; }
+		});
+		return any ? out : null;
 	}
 
 	/* ---------- geometrie ---------- */
@@ -1109,6 +1152,50 @@
 				ctx.fill();
 			});
 		}
+		// charge possible : teinte orangee et chevrons dans le sens de la course
+		if (ov.charges) {
+			Object.keys(ov.charges).forEach(function (key) {
+				var xy = hexXY(+key), d = ov.charges[key];
+				hexPath(ctx, xy[0], xy[1], R * 0.92);
+				ctx.fillStyle = "rgba(214,112,24,0.42)";
+				ctx.fill();
+				var a = 0;
+				var nb = rc.nb[+key * 6 + d], toward = nb >= 0 ? hexXY(nb) : null;
+				var back = rc.nb[+key * 6 + (d + 3) % 6], from = back >= 0 ? hexXY(back) : null;
+				if (toward) a = Math.atan2(toward[1] - xy[1], toward[0] - xy[0]);
+				else if (from) a = Math.atan2(xy[1] - from[1], xy[0] - from[0]);
+				ctx.save();
+				ctx.translate(xy[0], xy[1]);
+				ctx.rotate(a);
+				ctx.strokeStyle = "rgba(120,48,6,0.85)";
+				ctx.lineWidth = R * 0.08;
+				ctx.lineCap = "round";
+				ctx.lineJoin = "round";
+				[-0.2, 0.12].forEach(function (x0) {
+					ctx.beginPath();
+					ctx.moveTo((x0 - 0.14) * R, -0.2 * R);
+					ctx.lineTo(x0 * R, 0);
+					ctx.lineTo((x0 - 0.14) * R, 0.2 * R);
+					ctx.stroke();
+				});
+				ctx.restore();
+			});
+		}
+		// portee de tir : contour rouge en tirets, voile leger
+		if (ov.fire) {
+			ctx.save();
+			ctx.setLineDash([R * 0.18, R * 0.12]);
+			ctx.lineWidth = R * 0.09;
+			Object.keys(ov.fire).forEach(function (key) {
+				var xy = hexXY(+key);
+				hexPath(ctx, xy[0], xy[1], R * 0.82);
+				ctx.fillStyle = "rgba(170,30,30,0.2)";
+				ctx.fill();
+				ctx.strokeStyle = "rgba(150,20,20,0.9)";
+				ctx.stroke();
+			});
+			ctx.restore();
+		}
 		// chemin survole
 		if (ov.path && ov.path.length > 1) {
 			ctx.strokeStyle = P.path;
@@ -1182,12 +1269,29 @@
 	// banniere du camp (skin « insignes »)
 	function banner(side) {
 		var b = ui.game.g.ctx.camps[side].banner;
-		return b && insignia() ? '<img class="pean-banner" alt="" src="' + esc(imageUrl("bannieres", b)) + '">' : "";
+		return b && insignia() ? '<img class="pean-banner" alt="" data-src="' + esc(imageUrl("bannieres", b)) + '">' : "";
+	}
+
+	/*
+	 * Les images du HTML de la vue s'ecrivent <img data-src> et recoivent leur
+	 * source par la propriete .src : un hote qui sert les ressources du jeu
+	 * par son propre protocole (Tabulon et son dist externe, asset-rewrite.js)
+	 * reecrit l'URL a ce moment-la, alors qu'une <img src> analysee depuis le
+	 * HTML part avant toute reecriture, vers une ressource absente.
+	 */
+	function loadImages(element) {
+		if (!element) return;
+		element.find("img[data-src]").each(function () {
+			this.src = this.getAttribute("data-src");
+		});
 	}
 
 	function setPanel(html) {
 		ui.panelHtml = html;
-		if (ui.panelBody) ui.panelBody.html(html);
+		if (ui.panelBody) {
+			ui.panelBody.html(html);
+			loadImages(ui.panelBody);
+		}
 	}
 
 	function setInfo(html) {
@@ -1391,6 +1495,7 @@
 					ui.panelEl = element;
 					ui.panelBody = element.find(".pean-body");
 					ui.panelBody.html(ui.panelHtml);
+					loadImages(ui.panelBody);
 					element.find(".pean-info").html(ui.infoHtml);
 				}
 			}
@@ -1425,7 +1530,9 @@
 					element.css("font-size", (width / 40) + "px");
 					if (element.data("pean")) return;
 					element.data("pean", true);
-					var list = game.mOptions.scenarios, html = '<div class="pean-prelude-grid">';
+					var list = game.mOptions.scenarios;
+					// quatre batailles : 2 x 2 ; au-dela, trois par rangee, vignettes plus petites
+					var html = '<div class="pean-prelude-grid' + (list.length > 4 ? " pean-prelude-grid3" : "") + '">';
 					list.forEach(function (sc, k) {
 						var title = sc.titre ? loc(sc.titre) : sc.id;
 						html += '<div class="pean-prelude-choice" data-setup="' + k + '" title="' + esc(title) + '">' +
@@ -1438,9 +1545,7 @@
 					// dist externe, asset-rewrite.js) l'intercepte la, alors
 					// qu'une <img src> analysee depuis le HTML part avant toute
 					// reecriture, vers une ressource qui n'existe pas
-					element.find("img[data-src]").each(function () {
-						this.src = this.getAttribute("data-src");
-					});
+					loadImages(element);
 					element.on("click", "[data-setup]", function () {
 						if (ui && ui.prelude) ui.prelude(parseInt(jQuery(this).attr("data-setup"), 10));
 					});
@@ -1722,7 +1827,11 @@
 					if (!turn.whyNotOrder(sel)) {
 						dests = turn.reach(sel);
 						ov.dests = dests;
+						ov.charges = chargeDests(rc, turn, sel, dests);
 					}
+					ov.fire = fireRange(rc, turn, sel.map(function (id) {
+						return { u: turn.st.u[id], h: turn.st.u[id].h };
+					}));
 				}
 				if (target < 0)
 					ov.targets = turn.targets().map(function (tg) {
@@ -1748,6 +1857,8 @@
 				} else if (sel.length) {
 					var why = turn.whyNotOrder(sel);
 					html += '<div class="pean-hint' + (why ? " pean-alert" : "") + '">' + esc(why ? (T.why[why] || why) : T.moveHint) + "</div>";
+					if (ov.charges) html += '<div class="pean-legend pean-legend-charge">' + esc(T.chargeLegend) + "</div>";
+					if (ov.fire) html += '<div class="pean-legend pean-legend-fire">' + esc(T.fireLegend) + "</div>";
 					html += '<div class="pean-buttons">' +
 						button("group", groupMode ? T.groupOn : T.groupOff, true, "pean-light") +
 						button("line", T.line + " (" + component(sel[0]).length + ")", component(sel[0]).length > 1, "pean-light") +
@@ -1774,6 +1885,14 @@
 				var ov = ui.overlay;
 				ov.path = null;
 				ov.ghost = null;
+				// la portee de tir suit la destination survolee
+				if (sel.length && rc.types[self.turn.st.u[sel[0]].t].fire) {
+					var lead0 = self.turn.st.u[sel[0]].h, there = dests && dests[h];
+					ov.fire = fireRange(rc, self.turn, sel.map(function (id) {
+						var u = self.turn.st.u[id];
+						return { u: u, h: there ? R.hexAt(rc, rc.aq[u.h] + rc.aq[h] - rc.aq[lead0], rc.ar[u.h] + rc.ar[h] - rc.ar[lead0]) : u.h };
+					}));
+				}
 				if (dests && dests[h]) {
 					ov.path = dests[h];
 					if (sel.length > 1) {

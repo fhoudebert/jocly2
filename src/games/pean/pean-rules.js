@@ -1461,20 +1461,177 @@ var PeanRules = (function () {
 	 * Notation, sans l'etat : « D11-D8 » (ordre), « 8:D11-D8 » (groupe de 8),
 	 * « D9/NE » (pivot), « 3xE7+ » (3 attaquants sur E7, avance).
 	 */
+	/*
+	 * Notation d'un tour, en un seul jeton (ni espace, ni parenthese, ni
+	 * point-virgule : un PGN/PJN se decoupe aux blancs, et ( ) ; y ouvrent des
+	 * variantes et des commentaires) :
+	 *
+	 *   deploiement   @HO13,ClU13,...          type (son code) et hexagone
+	 *   ordre         O13-O10                  depart et arrivee (non voisins), par
+	 *                                          le chemin que donne Turn.reach ;
+	 *                 O13-O12-O11-O10          chemin complet s'il est autre, ou
+	 *                                          si l'arrivee touche le depart ;
+	 *                 L4-M7&K4&M4              un groupe : le meneur, puis les
+	 *                                          autres unites, par leur case ;
+	 *                 .../NE                   orientation demandee (phalanges)
+	 *   combat        H5&I5xH6                 attaquants (leurs cases) x cible
+	 *                 H5&I5xH6+H5              ... et l'unite qui avance
+	 *   tour          ordres et combats, dans l'ordre, separes par des virgules ;
+	 *                 « pass » : tour sans rien (« -- » est l'etape vide du
+	 *                 prelude, que Tabulon retire en tete d'un fichier).
+	 *
+	 * Ecrire demande l'etat (les cases des unites) : turnNotation. Relire
+	 * aussi : parseMove, exact, qui rend null plutot que de deviner.
+	 * moveToString, sans etat, garde une forme courte et approximative pour
+	 * les coups qui n'ont jamais ete joues (listes de candidats).
+	 */
+	function placementNotation(ctx, list) {
+		return "@" + list.map(function (item) {
+			return (ctx.types[item[0]] ? ctx.types[item[0]].code : item[0]) + hexName(ctx, item[1]);
+		}).join(",");
+	}
+
 	function moveToString(ctx, move) {
+		if (move.n)
+			return move.n;
 		if (move.p)
-			return "@" + move.p.map(function (item) {
-				return (ctx.types[item[0]] ? ctx.types[item[0]].code : item[0]) + hexName(ctx, item[1]);
-			}).join(" ");
+			return placementNotation(ctx, move.p);
 		var parts = [];
 		(move.o || []).forEach(function (o) {
 			var path = o.c.length > 1 ? hexName(ctx, o.c[0]) + "-" + hexName(ctx, o.c[o.c.length - 1]) : hexName(ctx, o.c[0]);
-			parts.push((o.u.length > 1 ? o.u.length + ":" : "") + path + (o.f !== undefined ? "/" + DIR_NAMES[o.f] : ""));
+			parts.push(path + (o.u.length > 1 ? "&" + (o.u.length - 1) : "") + (o.f !== undefined ? "/" + DIR_NAMES[o.f] : ""));
 		});
 		(move.k || []).forEach(function (k) {
 			parts.push(k.a.length + "x" + (k.h !== undefined ? hexName(ctx, k.h) : "#" + k.t) + (k.v !== undefined ? "+" : ""));
 		});
-		return parts.length ? parts.join(" ") : "--";
+		return parts.length ? parts.join(",") : "pass";
+	}
+
+	function samePath(a, b) {
+		return !!a && !!b && a.length === b.length && a.every(function (h, i) { return h === b[i]; });
+	}
+
+	// la notation exacte d'un tour, joue depuis `st` par `who` ; null s'il est refuse
+	function turnNotation(ctx, st, who, move) {
+		if (!move) return null;
+		if (move.p)
+			return placementNotation(ctx, move.p);
+		var turn = new Turn(ctx, st, who), parts = [];
+		var o = move.o || [], k = move.k || [];
+		for (var i = 0; i < o.length; i++) {
+			var ord = o[i], ids = ord.u, path = ord.c;
+			if (!Array.isArray(ids) || !Array.isArray(path) || !ids.length || !path.length) return null;
+			var lead = turn.st.u[ids[0]];
+			if (!lead) return null;
+			var canonical = path.length > 1 ? turn.reach(ids)[path[path.length - 1]] : null;
+			// depart et arrivee seuls quand ils ne se touchent pas et que le chemin
+			// est celui de reach ; sinon le chemin entier (un pas = deux cases)
+			var text = path.length > 2 && samePath(canonical, path) && distance(ctx, path[0], path[path.length - 1]) > 1
+				? hexName(ctx, path[0]) + "-" + hexName(ctx, path[path.length - 1])
+				: path.map(function (h) { return hexName(ctx, h); }).join("-");
+			for (var j = 1; j < ids.length; j++) {
+				if (!turn.st.u[ids[j]]) return null;
+				text += "&" + hexName(ctx, turn.st.u[ids[j]].h);
+			}
+			if (ord.f !== undefined && ord.f !== null)
+				text += "/" + (DIR_NAMES[ord.f] || ord.f);
+			if (!turn.order(ids, path, ord.f))
+				return null;
+			parts.push(text);
+		}
+		for (i = 0; i < k.length; i++) {
+			var c = k[i], target = turn.st.u[c.t];
+			if (!target || !Array.isArray(c.a)) return null;
+			var attackers = c.a.map(function (id) { return turn.st.u[id] ? hexName(ctx, turn.st.u[id].h) : "?"; });
+			var adv = c.v !== undefined && c.v !== null && turn.st.u[c.v] ? "+" + hexName(ctx, turn.st.u[c.v].h) : "";
+			var where = hexName(ctx, target.h);
+			if (!turn.attack(c.a, c.t, c.v))
+				return null;
+			parts.push(attackers.join("&") + "x" + where + adv);
+		}
+		return parts.length ? parts.join(",") : "pass";
+	}
+
+	// le tour designe par une notation (voir turnNotation) ; null si elle ne
+	// designe rien de legal dans cette position
+	function parseMove(ctx, st, who, text) {
+		text = String(text || "").trim();
+		if (!text) return null;
+		function hex(name) {
+			try { return hexOf(ctx, name); } catch (e) { return -1; }
+		}
+		if (text.charAt(0) === "@") {
+			if (st.phase >= 2) return null;
+			var codes = ctx.typeKeys.map(function (key) { return [ctx.types[key].code, key]; })
+				.sort(function (a, b) { return b[0].length - a[0].length; });
+			var list = [];
+			var items = text.slice(1).split(",");
+			for (var i = 0; i < items.length; i++) {
+				var item = items[i], found = null;
+				for (var c = 0; c < codes.length && !found; c++) {
+					if (item.indexOf(codes[c][0]) !== 0) continue;
+					var h = hex(item.slice(codes[c][0].length));
+					if (h >= 0) found = [codes[c][1], h];
+				}
+				if (!found) return null;
+				list.push(found);
+			}
+			var placed = { p: list };
+			return playTurn(ctx, st, who, placed).ok ? placed : null;
+		}
+		if (st.phase < 2) return null;
+		var turn = new Turn(ctx, st, who);
+		if (text !== "pass") {
+			var parts = text.split(",");
+			for (var p = 0; p < parts.length; p++) {
+				var part = parts[p];
+				var fight = /^(.+)x([A-Z]+\d+)(?:\+([A-Z]+\d+))?$/.exec(part);
+				if (fight) {
+					var ids = [];
+					var names = fight[1].split("&");
+					for (var a = 0; a < names.length; a++) {
+						var u = turn.unitAt(hex(names[a]));
+						if (!u || u.s !== who) return null;
+						ids.push(u.i);
+					}
+					var target = turn.unitAt(hex(fight[2]));
+					if (!target || target.s === who) return null;
+					var adv = undefined;   // `var` : a remettre a zero a chaque combat
+					if (fight[3]) {
+						var v = turn.unitAt(hex(fight[3]));
+						if (!v || v.s !== who) return null;
+						adv = v.i;
+					}
+					if (!turn.attack(ids, target.i, adv)) return null;
+					continue;
+				}
+				var m = /^([^\/]+)(?:\/([A-Z]+))?$/.exec(part);
+				if (!m) return null;
+				var facing = undefined;   // `var` : a remettre a zero a chaque ordre
+				if (m[2] !== undefined) {
+					facing = DIR_NAMES.indexOf(m[2]);
+					if (facing < 0) return null;
+				}
+				var pieces = m[1].split("&");
+				var path = pieces[0].split("-").map(hex);
+				if (path.some(function (h) { return h < 0; })) return null;
+				var lead = turn.unitAt(path[0]);
+				if (!lead || lead.s !== who) return null;
+				var group = [lead.i];
+				for (var g = 1; g < pieces.length; g++) {
+					var member = turn.unitAt(hex(pieces[g]));
+					if (!member || member.s !== who) return null;
+					group.push(member.i);
+				}
+				if (path.length === 2 && distance(ctx, path[0], path[1]) > 1) {
+					var canonical = turn.reach(group)[path[1]];
+					if (canonical) path = canonical;
+				}
+				if (!turn.order(group, path, facing)) return null;
+			}
+		}
+		var move = turn.toMove();
+		return playTurn(ctx, st, who, move).ok ? move : null;
 	}
 
 	// un coup reduit a ses champs significatifs (comparaison, rejeu)
@@ -1505,7 +1662,8 @@ var PeanRules = (function () {
 		column: column, columnLabel: columnLabel,
 		Turn: Turn, checkPlacement: checkPlacement, placementCost: placementCost,
 		playTurn: playTurn, outcome: outcome,
-		moveToString: moveToString, playableMove: playableMove
+		moveToString: moveToString, playableMove: playableMove,
+		turnNotation: turnNotation, parseMove: parseMove
 	};
 	return api;
 })();

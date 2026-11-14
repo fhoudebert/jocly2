@@ -259,3 +259,35 @@
 	letter-spacing: 0.18em;
 	text-shadow: 0 0.08em 0.2em #000;
 }
+
+/* legende des portees (charge, tir), sous la consigne */
+.pean-legend {
+	font-size: 0.85em;
+	padding-left: 1.2em;
+	position: relative;
+	margin: 0.2em 0;
+}
+.pean-legend::before {
+	content: "";
+	position: absolute;
+	left: 0.1em;
+	top: 0.25em;
+	width: 0.8em;
+	height: 0.8em;
+	border-radius: 0.15em;
+}
+.pean-legend-charge::before { background: rgba(214, 112, 24, 0.6); }
+.pean-legend-fire::before { border: 0.12em dashed rgba(170, 30, 30, 0.85); background: rgba(170, 30, 30, 0.13); box-sizing: border-box; }
+
+/* prelude a plus de quatre batailles : trois par rangee, vignettes plus petites */
+.pean-prelude-grid3 {
+	grid-template-columns: repeat(3, 1fr);
+	gap: 1em 1.6em;
+}
+.pean-prelude-grid3 .pean-prelude-choice img {
+	width: 7em;
+	height: 7em;
+}
+.pean-prelude-grid3 .pean-prelude-name {
+	font-size: 1.15em;
+}

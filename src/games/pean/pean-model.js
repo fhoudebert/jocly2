@@ -261,6 +261,28 @@
 		return R.playTurn(ctxOf(aGame, this), this, this.mWho, R.playableMove(move)).ok;
 	};
 
+	/*
+	 * Un coup relu dans un fichier (Tabulon, « Ouvrir une partie ») : la
+	 * notation de PeanRules.turnNotation, ou celle du prelude (« #k », « -- »).
+	 * Exacte : null si elle ne designe rien de legal ici.
+	 */
+	Model.Board.ParseMove = function (aGame, text) {
+		text = String(text || "").trim();
+		if (inPrelude(this)) {
+			var moves = preludeMoves(aGame, this);
+			for (var i = 0; i < moves.length; i++)
+				if (aGame.CreateMove(moves[i]).ToString() === text)
+					return aGame.CreateMove(moves[i]);
+			return null;
+		}
+		if (this.over) return null;
+		var ctx = ctxOf(aGame, this);
+		var move = R.parseMove(ctx, this, this.mWho, text);
+		if (!move) return null;
+		move.n = R.turnNotation(ctx, this, this.mWho, move) || text;
+		return aGame.CreateMove(move);
+	};
+
 	Model.Board.ApplyMove = function (aGame, move) {
 		if (inPrelude(this)) {
 			if (move.setup !== undefined && dialogs(aGame)[this.preludeStage]) {
@@ -272,6 +294,19 @@
 			return;
 		}
 		var ctx = ctxOf(aGame, this), who = this.mWho;
+		// la notation exacte (voir PeanRules.turnNotation) demande la position :
+		// on l'ecrit dans le coup quand il est joue pour de bon -- sur le plateau
+		// de la partie, pas sur les copies de la recherche --, et dans la copie
+		// que JocGame.ApplyMove vient de ranger dans l'historique
+		if (aGame.mBoard === this && !move.n) {
+			var n = R.turnNotation(ctx, this, who, move);
+			if (n) {
+				move.n = n;
+				var played = aGame.mPlayedMoves || [], last = played[played.length - 1];
+				if (last && last !== move && !last.n && last.Equals && last.Equals(move))
+					last.n = n;
+			}
+		}
 		var played = R.playTurn(ctx, this, who, move, { trusted: true });
 		if (!played.ok)
 			return;
