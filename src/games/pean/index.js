@@ -116,6 +116,8 @@ exports.games = (function () {
 
 	// bords de marais : 1 a 3 cotes contigus depuis chaque direction
 	var BORDS_MARAIS = RIVAGES.filter(function (r) { return r.split("-").length <= 3; });
+	// bords de sentier : 1 a 3 cotes contigus, et les six
+	var BORDS_SENTIER = RIVAGES.filter(function (r) { var n = r.split("-").length; return n <= 3 || n === 6; });
 
 	// debords d'herbe (un cote par image) et de collines, poses par la vue
 	var COTES = ["n", "ne", "se", "s", "sw", "nw"];
@@ -139,6 +141,7 @@ exports.games = (function () {
 			.concat(RIVAGES.map(function (r) { return "image|/res/images/rivage/beach-" + r + ".png"; }))
 			.concat(["nenuphars1", "nenuphars2"].map(function (t) { return "image|/res/images/decors/" + t + ".png"; }))
 			.concat(BORDS_MARAIS.map(function (r) { return "image|/res/images/marais/water-" + r + ".png"; }))
+			.concat(BORDS_SENTIER.map(function (r) { return "image|/res/images/sentier/stone-path-" + r + ".png"; }))
 			.concat(HERBE.map(function (r) { return "image|/res/images/herbe/" + r + ".png"; }))
 			.concat(COLLINES.map(function (r) { return "image|/res/images/collines/" + r + ".png"; }));
 	}
@@ -180,7 +183,7 @@ exports.games = (function () {
 			insigniaImages(sc).forEach(function (img) { if (preload.indexOf(img) < 0) preload.push(img); });
 		});
 		// skins sans tuiles : ni tuiles, ni decors, ni debords entre terrains
-		var insignia = preload.filter(function (img) { return !/\/(tuiles|decors|rivage|marais|herbe|collines)\//.test(img); });
+		var insignia = preload.filter(function (img) { return !/\/(tuiles|decors|rivage|marais|sentier|herbe|collines)\//.test(img); });
 		return {
 			"name": "pean",
 			"modelScripts": modelScripts,

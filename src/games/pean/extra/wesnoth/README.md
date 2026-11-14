@@ -16,15 +16,6 @@ Utilisés, donc placés dans `res/images/terrain/` (seul `res/` est copié dans 
 | `ville.png` | `terrain_type_village_30.png` | ville |
 | `camp.png` | `terrain_type_castle_30.png` | camp |
 
-Gardé ici en réserve, pour des terrains ou des côtés d'hexagone à venir :
-
-| fichier | original | usage envisageable |
-|---|---|---|
-| `eau_peu_profonde.png` | `terrain_type_shallow_water_30.png` | rive, gué, haut-fond |
-| `pont.png` | `terrain_group_bridges_30.png` | pont sur une rivière |
-| `rameau.png` | `terrain_group_spring_30.png` | oliveraie, verger, cultures |
-| `rochers.png` | `terrain_type_reef_30.png` | rochers, éboulis |
-
 Écartés : sable au cactus, champignons, glace, grottes, rails, brouillard, boutons d'éditeur (croix, « + »,
 « info », variantes « pressed »), doublons de 16 px : sans usage dans la Grèce antique.
 
@@ -57,24 +48,6 @@ Utilisées (`res/images/tuiles/`) :
 | `ville.png` | `village/human-city-tile.png` | (blarumyrran) |
 | `camp.png` | `village/camp-tile.png` | Moritz Göbelbecker(mog);Lari Nieminen(zookeeper);(doofus-01) |
 
-En réserve (`extra/wesnoth/tuiles/`) :
-
-| fichier | original | usage envisageable | auteur |
-|---|---|---|---|
-| `cloud-tile.png` | `mountains/cloud-tile.png` | montagne nuageuse | J.W. Bjerk(Eleazar) |
-| `forested-hills-tile.png` | `forest/forested-hills-tile.png` | colline boisée (pins) | Richard Kettering(Jetrel) |
-| `water.png` | `swamp/water.png` | eau stagnante (sans plantes) | Tommy(yobbo) |
-| `green2.png` | `grass/green2.png` | prairie verte (printemps) | J.W. Bjerk(Eleazar) |
-| `leaf-litter2.png` | `grass/leaf-litter2.png` | sous-bois, automne | J.W. Bjerk(Eleazar) |
-| `regular3.png` | `hills/regular3.png` | colline verte | Hogne Håskjold(frame/freim);Richard Kettering(Jetrel) |
-| `desert3.png` | `sand/desert3.png` | sable, plage | Richard Kettering(Jetrel) |
-| `stonebridge-se-nw-tile.png` | `bridge/stonebridge-se-nw-tile.png` | pont de pierre (SE-NO) | Kuno Raffin(lurker) |
-| `stonebridge-ne-sw-tile.png` | `bridge/stonebridge-ne-sw-tile.png` | pont de pierre (NE-SO) | Kuno Raffin(lurker) |
-| `ford-tile.png` | `water/ford-tile.png` | gué en case pleine | J.W. Bjerk(Eleazar) |
-| `ocean-tile.png` | `water/ocean-tile.png` | haute mer | Lari Nieminen(zookeeper) |
-| `desert-camp-tile.png` | `village/desert-camp-tile.png` | camp perse, désert | Eric Butler(Erk) |
-| `ruin-tile.png` | `castle/ruin-tile.png` | forteresse en ruine | Pekka Aikio(pekka) |
-
 Tuile composée : `res/images/tuiles/mine.png` = `hills/dry.png` (J.W. Bjerk) + `flat/crater.png` + `embellishments/rocks.png`
 (doofus-01), superposées ; `res/images/terrain/mine.png` = `icons/terrain/terrain_type_cave_30.png` (Emilien Rotival). GPL v2+.
 
@@ -101,6 +74,7 @@ du terrain. Dépôt `data/core/images/scenery/`, GNU GPL v2 ou ultérieure.
 | `tuiles/pinede1-3.png` | `forest/pine-tile.png`, `forested-hills-tile.png`, `forested-mixed-summer-hills-tile.png` | Richard Kettering (Jetrel) | forêts des Thermopyles (`carte.tuiles`) |
 | `rivage/beach-*.png` (25) | `water/beach-*.png` | rhyging5 | liseré de sable sur la mer au contact de la terre |
 | `marais/water-*.png` (18) | transitions `water-*` | Tommy (yobbo) | frange humide sur la terre au contact d'un marais |
+| `sentier/stone-path-*.png` (19) | `flat/stone-path-*` | J.W. Bjerk (Eleazar) | cailloux du sentier sur la terre voisine |
 | `herbe/{dry,semi-dry}-{abrupt,medium,long}-*.png` (36) | `grass/*-abrupt-*`, `*-medium-*`, `*-long-*` | J.W. Bjerk (Eleazar) | l'herbe d'une plaine déborde sur ses voisines |
 | `collines/dry-*.png`, `dry2-*.png` (11) | `hills/dry-*`, `dry2-*` | J.W. Bjerk (Eleazar) | une colline déborde sur la terre voisine |
 | `collines/dry-to-water*-*.png` (15) | `hills/dry-to-water*` | non renseigné | rebord d'une colline dans la mer ou le marais |
@@ -111,3 +85,6 @@ ne sont pas copiées : Wesnoth ne les utilise pas pour ces terrains, et Péan n'
 
 Les fichiers reçus mais non retenus (forêts en 144 px, collines désertiques, épaves, autres galets et nénuphars) ne sont
 pas copiés dans le jeu.
+
+Ce dossier ne garde plus d'images : les réserves (pictogrammes et tuiles non utilisés) ont été retirées. Les originaux
+sont dans le dépôt de Wesnoth (`data/core/images/`), aux chemins indiqués ci-dessus.

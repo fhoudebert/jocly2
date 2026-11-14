@@ -122,6 +122,7 @@
 	 * VOISINE, du côté de la case d'origine. Couches de Wesnoth, de la plus
 	 * basse à la plus haute, dans cet ordre au dessin :
 	 *   -510 rivages (sable sur la mer)       -482 collines sur l'eau (mer, marais)
+	 *   -322 bords de sentier (cailloux, « stone-path »)
 	 *   -273/-272 herbe « abrupt »            -262/-260 herbe « medium » (route, sable)
 	 *   -252/-250 herbe « long » (route, herbe de l'autre sorte)
 	 *   -230 bords de marais                  -183 collines sur la terre
@@ -144,6 +145,11 @@
 	// sont dans la tuile et seraient recouverts)
 	var HILL_ON_LAND = ["plaine", "route", "sentier", "plage", "ville", "camp"];
 	var HILL_ON_WATER = ["mer", "marais"];
+	// le sentier (res/images/sentier/, « stone-path » de Wesnoth) seme ses
+	// cailloux sur la terre voisine ; jusqu'a trois cotes d'un tenant, ou les six.
+	// Foret comprise, au contraire des collines : les cailloux sont assez clairs
+	// pour laisser voir les arbres, et l'Anopee la traverse
+	var PATH_ON = ["plaine", "route", "plage", "colline", "montagne", "ville", "camp", "mine", "foret"];
 	var HILL_EDGES = {
 		land: { prefix: "dry", pairs: ["n-ne", "s-sw"], alt: { s: "dry2-s", se: "dry2-se", sw: "dry2-sw" } },
 		water: { prefix: "dry-to-water", pairs: ["n-ne", "ne-se", "se-s", "s-sw", "sw-nw", "nw-n"],
@@ -702,6 +708,13 @@
 		});
 		// collines sur l'eau : un rebord de colline dans la mer ou le marais
 		hillEdges(ctx, avatar, rc, R, HILL_ON_WATER, HILL_EDGES.water);
+		// sentier : des cailloux sur la terre voisine
+		for (h = 0; h < rc.N; h++) {
+			if (PATH_ON.indexOf(nameOf(h)) < 0) continue;
+			var path = screenSides(rc, h, function (n) { return nameOf(n) === "sentier"; });
+			if (path)
+				shoreImages(path, "stone-path", 3).forEach(function (img) { drawEdge(ctx, avatar, "sentier", img, h, R); });
+		}
 		// herbe : chaque sorte deborde sur ce qui n'est pas elle
 		GRASS_LAYERS.forEach(function (layer) {
 			for (h = 0; h < rc.N; h++) {

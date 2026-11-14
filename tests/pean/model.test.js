@@ -56,9 +56,10 @@ t.section("manifeste");
 		skins[0].preload.indexOf("image|/res/images/decors/" + d + ".png") >= 0), "decors precharges (skins a tuiles)");
 	t.ok(skins[0].preload.filter((p) => /\/rivage\//.test(p)).length === 25, "les 25 rivages precharges");
 	t.ok(skins[0].preload.filter((p) => /\/marais\/water-/.test(p)).length === 18, "les 18 bords de marais precharges");
+	t.ok(skins[0].preload.filter((p) => /\/sentier\/stone-path-/.test(p)).length === 19, "les 19 bords de sentier precharges");
 	t.ok(skins[0].preload.filter((p) => /\/herbe\//.test(p)).length === 36, "les 36 debords d'herbe precharges");
 	t.ok(skins[0].preload.filter((p) => /\/collines\//.test(p)).length === 26, "les 26 debords de collines precharges");
-	t.ok(skins[2].preload.every((p) => !/\/(rivage|marais|herbe|collines)\//.test(p)), "rivages et debords : skins a tuiles seulement");
+	t.ok(skins[2].preload.every((p) => !/\/(rivage|marais|sentier|herbe|collines)\//.test(p)), "rivages et debords : skins a tuiles seulement");
 	t.ok(["pinede1", "sentier1", "plage1"].every((n) => skins[0].preload.indexOf("image|/res/images/tuiles/" + n + ".png") >= 0),
 		"tuiles nouvelles et tuiles propres a une bataille (pinede des Thermopyles)");
 	t.ok(th.terrainNames.indexOf("sentier") >= 0 && Array.prototype.some.call(th.terr, (k) => th.terrainNames[k] === "sentier"),

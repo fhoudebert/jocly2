@@ -24,7 +24,7 @@ se rejoue et s'annule comme un autre coup. Contre l'ordinateur qui joue en premi
 | `pean-ai.js` | heuristiques, pures elles aussi : déploiements, tours candidats, évaluation à traits nommés (`WEIGHTS`) |
 | `pean-model.js` | habillage Jocly (`Model.Game`, `Model.Board`, `Model.Move`) |
 | `pean-xd-view.js`, `pean.css` | vue 2D hexagonale et saisie, dessinée au canvas ; quatre skins : « Tuiles » (tuiles de terrain de Wesnoth, par défaut), « Wargame » (mêmes tuiles, pions carrés), « Insignes » (pictogrammes de Wesnoth), avec les emblèmes de 0 A.D., et « Carte », entièrement dessinée |
-| `res/images/` | emblèmes et bannières de 0 A.D. (CC BY-SA 3.0), pictogrammes et tuiles de terrain de Wesnoth (GPL v2+) ; `extra/0ad/`, `extra/wesnoth/` : réserves d'images non embarquées, voir leurs README |
+| `res/images/` | emblèmes et bannières de 0 A.D. (CC BY-SA 3.0), pictogrammes et tuiles de terrain de Wesnoth (GPL v2+) ; `extra/0ad/`, `extra/wesnoth/` : provenance, licence et auteur de chaque image, dans leurs README |
 | `index.js` | manifeste : la liste des scénarios (ordre du prélude, noms grecs), les niveaux d'IA. Il lit les JSON au build et les embarque dans `gameOptions.scenarios` |
 | `scenarios/*.json` | les batailles |
 | `thumbnail.png`, `res/images/batailles/` | la vignette du jeu (les emblèmes des quatre batailles) et celles du prélude, une par scénario : portion de la carte en tuiles, emblèmes des camps ; refaites par `extra/vignettes.py` |
@@ -79,7 +79,7 @@ noyau. `PeanRules.validateScenario(json)` dit ce qui ne va pas.
 - Légende des cartes en texte : `.` plaine, `=` route, `c` colline, `f` forêt, `m` marais, `v` ville, `k` camp, `x` mine,
   `s` sentier (de montagne : à la file, sans charge ni profondeur), `p` plage, `M` montagne, `~` mer
   (`carte.legende` pour en ajouter). La vue pose d'elle-même un liseré de sable sur la mer au contact de la terre, une frange humide sur la terre au contact
-  d'un marais, le débord de l'herbe et des collines sur leurs voisines (règles de transition de Wesnoth), et des
+  d'un marais, le débord de l'herbe, des collines et des cailloux du sentier sur leurs voisines (règles de transition de Wesnoth), et des
   nénuphars sur un marais sur trois (skins à tuiles).
 - Traits (vocabulaire fermé, implémenté une fois dans le noyau) : `phalange`, `leger`, `tir`, `monte`,
   `desengage`, `charge`, `general`. Un trait inconnu est une erreur : en ajouter un est une évolution du noyau.
