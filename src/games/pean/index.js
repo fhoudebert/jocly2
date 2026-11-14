@@ -117,6 +117,19 @@ exports.games = (function () {
 	// bords de marais : 1 a 3 cotes contigus depuis chaque direction
 	var BORDS_MARAIS = RIVAGES.filter(function (r) { return r.split("-").length <= 3; });
 
+	// debords d'herbe (un cote par image) et de collines, poses par la vue
+	var COTES = ["n", "ne", "se", "s", "sw", "nw"];
+	var HERBE = [];
+	["dry", "semi-dry"].forEach(function (g) {
+		["abrupt", "medium", "long"].forEach(function (k) {
+			COTES.forEach(function (d) { HERBE.push(g + "-" + k + "-" + d); });
+		});
+	});
+	var COLLINES = COTES.concat(["n-ne", "s-sw"]).map(function (d) { return "dry-" + d; })
+		.concat(["dry2-s", "dry2-se", "dry2-sw"])
+		.concat(COTES.concat(["n-ne", "ne-se", "se-s", "s-sw", "sw-nw", "nw-n"]).map(function (d) { return "dry-to-water-" + d; }))
+		.concat(["dry-to-water2-s", "dry-to-water2-s-sw", "dry-to-water2-se-s"]);
+
 	function tileImages() {
 		return ["plaine1", "plaine2", "plaine3", "plaine4", "plaine5", "route", "colline1", "colline2", "colline3",
 			"foret1", "foret2", "foret3", "marais1", "marais2", "montagne1", "montagne2",
@@ -125,7 +138,9 @@ exports.games = (function () {
 			// rivages (sable sur la mer) et nenuphars des marais, poses par la vue
 			.concat(RIVAGES.map(function (r) { return "image|/res/images/rivage/beach-" + r + ".png"; }))
 			.concat(["nenuphars1", "nenuphars2"].map(function (t) { return "image|/res/images/decors/" + t + ".png"; }))
-			.concat(BORDS_MARAIS.map(function (r) { return "image|/res/images/marais/water-" + r + ".png"; }));
+			.concat(BORDS_MARAIS.map(function (r) { return "image|/res/images/marais/water-" + r + ".png"; }))
+			.concat(HERBE.map(function (r) { return "image|/res/images/herbe/" + r + ".png"; }))
+			.concat(COLLINES.map(function (r) { return "image|/res/images/collines/" + r + ".png"; }));
 	}
 
 	// emblemes, bannieres et pictogrammes de terrain utilises par un scenario
@@ -164,7 +179,8 @@ exports.games = (function () {
 		scenarios.forEach(function (sc) {
 			insigniaImages(sc).forEach(function (img) { if (preload.indexOf(img) < 0) preload.push(img); });
 		});
-		var insignia = preload.filter(function (img) { return img.indexOf("/tuiles/") < 0 && img.indexOf("/decors/") < 0; });
+		// skins sans tuiles : ni tuiles, ni decors, ni debords entre terrains
+		var insignia = preload.filter(function (img) { return !/\/(tuiles|decors|rivage|marais|herbe|collines)\//.test(img); });
 		return {
 			"name": "pean",
 			"modelScripts": modelScripts,

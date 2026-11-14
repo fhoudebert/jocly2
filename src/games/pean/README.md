@@ -79,7 +79,8 @@ noyau. `PeanRules.validateScenario(json)` dit ce qui ne va pas.
 - Légende des cartes en texte : `.` plaine, `=` route, `c` colline, `f` forêt, `m` marais, `v` ville, `k` camp, `x` mine,
   `s` sentier (de montagne : à la file, sans charge ni profondeur), `p` plage, `M` montagne, `~` mer
   (`carte.legende` pour en ajouter). La vue pose d'elle-même un liseré de sable sur la mer au contact de la terre, une frange humide sur la terre au contact
-  d'un marais, et des nénuphars sur un marais sur trois (skins à tuiles).
+  d'un marais, le débord de l'herbe et des collines sur leurs voisines (règles de transition de Wesnoth), et des
+  nénuphars sur un marais sur trois (skins à tuiles).
 - Traits (vocabulaire fermé, implémenté une fois dans le noyau) : `phalange`, `leger`, `tir`, `monte`,
   `desengage`, `charge`, `general`. Un trait inconnu est une erreur : en ajouter un est une évolution du noyau.
 - Types par défaut : `hoplite`, `peltaste`, `archer`, `frondeur`, `cavlegere`, `cavlourde`, `general`.

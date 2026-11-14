@@ -117,6 +117,60 @@
 	var MARSH_EDGE = { prefix: "water", longest: 3 };
 
 	/*
+	 * Transitions de Wesnoth entre terrains (data/core/terrain-graphics.cfg) :
+	 * le terrain d'une case déborde sur sa voisine, l'image étant posée sur la
+	 * VOISINE, du côté de la case d'origine. Couches de Wesnoth, de la plus
+	 * basse à la plus haute, dans cet ordre au dessin :
+	 *   -510 rivages (sable sur la mer)       -482 collines sur l'eau (mer, marais)
+	 *   -273/-272 herbe « abrupt »            -262/-260 herbe « medium » (route, sable)
+	 *   -252/-250 herbe « long » (route, herbe de l'autre sorte)
+	 *   -230 bords de marais                  -183 collines sur la terre
+	 * Herbe (res/images/herbe/, J.W. Bjerk) : semi-dry = plaine1-3, dry =
+	 * plaine4-5 ; un côté par image. Collines (res/images/collines/) : dry =
+	 * colline1-3, deux côtés par image quand le fichier existe, variantes
+	 * « dry2 » et « water2 » tirées d'après la case.
+	 */
+	var GRASS_KINDS = { plaine1: "semi-dry", plaine2: "semi-dry", plaine3: "semi-dry", plaine4: "dry", plaine5: "dry" };
+	var GRASS_LAYERS = [
+		// [type d'herbe, variante, terrains qui la reçoivent]
+		["dry", "abrupt", ["plaine", "route", "sentier", "plage", "colline", "montagne", "ville", "camp", "mine"]],
+		["semi-dry", "abrupt", ["plaine", "route", "sentier", "plage", "colline", "montagne", "ville", "camp", "mine"]],
+		["dry", "medium", ["route", "sentier", "plage"]],
+		["semi-dry", "medium", ["route", "sentier", "plage"]],
+		["dry", "long", ["plaine", "route", "sentier"]],
+		["semi-dry", "long", ["plaine", "route", "sentier"]]
+	];
+	// terrains qui reçoivent le débord d'une colline (pas la forêt : ses arbres
+	// sont dans la tuile et seraient recouverts)
+	var HILL_ON_LAND = ["plaine", "route", "sentier", "plage", "ville", "camp"];
+	var HILL_ON_WATER = ["mer", "marais"];
+	var HILL_EDGES = {
+		land: { prefix: "dry", pairs: ["n-ne", "s-sw"], alt: { s: "dry2-s", se: "dry2-se", sw: "dry2-sw" } },
+		water: { prefix: "dry-to-water", pairs: ["n-ne", "ne-se", "se-s", "s-sw", "sw-nw", "nw-n"],
+			alt: { s: "dry-to-water2-s", "s-sw": "dry-to-water2-s-sw", "se-s": "dry-to-water2-se-s" } }
+	};
+
+	/*
+	 * Images d'une suite de côtés quand seules certaines paires existent :
+	 * chaque suite d'un tenant est découpée en paires disponibles, sinon en
+	 * côtés seuls. Renvoie les suffixes (« n-ne », « s »). Pur.
+	 */
+	function edgePieces(sides, pairs) {
+		var start = 0, out = [];
+		if (!sides.some(Boolean)) return out;
+		if (!sides.every(Boolean))
+			while (!(sides[start] && !sides[(start + 5) % 6])) start++;
+		for (var k = 0; k < 6; ) {
+			var i = (start + k) % 6;
+			if (!sides[i]) { k++; continue; }
+			var j = (start + k + 1) % 6, pair = SHORE_DIRS[i] + "-" + SHORE_DIRS[j];
+			if (k + 1 < 6 && sides[j] && pairs.indexOf(pair) >= 0) { out.push(pair); k += 2; }
+			else { out.push(SHORE_DIRS[i]); k++; }
+		}
+		return out;
+	}
+
+	/*
 	 * Une bataille peut habiller un terrain de tuiles a elle (carte.tuiles,
 	 * { foret: ["pinede1", "pinede2"] }) : la foret des Thermopyles est une
 	 * pinede, sans que la regle de la foret change.
@@ -605,6 +659,85 @@
 		ctx.restore();
 	}
 
+	// côtés (à l'écran) de la case h qui touchent une voisine où test(n) ;
+	// null si aucun. Pris à l'écran : la vue retournée garde les débords en place.
+	function screenSides(rc, h, test) {
+		var xy = hexXY(h), sides = [false, false, false, false, false, false], any = false;
+		for (var d = 0; d < 6; d++) {
+			var n = rc.nb[h * 6 + d];
+			if (n < 0 || !test(n)) continue;
+			var b = hexXY(n);
+			var a = Math.atan2(b[1] - xy[1], b[0] - xy[0]) * 180 / Math.PI;
+			sides[((Math.round((a + 90) / 60) % 6) + 6) % 6] = true;
+			any = true;
+		}
+		return any ? sides : null;
+	}
+
+	// une image de transition sur la case h, découpée à l'hexagone
+	function drawEdge(ctx, avatar, kind, img, h, R) {
+		var xy = hexXY(h);
+		withImage(avatar, imageUrl(kind, img), function (image) {
+			ctx.save();
+			hexPath(ctx, xy[0], xy[1], R);
+			ctx.clip();
+			ctx.drawImage(image, xy[0] - R, xy[1] - R * SQ3 / 2, 2 * R, R * SQ3);
+			ctx.restore();
+		}, ["board"]);
+	}
+
+	// sorte d'herbe d'une case de plaine (« dry », « semi-dry »), null sinon
+	function grassOf(rc, h) {
+		return rc.terrainNames[rc.terr[h]] === "plaine" ? GRASS_KINDS[groundOf(rc, h)] || null : null;
+	}
+
+	// les débords entre terrains, couche par couche (voir GRASS_LAYERS)
+	function drawTransitions(ctx, avatar, rc, R, shores, banks) {
+		var h, names = rc.terrainNames, nameOf = function (n) { return names[rc.terr[n]]; };
+		// rivages : le sable de la terre voisine deborde sur la mer
+		shores.forEach(function (h) {
+			var sides = screenSides(rc, h, function (n) { return nameOf(n) !== "mer"; });
+			if (sides)
+				shoreImages(sides).forEach(function (img) { drawEdge(ctx, avatar, "rivage", img, h, R); });
+		});
+		// collines sur l'eau : un rebord de colline dans la mer ou le marais
+		hillEdges(ctx, avatar, rc, R, HILL_ON_WATER, HILL_EDGES.water);
+		// herbe : chaque sorte deborde sur ce qui n'est pas elle
+		GRASS_LAYERS.forEach(function (layer) {
+			for (h = 0; h < rc.N; h++) {
+				if (layer[2].indexOf(nameOf(h)) < 0) continue;
+				var own = grassOf(rc, h);
+				if (own === layer[0]) continue;
+				var sides = screenSides(rc, h, function (n) { return grassOf(rc, n) === layer[0]; });
+				if (sides)
+					for (var d = 0; d < 6; d++)
+						if (sides[d]) drawEdge(ctx, avatar, "herbe", layer[0] + "-" + layer[1] + "-" + SHORE_DIRS[d], h, R);
+			}
+		});
+		// bords de marais : la terre s'assombrit au contact du marais
+		banks.forEach(function (h) {
+			var sides = screenSides(rc, h, function (n) { return nameOf(n) === "marais"; });
+			if (sides)
+				shoreImages(sides, MARSH_EDGE.prefix, MARSH_EDGE.longest, false).forEach(function (img) {
+					drawEdge(ctx, avatar, "marais", img, h, R);
+				});
+		});
+		// collines sur la terre, par-dessus l'herbe
+		hillEdges(ctx, avatar, rc, R, HILL_ON_LAND, HILL_EDGES.land);
+	}
+
+	function hillEdges(ctx, avatar, rc, R, targets, spec) {
+		for (var h = 0; h < rc.N; h++) {
+			if (targets.indexOf(rc.terrainNames[rc.terr[h]]) < 0) continue;
+			var sides = screenSides(rc, h, function (n) { return rc.terrainNames[rc.terr[n]] === "colline"; });
+			if (!sides) continue;
+			edgePieces(sides, spec.pairs).forEach(function (piece, k) {
+				var img = spec.alt[piece] && variant([0, 1], h * 7 + k, 13) ? spec.alt[piece] : spec.prefix + "-" + piece;
+				drawEdge(ctx, avatar, "collines", img, h, R);
+			});
+		}
+	}
+
 	function drawBoard(ctx) {
 		if (!ui) return;
 		var avatar = this, game = ui.game, rc = game.g.ctx, L = ui.L, P = pal();
@@ -638,6 +771,8 @@
 					decors.push([decor, xy[0], xy[1]]);
 			}
 		}
+		if (tiled())
+			drawTransitions(ctx, avatar, rc, R, shores, banks);
 		// routes : du centre vers les voisins routiers
 		ctx.strokeStyle = "rgba(90,60,30,0.45)";
 		ctx.lineWidth = R * 0.14;
@@ -686,50 +821,6 @@
 				ctx.stroke();
 			}
 		ctx.setLineDash([]);
-		// bords de marais : la terre s'assombrit au contact du marais
-		banks.forEach(function (h) {
-			var xy = hexXY(h), sides = [false, false, false, false, false, false], any = false;
-			for (var d = 0; d < 6; d++) {
-				var n = rc.nb[h * 6 + d];
-				if (n < 0 || rc.terrainNames[rc.terr[n]] !== "marais") continue;
-				var b = hexXY(n);
-				var a = Math.atan2(b[1] - xy[1], b[0] - xy[0]) * 180 / Math.PI;
-				sides[((Math.round((a + 90) / 60) % 6) + 6) % 6] = true;
-				any = true;
-			}
-			if (any)
-				shoreImages(sides, MARSH_EDGE.prefix, MARSH_EDGE.longest, false).forEach(function (img) {
-					withImage(avatar, imageUrl("marais", img), function (image) {
-						ctx.save();
-						hexPath(ctx, xy[0], xy[1], R);
-						ctx.clip();
-						ctx.drawImage(image, xy[0] - R, xy[1] - R * SQ3 / 2, 2 * R, R * SQ3);
-						ctx.restore();
-					}, ["board"]);
-				});
-		});
-		// rivages : le sable de la terre voisine deborde sur la mer
-		shores.forEach(function (h) {
-			var xy = hexXY(h), sides = [false, false, false, false, false, false], any = false;
-			for (var d = 0; d < 6; d++) {
-				var n = rc.nb[h * 6 + d];
-				if (n < 0 || rc.terrainNames[rc.terr[n]] === "mer") continue;
-				var b = hexXY(n);
-				var a = Math.atan2(b[1] - xy[1], b[0] - xy[0]) * 180 / Math.PI;
-				sides[((Math.round((a + 90) / 60) % 6) + 6) % 6] = true;
-				any = true;
-			}
-			if (any)
-				shoreImages(sides).forEach(function (img) {
-					withImage(avatar, imageUrl("rivage", img), function (image) {
-						ctx.save();
-						hexPath(ctx, xy[0], xy[1], R);
-						ctx.clip();
-						ctx.drawImage(image, xy[0] - R, xy[1] - R * SQ3 / 2, 2 * R, R * SQ3);
-						ctx.restore();
-					}, ["board"]);
-				});
-		});
 		// decors, par-dessus le quadrillage et les routes, du haut vers le bas de
 		// l'ecran (un navire du rang suivant passe devant)
 		decors.sort(function (a, b) { return a[2] - b[2]; }).forEach(function (dd) {

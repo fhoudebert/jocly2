@@ -101,6 +101,13 @@ du terrain. Dépôt `data/core/images/scenery/`, GNU GPL v2 ou ultérieure.
 | `tuiles/pinede1-3.png` | `forest/pine-tile.png`, `forested-hills-tile.png`, `forested-mixed-summer-hills-tile.png` | Richard Kettering (Jetrel) | forêts des Thermopyles (`carte.tuiles`) |
 | `rivage/beach-*.png` (25) | `water/beach-*.png` | rhyging5 | liseré de sable sur la mer au contact de la terre |
 | `marais/water-*.png` (18) | transitions `water-*` | Tommy (yobbo) | frange humide sur la terre au contact d'un marais |
+| `herbe/{dry,semi-dry}-{abrupt,medium,long}-*.png` (36) | `grass/*-abrupt-*`, `*-medium-*`, `*-long-*` | J.W. Bjerk (Eleazar) | l'herbe d'une plaine déborde sur ses voisines |
+| `collines/dry-*.png`, `dry2-*.png` (11) | `hills/dry-*`, `dry2-*` | J.W. Bjerk (Eleazar) | une colline déborde sur la terre voisine |
+| `collines/dry-to-water*-*.png` (15) | `hills/dry-to-water*` | non renseigné | rebord d'une colline dans la mer ou le marais |
+
+Les débords suivent `data/core/terrain-graphics.cfg` de Wesnoth : qui déborde sur quoi, et dans quel ordre (couches de
+-510 à -183, voir `pean-xd-view.js`). Les transitions d'herbe sans suffixe et celles de l'herbe verte (`green-*`) reçues
+ne sont pas copiées : Wesnoth ne les utilise pas pour ces terrains, et Péan n'a pas d'herbe verte.
 
 Les fichiers reçus mais non retenus (forêts en 144 px, collines désertiques, épaves, autres galets et nénuphars) ne sont
 pas copiés dans le jeu.
