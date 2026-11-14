@@ -42,7 +42,7 @@ t.section("geometrie");
 
 t.section("scenarios");
 (function () {
-	["bataille-libre", "leuctres-371", "platees-479", "laurion-413"].forEach((name) => {
+	["bataille-libre", "leuctres-371", "platees-479", "laurion-413", "thermopyles-480", "marathon-490"].forEach((name) => {
 		t.eq(R.validateScenario(scenario(name)), [], name + " valide");
 	});
 	t.ok(R.validateScenario(mini({ types: { x: { force: 2, mvt: 3, pas: 2, traits: ["vol"] } } }))[0].includes("trait inconnu"), "trait hors vocabulaire refuse");
@@ -418,7 +418,7 @@ t.section("validation d'un tour complet et notation");
 
 t.section("contexte exporte (moteur externe)");
 (function () {
-	["bataille-libre", "leuctres-371", "platees-479", "laurion-413"].forEach((name) => {
+	["bataille-libre", "leuctres-371", "platees-479", "laurion-413", "thermopyles-480", "marathon-490"].forEach((name) => {
 		const ctx = R.makeContext({ scenario: scenario(name) });
 		const x = JSON.parse(JSON.stringify(R.exportContext(ctx)));
 		t.eq([x.cols, x.rows, x.terr.length, x.edge.length], [ctx.cols, ctx.rows, ctx.N, ctx.N * 6], name + " : carte");

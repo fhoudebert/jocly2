@@ -26,9 +26,10 @@ t.section("manifeste");
 	t.eq(model.maxLevel, model.levels.length, "maxLevel");
 	t.eq(model.levels.map((l) => l.ai), ["uct", "uct", "uct", "pean"], "trois niveaux uct, puis le Strategos (moteur externe)");
 	t.eq(options.preventRepeat, false, "pas de nulle par repetition (la limite de tours clot la partie)");
-	t.eq(options.scenarios.map((sc) => sc.id), ["platees-479", "laurion-413", "leuctres-371", "bataille-libre"], "quatre batailles");
+	t.eq(options.scenarios.map((sc) => sc.id), ["marathon-490", "thermopyles-480", "platees-479", "laurion-413", "leuctres-371", "bataille-libre"],
+		"six batailles, dans l'ordre chronologique, la bataille libre a la fin");
 	t.eq(options.scenario, options.scenarios[0], "la premiere est celle de depart");
-	t.eq(options.scenarios[2], scenario("leuctres-371"), "le manifeste embarque les fichiers tels quels");
+	t.eq(options.scenarios[4], scenario("leuctres-371"), "le manifeste embarque les fichiers tels quels");
 	options.scenarios.forEach((sc) => {
 		t.eq(R.validateScenario(sc), [], sc.id + " : scenario valide");
 		Object.keys(sc.camps).forEach((k) => t.ok(sc.camps[k].embleme && sc.camps[k].banniere, sc.id + " : camp " + k + " a son embleme et sa banniere"));
@@ -37,8 +38,8 @@ t.section("manifeste");
 	const dialog = options.prelude[0];
 	t.eq(options.prelude.length, 2, "prelude : le choix, puis une etape vide qui rend la main");
 	t.eq(options.prelude[1], 0, "etape vide");
-	t.eq(dialog.labels, ["ΠΛΑΤΑΙΑΙ", "ΛΑΥΡΙΟΝ", "ΛΕΥΚΤΡΑ", "ΕΛΛΗΝΕΣ"], "noms en grec sous les vignettes");
-	t.ok(dialog.thumbnails.length === 4 && dialog.thumbnails.every((f) => fs.existsSync(path.join(GAME, f))), "une vignette par bataille");
+	t.eq(dialog.labels, ["ΜΑΡΑΘΩΝ", "ΘΕΡΜΟΠΥΛΑΙ", "ΠΛΑΤΑΙΑΙ", "ΛΑΥΡΙΟΝ", "ΛΕΥΚΤΡΑ", "ΕΛΛΗΝΕΣ"], "noms en grec sous les vignettes");
+	t.ok(dialog.thumbnails.length === 6 && dialog.thumbnails.every((f) => fs.existsSync(path.join(GAME, f))), "une vignette par bataille");
 	t.ok(dialog.persistent === undefined, "le choix n'est pas retenu d'une partie a l'autre");
 	t.ok(model.thumbnail === "thumbnail.png" && fs.existsSync(path.join(GAME, model.thumbnail)), "la vignette du jeu");
 	const skins = g.config.view.skins;
@@ -47,7 +48,18 @@ t.section("manifeste");
 		fs.existsSync(path.join(GAME, p.replace(/^image\|/, "")))), "tuiles presentes");
 	t.ok(skins[0].preload.indexOf("image|/res/images/decors/temple.png") >= 0 && skins[2].preload.indexOf("image|/res/images/decors/temple.png") < 0,
 		"le temple de Demeter, decor des skins a tuiles seulement");
-	t.eq(R.makeContext({ scenario: options.scenarios[0] }).objectives.map((o) => o.decor), [null, "temple"], "Platees : le decor du temple");
+	t.eq(R.makeContext({ scenario: options.scenarios[2] }).objectives.map((o) => o.decor), [null, "temple"], "Platees : le decor du temple");
+	const ma = R.makeContext({ scenario: scenario("marathon-490") }), th = R.makeContext({ scenario: scenario("thermopyles-480") });
+	t.eq(Object.keys(ma.decorAt).map((h) => ma.decorAt[h]).sort(), ["navire", "navire", "navire", "navire", "temple", "tumulus"],
+		"Marathon : navires, Heracleion et tumulus");
+	t.ok(["navire", "tumulus", "rochers", "pierres", "nenuphars1", "nenuphars2"].every((d) =>
+		skins[0].preload.indexOf("image|/res/images/decors/" + d + ".png") >= 0), "decors precharges (skins a tuiles)");
+	t.ok(skins[0].preload.filter((p) => /\/rivage\//.test(p)).length === 25, "les 25 rivages precharges");
+	t.ok(["pinede1", "sentier1", "plage1"].every((n) => skins[0].preload.indexOf("image|/res/images/tuiles/" + n + ".png") >= 0),
+		"tuiles nouvelles et tuiles propres a une bataille (pinede des Thermopyles)");
+	t.ok(th.terrainNames.indexOf("sentier") >= 0 && Array.prototype.some.call(th.terr, (k) => th.terrainNames[k] === "sentier"),
+		"Thermopyles : le sentier de l'Anopee");
+	t.ok(Array.prototype.some.call(th.edge, (e) => e && th.sideNames[e - 1] === "mur"), "et le mur des Phocidiens");
 	t.ok(skins[2].preload.length >= 3 && skins[2].preload.every((p) =>
 		fs.existsSync(path.join(GAME, p.replace(/^image\|/, "")))), "emblemes et bannieres presents");
 	t.ok(options.scenarios.every((sc) => Object.keys(sc.camps).every((k) =>
@@ -63,22 +75,22 @@ t.section("prelude : le choix de la bataille");
 	const sandbox = loadModel();
 	const game = newGame(sandbox), board = game.mBoard;
 	t.eq([board.preludeStage, board.scen, board.mWho], [0, 0, 1], "la partie s'ouvre sur le choix, au premier camp");
-	t.eq(game.g.ctx.id, "platees-479", "la carte de depart : Platees");
+	t.eq(game.g.ctx.id, "marathon-490", "la carte de depart : Marathon");
 	board.GenerateMoves(game);
-	t.eq(board.mMoves, [{ setup: 0 }, { setup: 1 }, { setup: 2 }, { setup: 3 }], "un coup par bataille");
+	t.eq(board.mMoves, [0, 1, 2, 3, 4, 5].map((k) => ({ setup: k })), "un coup par bataille");
 	t.ok(!board.IsValidMove(game, {}) && !board.IsValidMove(game, { skip: 1 }), "rien d'autre");
-	t.ok(!board.IsValidMove(game, { setup: 4 }), "pas de bataille 4");
+	t.ok(!board.IsValidMove(game, { setup: 6 }), "pas de bataille 6");
 	t.eq(board.ExportEngineRequest(game), null, "pas de requete au moteur pendant le prelude");
 	const statics = board.StaticGenerateMoves(game);
-	t.ok(statics.length === 1 && statics[0].setup >= 0 && statics[0].setup < 4, "la machine choisit sans chercher");
+	t.ok(statics.length === 1 && statics[0].setup >= 0 && statics[0].setup < 6, "la machine choisit sans chercher");
 	t.eq(game.CreateMove({ setup: 2 }).ToString(), "#2", "notation « #2 »");
 	t.ok(!game.CreateMove({ setup: 2 }).Equals(game.CreateMove({ setup: 1 })), "Move.Equals distingue les batailles");
 	const sig0 = board.GetSignature();
 	const copy = new (game.GetBoardClass())();
 	copy.CopyFrom(board);
 	t.eq(copy.preludeStage, 0, "la copie garde l'etape");
-	game.play({ setup: 2 });
-	t.eq([board.preludeStage, board.scen, board.mWho, game.g.ctx.id], [1, 2, -1, "leuctres-371"], "Leuctres choisi, au camp -1 de rendre la main");
+	game.play({ setup: 4 });
+	t.eq([board.preludeStage, board.scen, board.mWho, game.g.ctx.id], [1, 4, -1, "leuctres-371"], "Leuctres choisi, au camp -1 de rendre la main");
 	t.eq([board.phase, board.played, board.u.length], [2, 0, 37], "la position de depart de Leuctres");
 	t.ok(board.GetSignature() !== sig0, "la signature change d'etape");
 	board.GenerateMoves(game);
@@ -101,7 +113,7 @@ t.section("prelude : le choix de la bataille");
 	t.eq(game.g.ctx.id, "leuctres-371", "et revient");
 	// une nouvelle partie repart de la carte de depart
 	board.InitialPosition(game);
-	t.eq([board.preludeStage, board.scen, game.g.ctx.id], [0, 0, "platees-479"], "nouvelle partie : de nouveau le choix");
+	t.eq([board.preludeStage, board.scen, game.g.ctx.id], [0, 0, "marathon-490"], "nouvelle partie : de nouveau le choix");
 })();
 
 t.section("partie a scenario fixe");
@@ -191,7 +203,7 @@ t.section("IA : orientation des phalanges");
 	 * l'autre dans buildTurn, et une orientation passait a l'ordre suivant.
 	 */
 	let checked = 0, leaked = 0;
-	["leuctres-371", "platees-479", "laurion-413"].forEach((name) => {
+	["leuctres-371", "platees-479", "laurion-413", "thermopyles-480", "marathon-490"].forEach((name) => {
 		const ctx = R.makeContext({ scenario: scenario(name) });
 		let st = R.newState(ctx);
 		let seed = 77;

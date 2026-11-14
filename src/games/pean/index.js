@@ -24,9 +24,12 @@ exports.games = (function () {
 
 	// [fichier du scenario, vignette (extra/vignettes.py ; sous res/ pour etre
 	// copiee dans dist), nom en grec sous la
-	// vignette du prelude] ; l'ordre est celui du prelude, le premier est le
+	// vignette du prelude] ; l'ordre est celui du prelude (chronologique, la
+	// bataille libre a la fin), le premier est le
 	// scenario par defaut (la carte montree pendant le choix)
 	var SCENARIOS = [
+		["marathon-490", "res/images/batailles/marathon.png", "ΜΑΡΑΘΩΝ"],
+		["thermopyles-480", "res/images/batailles/thermopyles.png", "ΘΕΡΜΟΠΥΛΑΙ"],
 		["platees-479", "res/images/batailles/platees.png", "ΠΛΑΤΑΙΑΙ"],
 		["laurion-413", "res/images/batailles/laurion.png", "ΛΑΥΡΙΟΝ"],
 		["leuctres-371", "res/images/batailles/leuctres.png", "ΛΕΥΚΤΡΑ"],
@@ -98,10 +101,27 @@ exports.games = (function () {
 	];
 
 	// les tuiles de Wesnoth de la skin « tuiles » (res/images/tuiles/)
+	// les suites de cotes contigus dont Wesnoth fournit le rivage (voir
+	// shoreImages dans la vue) : 1 a 4 cotes depuis chaque direction, et les six
+	var RIVAGES = (function () {
+		var D = ["n", "ne", "se", "s", "sw", "nw"], out = [D.join("-")];
+		for (var len = 1; len <= 4; len++)
+			for (var i = 0; i < 6; i++) {
+				var run = [];
+				for (var k = 0; k < len; k++) run.push(D[(i + k) % 6]);
+				out.push(run.join("-"));
+			}
+		return out;
+	})();
+
 	function tileImages() {
 		return ["plaine1", "plaine2", "plaine3", "plaine4", "plaine5", "route", "colline1", "colline2", "colline3",
 			"foret1", "foret2", "foret3", "marais1", "marais2", "montagne1", "montagne2",
-			"mer", "ville", "camp", "mine"].map(function (t) { return "image|/res/images/tuiles/" + t + ".png"; });
+			"mer", "ville", "camp", "mine", "sentier1", "sentier2", "sentier3", "plage1", "plage2", "plage3"
+		].map(function (t) { return "image|/res/images/tuiles/" + t + ".png"; })
+			// rivages (sable sur la mer) et nenuphars des marais, poses par la vue
+			.concat(RIVAGES.map(function (r) { return "image|/res/images/rivage/beach-" + r + ".png"; }))
+			.concat(["nenuphars1", "nenuphars2"].map(function (t) { return "image|/res/images/decors/" + t + ".png"; }));
 	}
 
 	// emblemes, bannieres et pictogrammes de terrain utilises par un scenario
@@ -125,11 +145,16 @@ exports.games = (function () {
 	function game() {
 		var scenarios = SCENARIOS.map(function (s) { return require("./scenarios/" + s[0] + ".json"); });
 		var preload = tileImages();
-		// decors poses sur les cases d'objectif (temple de Demeter...)
+		// decors (temple de Demeter, navires...) et tuiles propres a une bataille
+		function add(img) { if (img && preload.indexOf(img) < 0) preload.push(img); }
 		scenarios.forEach(function (sc) {
-			(sc.objectifs || []).forEach(function (o) {
-				var img = o.decor && "image|/res/images/decors/" + o.decor + ".png";
-				if (img && preload.indexOf(img) < 0) preload.push(img);
+			var map = sc.carte || {};
+			(sc.objectifs || []).concat(map.decors || []).forEach(function (o) {
+				var name = o.decor || o.image;
+				if (name) add("image|/res/images/decors/" + name + ".png");
+			});
+			Object.keys(map.tuiles || {}).forEach(function (k) {
+				map.tuiles[k].forEach(function (t) { add("image|/res/images/tuiles/" + t + ".png"); });
 			});
 		});
 		scenarios.forEach(function (sc) {

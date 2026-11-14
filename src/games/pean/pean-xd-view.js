@@ -34,7 +34,7 @@
 		attique: {
 			paper: "#e8c49a", frame: "#2a1a12", key: "#c8763f", ink: "#2a1a12", grid: "rgba(60,30,15,0.38)",
 			plaine: "#e7bf8f", route: "#dcae78", colline: "#d29a62", foret: "#9c8a4c", marais: "#a9a27a",
-			ville: "#efd8b8", camp: "#e9cfa6", mine: "#b9935f", montagne: "#6d3f25", mer: "#27455d", other: "#e0b585",
+			ville: "#efd8b8", camp: "#e9cfa6", mine: "#b9935f", sentier: "#a98257", plage: "#ecd3a0", montagne: "#6d3f25", mer: "#27455d", other: "#e0b585",
 			river: "#2f5f86", ford: "#7fa7c4", wall: "#3b2416",
 			sideA: { body: "#1d1410", figure: "#d9824a", rim: "#a3271f", text: "#f3d2ae" },   // figures rouges
 			sideB: { body: "#d9824a", figure: "#1d1410", rim: "#1f3f73", text: "#1d1410" },   // figures noires
@@ -44,7 +44,7 @@
 		carte: {
 			paper: "#f1ead6", frame: "#5d4a2d", key: "#a68a5b", ink: "#3b3122", grid: "rgba(80,70,50,0.35)",
 			plaine: "#eee6cd", route: "#e2d3a8", colline: "#d8c79a", foret: "#a9bf8a", marais: "#bfcdb5",
-			ville: "#e9dcc0", camp: "#e6d6b1", mine: "#cdbb98", montagne: "#8c7a63", mer: "#8fb2c9", other: "#e8dfc4",
+			ville: "#e9dcc0", camp: "#e6d6b1", mine: "#cdbb98", sentier: "#c4b08a", plage: "#f1e3bf", montagne: "#8c7a63", mer: "#8fb2c9", other: "#e8dfc4",
 			river: "#3d74a8", ford: "#9cc0dc", wall: "#5d4a2d",
 			sideA: { body: "#9e2a22", figure: "#fbeee0", rim: "#5e140f", text: "#fbeee0" },
 			sideB: { body: "#24497e", figure: "#f1f4fa", rim: "#0f2546", text: "#f1f4fa" },
@@ -57,7 +57,7 @@
 	// les pictogrammes blancs de Wesnoth pour les terrains : fonds plus soutenus
 	PALETTES.insignes = Object.assign({}, PALETTES.attique, {
 		foret: "#6f7a3a", marais: "#7d8a63", montagne: "#6d3f25", mer: "#2b5674",
-		colline: "#b07a45", ville: "#8a6446", camp: "#7a5638", mine: "#5e4a36"
+		colline: "#b07a45", ville: "#8a6446", camp: "#7a5638", mine: "#5e4a36", sentier: "#7c5a3a", plage: "#c9a86a"
 	});
 
 	// « tuiles » : tuiles de terrain de Wesnoth, memes pions que « insignes »
@@ -75,8 +75,45 @@
 		plaine: ["plaine1", "plaine2", "plaine3"], sec: ["plaine4", "plaine5"], route: ["route"],
 		colline: ["colline1", "colline2", "colline3"], foret: ["foret1", "foret2", "foret3"],
 		marais: ["marais1", "marais1", "marais2"], montagne: ["montagne1", "montagne1", "montagne2"],
-		mer: ["mer"], ville: ["ville"], camp: ["camp"], mine: ["mine"]
+		mer: ["mer"], ville: ["ville"], camp: ["camp"], mine: ["mine"], sentier: ["sentier1", "sentier2", "sentier3"],
+		plage: ["plage1", "plage2", "plage3"]
 	};
+
+	/*
+	 * Rivages (res/images/rivage/, transitions « beach » de Wesnoth) : sur une
+	 * case de mer, un liseré de sable le long des côtés qui touchent la terre.
+	 * Un fichier par suite de côtés contigus, nommés dans le sens horaire à
+	 * partir du haut de l'écran (n, ne, se, s, sw, nw) ; jusqu'à quatre côtés
+	 * d'un tenant, ou les six. Les côtés sont pris à l'écran, pas sur la carte :
+	 * la vue retournée pour le second joueur garde le sable du bon côté.
+	 */
+	var SHORE_DIRS = ["n", "ne", "se", "s", "sw", "nw"];
+
+	function shoreImages(sides) {
+		if (sides.every(Boolean))
+			return ["beach-" + SHORE_DIRS.join("-")];
+		var start = 0;
+		while (!(sides[start] && !sides[(start + 5) % 6])) start++;
+		var out = [];
+		for (var k = 0; k < 6; ) {
+			var i = (start + k) % 6;
+			if (!sides[i]) { k++; continue; }
+			var run = [];
+			while (k < 6 && sides[(start + k) % 6] && run.length < 4) { run.push(SHORE_DIRS[(start + k) % 6]); k++; }
+			out.push("beach-" + run.join("-"));
+		}
+		return out;
+	}
+
+	/*
+	 * Une bataille peut habiller un terrain de tuiles a elle (carte.tuiles,
+	 * { foret: ["pinede1", "pinede2"] }) : la foret des Thermopyles est une
+	 * pinede, sans que la regle de la foret change.
+	 */
+	function tilesFor(rc, name) {
+		var own = rc.scenario && rc.scenario.carte && rc.scenario.carte.tuiles;
+		return own && Array.isArray(own[name]) && own[name].length ? own[name] : TILES[name];
+	}
 
 	function variant(list, h, salt) {
 		return list[(Math.imul(h + 1, 2654435761) >>> (salt || 7)) % list.length];
@@ -119,7 +156,7 @@
 			steps: "pas", force: "force", move: "mvt", value: "valeur", facingOf: "face",
 			reinforcements: "Renforts arrivés", engaged: "engagée",
 			traits: { phalange: "phalange", leger: "léger", tir: "tir", monte: "monté", desengage: "se désengage", charge: "charge", general: "général" },
-			terrain: { plaine: "plaine", route: "route", colline: "colline", foret: "forêt", marais: "marais", ville: "ville", camp: "camp", mine: "mine", montagne: "montagne", mer: "mer" },
+			terrain: { plaine: "plaine", route: "route", colline: "colline", foret: "forêt", marais: "marais", ville: "ville", camp: "camp", mine: "mine", sentier: "sentier", plage: "plage", montagne: "montagne", mer: "mer" },
 			side: { riviere: "rivière", gue: "gué", mur: "mur" },
 			objective: "Objectif", held: "tenu par", nobody: "personne", goal: "Victoire", hold: "tenue", turns: "tours",
 			why: {
@@ -164,7 +201,7 @@
 			steps: "steps", force: "strength", move: "move", value: "value", facingOf: "facing",
 			reinforcements: "Reinforcements arrived", engaged: "engaged",
 			traits: { phalange: "phalanx", leger: "light", tir: "missile", monte: "mounted", desengage: "disengages", charge: "charge", general: "general" },
-			terrain: { plaine: "plain", route: "road", colline: "hill", foret: "forest", marais: "marsh", ville: "town", camp: "camp", mine: "mine", montagne: "mountain", mer: "sea" },
+			terrain: { plaine: "plain", route: "road", colline: "hill", foret: "forest", marais: "marsh", ville: "town", camp: "camp", mine: "mine", sentier: "mountain path", plage: "beach", montagne: "mountain", mer: "sea" },
 			side: { riviere: "river", gue: "ford", mur: "wall" },
 			objective: "Objective", held: "held by", nobody: "nobody", goal: "Victory", hold: "held", turns: "turns",
 			why: {
@@ -257,13 +294,17 @@
 		}, ["board"]);
 	}
 
-	// un decor de Wesnoth (res/images/decors/, 72 x 72 comme les tuiles) sur le
-	// sol de la case, a la place de la tuile du terrain : le temple de Demeter
-	// sur sa case de ville. Pas de decoupe : un decor deborde un peu, comme
-	// dans Wesnoth.
+	// un decor de Wesnoth (res/images/decors/, a l'echelle des tuiles de 72 px)
+	// sur la case : a la place de la tuile pour une ville ou un camp (le temple
+	// de Demeter, les navires perses), par-dessus sinon (le tumulus). Pas de
+	// decoupe : un decor deborde un peu, comme dans Wesnoth.
 	function drawDecor(ctx, avatar, name, x, y, R) {
 		return withImage(avatar, imageUrl("decors", name), function (image) {
-			ctx.drawImage(image, x - R, y - R * SQ3 / 2, 2 * R, R * SQ3);
+			// a l'echelle des tuiles (72 px pour la case), proportions gardees :
+			// un decor plus haut que la case (un navire) deborde vers le haut
+			var k = 2 * R / 72, w = image.width * k, hh = image.height * k;
+			var bottom = y + R * SQ3 / 2;
+			ctx.drawImage(image, x - w / 2, Math.min(y - hh / 2, bottom - hh), w, hh);
 		}, ["board"]);
 	}
 
@@ -508,6 +549,19 @@
 					ctx.fillRect(x + k * R * 0.17 - R * 0.03, y - R * 0.12, R * 0.06, R * 0.42);
 				ctx.fillRect(x - R * 0.5, y + R * 0.3, R, R * 0.06);
 				break;
+			case "sentier":
+				// sente en pointilles, qui serpente
+				ctx.globalAlpha = 0.75;
+				ctx.save();
+				ctx.setLineDash([R * 0.1, R * 0.1]);
+				ctx.lineWidth = R * 0.08;
+				ctx.beginPath();
+				ctx.moveTo(x - R * 0.55, y + R * 0.25);
+				ctx.quadraticCurveTo(x - R * 0.15, y - R * 0.35, x + R * 0.1, y + R * 0.05);
+				ctx.quadraticCurveTo(x + R * 0.3, y + R * 0.3, x + R * 0.55, y - R * 0.25);
+				ctx.stroke();
+				ctx.restore();
+				break;
 			case "mine":
 				// puits, deblais et pic
 				ctx.globalAlpha = 0.75;
@@ -546,7 +600,7 @@
 		ctx.save();
 		ctx.translate(-L.cx, -L.cy);
 		drawFrame(ctx, L, P);
-		var h, xy, R = L.R;
+		var h, xy, R = L.R, decors = [], shores = [];
 		// hexagones
 		for (h = 0; h < rc.N; h++) {
 			xy = hexXY(h);
@@ -555,12 +609,20 @@
 			ctx.fillStyle = P[name] || P.other;
 			ctx.fill();
 			if (tiled() && TILES[name]) {
-				var decor = rc.objAt[h] ? rc.objectives[rc.objAt[h] - 1].decor : null;
+				var decor = rc.decorAt ? rc.decorAt[h] : null;
 				drawTile(ctx, avatar, groundOf(rc, h), xy[0], xy[1], R);
+				// un decor sur une case de ville ou de camp en tient lieu (le temple,
+				// les navires) ; ailleurs il se pose sur la tuile du terrain
+				var replaces = decor && (name === "ville" || name === "camp");
+				if (name !== "plaine" && !replaces)
+					drawTile(ctx, avatar, variant(tilesFor(rc, name), h), xy[0], xy[1], R);
+				// nenuphars sur un marais sur trois
+				if (name === "marais" && !decor && variant([0, 1, 2], h, 11) === 0)
+					decor = variant(["nenuphars1", "nenuphars2"], h, 5);
+				if (name === "mer")
+					shores.push(h);
 				if (decor)
-					drawDecor(ctx, avatar, decor, xy[0], xy[1], R);
-				else if (name !== "plaine")
-					drawTile(ctx, avatar, variant(TILES[name], h), xy[0], xy[1], R);
+					decors.push([decor, xy[0], xy[1]]);
 			}
 		}
 		// routes : du centre vers les voisins routiers
@@ -611,6 +673,33 @@
 				ctx.stroke();
 			}
 		ctx.setLineDash([]);
+		// rivages : le sable de la terre voisine deborde sur la mer
+		shores.forEach(function (h) {
+			var xy = hexXY(h), sides = [false, false, false, false, false, false], any = false;
+			for (var d = 0; d < 6; d++) {
+				var n = rc.nb[h * 6 + d];
+				if (n < 0 || rc.terrainNames[rc.terr[n]] === "mer") continue;
+				var b = hexXY(n);
+				var a = Math.atan2(b[1] - xy[1], b[0] - xy[0]) * 180 / Math.PI;
+				sides[((Math.round((a + 90) / 60) % 6) + 6) % 6] = true;
+				any = true;
+			}
+			if (any)
+				shoreImages(sides).forEach(function (img) {
+					withImage(avatar, imageUrl("rivage", img), function (image) {
+						ctx.save();
+						hexPath(ctx, xy[0], xy[1], R);
+						ctx.clip();
+						ctx.drawImage(image, xy[0] - R, xy[1] - R * SQ3 / 2, 2 * R, R * SQ3);
+						ctx.restore();
+					}, ["board"]);
+				});
+		});
+		// decors, par-dessus le quadrillage et les routes, du haut vers le bas de
+		// l'ecran (un navire du rang suivant passe devant)
+		decors.sort(function (a, b) { return a[2] - b[2]; }).forEach(function (dd) {
+			drawDecor(ctx, avatar, dd[0], dd[1], dd[2], R);
+		});
 		// coordonnees
 		if (game.mNotation) {
 			var R2 = game.g.rules;

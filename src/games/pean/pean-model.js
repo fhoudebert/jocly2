@@ -135,6 +135,10 @@
 		if (scenarios(aGame)) {
 			this.scen = defaultScenario(aGame);
 			this.preludeStage = dialogs(aGame) ? 0 : -1;
+		} else {
+			// un scenario impose (lab.js, tests) : ni liste ni prelude
+			delete this.scen;
+			this.preludeStage = -1;
 		}
 		resetState(this, ctxOf(aGame, this));
 		// over : 0 en cours, 1 / -1 vainqueur, 2 nulle ; reason : "annihilated",

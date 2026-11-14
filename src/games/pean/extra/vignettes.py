@@ -22,6 +22,8 @@ SQ3 = math.sqrt(3)
 
 # vignette -> scenario, coin de la carte (col, ligne), emblemes (devant, derriere)
 VIGNETTES = [
+    ("res/images/batailles/marathon.png", "marathon-490", (16, 2), ["athenians", "persians"]),
+    ("res/images/batailles/thermopyles.png", "thermopyles-480", (10, 4), ["spartans", "persians"]),
     ("res/images/batailles/libre.png", "bataille-libre", (8, 4), ["hellenes"]),
     ("res/images/batailles/platees.png", "platees-479", (2, 6), ["persians", "spartans"]),
     ("res/images/batailles/leuctres.png", "leuctres-371", (13, 4), ["thebans", "spartans"]),
@@ -30,9 +32,10 @@ VIGNETTES = [
 
 TILES = {"plaine": ["plaine1", "plaine2", "plaine3"], "route": ["route"], "colline": ["colline1", "colline2", "colline3"],
          "foret": ["foret1", "foret2", "foret3"], "marais": ["marais1", "marais2"], "montagne": ["montagne1", "montagne2"],
-         "mer": ["mer"], "ville": ["ville"], "camp": ["camp"], "mine": ["mine"]}
+         "mer": ["mer"], "ville": ["ville"], "camp": ["camp"], "mine": ["mine"],
+         "sentier": ["sentier1", "sentier2", "sentier3"]}
 LEGEND = {".": "plaine", "=": "route", "c": "colline", "f": "foret", "m": "marais", "v": "ville", "k": "camp",
-          "x": "mine", "M": "montagne", "~": "mer"}
+          "x": "mine", "M": "montagne", "~": "mer", "s": "sentier"}
 
 
 def tile(name):
@@ -60,7 +63,8 @@ def background(sc, corner):
             x = R + dc * 1.5 * R - R * 0.4
             y = R * SQ3 * (0.5 + dr + 0.5 * (c & 1)) - R * 0.6
             name = at(c, r)
-            for layer in (TILES["plaine"][(c * 7 + r * 3) % 3], None if name == "plaine" else TILES[name][(c + r) % len(TILES[name])]):
+            own = (sc.get("carte", {}).get("tuiles") or {}).get(name) or TILES.get(name)
+            for layer in (TILES["plaine"][(c * 7 + r * 3) % 3], None if name == "plaine" else own[(c + r) % len(own)]):
                 if not layer:
                     continue
                 t = tile(layer).resize((int(2 * R) + 1, int(R * SQ3) + 1), Image.LANCZOS)

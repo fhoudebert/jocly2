@@ -11,6 +11,8 @@ se rejoue et s'annule comme un autre coup. Contre l'ordinateur qui joue en premi
 
 | prélude | scénario | intérêt |
 |---|---|---|
+| ΜΑΡΑΘΩΝ | `scenarios/marathon-490.json` | phalange athénienne et Platéens contre l'armée de Datis, entre collines, Charadra, grand marais et plage de Schinias : navires perses à prendre, route d'Athènes à garder |
+| ΘΕΡΜΟΠΥΛΑΙ | `scenarios/thermopyles-480.json` | le défilé entre montagne et mer, le mur des Phocidiens ; les Immortels tournent la position par le sentier de l'Anopée |
 | ΠΛΑΤΑΙΑΙ | `scenarios/platees-479.json` | ligne grecque sur les contreforts du Cithéron, l'Asopos et ses gués, cavalerie et archers montés perses |
 | ΛΑΥΡΙΟΝ | `scenarios/laurion-413.json` | raid asymétrique sur les mines d'argent : tenir une mine quatre tours, renforts athéniens échelonnés |
 | ΛΕΥΚΤΡΑ | `scenarios/leuctres-371.json` | colonne thébaine profonde face aux Spartiates, aile droite refusée : l'ordre oblique |
@@ -47,7 +49,9 @@ noyau. `PeanRules.validateScenario(json)` dit ce qui ne va pas.
     "cols": 24, "rows": 16,               // 4 à 60 ; hexagones à sommet plat, colonnes impaires décalées
     "lignes": ["....cc..", ...],          // une lettre par hexagone (légende ci-dessous), ou :
     "defaut": "plaine", "terrain": { "colline": ["10,2", "rect:3-5,4-6"] },
-    "cotes": { "riviere": [["5,7", "5,8"]], "gue": [...] }   // côtés d'hexagone : paires de voisins
+    "cotes": { "riviere": [["5,7", "5,8"]], "gue": [...], "mur": [...] },   // côtés d'hexagone : paires de voisins
+    "decors": [{ "hex": "11,12", "image": "tumulus" }],   // res/images/decors/, skins à tuiles, sans effet sur le jeu
+    "tuiles": { "foret": ["pinede1", "pinede2"] }       // habillage propre à la bataille (skins à tuiles)
   },
   "terrains": { "colline": { "def": 2 } },  // facultatif : surcharge ou nouveaux terrains
   "types": {                                // facultatif : surcharge ou nouveaux types
@@ -73,7 +77,9 @@ noyau. `PeanRules.validateScenario(json)` dit ce qui ne va pas.
 
 - Hexagones : `"col,ligne"` (base 0) ; zones : `"rows:a-b"`, `"cols:a-b"`, `"rect:c0-c1,r0-r1"` ou liste.
 - Légende des cartes en texte : `.` plaine, `=` route, `c` colline, `f` forêt, `m` marais, `v` ville, `k` camp, `x` mine,
-  `M` montagne, `~` mer (`carte.legende` pour en ajouter).
+  `s` sentier (de montagne : à la file, sans charge ni profondeur), `p` plage, `M` montagne, `~` mer
+  (`carte.legende` pour en ajouter). La vue pose d'elle-même un liseré de sable sur la mer au contact de la terre, et des
+  nénuphars sur un marais sur trois (skins à tuiles).
 - Traits (vocabulaire fermé, implémenté une fois dans le noyau) : `phalange`, `leger`, `tir`, `monte`,
   `desengage`, `charge`, `general`. Un trait inconnu est une erreur : en ajouter un est une évolution du noyau.
 - Types par défaut : `hoplite`, `peltaste`, `archer`, `frondeur`, `cavlegere`, `cavlourde`, `general`.
@@ -137,6 +143,8 @@ cadrage : entre 35 et 65 % pour chaque camp (nulles comptées pour moitié).
 | Leuctres | Thébains 60 % / Spartiates 40 % | 4,7 tours sur 12 | profondeur comptée une fois par combat (règle) |
 | Platées | Grecs 60 % / Perses 40 % | 10,7 tours sur 14 | Perses renforcés (+4 sparabara, +1 Immortels, +1 cavalerie lourde, +1 archers montés) ; camp perse à 30 points |
 | Laurion | Péloponnésiens 50 % / Athéniens 50 % (20 parties, 40 itérations) | 5,9 tours sur 10 | renforts athéniens du tour 2 au tour 4 ; tenir une mine 4 tours ; hoplites aux postes des mines |
+| Marathon | Athéniens 55 % / Perses 45 % (20 parties, 40 itérations) | 5,4 tours sur 10 | Perses portés à 13 sparabara et Immortels, 6 archers, 3 cavaliers ; Athéniens 10 hoplites (dont 2 platéens) |
+| Thermopyles | Perses 55 % / Grecs 45 % (20 parties, 40 itérations) | 11 tours sur 12 | renforts perses (4 sparabara) aux tours 3 et 5 ; Immortels par l'Anopée |
 
 Le niveau Enomotarchos s'arrête au bout d'une seconde : sur une machine chargée, il cherche moins, et deux séries du même
 scénario ont donné 20 % et 80 %. Pour comparer des variantes, `lab.js --loops 40` borne la recherche à un nombre

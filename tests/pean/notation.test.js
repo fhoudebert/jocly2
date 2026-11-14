@@ -60,7 +60,7 @@ const FORBIDDEN = /[\s(){};\[\]]/;
 let written = 0, compact = 0, groups = 0, fights = 0, advances = 0, facings = 0, places = 0;
 
 t.section("ecrire puis relire, sur des parties entieres");
-["bataille-libre", "leuctres-371", "platees-479", "laurion-413"].forEach((name) => {
+["bataille-libre", "leuctres-371", "platees-479", "laurion-413", "thermopyles-480", "marathon-490"].forEach((name) => {
 	const ctx = R.makeContext({ scenario: scenario(name) });
 	for(let game = 0; game < 3; game++) {
 		let st = R.newState(ctx), bad = 0;
@@ -116,7 +116,7 @@ if(!fs.existsSync(path.join(DIST, "games", "pean", "pean-model.js"))) {
 } else (async () => {
 	const Jocly = require(path.join(DIST, "jocly.core.js"));
 	t.section("une partie ecrite puis relue par pickMove (prelude compris)");
-	for(const [name, plies] of [["bataille-libre", 6], ["platees-479", 6]]) {
+	for(const [name, plies] of [["bataille-libre", 6], ["platees-479", 6], ["thermopyles-480", 4]]) {
 		const match = await Jocly.createMatch("pean");
 		const config = await match.getConfig();
 		const k = config.model.gameOptions.scenarios.findIndex((sc) => sc.id === name);

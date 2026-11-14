@@ -55,7 +55,7 @@ async function run(name, plies) {
 	const config = await match.getConfig();
 	const level = Object.assign({}, config.model.levels[0], { maxDuration: 0.4, maxLoops: 12 });
 	const first = await match.machineSearch({ level, threaded: false });
-	t.ok(first.move && first.move.setup >= 0 && first.move.setup < 4, "la machine choisit une bataille");
+	t.ok(first.move && first.move.setup >= 0 && first.move.setup < 6, "la machine choisit une bataille");
 	await match.applyMove(first.move);
 	const second = await match.machineSearch({ level, threaded: false });
 	t.ok(second.move && second.move.skip, "puis rend la main");

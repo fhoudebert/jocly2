@@ -85,4 +85,21 @@ du terrain. Dépôt `data/core/images/scenery/`, GNU GPL v2 ou ultérieure.
 
 | fichier | original | auteur | usage |
 |---|---|---|---|
-| `res/images/decors/temple.png` | `scenery/temple1.png` | Hogne Håskjold (freim) | Platées : temple de Déméter |
+| `res/images/decors/temple.png` | `scenery/temple1.png` | Hogne Håskjold (freim) | Platées : temple de Déméter ; Marathon : Héracléion |
+| `res/images/decors/navire.png` | `scenery/rig.png` | non renseigné | Marathon : navires perses à Schinias |
+| `res/images/decors/tumulus.png` | `scenery/cave.png` (tumulus) | Richard Kettering (Jetrel) | Marathon : le Sôros |
+| `res/images/decors/rochers.png` | `scenery/rocks.png` | doofus-01 | Thermopyles : falaises sur la mer |
+| `res/images/decors/pierres.png` | `embellishments/stones-small7.png` | J.W. Bjerk (Eleazar) | éboulis |
+| `res/images/decors/nenuphars1.png`, `nenuphars2.png` | `embellishments/water-lilies-flower-small*.png` | Atz | posés par la vue sur un marais sur trois |
+
+## Tuiles ajoutées pour Marathon et les Thermopyles
+
+| fichier | original | auteur | usage |
+|---|---|---|---|
+| `tuiles/sentier1-3.png` | `flat/path1.png`, `path3.png`, `path5.png` | non renseigné | terrain « sentier » (l'Anopée) |
+| `tuiles/plage1-3.png` | `sand/beach3.png`, `beach5.png`, `beach7.png` | Richard Kettering (Jetrel), Hogne Håskjold (freim) | terrain « plage » |
+| `tuiles/pinede1-3.png` | `forest/pine-tile.png`, `forested-hills-tile.png`, `forested-mixed-summer-hills-tile.png` | Richard Kettering (Jetrel) | forêts des Thermopyles (`carte.tuiles`) |
+| `rivage/beach-*.png` (25) | `water/beach-*.png` | rhyging5 | liseré de sable sur la mer au contact de la terre |
+
+Les fichiers reçus mais non retenus (forêts en 144 px, collines désertiques, épaves, autres galets et nénuphars) ne sont
+pas copiés dans le jeu.

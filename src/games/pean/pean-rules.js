@@ -82,6 +82,11 @@ var PeanRules = (function () {
 		ville: { cout: { pied: 1, monte: 1 }, def: 2 },
 		camp: { cout: { pied: 1, monte: 1 }, def: 2 },
 		mine: { cout: { pied: 1, monte: 2 }, def: 1.5 },      // puits et deblais
+		// sentier de montagne (l'Anopee) : on y passe a la file, sans charger ni
+		// se ranger en profondeur ; la cavalerie y peine
+		sentier: { cout: { pied: 1, monte: 2 }, def: 1.5, pasDeCharge: true, desordre: true },
+		// plage de sable : une plaine, a l'habillage pres
+		plage: { cout: { pied: 1, monte: 1 }, def: 1 },
 		montagne: { cout: null, bloqueTir: true },
 		mer: { cout: null, bloqueTir: true }
 	};
@@ -96,7 +101,7 @@ var PeanRules = (function () {
 	// caracteres des cartes en texte (carte.lignes)
 	var DEFAULT_LEGEND = {
 		".": "plaine", "=": "route", "c": "colline", "f": "foret", "m": "marais",
-		"v": "ville", "k": "camp", "x": "mine", "M": "montagne", "~": "mer"
+		"v": "ville", "k": "camp", "x": "mine", "M": "montagne", "~": "mer", "s": "sentier", "p": "plage"
 	};
 
 	var DEFAULT_TYPES = {
@@ -404,6 +409,14 @@ var PeanRules = (function () {
 				decor: typeof o.decor === "string" && /^[a-z0-9-]+$/.test(o.decor) ? o.decor : null
 			};
 		});
+		/* decors : images posees sur la carte par les skins a tuiles, sans effet
+		   sur le jeu (carte.decors, et le decor d'un objectif) */
+		ctx.decorAt = {};
+		(map.decors || []).forEach(function (dd) {
+			if (typeof dd.image === "string" && /^[a-z0-9-]+$/.test(dd.image))
+				parseZone(ctx, dd.hex).forEach(function (hh) { ctx.decorAt[hh] = dd.image; });
+		});
+		ctx.objectives.forEach(function (o) { if (o.decor) ctx.decorAt[o.hex] = o.decor; });
 		ctx.objAt = new Int16Array(N);
 		ctx.objectives.forEach(function (o, i) { ctx.objAt[o.hex] = i + 1; });
 		return ctx;
