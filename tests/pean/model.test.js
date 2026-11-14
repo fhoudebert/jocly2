@@ -55,6 +55,7 @@ t.section("manifeste");
 	t.ok(["navire", "tumulus", "rochers", "pierres", "nenuphars1", "nenuphars2"].every((d) =>
 		skins[0].preload.indexOf("image|/res/images/decors/" + d + ".png") >= 0), "decors precharges (skins a tuiles)");
 	t.ok(skins[0].preload.filter((p) => /\/rivage\//.test(p)).length === 25, "les 25 rivages precharges");
+	t.ok(skins[0].preload.filter((p) => /\/marais\/water-/.test(p)).length === 18, "les 18 bords de marais precharges");
 	t.ok(["pinede1", "sentier1", "plage1"].every((n) => skins[0].preload.indexOf("image|/res/images/tuiles/" + n + ".png") >= 0),
 		"tuiles nouvelles et tuiles propres a une bataille (pinede des Thermopyles)");
 	t.ok(th.terrainNames.indexOf("sentier") >= 0 && Array.prototype.some.call(th.terr, (k) => th.terrainNames[k] === "sentier"),

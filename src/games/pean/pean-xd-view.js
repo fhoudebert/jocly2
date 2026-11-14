@@ -89,21 +89,32 @@
 	 */
 	var SHORE_DIRS = ["n", "ne", "se", "s", "sw", "nw"];
 
-	function shoreImages(sides) {
-		if (sides.every(Boolean))
-			return ["beach-" + SHORE_DIRS.join("-")];
+	function shoreImages(sides, prefix, longest, whole) {
+		prefix = prefix || "beach";
+		longest = longest || 4;
+		if (sides.every(Boolean) && whole !== false)
+			return [prefix + "-" + SHORE_DIRS.join("-")];
 		var start = 0;
-		while (!(sides[start] && !sides[(start + 5) % 6])) start++;
+		if (!sides.every(Boolean))
+			while (!(sides[start] && !sides[(start + 5) % 6])) start++;
 		var out = [];
 		for (var k = 0; k < 6; ) {
 			var i = (start + k) % 6;
 			if (!sides[i]) { k++; continue; }
 			var run = [];
-			while (k < 6 && sides[(start + k) % 6] && run.length < 4) { run.push(SHORE_DIRS[(start + k) % 6]); k++; }
-			out.push("beach-" + run.join("-"));
+			while (k < 6 && sides[(start + k) % 6] && run.length < longest) { run.push(SHORE_DIRS[(start + k) % 6]); k++; }
+			out.push(prefix + "-" + run.join("-"));
 		}
 		return out;
 	}
+
+	/*
+	 * Bords de marais (res/images/marais/, transitions « water » de Wesnoth) :
+	 * sur une case de terre, une frange humide et sombre le long des côtés qui
+	 * touchent un marais, qui adoucit la limite de la tuile. Jusqu'à trois
+	 * côtés d'un tenant ; au-delà, plusieurs images.
+	 */
+	var MARSH_EDGE = { prefix: "water", longest: 3 };
 
 	/*
 	 * Une bataille peut habiller un terrain de tuiles a elle (carte.tuiles,
@@ -600,7 +611,7 @@
 		ctx.save();
 		ctx.translate(-L.cx, -L.cy);
 		drawFrame(ctx, L, P);
-		var h, xy, R = L.R, decors = [], shores = [];
+		var h, xy, R = L.R, decors = [], shores = [], banks = [];
 		// hexagones
 		for (h = 0; h < rc.N; h++) {
 			xy = hexXY(h);
@@ -621,6 +632,8 @@
 					decor = variant(["nenuphars1", "nenuphars2"], h, 5);
 				if (name === "mer")
 					shores.push(h);
+				else if (name !== "marais" && name !== "montagne")
+					banks.push(h);
 				if (decor)
 					decors.push([decor, xy[0], xy[1]]);
 			}
@@ -673,6 +686,28 @@
 				ctx.stroke();
 			}
 		ctx.setLineDash([]);
+		// bords de marais : la terre s'assombrit au contact du marais
+		banks.forEach(function (h) {
+			var xy = hexXY(h), sides = [false, false, false, false, false, false], any = false;
+			for (var d = 0; d < 6; d++) {
+				var n = rc.nb[h * 6 + d];
+				if (n < 0 || rc.terrainNames[rc.terr[n]] !== "marais") continue;
+				var b = hexXY(n);
+				var a = Math.atan2(b[1] - xy[1], b[0] - xy[0]) * 180 / Math.PI;
+				sides[((Math.round((a + 90) / 60) % 6) + 6) % 6] = true;
+				any = true;
+			}
+			if (any)
+				shoreImages(sides, MARSH_EDGE.prefix, MARSH_EDGE.longest, false).forEach(function (img) {
+					withImage(avatar, imageUrl("marais", img), function (image) {
+						ctx.save();
+						hexPath(ctx, xy[0], xy[1], R);
+						ctx.clip();
+						ctx.drawImage(image, xy[0] - R, xy[1] - R * SQ3 / 2, 2 * R, R * SQ3);
+						ctx.restore();
+					}, ["board"]);
+				});
+		});
 		// rivages : le sable de la terre voisine deborde sur la mer
 		shores.forEach(function (h) {
 			var xy = hexXY(h), sides = [false, false, false, false, false, false], any = false;

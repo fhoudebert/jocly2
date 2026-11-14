@@ -114,6 +114,9 @@ exports.games = (function () {
 		return out;
 	})();
 
+	// bords de marais : 1 a 3 cotes contigus depuis chaque direction
+	var BORDS_MARAIS = RIVAGES.filter(function (r) { return r.split("-").length <= 3; });
+
 	function tileImages() {
 		return ["plaine1", "plaine2", "plaine3", "plaine4", "plaine5", "route", "colline1", "colline2", "colline3",
 			"foret1", "foret2", "foret3", "marais1", "marais2", "montagne1", "montagne2",
@@ -121,7 +124,8 @@ exports.games = (function () {
 		].map(function (t) { return "image|/res/images/tuiles/" + t + ".png"; })
 			// rivages (sable sur la mer) et nenuphars des marais, poses par la vue
 			.concat(RIVAGES.map(function (r) { return "image|/res/images/rivage/beach-" + r + ".png"; }))
-			.concat(["nenuphars1", "nenuphars2"].map(function (t) { return "image|/res/images/decors/" + t + ".png"; }));
+			.concat(["nenuphars1", "nenuphars2"].map(function (t) { return "image|/res/images/decors/" + t + ".png"; }))
+			.concat(BORDS_MARAIS.map(function (r) { return "image|/res/images/marais/water-" + r + ".png"; }));
 	}
 
 	// emblemes, bannieres et pictogrammes de terrain utilises par un scenario

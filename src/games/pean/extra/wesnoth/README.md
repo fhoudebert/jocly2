@@ -100,6 +100,7 @@ du terrain. Dépôt `data/core/images/scenery/`, GNU GPL v2 ou ultérieure.
 | `tuiles/plage1-3.png` | `sand/beach3.png`, `beach5.png`, `beach7.png` | Richard Kettering (Jetrel), Hogne Håskjold (freim) | terrain « plage » |
 | `tuiles/pinede1-3.png` | `forest/pine-tile.png`, `forested-hills-tile.png`, `forested-mixed-summer-hills-tile.png` | Richard Kettering (Jetrel) | forêts des Thermopyles (`carte.tuiles`) |
 | `rivage/beach-*.png` (25) | `water/beach-*.png` | rhyging5 | liseré de sable sur la mer au contact de la terre |
+| `marais/water-*.png` (18) | transitions `water-*` | Tommy (yobbo) | frange humide sur la terre au contact d'un marais |
 
 Les fichiers reçus mais non retenus (forêts en 144 px, collines désertiques, épaves, autres galets et nénuphars) ne sont
 pas copiés dans le jeu.
