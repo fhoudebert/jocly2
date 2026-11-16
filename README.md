@@ -59,9 +59,9 @@ Notes:
 Related projects:
 -----------------
 
--play Jocly (Human or AI) via a web server with a mobile-friendly interface : [Mogichex](https://github.com/fhoudebert/mogichex) 
--play Jocly (Human or AI) via a web server with a desktop-friendly interface: [Joclymatch](https://github.com/fhoudebert/joclymatch) 
--play Jocly against an opponent or a computer via a native client (Linux, Windows) : [Tabulon](https://biscandine.fr/variantes/tabulon/) 
+- play Jocly against an opponent or a computer via a native client (Linux, Windows, mac) : [Tabulon](https://biscandine.fr/variantes/tabulon/) 
+- play Jocly (Human or AI) via a web server with a mobile-friendly interface : [Mogichex](https://github.com/fhoudebert/mogichex) 
+- play Jocly (Human or AI) via a web server with a desktop-friendly interface: [Joclymatch](https://github.com/fhoudebert/joclymatch) 
 
 ## Credits
 
